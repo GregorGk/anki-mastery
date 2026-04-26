@@ -119,7 +119,22 @@ Cheap Claude Haiku 3.5 pass. For each row, classify the headword as:
 
 **Cost**: ~$0.20 (Haiku, ~5k entries × ~50 tokens). Catches what hand-curated maps miss.
 
-**Validation**: every row has a non-empty `bp_status`. Rows classified `ep_only` appended to `_ep_drops.tsv` and removed from output.
+**Output enforcement (critical)**: do **not** rely on free-text "reply with one of: standard, uncommon, …". Haiku will eventually emit prose like `"I classify this as: standard"` and break the parser. Instead, force structured output via Anthropic **Tool Use**: define a single tool `classify_bp_status` with input schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "bp_status": {"type": "string", "enum": ["standard", "uncommon", "false_friend", "nsfw", "ep_only"]},
+    "reason": {"type": "string"}
+  },
+  "required": ["bp_status"]
+}
+```
+
+Set `tool_choice = {"type": "tool", "name": "classify_bp_status"}` to force invocation. Parse `response.content[0].input["bp_status"]` — `json.loads`-equivalent validation comes for free, and out-of-enum values are rejected by the API itself. Same pattern reused for the cognate-classify and idiom-expand prompts in Stages 3 and 1.
+
+**Validation**: every row has a non-empty `bp_status` from the enum. Rows classified `ep_only` appended to `_ep_drops.tsv` and removed from output.
 
 ### Stage 2 — Sense split ([build/02_split_senses.py](build/02_split_senses.py))
 
@@ -176,7 +191,7 @@ Per sense, prompt Claude Sonnet 4.6 with full sense context. Generate three fiel
 
 **Validation per row**:
 
-- `target_word_used` appears in `example_pt` as a **token** (whitespace + punctuation boundaries, **not** raw substring — avoids `por` falsely matching inside `porque`).
+- `target_word_used` appears in `example_pt` as a **token** via **token-list comparison**, not regex `\b`. Python's `\b` treats hyphens as non-word characters, which breaks for hyphenated headwords (`primeiro-ministro`, `segunda-feira`) and enclitic-pronoun forms (`dizer-lhe`, `dá-me`) — `\b` would split *inside* the hyphen and yield false negatives. Algorithm: lowercase both strings; strip punctuation via `str.translate(str.maketrans("", "", ".,;:!?¿¡«»\"'()[]{}…—–"))` (keep hyphens and apostrophes intact, since they are part of tokens like `primeiro-ministro` and `d'água`); split on whitespace into a list; assert `target_word_used.lower() in tokens`. Implemented in [build/lib/validate.py](build/lib/validate.py) as `token_in_sentence(target, sentence)`. Avoids both the `por`-inside-`porque` substring trap and the hyphen-boundary regex trap.
 - Word count of `example_pt` ≤ 15.
 - `example_en` non-empty.
 - Rows in `_flags.tsv` (NSFW / false friend / (BP)-tagged) are processed only after manual approval is recorded in `_flags.tsv`.
@@ -219,8 +234,16 @@ Generate 4 mp3 clips per sense via ElevenLabs:
 1. Voices: user-provided male voice ID; female voice ID placeholder until user supplies (swap-and-regenerate is a config change + ~30 min compute).
 2. Compute md5 per file; store in `_md5` columns.
 3. Upload to R2 with public-read ACL.
-4. Stable URL pattern: `https://<R2-public-domain>/audio/{filename}`.
+4. Stable URL pattern: `https://<R2-public-domain>/audio/{filename}?v={version}`. The `?v=` query param is **always present** (default `v=1`) and is part of the URL written to the TSV. Schema-mandated, not optional.
 5. Local `build/audio_cache/` retained until final `.apkg` bundling.
+
+**Cloudflare cache-busting (critical)**: R2 public buckets are fronted by Cloudflare's CDN, which caches `.mp3` aggressively (hours-to-days TTL). Overwriting an object at the same path does **not** evict the cached copy — Anki and browsers will keep serving the bad clip. Mitigations, in order of preference:
+
+1. **Versioned URLs in TSV.** Every audio URL includes `?v=N`. To regenerate a clip, the script bumps `N` for that row only, re-uploads (the underlying object key stays the same; the query param defeats the CDN cache without requiring a manifest of object names). Cost: zero. This is the default path.
+2. **Manual purge.** For one-off post-publish fixes, document the `cloudflare api ... /zones/{zone_id}/purge_cache` invocation in [build/lib/r2_client.py](build/lib/r2_client.py) docstring; takes a list of full URLs.
+3. **Cache-Control on upload.** Set `Cache-Control: public, max-age=2592000, immutable` so the CDN behavior is at least predictable and the `?v=` strategy is the canonical override.
+
+The `?v=N` counter for each clip lives in TSV columns `audio_word_m_v`, `audio_word_f_v`, `audio_example_m_v`, `audio_example_f_v` (default `1`). Never silently regenerate without bumping.
 
 **QA gate**: user opens `_pilot_500.tsv` in Numbers/Sheets, plays a sample via R2 URLs, confirms voice quality + pronunciation accuracy. Approval required before Stage 7.
 
@@ -281,6 +304,19 @@ TSV chosen over CSV to avoid quoting friction (one source line has internal `"fo
 ## Verification
 
 **Per-stage**: each `build/NN_*.py` ends with assertions (row count, unique IDs, no empty required fields). Cross-stage validator at [build/verify_all.py](build/verify_all.py).
+
+**Rank invariants (do NOT over-assert)**: after Stage 1 EP-drops and Stage 1.5 lexical-EP drops, the `rank` column is **non-contiguous** by design (e.g., 45 → 47 if rank 46 was an EP-only headword). Validators must NOT:
+
+- assert exactly 4,985 rows in `01-normalized.tsv`,
+- assert `ranks == range(1, N+1)`,
+- assert "no missing ranks".
+
+Validators MUST:
+
+- assert `sense_id` uniqueness across `02-senses.tsv` onward (the canonical primary key from Stage 2 forward),
+- assert ledger math: `len(source.txt) == len(01-normalized) + len(_ep_drops Stage 1) + len(_ep_drops Stage 1.5) - len(_idioms_expanded added rows)`. Each drop and each idiom-expansion row carries the originating `source_line` so the audit closes.
+- assert ranks are **strictly increasing** (gaps allowed, reorderings forbidden).
+- assert every rank in `01-normalized.tsv` is unique (a headword cannot be both kept and dropped).
 
 **End-to-end**:
 
