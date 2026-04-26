@@ -35,7 +35,7 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | Audio | 4 clips per sense (2 voices × {word, example}); fixed 1M+1F across whole deck; **Google Cloud TTS Neural2 BR voices** (default — ~$30–60 vs. ElevenLabs' ~$260–430). ElevenLabs swap-in available if user later wants premium naturalness. Open-source local TTS (Kokoro / XTTS / MeloTTS) is the zero-cost option. |
 | **Audio column naming** | `audio_word_m`, `audio_word_f`, `audio_example_m`, `audio_example_f` — never `_v1/_v2`. Eliminates voice-mix-up risk on script restart. |
 | Audio stage | Pilot first 500, then full batch |
-| **Audio storage** | **Cloudflare R2**, exposed via R2 public bucket custom domain (not per-object public-read ACL). Stable HTTPS URLs with `?v=N` cache-busting. |
+| **Audio storage** | **Cloudflare R2**, exposed via R2 public bucket custom domain (not per-object public-read ACL). Stable HTTPS URLs with **filename-baked versioning** (`-v{N}.mp3`) — Anki strips query strings on download, so `?v=N` would silently fail to propagate regenerated clips to mobile devices. |
 | Audio manifest | `data/_audio_manifest.tsv` is source of truth; final TSV URL columns derived from it |
 | Cognate flag | `#cognate-en` tag, no review-order change |
 | Legal/travel expansion | Out of scope for now |
@@ -138,15 +138,21 @@ Three different models touch each row across these two passes (adversarial + ver
 
 After every audio clip is generated, [build/lib/asr_check.py](build/lib/asr_check.py):
 
-1. Transcribes the clip with the registry-configured ASR model (current frontier multilingual: OpenAI `whisper-large-v3` or successor; the registry tracks the active ID), `language=pt`.
-2. Computes normalized **Levenshtein similarity** between transcript and the input text.
-3. Computes **phonetic distance** between the transcript's IPA (via eSpeak-NG roundtrip) and the expected `ipa_word_final` / `ipa_example_final`.
+1. **Pre-process the clip for Whisper.** This is essential for word-level audio: Whisper hallucinates badly on isolated short clips (< 1 sec). A 0.6-second clip of `o` or `e` will routinely transcribe as `Obrigado por assistir!`, `Amor.`, `[Música]`, or other YouTube-caption garbage. Mitigations applied **always** for `clip_type = word`, optionally for `example`:
+   - **Pad with 0.5s of silence** at start and end before sending to Whisper. Brings clip length above the hallucination threshold.
+   - **Set `initial_prompt = "Palavra em português brasileiro: {target_word_used}"`** to bias decoding toward the expected word and away from English/YouTube prior. This is a soft bias, not a constraint, so the ASR can still disagree if the audio is genuinely wrong.
+   - **Set `temperature = 0.0`** and `condition_on_previous_text = false` to suppress free-form drift.
+   - **Set `no_speech_threshold = 0.6`** (looser than default) so silent-prefix clips don't classify as no-speech.
+   - **Cross-check with a second ASR call** without `initial_prompt` for any clip whose transcript exactly matches the prompt-biased target — if the unbiased pass also returns the target (or a near match), accept; if it returns garbage, the prompt was lying for us, regenerate.
+2. Transcribes the (padded, prompted) clip with the registry-configured ASR model (current frontier multilingual: OpenAI `whisper-large-v3` or successor; the registry tracks the active ID), `language=pt`.
+3. Computes normalized **Levenshtein similarity** between transcript and the input text.
+4. Computes **phonetic distance** between the transcript's IPA (via eSpeak-NG roundtrip) and the expected `ipa_word_final` / `ipa_example_final`.
 
 Decision rule per clip:
 
 - **Long tail** (rank > 1000): Levenshtein ≥ 0.92 AND phonetic distance ≤ threshold → pass.
 - **Top 1000** (rank ≤ 1000): Levenshtein ≥ **0.95** AND phonetic distance ≤ stricter threshold → pass. Top-1000 is the dominant share of study time, so cleanliness there matters disproportionately.
-- Levenshtein in the warning band → **regenerate once with bumped `?v=N`** (often fixes bad TTS prosody).
+- Levenshtein in the warning band → **regenerate once with bumped version (new filename `-v{N+1}.mp3`)** (often fixes bad TTS prosody).
 - Levenshtein well below threshold → **regenerate twice**; if still failing, route to `_audio_human_review.tsv` (the only audio rows a human ever listens to).
 - Phonetic-distance outlier with Levenshtein pass → flag but accept (likely TTS mispronunciation that the ASR also mishears consistently — rare; weekly study-time loop catches them).
 
@@ -157,8 +163,8 @@ This catches the catastrophic failure mode (audio says something clearly wrong) 
 Anki note type includes a `flag_for_regeneration` field exposed as a one-tap action during review. When the user encounters a card that is wrong (bad audio, wrong gender, awkward example, wrong sense), they tap the flag. Once a week:
 
 1. Anki export → `_study_flags.tsv`.
-2. `python build/regenerate_flagged.py` reads the flagged `sense_id`s, jumps to the relevant stage, regenerates, bumps audio `?v=N`, updates manifest, re-derives final TSV.
-3. Anki picks up the new audio URL on next sync (cache-busted by `?v=N`).
+2. `python build/regenerate_flagged.py` reads the flagged `sense_id`s, jumps to the relevant stage, regenerates, bumps audio `version` (which produces a new filename `-v{N+1}.mp3`), uploads new R2 object, updates manifest, re-derives final TSV.
+3. Anki sees a net-new filename in the note and pulls it cleanly across desktop and mobile on next sync.
 
 This distributes correction across the study lifetime instead of front-loading it, and only attacks rows that actually matter to the user.
 
@@ -583,7 +589,12 @@ Deterministic + LLM hybrid:
    - Try alternate hyphenations if first attempt 404s.
    - Try without diacritics as last resort.
    - For compound nouns, look up the **whole compound** (e.g., `mão de obra`, not `mão` + `obra`).
-   - **Aggressive local cache** — Wiktionary and Priberam are not stable APIs. `lookup.py` scrapes HTML; structure changes break the pipeline, and unthrottled re-runs invite IP bans. Cache layer: SQLite at `build/cache/lookup.sqlite` keyed by `(source, canonical_form)` with columns `source, canonical_form, raw_html, fetched_at, http_status, etag`. Re-runs hit the cache; only forced refresh (`--refresh`) or rows older than `LOOKUP_CACHE_TTL` (default 90 days) re-fetch. Parsing happens off the cached HTML so a Wiktionary layout change requires only a parser update, not a re-scrape. Politeness: per-host rate limit (default 1 req/sec) + jittered backoff (see § API client conventions).
+   - **Aggressive local cache** — Wiktionary and Priberam are not stable APIs. `lookup.py` scrapes HTML; structure changes break the pipeline, and unthrottled re-runs invite IP bans. Cache layer: SQLite at `build/cache/lookup.sqlite` keyed by `(source, canonical_form)` with columns `source, canonical_form, raw_html, fetched_at, http_status, etag, parser_version`. Re-runs hit the cache; only forced refresh (`--refresh`) or rows older than `LOOKUP_CACHE_TTL` (default 90 days) re-fetch. Parsing happens off the cached HTML so a Wiktionary layout change requires only a parser update, not a re-scrape. Politeness: per-host rate limit (default 1 req/sec) + jittered backoff (see § API client conventions).
+   - **Graceful parser failure (do not crash the pipeline)** — Wiktionary and Priberam DOM structures change with no warning. The parser MUST handle "field absent" as a valid outcome, not an exception:
+     - Parser returns `LookupResult(gender=None, pos=None, confidence='none', parser_status='dom_miss')` when it cannot find the expected DOM nodes.
+     - The stage logs the miss (with `source`, `canonical_form`, `parser_version`, snippet of the cached HTML) to `_lookup_misses.tsv` for later review.
+     - Lookup-cascade (manual override → Wiktionary → Priberam → LLM Tool-Use) treats `dom_miss` as "this source had no answer," moves to the next source, and ultimately falls through to the LLM jury. The pipeline never crashes on a scraper failure.
+     - When `_lookup_misses.tsv` accumulates >5% of rows from a single source, it's signal that the parser needs an update — fix the parser, bump `parser_version` in the cache schema, re-parse from cached HTML (no re-scrape needed). The cost is engineering time, not API quota.
 2. **Gender** (nouns): manual override → Wiktionary BR → Priberam BR → Claude Tool-Use classification (`{"gender": "o" | "a" | "o/a" | "—"}`). Fill `gender` and compose `pt_display` (`a casa`, `o caminho`, or bare word for non-nouns / idioms with their natural form).
 3. **PoS**: derive from gloss pattern — `"to X"` → `verb`; gender known → `noun`; bare adjective → `adj`. **Leave blank when ambiguous**.
 4. **Tags**:
@@ -716,7 +727,7 @@ The audio line is the largest in v2/early-v3. Switching from ElevenLabs to **Goo
 
 `config/models.yaml` carries the active TTS provider as a role-key. Switching providers later is a config change + regenerate-with-version-bump (Stage 6 idempotency handles this).
 
-Voice IDs are pinned per gender. For Google Cloud TTS BR voices, defaults: male = `pt-BR-Neural2-B`, female = `pt-BR-Neural2-A`. User picks final voices at step 13 of runbook. ASR roundtrip and ?v=N versioning are unchanged across providers.
+Voice IDs are pinned per gender. For Google Cloud TTS BR voices, defaults: male = `pt-BR-Neural2-B`, female = `pt-BR-Neural2-A`. User picks final voices at step 13 of runbook. ASR roundtrip and filename versioning (`-v{N}.mp3`) are unchanged across providers.
 
 ### Stage 6 — Audio pilot ([build/06_audio_pilot.py](build/06_audio_pilot.py))
 
@@ -741,7 +752,14 @@ Generate 4 mp3 clips per sense via the configured TTS provider (default: Google 
 - `audio_example_m`: male voice, example sentence
 - `audio_example_f`: female voice, example sentence
 
-**File naming**: `{sense_id}-{word|ex}-{m|f}.mp3` (e.g., `0001.03-word-m.mp3`). Gender baked into filename → voice mix-up after a mid-batch crash is structurally impossible.
+**File naming**: `{sense_id}-{word|ex}-{m|f}-v{version}.mp3` (e.g., `0001.03-word-m-v1.mp3`). Gender AND version are baked into the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
+
+- **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.03-word-m.mp3?v=2` lands locally as `0001.03-word-m.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.03-word-m-v2.mp3` are net-new filenames; Anki always fetches them.
+- **Anki's media sync compares filenames, not file hashes.** If a regenerated clip keeps the same filename, mobile devices won't re-download it during the next AnkiWeb sync. Versioning the filename guarantees clean propagation across desktop + iPhone.
+- Cloudflare CDN caching becomes irrelevant (different filename = different object key = cache miss = new fetch).
+- The `?v=N` query-string strategy from prior iterations is **abandoned** for audio URLs that are referenced by Anki notes. It would still work for browser-only previews, but Anki is the consumer that matters.
+
+When a clip is regenerated: bump the manifest `version`, write to a new R2 object key with the new filename, update the manifest URL, and the final TSV's audio columns now point at the new filename. The old object can be deleted from R2 after a grace period (or kept; storage is ~$0.02/mo for the lot). Voice mix-up after a mid-batch crash remains structurally impossible because gender stays baked in.
 
 #### Workflow
 
@@ -749,7 +767,7 @@ Generate 4 mp3 clips per sense via the configured TTS provider (default: Google 
 2. Compute md5 per file; store in manifest and `_md5` columns.
 3. Upload objects to R2.
 4. **Public access**: expose audio through an **R2 public bucket custom domain**. Do **not** rely on per-object public-read ACL semantics — that wording was incorrect in v1. Public base URL stored in `.env`.
-5. Stable URL pattern: `https://<R2-public-domain>/audio/{filename}?v={version}`. The `?v=` query param is **always present** (default `v=1`).
+5. Stable URL pattern: `https://<R2-public-domain>/audio/{sense_id}-{word|ex}-{m|f}-v{version}.mp3`. Version is **in the filename**, not the query string (see § File naming above for the Anki-compatibility rationale).
 6. Local `build/audio_cache/` retained until final `.apkg` bundling.
 
 #### TTS error handling (explicit policy)
@@ -761,15 +779,13 @@ TTS providers return transient `500`/`502`/`503`/`504` and `429` under load. The
 - **Final failure** (retries exhausted): record `status = failed_transient` so a later retry-only pass picks the row up. Resume mode skips `status = uploaded` and re-attempts `status = failed_transient`.
 - Manifest `status` enum: `pending` / `uploading` / `uploaded` / `failed_transient` / `failed_permanent`.
 
-#### Cloudflare cache-busting
+#### Cloudflare cache-busting (now via filename, not query string)
 
-R2 public buckets are fronted by Cloudflare's CDN; overwriting an object at the same path does **not** evict the cached copy. Mitigations in order of preference:
+Filename versioning makes cache-busting trivial: a new version is a new filename, which is a new object key, which is a fresh CDN miss with a fresh fetch. No `?v=` games, no manual purge needed, no Anki query-strip trap. Old object keys can be left in R2 (effectively immutable) so existing cards keep working until their notes are updated.
 
-1. **Versioned URLs in TSV.** Bump `version` in manifest, re-upload (object key unchanged), URL with `?v=N+1` defeats CDN cache. Default path. Cost: zero.
-2. **Manual purge.** Documented `cloudflare api ... /zones/{zone_id}/purge_cache` invocation in [build/lib/r2_client.py](build/lib/r2_client.py) docstring. For one-off post-publish fixes.
-3. **Cache-Control on upload.** `Cache-Control: public, max-age=2592000, immutable` so CDN behavior is predictable and `?v=` is the canonical override.
+Belt-and-suspenders: upload with `Cache-Control: public, max-age=31536000, immutable` so the CDN treats every versioned filename as cacheable forever. Safe because each filename's content never changes.
 
-The `?v=N` counter for each clip is owned by the manifest. Never silently regenerate without bumping.
+The `version` integer for each clip is owned by the manifest. Never silently regenerate without bumping it AND emitting a new file.
 
 #### Cost estimate refinement
 
@@ -814,10 +830,10 @@ Same pipeline for the remaining ~7,500–9,500 senses after pilot approval.
 | 17 | `example_en` | string | English translation |
 | 18 | `target_word_used` | string | Exact surface form of target word in `example_pt` |
 | 19 | `ipa_example` | string | `ipa_example_final`; per-word IPA, space-separated, isolated form |
-| 20 | `audio_word_m` | URL | R2 link with `?v=N`, male voice (derived from manifest) |
-| 21 | `audio_word_f` | URL | R2 link with `?v=N`, female voice |
-| 22 | `audio_example_m` | URL | R2 link with `?v=N`, male voice |
-| 23 | `audio_example_f` | URL | R2 link with `?v=N`, female voice |
+| 20 | `audio_word_m` | URL | R2 link, filename ends `-v{N}.mp3`, male voice (derived from manifest) |
+| 21 | `audio_word_f` | URL | R2 link, filename ends `-v{N}.mp3`, female voice |
+| 22 | `audio_example_m` | URL | R2 link, filename ends `-v{N}.mp3`, male voice |
+| 23 | `audio_example_f` | URL | R2 link, filename ends `-v{N}.mp3`, female voice |
 | 24 | `audio_word_m_md5` | hex | Corruption detection |
 | 25 | `audio_word_f_md5` | hex | |
 | 26 | `audio_example_m_md5` | hex | |
