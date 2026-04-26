@@ -473,6 +473,7 @@ Deterministic + LLM hybrid:
    - Try alternate hyphenations if first attempt 404s.
    - Try without diacritics as last resort.
    - For compound nouns, look up the **whole compound** (e.g., `mão de obra`, not `mão` + `obra`).
+   - **Aggressive local cache** — Wiktionary and Priberam are not stable APIs. `lookup.py` scrapes HTML; structure changes break the pipeline, and unthrottled re-runs invite IP bans. Cache layer: SQLite at `build/cache/lookup.sqlite` keyed by `(source, canonical_form)` with columns `source, canonical_form, raw_html, fetched_at, http_status, etag`. Re-runs hit the cache; only forced refresh (`--refresh`) or rows older than `LOOKUP_CACHE_TTL` (default 90 days) re-fetch. Parsing happens off the cached HTML so a Wiktionary layout change requires only a parser update, not a re-scrape. Politeness: per-host rate limit (default 1 req/sec) + jittered backoff (see § API client conventions).
 2. **Gender** (nouns): manual override → Wiktionary BR → Priberam BR → Claude Tool-Use classification (`{"gender": "o" | "a" | "o/a" | "—"}`). Fill `gender` and compose `pt_display` (`a casa`, `o caminho`, or bare word for non-nouns / idioms with their natural form).
 3. **PoS**: derive from gloss pattern — `"to X"` → `verb`; gender known → `noun`; bare adjective → `adj`. **Leave blank when ambiguous**.
 4. **Tags**:
@@ -620,6 +621,15 @@ Generate 4 mp3 clips per sense via ElevenLabs:
 5. Stable URL pattern: `https://<R2-public-domain>/audio/{filename}?v={version}`. The `?v=` query param is **always present** (default `v=1`).
 6. Local `build/audio_cache/` retained until final `.apkg` bundling.
 
+#### ElevenLabs error handling (explicit policy)
+
+ElevenLabs returns transient `500`/`502`/`503`/`504` and `429` under load. The 20–40% character buffer covers re-billed retries; the script must not turn a transient 5xx into a permanent manifest failure. [build/lib/elevenlabs_client.py](build/lib/elevenlabs_client.py) policy:
+
+- **Retryable** (HTTP `429`, `500`, `502`, `503`, `504`, connection errors, read timeouts): exponential backoff with full jitter, base `1s`, cap `60s`, up to **6 attempts**. Honor `Retry-After` header when present.
+- **Non-retryable** (HTTP `400`, `401`, `403`, `422` invalid voice / unsupported text): record `status = failed_permanent` in manifest with the response body in `notes`; do not retry on script restart.
+- **Final failure** (retries exhausted): record `status = failed_transient` so a later retry-only pass picks the row up. Resume mode skips `status = uploaded` and re-attempts `status = failed_transient`.
+- Manifest `status` enum: `pending` / `uploading` / `uploaded` / `failed_transient` / `failed_permanent`.
+
 #### Cloudflare cache-busting
 
 R2 public buckets are fronted by Cloudflare's CDN; overwriting an object at the same path does **not** evict the cached copy. Mitigations in order of preference:
@@ -721,6 +731,68 @@ For every model-derived decision, audit JSONL files in `audit/` record:
 ```
 
 Applies to Stages 1.5, 2 (sense split + sensitive screen), 3 (gender fallback, cognate, family root), 4 (generation + validation), 5 (IPA correction). Re-runs are reproducible because model IDs and prompt hashes are recorded.
+
+## API client conventions (rate limits, concurrency, retries)
+
+Sequential calls across ~10,000 senses take days; naive `asyncio.gather` immediately trips Anthropic, OpenAI, and ElevenLabs rate limits. All three API wrappers ([build/lib/llm.py](build/lib/llm.py) for Anthropic+OpenAI, [build/lib/elevenlabs_client.py](build/lib/elevenlabs_client.py) for audio, [build/lib/lookup.py](build/lib/lookup.py) for HTML scrapers) follow one shared policy.
+
+### Concurrency model
+
+- **Bounded concurrency** via `asyncio.Semaphore`, not unbounded `gather`. Per-provider concurrency caps configured in `config/models.yaml`:
+  ```yaml
+  concurrency:
+    anthropic: 8        # parallel inflight requests
+    openai: 6
+    elevenlabs: 4       # ElevenLabs is more sensitive
+    wiktionary: 1       # politeness on third-party HTML
+    priberam: 1
+  ```
+- **Token-bucket throttling** in addition to the semaphore, sized below the documented TPM/RPM ceilings (e.g., Anthropic Tier 2: ~200k input TPM → throttle to ~150k TPM to leave headroom). Reads `Anthropic-RateLimit-*` response headers and slows down adaptively when remaining quota drops below 20%.
+
+### Retry policy (shared)
+
+- **Retryable**: HTTP `429`, `500`, `502`, `503`, `504`, `408`, connection errors, read/write timeouts.
+- **Backoff**: exponential with **full jitter** (`sleep = random(0, min(cap, base * 2**attempt))`); base `1s`, cap `60s`. Up to **6 attempts** before surfacing the error.
+- **Honor `Retry-After`** when the server provides it (overrides computed backoff for that one wait).
+- **Non-retryable**: HTTP `400`/`401`/`403`/`404`/`422`. Surface immediately with full response body in the audit JSONL or manifest `notes`.
+- **Idempotency keys** on writes (where supported): include `sense_id + clip_type + voice_gender + version` for ElevenLabs uploads so a retry after a network drop is harmless.
+
+### Implementation surface
+
+- `build/lib/llm.py::call_with_retry(client, payload, *, provider)` is the only public entry point for Anthropic and OpenAI. Stage scripts never call SDKs directly.
+- `build/lib/elevenlabs_client.py::generate_with_retry(text, voice_id, sense_id, clip_type)` likewise. Internal logic checks the manifest first to skip already-uploaded clips.
+- `build/lib/lookup.py::fetch_with_retry(source, canonical_form)` likewise, plus the SQLite cache layer (§ Stage 3).
+
+### Cost/time impact
+
+With concurrency at the caps above, full-corpus runs:
+
+- Stage 1.5 + 2 + 4 + 5 LLM calls: ~3–6 hours wall clock (was: days sequentially).
+- Stage 6+7 audio (~38k clips at 4 concurrent + retry overhead): ~6–10 hours wall clock.
+- Stage 3 dictionary lookups (~8k unique heads at 1 req/s per source): ~2–3 hours; cached on subsequent runs.
+
+## Repo hygiene: TSV + Git interaction
+
+Version-controlling 10,000-row TSVs that mutate at every stage produces enormous, noisy diffs and frequent merge conflicts when scripts and data are iterated together. Mitigations:
+
+- **`.gitattributes`**:
+  ```
+  data/*.tsv          merge=union  diff=tsv  -text
+  data/_audio_manifest.tsv  merge=union  diff=tsv  -text
+  data/06-final.tsv   filter=lfs   diff=lfs   merge=lfs  -text
+  audit/*.jsonl       merge=union  -text
+  ```
+  `merge=union` makes Git keep both sides of a TSV merge conflict (lines, not characters), which usually produces a recoverable result for append-only ledger and manifest files. The final TSV is large and changes infrequently — Git LFS is appropriate for it.
+- **`.gitignore`**:
+  ```
+  build/audio_cache/
+  build/cache/
+  audit/*.jsonl
+  !audit/.gitkeep
+  ```
+  Audio cache and lookup cache are reproducible from the manifest and SQLite. Provenance JSONLs are kept locally for debugging but not committed (a `.gitkeep` preserves the directory). If long-term provenance is needed, periodically snapshot a sampled subset to `audit/snapshots/`.
+- **Stage outputs**: `01-normalized.tsv` through `05-ipa.tsv` are intermediate. They CAN be committed for reproducibility audits but are regenerated from `_source_ledger.tsv` + `data/source.txt` + manual override files. The committed authoritative artifacts are: `data/source.txt` (immutable), `_source_ledger.tsv`, all `_manual_*.tsv`, `_audio_manifest.tsv`, and `06-final.tsv`. Everything else is a build artifact.
+- **Pre-commit hook** (optional): refuse commits where `06-final.tsv` and `_audio_manifest.tsv` row counts disagree on derived URL columns.
 
 ## Verification
 
