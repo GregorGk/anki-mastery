@@ -1,4 +1,4 @@
-# Plan: Anki-Ready BP Portuguese Dataset (Data Phase) — v2
+# Plan: Anki-Ready BP Portuguese Dataset — Data Phase v3
 
 ## Context
 
@@ -52,23 +52,42 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | **Juror tier** | Generator and verdict-auditor use top-tier models. Jurors vote on small structured outputs (enums + short text), so they use **smaller, cheaper models** (Haiku-class + GPT-5-mini-class + Gemini-Flash-class). Adversarial auditor uses a mid-tier model (defect listing benefits from capability but doesn't need top-tier reasoning). Saves ~$80–120. |
 | **Model registry** | `config/models.yaml` is the **single source of truth** for model IDs. Plan exemplars below name 2026-current frontier models; the registry is updated as models age out (e.g., GPT-4o → GPT-5 family; Claude 3.5 → Claude 4.x; Gemini 1.5 → Gemini 2.5). Stage scripts read role-keys (`generator`, `juror_a`, `juror_b`, `juror_c`, `tiebreaker`, `validator`, `auditor_verdict`, `auditor_adversarial`), never hard-coded IDs. |
 
-## Review strategy: LLM jury, auditor, ASR — human review is post-hoc, not upfront
+## Review strategy: LLM jury (enums) + validator/auditor (free text) + ASR — human review is post-hoc, not upfront
 
-The v2 plan demanded ~30–40h of upfront human review across many QA queues. That is unstable: too much attention required, too easy to skim and rubber-stamp. The v3 reframe replaces almost all upfront human review with **LLM-driven review** at three tiers, plus a study-time correction loop.
+Earlier iterations (the v2 plan) demanded ~30–40h of upfront human review across many QA queues. That was unstable: too much attention required, too easy to skim and rubber-stamp. v3 replaces almost all upfront human review with **LLM-driven review**, applied differently to enum decisions vs. free-text generation, plus a study-time correction loop.
 
-### Tier 1 — Three-model jury on every LLM decision
+**Critical distinction:** the 3-model jury is for **enum/classification decisions only**. Free-text generation (examples, IPA, idiom expansion text) goes through a different pipeline: single generator → validator → auditor → optional N-best on top-1000. Trying to "jury" three independent example sentences and pick a winner is messy and expensive.
 
-Every LLM stage that produces a structured output (`bp_status`, sense-split classification, gender fallback, cognate, family root, sensitive-term classification, IPA correction, example generation) runs the same prompt through **three different models from three different families** — Anthropic Claude Sonnet 4.x, OpenAI GPT-5 family, Google Gemini 2.5 Pro (or whatever the registry currently names). All three responses are recorded in the audit JSONL.
+| Stage / decision type | Reviewed by |
+|---|---|
+| `bp_status` enum (Stage 1.5) | 3-model jury + tiebreaker |
+| Sense-split decision (Stage 2) | 3-model jury + tiebreaker |
+| Gender fallback (Stage 3) | 3-model jury + tiebreaker |
+| Cognate flag (Stage 3) | 3-model jury + tiebreaker |
+| Sensitive-term classification (Stage 2.5) | 3-model jury + tiebreaker |
+| Family root (Stage 3) | 3-model jury (low stakes; no tiebreaker) |
+| Example sentences (Stage 4) | Single generator + cross-model validator + Stage 5.5 auditors; N-best top-1000 |
+| IPA correction (Stage 5) | eSpeak baseline + single LLM correction + Stage 5.5 auditor (`ipa_plausible`) |
+| Idiom expansion text (Stage 1a) | Single generator + verdict by jury (3-way agreement on the produced phrase) |
+| Audio (Stage 6/7) | ASR roundtrip per clip; auditor not involved |
+
+### Tier 1 — Three-model jury on enum decisions
+
+Every classification stage runs the same Tool-Use prompt through **three jurors from three different families**, configured in `config/models.yaml` under role keys `juror_a`, `juror_b`, `juror_c` (currently small/cheap tier — Haiku-class, GPT-mini-class, Gemini-Flash-class). All three responses are recorded in the audit JSONL.
 
 Resolution rule:
 
-- **All three agree** (same enum value; or, for free-text outputs, the validator scores them mutually semantically equivalent): accept silently. This is the common case.
+- **All three agree** on the enum value: accept silently. The common case (~85–95%).
 - **Two-of-three agree**: accept the majority answer. Disagreement logged but does not block.
-- **All three disagree**: route to a **fourth tiebreaker model** (typically the strongest available — Claude Opus 4.x or GPT-5 Pro). If the tiebreaker matches one of the three, accept. If the tiebreaker proposes a fourth answer or expresses low confidence, route to `_jury_disagreements.tsv` for human review.
+- **All three disagree**: route to a **fourth tiebreaker model** at role key `tiebreaker` (top-tier Anthropic or top-tier OpenAI, set in registry). If tiebreaker matches one of the three, accept. If tiebreaker proposes a fourth answer or expresses `confidence: low`, route to `_jury_disagreements.tsv` for human review.
 
-Why three not two: a two-model jury fails open on shared-blind-spots — both models confidently agree on the same wrong answer. A three-model cross-family jury makes that failure mode require *three* simultaneous shared blind spots, which is empirically rare. Cost is ~3× the single-model line item (still small relative to audio).
+Why three not two: a two-model jury fails open on shared-blind-spots — both models confidently agree on the same wrong answer. A three-model cross-family jury makes that failure mode require *three* simultaneous shared blind spots, which is empirically rare. Cost is small because jurors run at cheap tiers and through Batch APIs.
 
 Disagreement rate is itself a quality metric: if Stage 4 examples have >15% three-way disagreement, the prompt is broken and needs revision before further generation.
+
+### Tier 1-bis — Single generator + validator pattern for free text
+
+Free-text outputs (example sentences, IPA strings) come from one generator at a time. Diversity comes from the **validator** (different model family) and the **adversarial+verdict auditors** at Stage 5.5 (two more model families). End-to-end, every free-text row is touched by 4 distinct models from 3 distinct families. That is the "jury" for free text — no need to generate the same example three times.
 
 ### Tier 1.5 — N-best on top-1000 headwords
 
@@ -196,16 +215,38 @@ That is the complete human attention budget. Everything else runs unattended.
 | `bp_replacement` | string | Target BP form when `action = replace_with_bp_equivalent` |
 | `merge_target_rank` | int | When `action = merge_into_existing_bp_row` |
 | `merge_target_pt` | string | Resolved BP target for the merge |
-| `output_sense_ids` | string | Comma-separated `sense_id`s produced from this line (filled by Stage 2) |
+| `output_sense_ids` | string | Convenience denormalization: comma-separated `sense_id`s produced from this line. **Authoritative source for many-to-many provenance is `_sense_source_map.tsv`** — see below. The ledger column exists for human-friendly inspection only. |
 | `drop_reason` | string | When `action = drop_ep_only`; required |
 | `manual_review_status` | enum | `not_required` / `pending` / `approved` / `rejected` |
 | `stage_decided` | string | Stage that set the current `action` (`1a`, `1b`, `1c`, `1.5`, `manual`) |
 | `notes` | string | Free text |
 
+### Sense ↔ source many-to-many provenance: `_sense_source_map.tsv`
+
+`output_sense_ids` as a comma-separated string in the ledger does not scale: merged rows have N source lines mapping to one sense, idiom-expanded rows have one source line mapping to M senses, and lexical replacement adds another edge type. Authoritative provenance lives in a normalized many-to-many table.
+
+Schema:
+
+```tsv
+sense_id	source_line_number	provenance_type	notes
+```
+
+`provenance_type` ∈:
+
+- `original` — the canonical source line for this sense (1-1 default case).
+- `normalized` — source line after orthographic normalization (Stage 1b); same line as `original` but flagged so the audit can distinguish whether a row's `pt` differs from its `source_pt`.
+- `lexical_replacement` — source line whose `source_pt` was lexically replaced (Stage 1c) into the BP form that ended up in this sense.
+- `merged` — source line whose row was merged into another (Stage 1c collision merge); the surviving sense gets multiple `merged` provenance edges.
+- `idiom_expansion` — source line that produced this row via abbreviation expansion (Stage 1a); one source line can produce multiple `idiom_expansion` edges (e.g., `redor` → `em redor` AND `ao redor`).
+
+Generated incrementally: Stage 1a writes the first edges, Stage 1c adds merge/replacement edges, Stage 2 writes the final `sense_id` for each. `_sense_source_map.tsv` is committed as an authoritative artifact.
+
 ### Required invariants (`build/verify_all.py::verify_ledger`)
 
 - Every line in `source.txt` appears exactly once in the ledger (`source_line_number` is a primary key).
-- Every final sense row in `06-final.tsv` traces back to ≥1 ledger row via `output_sense_ids`.
+- Every final sense row in `06-final.tsv` has ≥1 row in `_sense_source_map.tsv`.
+- Every `source_line_number` in the ledger with a non-drop `action` has ≥1 row in `_sense_source_map.tsv`.
+- The ledger's `output_sense_ids` is a derived view — `verify_all` reconstructs it from `_sense_source_map.tsv` and asserts equality. If they disagree, the map wins (overwrite the ledger column).
 - Every ledger row with `action = drop_ep_only` has a non-empty `drop_reason`.
 - Every ledger row with `action = replace_with_bp_equivalent` has a non-empty `bp_replacement`.
 - Every ledger row with `action = merge_into_existing_bp_row` has a non-empty `merge_target_rank` and `merge_target_pt`.
@@ -223,6 +264,7 @@ anki-mastery/
 ├── data/
 │   ├── source.txt                          # EXISTING — never mutated
 │   ├── _source_ledger.tsv                  # backbone; one row per source line
+│   ├── _sense_source_map.tsv               # many-to-many: sense_id ↔ source_line_number with provenance_type
 │   ├── 01-normalized.tsv                   # post orthographic normalization + idiom expansion
 │   ├── 012-lexical_replaced.tsv            # post lexical EP→BP replacement + collision merge
 │   ├── 015-bp_status.tsv                   # post cheap LLM BP-vocab classification
@@ -548,11 +590,18 @@ Tags: `#function-word`, `#pronoun`, `#grammar`, `#manual-sense`.
 
 #### sense_id assignment
 
-`sense_id = {rank:04d}.{expansion_index}{sense_index}` where `expansion_index` is from Stage 1a (default `0`, `1+` for idiom expansions) and `sense_index` is 1-indexed within `(rank, expansion_index)`. Example: `0001.01` for `o` first sense; `0314.11` for the idiom-expanded `à medida que` first sense. Sense IDs are stable forever.
+`sense_id = {rank:04d}.{expansion_index:02d}.{sense_index:02d}` — three dot-separated zero-padded fields. Format chosen so both indices can grow ≥10 without breaking parsers (function words like `se` may have 10+ senses; high-rank entries may accumulate idiom expansions over time). Examples:
+
+- `0001.00.01` — rank 1, no expansion, sense 1 (e.g., `o` first sense)
+- `0001.00.05` — rank 1, no expansion, sense 5 (the deep polysemy of `o`)
+- `0314.00.01` — rank 314, no expansion, base headword `medida` first sense
+- `0314.01.01` — rank 314, first idiom expansion (`à medida que`), first sense
+
+Sense IDs are stable forever. `expansion_index = 00` is the original headword row; `01+` are idiom expansions in the order produced by Stage 1a.
 
 #### Review
 
-Stage 2 runs the **two-model jury** (§ Review strategy). Disagreements go to `_jury_disagreements.tsv` and are auto-resolved by the tiebreaker model. The auditor pass at Stage 5.5 catches anything that slipped through both. **No upfront human review queues** for Stage 2 — the v2 plan's six queues (`_sense_review_top1000.tsv`, `_sense_review_low_confidence.tsv`, `_sense_review_polysemous.tsv`, `_sense_review_idioms.tsv`, `_sense_review_function_words.tsv`, `_sense_review_sensitive.tsv`) are removed.
+Stage 2 runs the **3-model jury** on the sense-split classification (§ Review strategy). Three-way disagreements go to `_jury_disagreements.tsv` and are auto-resolved by the tiebreaker model. The auditor pass at Stage 5.5 catches anything that slipped through. **No upfront human review queues** for Stage 2 — the v2 plan's six queues (`_sense_review_top1000.tsv`, `_sense_review_low_confidence.tsv`, `_sense_review_polysemous.tsv`, `_sense_review_idioms.tsv`, `_sense_review_function_words.tsv`, `_sense_review_sensitive.tsv`) are removed.
 
 The 8 forced-gender-split entries and the ~12 idiom-expansion entries are short enough to **inline as manual seed senses** in `_manual_sense_splits.tsv` once at the start of the project (~5 min), bypassing both LLM splitting and review.
 
@@ -574,7 +623,7 @@ Screen for terms that need careful example-generation policy even when not flagg
 sense_id	rank	source_pt	pt	sensitive_category	risk_level	example_policy	manual_status	notes
 ```
 
-`sensitive_category` ∈ `{sexual, violence, slur_or_identity, race_ethnicity, religion, politics, medical, self_harm, crime, weapons, substance, offensive_possible}`. `risk_level` ∈ `{low, medium, high}`. `example_policy` is a short directive that flows into the Stage 4 prompt (e.g., "use neutral medical context, no graphic detail"). High-risk and medium-risk rows tagged `#sensitive-reviewed`. The auditor at Stage 5.5 verifies that generated examples actually obey their `example_policy`; failures auto-regenerate. **No upfront manual approval gate** — the auditor's `violates_sensitive_policy` boolean is the gate.
+`sensitive_category` ∈ `{sexual, violence, slur_or_identity, race_ethnicity, religion, politics, medical, self_harm, crime, weapons, substance, offensive_possible}`. `risk_level` ∈ `{low, medium, high}`. `example_policy` is a short directive that flows into the Stage 4 prompt (e.g., "use neutral medical context, no graphic detail"). High-risk and medium-risk rows tagged `#sensitive-reviewed`. The auditor at Stage 5.5 verifies that generated examples obey their `example_policy`; failures auto-regenerate. **No upfront manual approval gate** — the auditor's defect-list `axis = sensitive_policy` and the verdict auditor's decision are the gates. Only auditor-routed `verdict = human_review` rows reach `_jury_disagreements.tsv`.
 
 This is **not a drop list**. Most words remain. The purpose is to ensure example sentences are neutral, safe, and learner-appropriate.
 
@@ -613,7 +662,7 @@ Deterministic + LLM hybrid:
 
 **In**: `03-enriched.tsv` + `_manual_examples.tsv` + `_sensitive_terms.tsv` (for `example_policy`) → **Out**: `04-examples.tsv`, `_example_fixes.tsv`, `audit/04_examples.jsonl`
 
-Per sense, prompt Claude Sonnet 4.6 (or successor; configured in `models.yaml`) with full sense context + sensitive-term policy if applicable. Generate three fields:
+Per sense, prompt the `generator` role from `config/models.yaml` (current ID resolved at runtime) with full sense context + `example_policy` directive if the row is `#sensitive-reviewed`. Generate three fields:
 
 - `example_pt`: ≤15 words; A2 background grammar. Target word used in typical way **for THIS specific sense**. BP vocabulary and spelling.
 - `example_en`: faithful English translation.
@@ -646,11 +695,11 @@ Output enforced via Tool Use:
   Avoids both the `por`-inside-`porque` substring trap and the hyphen-boundary regex trap.
 - Word count of `example_pt` ≤ 15.
 - `example_en` non-empty.
-- Rows in `_flags.tsv` (NSFW / false-friend / (BP)-tagged) and rows in `_sensitive_terms.tsv` with `risk_level ∈ {medium, high}` are processed only after `manual_status = approved`.
+- Rows in `_flags.tsv` (NSFW / false-friend / (BP)-tagged) and rows in `_sensitive_terms.tsv` are processed once their classifier output exists (i.e., the `flag_type` and `sensitive_category`/`example_policy` fields are populated). **No upfront manual approval gate** — that would re-introduce the v2 review burden. Manual approval is required only when the Stage 5.5 verdict auditor outputs `verdict = human_review` for a specific row, in which case the row joins `_jury_disagreements.tsv` post-hoc.
 
 #### Semantic validator (second pass)
 
-After generation, a **separate model** (e.g., GPT-4o-mini, configured in `models.yaml`) validates each row against [`build/prompts/example_validate.md`](build/prompts/example_validate.md). Tool-Use schema:
+After generation, the `validator` role from `config/models.yaml` (a different family from `generator`) validates each row against [`build/prompts/example_validate.md`](build/prompts/example_validate.md). Tool-Use schema:
 
 ```json
 {
@@ -715,7 +764,7 @@ The two auditor models are different from each other AND different from the gene
 
 ### TTS provider (default: Google Cloud TTS)
 
-The audio line is the largest in v2/early-v3. Switching from ElevenLabs to **Google Cloud TTS Neural2 BR voices** is the single biggest cost win. Naturalness gap is small at A1 listening level; both produce intelligible Brazilian Portuguese with correct stress and prosody. Pricing comparison (rough, as of 2026):
+Audio is the largest cost line by a wide margin. Switching from ElevenLabs to **Google Cloud TTS Neural2 BR voices** is the single biggest cost win. Naturalness gap is small at A1 listening level; both produce intelligible Brazilian Portuguese with correct stress and prosody. Pricing comparison (rough, as of 2026):
 
 | Provider | Quality (A1 use) | Pricing | Total at ~970k chars × 2 voices |
 |---|---|---|---|
@@ -738,7 +787,7 @@ Voice IDs are pinned per gender. For Google Cloud TTS BR voices, defaults: male 
 `_audio_manifest.tsv` schema:
 
 ```tsv
-sense_id	clip_type	voice_gender	voice_id	text_input	text_hash	object_key	url	version	md5	generated_at	elevenlabs_model	status	notes
+sense_id	clip_type	voice_gender	tts_provider	tts_model	voice_id	text_input	text_hash	object_key	url	version	md5	generated_at	status	notes
 ```
 
 `clip_type` ∈ `{word, example}`. Each sense has 4 manifest rows. Final TSV's URL columns are **derived** from the manifest, not hand-maintained. Regeneration: bump `version`, re-upload, update manifest, re-derive TSV.
@@ -752,9 +801,9 @@ Generate 4 mp3 clips per sense via the configured TTS provider (default: Google 
 - `audio_example_m`: male voice, example sentence
 - `audio_example_f`: female voice, example sentence
 
-**File naming**: `{sense_id}-{word|ex}-{m|f}-v{version}.mp3` (e.g., `0001.03-word-m-v1.mp3`). Gender AND version are baked into the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
+**File naming**: `{sense_id}-{word|ex}-{m|f}-v{version}.mp3` (e.g., `0001.00.03-word-m-v1.mp3`). Gender AND version are baked into the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
 
-- **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.03-word-m.mp3?v=2` lands locally as `0001.03-word-m.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.03-word-m-v2.mp3` are net-new filenames; Anki always fetches them.
+- **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.00.03-word-m.mp3?v=2` lands locally as `0001.00.03-word-m.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.00.03-word-m-v2.mp3` are net-new filenames; Anki always fetches them.
 - **Anki's media sync compares filenames, not file hashes.** If a regenerated clip keeps the same filename, mobile devices won't re-download it during the next AnkiWeb sync. Versioning the filename guarantees clean propagation across desktop + iPhone.
 - Cloudflare CDN caching becomes irrelevant (different filename = different object key = cache miss = new fetch).
 - The `?v=N` query-string strategy from prior iterations is **abandoned** for audio URLs that are referenced by Anki notes. It would still work for browser-only previews, but Anki is the consumer that matters.
@@ -787,9 +836,28 @@ Belt-and-suspenders: upload with `Cache-Control: public, max-age=31536000, immut
 
 The `version` integer for each clip is owned by the manifest. Never silently regenerate without bumping it AND emitting a new file.
 
-#### Cost estimate refinement
+#### Mandatory preflight cost report (build/06_audio_pilot.py --preflight)
 
-Pre-flight cost report runs before audio: count actual characters from `04-examples.tsv` (headwords + examples), multiply by 2 voices, add **20–40% buffer** for retries, regenerations, voice swaps, version bumps, failed requests. User confirms before full run.
+Before any full audio run, the script emits a structured cost report and **blocks** until the user confirms (`--confirm` flag or interactive prompt). Report fields:
+
+```
+preflight_audio_cost_report:
+  word_chars_m:           <int>      # sum of len(pt) across all senses (male voice)
+  word_chars_f:           <int>      # same for female voice
+  example_chars_m:        <int>      # sum of len(example_pt) across all senses
+  example_chars_f:        <int>      # same for female voice
+  total_chars:            <int>      # sum of above four
+  tts_provider:           <string>   # from config/models.yaml, e.g. "google_cloud_tts"
+  tts_model:              <string>   # e.g. "pt-BR-Neural2"
+  provider_price_per_1m_chars: <float>  # in USD; current published rate
+  retry_buffer_percent:   <float>    # default 30%
+  estimated_total_usd:    <float>    # = total_chars * (1 + buffer) * price / 1_000_000
+  per_voice_breakdown:    <map>      # cost_m, cost_f
+```
+
+Counting rule (Google Cloud TTS billing semantics): characters include letters, punctuation, AND whitespace. The script counts `len(text)` directly on the input strings, not stripped versions. SSML tags, if used, count too.
+
+The user reviews the report and either confirms (proceeds), aborts (no API calls made), or adjusts buffer / provider / voice. The same report is regenerated and logged at the start of Stage 7 (full run) for audit.
 
 #### Review (ASR roundtrip + minimal human gate)
 
@@ -811,7 +879,7 @@ Same pipeline for the remaining ~7,500–9,500 senses after pilot approval.
 
 | # | Column | Type | Notes |
 |---|---|---|---|
-| 1 | `sense_id` | `RRRR.EES` | Stable forever (rank.expansion_index||sense_index) |
+| 1 | `sense_id` | `RRRR.EE.SS` | Stable forever; three zero-padded fields: rank.expansion_index.sense_index (e.g., `0001.00.03`) |
 | 2 | `rank` | int | From source.txt |
 | 3 | `source_pt` | string | Original headword as in source.txt (audit) |
 | 4 | `pt` | string | BP-normalized headword |
@@ -951,6 +1019,35 @@ Version-controlling 10,000-row TSVs that mutate at every stage produces enormous
 - **Stage outputs**: `01-normalized.tsv` through `05-ipa.tsv` are intermediate. They CAN be committed for reproducibility audits but are regenerated from `_source_ledger.tsv` + `data/source.txt` + manual override files. The committed authoritative artifacts are: `data/source.txt` (immutable), `_source_ledger.tsv`, all `_manual_*.tsv`, `_audio_manifest.tsv`, and `06-final.tsv`. Everything else is a build artifact.
 - **Pre-commit hook** (optional): refuse commits where `06-final.tsv` and `_audio_manifest.tsv` row counts disagree on derived URL columns.
 
+## Golden test set (smoke run before any full pipeline run)
+
+Before any stage runs against the full corpus, it runs against `tests/golden_set.tsv` — a hand-curated subset of ~100 source lines that exercises every edge case the pipeline must handle. Failure on the golden set blocks the full run.
+
+The golden set covers, at minimum:
+
+- **Function words and pronouns**: `o`, `de`, `que`, `se`, `você`, `tu`, `vós`, `vosso`, `lhe` (~10 rows). Tests function-word policy and high-polysemy sense-splitting.
+- **EP/BP lexical swaps**: `comboio`, `equipa`, `desporto`, `paragem`, `utilizador`, `registar`, `controlo` (~7 rows). Tests Stage 1c replacement and collision merge.
+- **Forced gender homographs**: all 8 confirmed (`capital`, `polícia`, `rádio`, `corte`, `cabra`, `cura`, `grama`, `banana`). Tests forced M/F sense splits.
+- **Idiom expansions**: all ~12 (`medida`, `diante`, `cento`, `seguida`, `vigor`, `redor`, `repente`, `invés`, `contrapartida`, `obstante`, `mercê`, `tona`). Tests Stage 1a expansion + idiom-row sense_id format (`expansion_index ≥ 01`).
+- **False friends and (BP)/(EP)-flagged**: `rapariga`, `camisola`, `bala`, `trem`, `sítio`, `policial`, `troço` (~7 rows). Tests `_flags.tsv` and Stage 4 sensitive policy.
+- **Sensitive terms**: `gozar`, `mulato`, `índio`, `aborto`, `arma` (~5 rows). Tests Stage 2.5 classifier and example_policy enforcement.
+- **Hyphenated and compound headwords**: `primeiro-ministro`, `segunda-feira`, `mão-de-obra` (becomes `mão de obra`), `bem-estar`, `meia-noite`, `porta-voz`, `dia-a-dia` (becomes `dia a dia`) (~7 rows). Tests `pt_type`, hyphen rules, and token-list validation.
+- **Top-frequency irregular verbs**: `ser`, `ir`, `ter`, `estar`, `fazer`, `ver`, `dizer` (~7 rows). Tests `target_word_used` (e.g., `vou` for `ir`).
+- **Embedded `=`**: lines 31 (`eu`), 314 (`medida`), 3372 (`vós`). Tests parser split-on-first-` = ` rule.
+- **`mina (M. Gerais)` false-positive**: tests gender-marker false-positive guard.
+- **Reflexives with `+se` annotation**: ~5 rows. Tests canonicalization in lookup.
+- **Polysemy with `/`**: `melhor` (1 sense), `ponto` (3 senses). Tests sense-split jury.
+- **Long-tail / random**: ~30 random rows from rank > 3000. Sanity check.
+
+Total: ~100 rows. Each pipeline stage has a corresponding `tests/test_<stage>_golden.py` that runs the stage on the golden set and asserts:
+
+- All structural invariants (sense_id format, ledger consistency, no stage crashes).
+- LLM jury produces stable answers across two consecutive runs (cached when possible to control cost).
+- `_sense_source_map.tsv` round-trips correctly.
+- Stage 6 audio: ASR roundtrip passes for all golden clips on the chosen TTS provider/voices (caught early if voices are bad before paying for the full run).
+
+The golden set is committed; the expected outputs are committed (`tests/golden_outputs/`); diff failures are loud. This is the cheapest possible insurance against silent pipeline regressions when models or prompts change.
+
 ## Verification
 
 **Per-stage**: each `build/NN_*.py` ends with assertions (uniqueness, no empty required fields, ledger consistency). Cross-stage validator at [build/verify_all.py](build/verify_all.py).
@@ -1006,15 +1103,16 @@ Soft diagnostics (warning, not failure): row-count by `action` reported. No fixe
 - Do not assert "no missing ranks".
 - Do not assert per-row rank uniqueness (idiom expansions share rank).
 
-### End-to-end runbook (v3 lean)
+### End-to-end runbook
 
 Most of this runs unattended. Human touchpoints are explicitly tagged ⚑.
 
 0. ⚑ **Seed `_manual_sense_splits.tsv`** with the 8 forced gender splits and ~12 idiom expansions (~5 min).
+0a. **Run the golden-set smoke test** (`pytest tests/`) end-to-end on ~100 hand-curated rows. Block full run on failure. (~1–2 min, automated.)
 1. `python build/01a_parse.py` → ledger initialized; 3 embedded-`=` cases parsed; idiom candidates flagged.
 2. `python build/01b_orthographic_normalize.py` → `01-normalized.tsv`; `_flags.tsv` populated with structured `flag_type`.
 3. `python build/01c_lexical_replace.py` → `012-lexical_replaced.tsv`. Replacement collisions auto-merged where gloss overlap is high; ambiguous ones written to `_ep_drop_or_replace_review.tsv` (small queue, ~20 rows max — handled later in jury-disagreement review).
-4. `python build/015_bp_status.py` → Tool-Use jury (Sonnet + GPT-4o); tiebreaker on disagreements; `015-bp_status.tsv`.
+4. `python build/015_bp_status.py` → 3-model Tool-Use jury via the `juror_a/b/c` role keys; tiebreaker on full disagreement; `015-bp_status.tsv`.
 5. `python build/018_dedupe.py` → `018-deduped.tsv`; auto-merges trivial duplicates.
 6. `python build/02_split_senses.py` → jury + tiebreaker; `02-senses.tsv`. **No `--limit`, no human gate.**
 7. `python build/sensitive_screen.py` → jury-classified `_sensitive_terms.tsv`; `example_policy` populated for Stage 4.
@@ -1075,7 +1173,7 @@ If the user wants to push cost even lower:
 
 ## Residual risks of the lean approach
 
-Honest about what the v3 reframe trades away:
+Honest about what this lean approach trades away:
 
 - **Shared LLM blind spots.** Three frontier models from three families can still all confidently produce the same wrong answer on a subtle case (e.g., a low-frequency idiom translated in the same drift direction by all three). The two-auditor pass (adversarial + verdict, two further models) catches most of these. The N-best on top-1000 catches more on the rows that matter most. The study-time loop catches the rest. Residual: probably 0.3–1% of ~9,000 rows have undetected errors at deck-launch — call it ~30–90 rows. The user encounters and fixes ~1–3 per week of study, which is sustainable and far below the daily card-review count.
 - **Audio rare failure modes.** ASR can mis-transcribe in the same direction TTS mis-pronounces (both treat a foreign loanword the same wrong way). Phonetic-distance check against eSpeak helps. Stricter top-1000 thresholds reduce frequency-weighted impact. Final defense is study-time flagging.
