@@ -32,7 +32,7 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | Register | Neutral-everyday; tag if naturally travel/legal |
 | IPA | BP neutral-paulistano, broad phonemic with stress; **deterministic baseline + LLM correction** |
 | **IPA sandhi gap** | Documented: per-word IPA does not reflect connected-speech word-linking present in audio. Not patched. |
-| Audio | 4 clips per sense (2 voices × {word, example}); fixed 1M+1F across whole deck; ElevenLabs |
+| Audio | 4 clips per sense (2 voices × {word, example}); fixed 1M+1F across whole deck; **Google Cloud TTS Neural2 BR voices** (default — ~$30–60 vs. ElevenLabs' ~$260–430). ElevenLabs swap-in available if user later wants premium naturalness. Open-source local TTS (Kokoro / XTTS / MeloTTS) is the zero-cost option. |
 | **Audio column naming** | `audio_word_m`, `audio_word_f`, `audio_example_m`, `audio_example_f` — never `_v1/_v2`. Eliminates voice-mix-up risk on script restart. |
 | Audio stage | Pilot first 500, then full batch |
 | **Audio storage** | **Cloudflare R2**, exposed via R2 public bucket custom domain (not per-object public-read ACL). Stable HTTPS URLs with `?v=N` cache-busting. |
@@ -43,8 +43,134 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | Manual overrides | First-class: every LLM stage has a corresponding `_manual_*.tsv`; overrides always win |
 | LLM provenance | Recorded in stage audit JSONL files (model, prompt-hash, response-hash, confidence) |
 | Model config | Centralized in `config/models.yaml`; never hard-coded in scripts |
+| **Review strategy** | **LLM 3-model jury + adversarial auditor + verdict auditor + N-best on top-1000 + ASR roundtrip; human review is study-time flagging, not upfront QA queues** |
+| **Audio QA** | **Whisper-class ASR roundtrip + phonetic-distance check; human listens only to ASR-flagged clips and the pilot voice-quality sample (~15 min)** |
+| Study-time loop | Anki flag-for-regeneration field → weekly batch regeneration of flagged cards |
 | Study app | macOS desktop + iPhone |
-| LLM providers | Anthropic + OpenAI; ElevenLabs for audio |
+| LLM providers | Anthropic + OpenAI + Google (three families for jury diversity); Google Cloud TTS for audio; OpenAI Whisper-class ASR for roundtrip |
+| **Batch APIs** | All offline LLM stages (1.5, 2, 4, 5, both auditors) use Anthropic Message Batches and OpenAI Batch API — **50% discount** for ≤24h turnaround. Realtime tiebreaker calls stay on synchronous APIs. Saves ~$140–240 with zero quality loss. |
+| **Juror tier** | Generator and verdict-auditor use top-tier models. Jurors vote on small structured outputs (enums + short text), so they use **smaller, cheaper models** (Haiku-class + GPT-5-mini-class + Gemini-Flash-class). Adversarial auditor uses a mid-tier model (defect listing benefits from capability but doesn't need top-tier reasoning). Saves ~$80–120. |
+| **Model registry** | `config/models.yaml` is the **single source of truth** for model IDs. Plan exemplars below name 2026-current frontier models; the registry is updated as models age out (e.g., GPT-4o → GPT-5 family; Claude 3.5 → Claude 4.x; Gemini 1.5 → Gemini 2.5). Stage scripts read role-keys (`generator`, `juror_a`, `juror_b`, `juror_c`, `tiebreaker`, `validator`, `auditor_verdict`, `auditor_adversarial`), never hard-coded IDs. |
+
+## Review strategy: LLM jury, auditor, ASR — human review is post-hoc, not upfront
+
+The v2 plan demanded ~30–40h of upfront human review across many QA queues. That is unstable: too much attention required, too easy to skim and rubber-stamp. The v3 reframe replaces almost all upfront human review with **LLM-driven review** at three tiers, plus a study-time correction loop.
+
+### Tier 1 — Three-model jury on every LLM decision
+
+Every LLM stage that produces a structured output (`bp_status`, sense-split classification, gender fallback, cognate, family root, sensitive-term classification, IPA correction, example generation) runs the same prompt through **three different models from three different families** — Anthropic Claude Sonnet 4.x, OpenAI GPT-5 family, Google Gemini 2.5 Pro (or whatever the registry currently names). All three responses are recorded in the audit JSONL.
+
+Resolution rule:
+
+- **All three agree** (same enum value; or, for free-text outputs, the validator scores them mutually semantically equivalent): accept silently. This is the common case.
+- **Two-of-three agree**: accept the majority answer. Disagreement logged but does not block.
+- **All three disagree**: route to a **fourth tiebreaker model** (typically the strongest available — Claude Opus 4.x or GPT-5 Pro). If the tiebreaker matches one of the three, accept. If the tiebreaker proposes a fourth answer or expresses low confidence, route to `_jury_disagreements.tsv` for human review.
+
+Why three not two: a two-model jury fails open on shared-blind-spots — both models confidently agree on the same wrong answer. A three-model cross-family jury makes that failure mode require *three* simultaneous shared blind spots, which is empirically rare. Cost is ~3× the single-model line item (still small relative to audio).
+
+Disagreement rate is itself a quality metric: if Stage 4 examples have >15% three-way disagreement, the prompt is broken and needs revision before further generation.
+
+### Tier 1.5 — N-best on top-1000 headwords
+
+The top 1000 most-frequent headwords drive ~80% of actual study time. Errors there are encountered constantly; errors at rank 7,800 are encountered rarely. The plan applies extra scrutiny **specifically** to the top 1000:
+
+- **N=2 generation for example sentences.** Each top-1000 sense gets two candidate `(example_pt, example_en, target_word_used)` tuples generated by two different models. The verdict auditor picks the better one or rejects both (which triggers a regen with both prior candidates shown as anti-examples).
+- **Stricter ASR threshold.** Top-1000 audio clips must clear Levenshtein similarity ≥ 0.95 (vs. 0.92 for the long tail). Anything lower regenerates twice before falling through.
+- **Adversarial auditor required.** Below.
+
+Cost addition: ~$15–25 (1000 senses × 1 extra generation × 1 selection call).
+
+### Tier 2 — Adversarial auditor + verdict auditor (Stage 5.5)
+
+Stage 5.5 runs **two auditor passes**, by two different models:
+
+**Adversarial auditor** uses "find every fault" framing — **not** "is this OK?". The prompt is explicit: *"Your job is to find faults. List every defect you can identify in this row, even minor ones. If you find no defects, list 'none' and explain why each axis below is clean."* This adversarial framing empirically catches issues that verdict prompting waves through.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "axis": {"type": "string", "enum": [
+            "sense_consistency", "example_uses_intended_sense", "translation_match",
+            "bp_purity", "sensitive_policy", "ipa_plausibility", "target_word_token_match",
+            "naturalness", "level_appropriateness", "other"
+          ]},
+          "severity": {"type": "string", "enum": ["low", "medium", "high"]},
+          "description": {"type": "string"}
+        },
+        "required": ["axis", "severity", "description"]
+      }
+    }
+  },
+  "required": ["defects"]
+}
+```
+
+**Verdict auditor** (different model again) reviews the row + the adversarial auditor's defect list, and decides:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "agrees_with_defects": {"type": "array", "items": {"type": "string"}},
+    "disagrees_with_defects": {"type": "array", "items": {"type": "string"}},
+    "verdict": {"type": "string", "enum": ["pass", "regenerate", "human_review"]},
+    "reason": {"type": "string"}
+  },
+  "required": ["verdict"]
+}
+```
+
+Decision flow:
+
+- `verdict = pass`: row accepted, even if low-severity defects exist (acceptable noise floor).
+- `verdict = regenerate`: row jumps back to the relevant generation stage with the defect list in the prompt; ≤2 regen attempts.
+- `verdict = human_review`: row written to `_jury_disagreements.tsv`.
+
+Three different models touch each row across these two passes (adversarial + verdict + the original generator). Shared blind spots have to be 3-way coincident to slip through. Combined with Tier 1's 3-model jury, that's effectively 5-model coverage on every row.
+
+### Tier 3 — Audio ASR roundtrip (replaces human listening QA)
+
+After every audio clip is generated, [build/lib/asr_check.py](build/lib/asr_check.py):
+
+1. Transcribes the clip with the registry-configured ASR model (current frontier multilingual: OpenAI `whisper-large-v3` or successor; the registry tracks the active ID), `language=pt`.
+2. Computes normalized **Levenshtein similarity** between transcript and the input text.
+3. Computes **phonetic distance** between the transcript's IPA (via eSpeak-NG roundtrip) and the expected `ipa_word_final` / `ipa_example_final`.
+
+Decision rule per clip:
+
+- **Long tail** (rank > 1000): Levenshtein ≥ 0.92 AND phonetic distance ≤ threshold → pass.
+- **Top 1000** (rank ≤ 1000): Levenshtein ≥ **0.95** AND phonetic distance ≤ stricter threshold → pass. Top-1000 is the dominant share of study time, so cleanliness there matters disproportionately.
+- Levenshtein in the warning band → **regenerate once with bumped `?v=N`** (often fixes bad TTS prosody).
+- Levenshtein well below threshold → **regenerate twice**; if still failing, route to `_audio_human_review.tsv` (the only audio rows a human ever listens to).
+- Phonetic-distance outlier with Levenshtein pass → flag but accept (likely TTS mispronunciation that the ASR also mishears consistently — rare; weekly study-time loop catches them).
+
+This catches the catastrophic failure mode (audio says something clearly wrong) without requiring human listening. Cost: ~$10–30 for ASR on ~38k clips. Time saved: ~10–20 hours of listening.
+
+### Tier 4 — Study-time correction loop
+
+Anki note type includes a `flag_for_regeneration` field exposed as a one-tap action during review. When the user encounters a card that is wrong (bad audio, wrong gender, awkward example, wrong sense), they tap the flag. Once a week:
+
+1. Anki export → `_study_flags.tsv`.
+2. `python build/regenerate_flagged.py` reads the flagged `sense_id`s, jumps to the relevant stage, regenerates, bumps audio `?v=N`, updates manifest, re-derives final TSV.
+3. Anki picks up the new audio URL on next sync (cache-busted by `?v=N`).
+
+This distributes correction across the study lifetime instead of front-loading it, and only attacks rows that actually matter to the user.
+
+### Human gates that remain (~2 hours total, lifetime)
+
+- **Voice ID selection** (~10 min): pick male and female ElevenLabs voices.
+- **Audio pilot voice quality sample** (~15 min): listen to 10 random pilot clips (post-ASR-roundtrip) to confirm the chosen voices sound right. Sanity check, not pronunciation review.
+- **`_jury_disagreements.tsv` review** (~30–60 min): scan the LLM disagreement queue at the end. Most rows are easy 5-second decisions.
+- **`_audio_human_review.tsv` review** (~10–20 min): listen to the clips that failed ASR roundtrip twice. Probably <50 clips.
+- **Final 50-row sanity scroll on `06-final.tsv`** (~30 min): open in Numbers, eyeball 50 random rows end-to-end. Catches systemic errors the jury and auditor missed.
+
+That is the complete human attention budget. Everything else runs unattended.
 
 ## Source ledger (the backbone)
 
@@ -418,27 +544,11 @@ Tags: `#function-word`, `#pronoun`, `#grammar`, `#manual-sense`.
 
 `sense_id = {rank:04d}.{expansion_index}{sense_index}` where `expansion_index` is from Stage 1a (default `0`, `1+` for idiom expansions) and `sense_index` is 1-indexed within `(rank, expansion_index)`. Example: `0001.01` for `o` first sense; `0314.11` for the idiom-expanded `à medida que` first sense. Sense IDs are stable forever.
 
-#### QA queues generated
+#### Review
 
-After Stage 2, the following review queues are populated for spot-checking before Stage 4:
+Stage 2 runs the **two-model jury** (§ Review strategy). Disagreements go to `_jury_disagreements.tsv` and are auto-resolved by the tiebreaker model. The auditor pass at Stage 5.5 catches anything that slipped through both. **No upfront human review queues** for Stage 2 — the v2 plan's six queues (`_sense_review_top1000.tsv`, `_sense_review_low_confidence.tsv`, `_sense_review_polysemous.tsv`, `_sense_review_idioms.tsv`, `_sense_review_function_words.tsv`, `_sense_review_sensitive.tsv`) are removed.
 
-- `_sense_review_top1000.tsv` — all senses for top 1000 headwords
-- `_sense_review_low_confidence.tsv` — `split_confidence ∈ {low, medium}`
-- `_sense_review_polysemous.tsv` — headwords with ≥3 senses
-- `_sense_review_idioms.tsv` — all expansion_index ≥ 1 rows
-- `_sense_review_function_words.tsv` — every `#function-word` and `#pronoun`
-- `_sense_review_sensitive.tsv` — populated by sensitive-term screen (§ Stage 2.5)
-
-QA gates that block Stage 4:
-
-- First 200 headwords sense-split, user-approved.
-- Random 200 rows from full file, user-approved.
-- All forced gender splits, user-approved.
-- All idiom expansions, user-approved.
-- All EP/BP-flagged rows, user-approved.
-- All `#sensitive`-tagged rows, user-approved.
-- All low-confidence LLM decisions, user-approved.
-- Top 1000 headwords for sense-split quality, user-approved.
+The 8 forced-gender-split entries and the ~12 idiom-expansion entries are short enough to **inline as manual seed senses** in `_manual_sense_splits.tsv` once at the start of the project (~5 min), bypassing both LLM splitting and review.
 
 **Validation**:
 
@@ -458,7 +568,7 @@ Screen for terms that need careful example-generation policy even when not flagg
 sense_id	rank	source_pt	pt	sensitive_category	risk_level	example_policy	manual_status	notes
 ```
 
-`sensitive_category` ∈ `{sexual, violence, slur_or_identity, race_ethnicity, religion, politics, medical, self_harm, crime, weapons, substance, offensive_possible}`. `risk_level` ∈ `{low, medium, high}`. `example_policy` is a short directive that flows into the Stage 4 prompt (e.g., "use neutral medical context, no graphic detail"). High-risk and medium-risk rows tagged `#sensitive-reviewed` and require manual approval before Stage 4.
+`sensitive_category` ∈ `{sexual, violence, slur_or_identity, race_ethnicity, religion, politics, medical, self_harm, crime, weapons, substance, offensive_possible}`. `risk_level` ∈ `{low, medium, high}`. `example_policy` is a short directive that flows into the Stage 4 prompt (e.g., "use neutral medical context, no graphic detail"). High-risk and medium-risk rows tagged `#sensitive-reviewed`. The auditor at Stage 5.5 verifies that generated examples actually obey their `example_policy`; failures auto-regenerate. **No upfront manual approval gate** — the auditor's `violates_sensitive_policy` boolean is the gate.
 
 This is **not a drop list**. Most words remain. The purpose is to ensure example sentences are neutral, safe, and learner-appropriate.
 
@@ -549,14 +659,11 @@ After generation, a **separate model** (e.g., GPT-4o-mini, configured in `models
 
 Failures (`fail`) routed to `_example_fixes.tsv` for re-generation. `borderline` routed to manual review queue. Do **not** rely on the same model validating itself.
 
-#### QA gates
+#### Review
 
-- First 500 senses, user-approved.
-- All `#sensitive-reviewed` rows, user-approved.
-- All idioms, user-approved.
-- All function words / pronouns, user-approved.
+Stage 4 examples flow into Stage 5.5's adversarial + verdict auditor pair (§ Review strategy). Top-1000 senses get N=2 generation with auditor selection. Borderline rows route to `_jury_disagreements.tsv`. Failures auto-regenerate up to twice with the defect list in the prompt. **No "first 500 senses, user-approved" gate** — that v2 step is dropped.
 
-**Cost**: ~$30–60 (Sonnet generator) + ~$10–20 (mini validator).
+**Cost**: ~$30–60 (Sonnet generator full corpus) + ~$15–25 (top-1000 N=2 second generation) + ~$15–25 (validator pass).
 
 ### Stage 5 — IPA ([build/05_ipa.py](build/05_ipa.py))
 
@@ -577,15 +684,39 @@ Final TSV exposes `ipa_word` and `ipa_example` (= `*_final`).
 
 **Documented limitation (not a defect)**: per-word isolated-form IPA does not reflect connected-speech sandhi — vowel reductions, /s/-linking across word boundaries, contractions like `para o → pro`. The audio in Stage 6 will exhibit natural sandhi. Both serve different pedagogical purposes. README spells this out.
 
-**QA gates**:
-
-- User reviews first 100 `ipa_word_final` values.
-- Random 100 rows from full file.
-- Manual override possible per-row via `_manual_ipa.tsv`.
+**Review**: the auditor at Stage 5.5 runs the `ipa_plausible` check across all rows; outliers regenerate. The eSpeak-NG baseline gives a strong machine-readable lower bound, so LLM "correction" is heavily constrained. Manual override remains available per-row via `_manual_ipa.tsv` for any user-noticed issue at study time.
 
 **Validation**: `ipa_word_final` non-empty for every row; `ipa_example_final` token count == `example_pt` token count.
 
 **Cost**: ~$15–25 (LLM correction only; eSpeak-NG is free).
+
+### Stage 5.5 — Adversarial + verdict auditor ([build/055_audit.py](build/055_audit.py))
+
+**In**: `05-ipa.tsv` → **Out**: `_auditor_flags.tsv`, regeneration directives, `_jury_disagreements.tsv` borderline queue
+
+Runs the **two-auditor pipeline** described in § Review strategy: adversarial auditor produces a defect list; verdict auditor (different model) reviews the row + defect list and decides `pass` / `regenerate` / `human_review`. Tool Use enforces both schemas. Failures route to auto-regeneration (≤2 attempts, with the defect list in the regen prompt as anti-examples). Borderlines route to the small human disagreement queue.
+
+The two auditor models are different from each other AND different from the generator AND different from any of the three jurors. In practice this means rotating across families: e.g., generator = Anthropic, jurors = {Anthropic-small, OpenAI, Google}, adversarial auditor = OpenAI top-tier, verdict auditor = Google top-tier. The registry handles the assignment.
+
+**Cost**: ~$30–60 (two auditor calls per row × ~9k rows).
+
+**Validation**: every row in `05-ipa.tsv` has both an adversarial defect list and a verdict. Rows with `verdict = regenerate` after 2 failed regen attempts are surfaced loudly to `_auditor_flags.tsv` — should be rare (<1%).
+
+### TTS provider (default: Google Cloud TTS)
+
+The audio line is the largest in v2/early-v3. Switching from ElevenLabs to **Google Cloud TTS Neural2 BR voices** is the single biggest cost win. Naturalness gap is small at A1 listening level; both produce intelligible Brazilian Portuguese with correct stress and prosody. Pricing comparison (rough, as of 2026):
+
+| Provider | Quality (A1 use) | Pricing | Total at ~970k chars × 2 voices |
+|---|---|---|---|
+| ElevenLabs (Multilingual v2) | premium | ~$0.15–0.22/1k chars | ~$260–430 |
+| **Google Cloud TTS Neural2 (default)** | excellent | ~$0.016/1k chars | **~$30–60** |
+| Azure Neural TTS | excellent | ~$0.016/1k chars | ~$30–60 |
+| OpenAI TTS (`tts-1` / `tts-1-hd`) | very good | ~$0.015–0.030/1k chars | ~$30–60 |
+| Open-source local (Kokoro / XTTS / MeloTTS) | adequate | $0 (local compute) | $0 |
+
+`config/models.yaml` carries the active TTS provider as a role-key. Switching providers later is a config change + regenerate-with-version-bump (Stage 6 idempotency handles this).
+
+Voice IDs are pinned per gender. For Google Cloud TTS BR voices, defaults: male = `pt-BR-Neural2-B`, female = `pt-BR-Neural2-A`. User picks final voices at step 13 of runbook. ASR roundtrip and ?v=N versioning are unchanged across providers.
 
 ### Stage 6 — Audio pilot ([build/06_audio_pilot.py](build/06_audio_pilot.py))
 
@@ -603,7 +734,7 @@ sense_id	clip_type	voice_gender	voice_id	text_input	text_hash	object_key	url	ver
 
 #### Generation
 
-Generate 4 mp3 clips per sense via ElevenLabs:
+Generate 4 mp3 clips per sense via the configured TTS provider (default: Google Cloud TTS Neural2):
 
 - `audio_word_m`: male voice, headword
 - `audio_word_f`: female voice, headword
@@ -621,9 +752,9 @@ Generate 4 mp3 clips per sense via ElevenLabs:
 5. Stable URL pattern: `https://<R2-public-domain>/audio/{filename}?v={version}`. The `?v=` query param is **always present** (default `v=1`).
 6. Local `build/audio_cache/` retained until final `.apkg` bundling.
 
-#### ElevenLabs error handling (explicit policy)
+#### TTS error handling (explicit policy)
 
-ElevenLabs returns transient `500`/`502`/`503`/`504` and `429` under load. The 20–40% character buffer covers re-billed retries; the script must not turn a transient 5xx into a permanent manifest failure. [build/lib/elevenlabs_client.py](build/lib/elevenlabs_client.py) policy:
+TTS providers return transient `500`/`502`/`503`/`504` and `429` under load. The script must not turn a transient 5xx into a permanent manifest failure. [build/lib/tts_client.py](build/lib/tts_client.py) policy (provider-agnostic; Google/Azure/ElevenLabs share the same retry envelope):
 
 - **Retryable** (HTTP `429`, `500`, `502`, `503`, `504`, connection errors, read timeouts): exponential backoff with full jitter, base `1s`, cap `60s`, up to **6 attempts**. Honor `Retry-After` header when present.
 - **Non-retryable** (HTTP `400`, `401`, `403`, `422` invalid voice / unsupported text): record `status = failed_permanent` in manifest with the response body in `notes`; do not retry on script restart.
@@ -644,9 +775,11 @@ The `?v=N` counter for each clip is owned by the manifest. Never silently regene
 
 Pre-flight cost report runs before audio: count actual characters from `04-examples.tsv` (headwords + examples), multiply by 2 voices, add **20–40% buffer** for retries, regenerations, voice swaps, version bumps, failed requests. User confirms before full run.
 
-#### QA gate
+#### Review (ASR roundtrip + minimal human gate)
 
-User opens `_pilot_500.tsv` in Numbers/Sheets, plays a sample via R2 URLs, confirms voice quality + pronunciation accuracy. Approval required before Stage 7.
+Every clip is validated automatically via Whisper-based ASR roundtrip (§ Review strategy, Tier 3). The pipeline regenerates any clip below the Levenshtein threshold; only clips that fail twice land in `_audio_human_review.tsv`.
+
+The single human gate before Stage 7 is **voice quality**, not pronunciation accuracy: the user listens to ~10 random pilot clips that **already passed ASR roundtrip** to confirm the chosen male and female voices sound right. ~15 minutes. If voices are wrong, swap voice IDs and regenerate (config change + ~30 min compute). Pronunciation accuracy is ASR's job, not the human's.
 
 ### Stage 7 — Audio full ([build/07_audio_full.py](build/07_audio_full.py))
 
@@ -767,9 +900,17 @@ Sequential calls across ~10,000 senses take days; naive `asyncio.gather` immedia
 
 With concurrency at the caps above, full-corpus runs:
 
-- Stage 1.5 + 2 + 4 + 5 LLM calls: ~3–6 hours wall clock (was: days sequentially).
-- Stage 6+7 audio (~38k clips at 4 concurrent + retry overhead): ~6–10 hours wall clock.
+- Stage 1.5 + 2 + 4 + 5 + auditors via **Batch API**: ~12–24 hours wall clock (the batches themselves complete asynchronously, with tighter typical turnaround).
+- Realtime tiebreaker calls (small fraction of total): ~30 min wall clock.
+- Stage 6+7 audio (Google Cloud TTS, ~38k clips at 4 concurrent): ~2–4 hours wall clock (faster than ElevenLabs).
 - Stage 3 dictionary lookups (~8k unique heads at 1 req/s per source): ~2–3 hours; cached on subsequent runs.
+
+### Batch API specifics
+
+- **Anthropic Message Batches**: submit ≤10k requests per batch, results within 24h, 50% discount. Used for jury, validator, auditor, and example generation (any stage where rows are independent).
+- **OpenAI Batch API**: similar; same 50% discount; same 24h SLA. Used for OpenAI juror and ASR roundtrip (Whisper accepts batch).
+- **Google**: Gemini's Batch Predictions equivalent — 50% discount on most tiers.
+- Batch results are pulled by [build/lib/llm.py](build/lib/llm.py) into the same audit JSONLs as synchronous calls, with `batch_id` field added for provenance. Stage scripts treat batch and sync identically downstream.
 
 ## Repo hygiene: TSV + Git interaction
 
@@ -849,45 +990,63 @@ Soft diagnostics (warning, not failure): row-count by `action` reported. No fixe
 - Do not assert "no missing ranks".
 - Do not assert per-row rank uniqueness (idiom expansions share rank).
 
-### End-to-end runbook
+### End-to-end runbook (v3 lean)
 
+Most of this runs unattended. Human touchpoints are explicitly tagged ⚑.
+
+0. ⚑ **Seed `_manual_sense_splits.tsv`** with the 8 forced gender splits and ~12 idiom expansions (~5 min).
 1. `python build/01a_parse.py` → ledger initialized; 3 embedded-`=` cases parsed; idiom candidates flagged.
 2. `python build/01b_orthographic_normalize.py` → `01-normalized.tsv`; `_flags.tsv` populated with structured `flag_type`.
-3. `python build/01c_lexical_replace.py` → `012-lexical_replaced.tsv`; `_ep_drop_or_replace_review.tsv` ready for human triage.
-4. **Manual review** of `_ep_drop_or_replace_review.tsv` and `_flags.tsv`.
-5. `python build/015_bp_status.py` → `015-bp_status.tsv`; ledger updated for `ep_only` decisions.
-6. `python build/018_dedupe.py` → `018-deduped.tsv`; resolve `_normalized_duplicates.tsv` manually if needed.
-7. `python build/02_split_senses.py --limit 200` → spot-check sense splits in Numbers; review all generated QA queues; re-run without `--limit` after approval.
-8. `python build/sensitive_screen.py` → `_sensitive_terms.tsv`; manual approval of medium/high-risk rows.
-9. `python build/03_enrich.py` → confirm gender filled for common nouns; M/F splits correct.
-10. `python build/04_examples.py --limit 500` → spot-check examples; semantic validator runs; failures in `_example_fixes.tsv`.
-11. `python build/04_examples.py` (full run after pilot approval).
-12. `python build/05_ipa.py --limit 100` → eSpeak baseline + LLM correction; spot-check; re-run for remainder.
-13. **Pre-audio cost report**: confirm character count and 20–40% buffer.
-14. Supply female voice ID; configure R2 public custom domain.
-15. `python build/06_audio_pilot.py` → manifest populated; `_pilot_500.tsv`; user plays samples, approves.
-16. `python build/07_audio_full.py` → `06-final.tsv` produced.
-17. `python build/verify_all.py` passes (incl. `verify_ledger`, `verify_ledger_math`); `pytest tests/test_invariants.py` passes.
+3. `python build/01c_lexical_replace.py` → `012-lexical_replaced.tsv`. Replacement collisions auto-merged where gloss overlap is high; ambiguous ones written to `_ep_drop_or_replace_review.tsv` (small queue, ~20 rows max — handled later in jury-disagreement review).
+4. `python build/015_bp_status.py` → Tool-Use jury (Sonnet + GPT-4o); tiebreaker on disagreements; `015-bp_status.tsv`.
+5. `python build/018_dedupe.py` → `018-deduped.tsv`; auto-merges trivial duplicates.
+6. `python build/02_split_senses.py` → jury + tiebreaker; `02-senses.tsv`. **No `--limit`, no human gate.**
+7. `python build/sensitive_screen.py` → jury-classified `_sensitive_terms.tsv`; `example_policy` populated for Stage 4.
+8. `python build/03_enrich.py` → cached Wiktionary/Priberam + jury fallback; `03-enriched.tsv`.
+9. `python build/04_examples.py` → generator + separate-model semantic validator; failures auto-regenerate; `04-examples.tsv`. **No human gate.**
+10. `python build/05_ipa.py` → eSpeak baseline + LLM correction; `05-ipa.tsv`.
+11. `python build/055_audit.py` → auditor pass; failures auto-regenerate; borderlines into `_jury_disagreements.tsv`.
+12. ⚑ **Pre-audio cost report**: review character count and confirm spend (~5 min).
+13. ⚑ **Supply male and female voice IDs** (~10 min); configure R2 public custom domain.
+14. `python build/06_audio_pilot.py` → ASR-validated; `_pilot_500.tsv`.
+15. ⚑ **Voice quality check**: listen to ~10 random ASR-passed pilot clips (~15 min). If voices are wrong, swap and rerun pilot.
+16. `python build/07_audio_full.py` → ASR-validated; `06-final.tsv` produced; `_audio_human_review.tsv` for the rare twice-failed clips.
+17. ⚑ **Disagreement queue review** (~30–60 min): walk through `_jury_disagreements.tsv` and `_audio_human_review.tsv`. Most rows are 5-second decisions.
+18. ⚑ **Final 50-row sanity scroll on `06-final.tsv`** (~30 min): catches systemic errors.
+19. `python build/verify_all.py` passes; `pytest tests/test_invariants.py` passes.
+20. **Ongoing**: study with the deck. Use Anki's flag-for-regeneration field as you encounter issues. Run `python build/regenerate_flagged.py` weekly.
 
 ## Cost & resource budget
 
-| Item | Cost |
-|---|---|
-| Claude (sense split + examples + IPA correction + bp_status + cognate + idiom expand + sensitive screen) | ~$70–120 |
-| OpenAI (semantic example validator, mini model) | ~$10–25 |
-| ElevenLabs (~970k chars × 2 voices, +30% buffer) | ~$260–430 |
-| Cloudflare R2 storage (~1.4 GB) | ~$0.02/month |
-| Cloudflare R2 egress | $0 (free) |
-| **One-time total** | **~$340–575** |
-| Ongoing | ~$0/month |
+Three cost-reduction levers built in: (a) Google Cloud TTS instead of ElevenLabs, (b) Batch APIs everywhere offline (50% off), (c) smaller juror models. Numbers below assume registry-current model pricing and the three levers active.
 
-**Active human time**: ~30–40h, dominated by spot-check passes (multiple QA queues, EP/BP review, sensitive-term review, sense-split sample, pilot 500 audio review). Higher than v1's ~25–30h because review queues are now structured and broader.
+| Item | Cost (default lean) | Cost (premium opt-in) |
+|---|---|---|
+| Anthropic (generator + small juror + auditor share, batch-discounted) | ~$50–90 | ~$140–230 (sync, top-tier juror) |
+| OpenAI (mini juror + validator + ASR + auditor share, batch-discounted) | ~$25–50 | ~$80–140 |
+| Google (Flash juror + tiebreaker share + auditor share, batch-discounted) | ~$15–35 | ~$50–90 |
+| Top-1000 N-best second generation + selection | ~$10–18 | ~$15–25 |
+| ASR roundtrip (~38k clips, batch-discounted) | ~$5–15 | ~$10–30 |
+| **TTS** (Google Cloud TTS Neural2 BR, ~970k chars × 2 voices, +30% buffer) | **~$30–60** | ~$260–430 (ElevenLabs swap) |
+| Cloudflare R2 storage (~1.4 GB) | ~$0.02/month | ~$0.02/month |
+| Cloudflare R2 egress | $0 | $0 |
+| **One-time total** | **~$135–270** | ~$555–945 |
+| Ongoing | ~$0/month + occasional weekly regeneration ($0.50–2/week) | same |
 
-**Wall clock**: ~1.5–2 weeks assuming prompt user review at each QA gate.
+The premium column is the prior-pass numbers, kept for reference if the user later decides ElevenLabs naturalness is worth the ~$420–675 premium. The default lean column is the recommendation: ~$135–270 total, with quality differences invisible at A1.
+
+If the user wants to push cost even lower:
+
+- Switch TTS to local open-source (Kokoro / XTTS / MeloTTS): saves another $30–60. Requires a GPU-capable Mac and ~1 day of generation time. Quality is "adequate, not great" — fine for early study, may want re-generation later.
+- Drop the third juror and adversarial auditor; rely on jury-of-2 + verdict auditor only: saves ~$30–60. Residual error rate climbs back toward ~2%, study-time flags toward ~3–5/week.
+
+**Active human time**: **~2 hours total upfront** (seed manual splits + cost confirmation + voice IDs + pilot voice quality + small disagreement queue + final sanity scroll), plus **1–3 flags per week** of study-time flag-and-regenerate. Lean cost path does not change human time.
+
+**Wall clock**: ~1–2 days of mostly unattended pipeline runs. Batch APIs add ~12–24h of async wait, but that wait costs zero attention.
 
 ## What this plan deliberately does NOT do
 
-- No Anki note-type design, card templates, or `.apkg` generation (next phase).
+- No Anki note-type design, card templates, or `.apkg` generation (next phase). One exception: the note type must include a `flag_for_regeneration` field exposed as a tappable flag during review — required to close the study-time correction loop.
 - No EN→PT production cards or cloze cards (deferred).
 - No BP cross-check against external corpora (user opted out).
 - No legal/travel expansion vocabulary (out of scope for now).
@@ -896,3 +1055,14 @@ Soft diagnostics (warning, not failure): row-count by `action` reported. No fixe
 - No connected-speech IPA — gap documented, not patched.
 - No storage of authoritative data as anything other than TSV files in this repo (simplicity over DB flexibility).
 - No silent drops, silent replacements, silent merges, or silent regenerations. Everything is in the ledger or the manifest.
+- **No upfront human QA queues across thousands of rows.** v2's six sense-review queues, the 200-headword spot-check, the 500-example spot-check, and the per-stage human approval gates are all dropped in favor of the LLM jury + auditor + ASR roundtrip + study-time flagging. Residual risk is shared-blind-spots between models; the mitigation is the study-time loop, not heroic upfront review.
+
+## Residual risks of the lean approach
+
+Honest about what the v3 reframe trades away:
+
+- **Shared LLM blind spots.** Three frontier models from three families can still all confidently produce the same wrong answer on a subtle case (e.g., a low-frequency idiom translated in the same drift direction by all three). The two-auditor pass (adversarial + verdict, two further models) catches most of these. The N-best on top-1000 catches more on the rows that matter most. The study-time loop catches the rest. Residual: probably 0.3–1% of ~9,000 rows have undetected errors at deck-launch — call it ~30–90 rows. The user encounters and fixes ~1–3 per week of study, which is sustainable and far below the daily card-review count.
+- **Audio rare failure modes.** ASR can mis-transcribe in the same direction TTS mis-pronounces (both treat a foreign loanword the same wrong way). Phonetic-distance check against eSpeak helps. Stricter top-1000 thresholds reduce frequency-weighted impact. Final defense is study-time flagging.
+- **Sensitive-term policy drift.** The verdict auditor's check is the gate. If auditor policy understanding differs from the user's, some examples pass that the user would have rejected. Mitigation: keep [build/policies/sensitive_terms_policy.md](build/policies/sensitive_terms_policy.md) explicit and short (1 page, examples-driven), and feed it to **every** auditor and juror so all five models read identical constraints.
+- **Cost overrun.** Five-model coverage triples or quadruples LLM line items vs. a single-model pipeline. Pre-flight cost report at step 12 is the gate before the audio line — the only line that's large in absolute terms.
+- **Model deprecation mid-run.** A model named in `config/models.yaml` may be retired between dev and full-corpus runs. Mitigation: stage scripts read role-keys, not IDs; the registry records both `current_id` and `last_run_id` so re-runs are reproducible against the same model when possible, or fall forward to the new one with a recorded provenance note.
