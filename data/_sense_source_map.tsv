@@ -4997,3 +4997,12 @@ sense_id	source_line_number	provenance_type	notes
 4983.00.00	4983	original	pt=penetração
 4984.00.00	4984	original	pt=mamífero
 4985.00.00	4985	original	pt=sul-americano
+1948.00.00	1782	merged	merged from equipa (rank 1782)
+2054.00.00	2085	merged	merged from registar (rank 2085)
+2604.00.00	2328	merged	merged from comboio (rank 2328)
+2355.00.00	2612	merged	merged from planeamento (rank 2612)
+2286.00.00	2828	merged	merged from registo (rank 2828)
+2629.00.00	2949	merged	merged from desporto (rank 2949)
+1415.00.00	3107	merged	merged from controlo (rank 3107)
+2748.00.00	4221	merged	merged from utilizador (rank 4221)
+2053.00.00	4268	merged	merged from paragem (rank 4268)

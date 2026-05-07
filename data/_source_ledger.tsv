@@ -1784,7 +1784,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1779	1779	depósito = deposit / safe / warehouse	depósito	deposit / safe / warehouse	keep	none						not_required	1a	pt_type=single_word
 1780	1780	instrução = formal schooling / instruction	instrução	formal schooling / instruction	keep	none						not_required	1a	pt_type=single_word
 1781	1781	comprido = long	comprido	long	keep	none						not_required	1a	pt_type=single_word
-1782	1782	equipa = team	equipa	team	keep	none						not_required	1a	pt_type=single_word
+1782	1782	equipa = team	equipa	team	merge_into_existing_bp_row	lexical		1948	equipe			not_required	1c	pt_type=single_word
 1783	1783	dançar = to dance	dançar	to dance	keep	none						not_required	1a	pt_type=single_word
 1784	1784	conservar = to keep / conserve	conservar	to keep / conserve	keep	none						not_required	1a	pt_type=single_word
 1785	1785	tela = screen / painting canvas	tela	screen / painting canvas	keep	none						not_required	1a	pt_type=single_word
@@ -2088,7 +2088,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2082	2082	converter = to convert	converter	to convert	keep	none						not_required	1a	pt_type=single_word
 2083	2083	definido = defined	definido	defined	keep	none						not_required	1a	pt_type=single_word
 2084	2084	absurdo = absurd / absurdity	absurdo	absurd / absurdity	keep	none						not_required	1a	pt_type=single_word
-2085	2085	registar = to register	registar	to register	keep	none						not_required	1a	pt_type=single_word
+2085	2085	registar = to register	registar	to register	merge_into_existing_bp_row	lexical		2054	registrar			not_required	1c	pt_type=single_word
 2086	2086	beira = side / edge	beira	side / edge	keep	none						not_required	1a	pt_type=single_word
 2087	2087	tragédia = tragedy	tragédia	tragedy	keep	none						not_required	1a	pt_type=single_word
 2088	2088	manutenção = maintenance	manutenção	maintenance	keep	none						not_required	1a	pt_type=single_word
@@ -2333,7 +2333,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2325	2325	basear = to base	basear	to base	keep	none						not_required	1a	pt_type=single_word
 2326	2326	evoluir = to evolve	evoluir	to evolve	keep	none						not_required	1a	pt_type=single_word
 2327	2327	íntimo = intimate / close friend	íntimo	intimate / close friend	keep	none						not_required	1a	pt_type=single_word
-2328	2328	comboio = train	comboio	train	keep	none						not_required	1a	pt_type=single_word
+2328	2328	comboio = train	comboio	train	merge_into_existing_bp_row	lexical		2604	trem			not_required	1c	pt_type=single_word
 2329	2329	repente = (de r.) suddenly	repente	(de r.) suddenly	keep	none						not_required	1a	pt_type=single_word
 2329	2329	repente = (de r.) suddenly	de repente	(de r.) suddenly	expand_idiom_added	idiom_expansion						not_required	1a	expanded from parenthetical 'de r.' (method=llm, confidence=high)
 2330	2330	marcado = set / marked	marcado	set / marked	keep	none						not_required	1a	pt_type=single_word
@@ -2618,7 +2618,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2609	2609	separação = separation	separação	separation	keep	none						not_required	1a	pt_type=single_word
 2610	2610	incomodar = to inconvenience / bother	incomodar	to inconvenience / bother	keep	none						not_required	1a	pt_type=single_word
 2611	2611	decreto = decree	decreto	decree	keep	none						not_required	1a	pt_type=single_word
-2612	2612	planeamento = planning / scheduling	planeamento	planning / scheduling	keep	none						not_required	1a	pt_type=single_word
+2612	2612	planeamento = planning / scheduling	planeamento	planning / scheduling	merge_into_existing_bp_row	lexical		2355	planejamento			not_required	1c	pt_type=single_word
 2613	2613	tonelada = ton	tonelada	ton	keep	none						not_required	1a	pt_type=single_word
 2614	2614	essência = essence	essência	essence	keep	none						not_required	1a	pt_type=single_word
 2615	2615	holandês = Dutch	holandês	Dutch	keep	none						not_required	1a	pt_type=single_word
@@ -2834,7 +2834,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2825	2825	combinação = combination	combinação	combination	keep	none						not_required	1a	pt_type=single_word
 2826	2826	avançado = advanced	avançado	advanced	keep	none						not_required	1a	pt_type=single_word
 2827	2827	prisioneiro = prisoner	prisioneiro	prisoner	keep	none						not_required	1a	pt_type=single_word
-2828	2828	registo = record / ledger	registo	record / ledger	keep	none						not_required	1a	pt_type=single_word
+2828	2828	registo = record / ledger	registo	record / ledger	merge_into_existing_bp_row	lexical		2286	registro			not_required	1c	pt_type=single_word
 2829	2829	clínica = clinic	clínica	clinic	keep	none						not_required	1a	pt_type=single_word
 2830	2830	protocolo = protocol	protocolo	protocol	keep	none						not_required	1a	pt_type=single_word
 2831	2831	reforço = reinforcement	reforço	reinforcement	keep	none						not_required	1a	pt_type=single_word
@@ -2955,7 +2955,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2946	2946	cemitério = cemetery	cemitério	cemetery	keep	none						not_required	1a	pt_type=single_word
 2947	2947	telefónico = telephone	telefónico	telephone	keep	none						not_required	1a	pt_type=single_word
 2948	2948	baile = dance / ball	baile	dance / ball	keep	none						not_required	1a	pt_type=single_word
-2949	2949	desporto = sport	desporto	sport	keep	none						not_required	1a	pt_type=single_word
+2949	2949	desporto = sport	desporto	sport	merge_into_existing_bp_row	lexical		2629	esporte			not_required	1c	pt_type=single_word
 2950	2950	eletricidade = electricity	eletricidade	electricity	keep	none						not_required	1a	pt_type=single_word
 2951	2951	castigo = punishment / curse	castigo	punishment / curse	keep	none						not_required	1a	pt_type=single_word
 2952	2952	descrição = description	descrição	description	keep	none						not_required	1a	pt_type=single_word
@@ -3113,7 +3113,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3104	3104	diagnóstico = diagnosis / diagnostic	diagnóstico	diagnosis / diagnostic	keep	none						not_required	1a	pt_type=single_word
 3105	3105	suficientemente = sufficiently	suficientemente	sufficiently	keep	none						not_required	1a	pt_type=single_word
 3106	3106	ódio = hatred	ódio	hatred	keep	none						not_required	1a	pt_type=single_word
-3107	3107	controlo = control	controlo	control	keep	none						not_required	1a	pt_type=single_word
+3107	3107	controlo = control	controlo	control	merge_into_existing_bp_row	lexical		1415	controle			not_required	1c	pt_type=single_word
 3108	3108	resultante = resulting from / a result of	resultante	resulting from / a result of	keep	none						not_required	1a	pt_type=single_word
 3109	3109	arder = to burn / sting	arder	to burn / sting	keep	none						not_required	1a	pt_type=single_word
 3110	3110	palha = straw / hay	palha	straw / hay	keep	none						not_required	1a	pt_type=single_word
@@ -4230,7 +4230,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4218	4218	caseiro = household / homemade	caseiro	household / homemade	keep	none						not_required	1a	pt_type=single_word
 4219	4219	diplomata = diplomat	diplomata	diplomat	keep	none						not_required	1a	pt_type=single_word
 4220	4220	flexível = flexible	flexível	flexible	keep	none						not_required	1a	pt_type=single_word
-4221	4221	utilizador = user	utilizador	user	keep	none						not_required	1a	pt_type=single_word
+4221	4221	utilizador = user	utilizador	user	merge_into_existing_bp_row	lexical		2748	usuário			not_required	1c	pt_type=single_word
 4222	4222	dedicação = dedication	dedicação	dedication	keep	none						not_required	1a	pt_type=single_word
 4223	4223	bagagem = luggage / baggage	bagagem	luggage / baggage	keep	none						not_required	1a	pt_type=single_word
 4224	4224	qualificação = qualification	qualificação	qualification	keep	none						not_required	1a	pt_type=single_word
@@ -4277,7 +4277,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4265	4265	teor = content / nature of	teor	content / nature of	keep	none						not_required	1a	pt_type=single_word
 4266	4266	manta = blanket / bedspread	manta	blanket / bedspread	keep	none						not_required	1a	pt_type=single_word
 4267	4267	judaico = Jewish	judaico	Jewish	keep	none						not_required	1a	pt_type=single_word
-4268	4268	paragem = (bus) stop	paragem	(bus) stop	keep	none						not_required	1a	pt_type=single_word
+4268	4268	paragem = (bus) stop	paragem	(bus) stop	merge_into_existing_bp_row	lexical		2053	parada			not_required	1c	pt_type=single_word
 4269	4269	refém = hostage	refém	hostage	keep	none						not_required	1a	pt_type=single_word
 4270	4270	sentimental = sentimental	sentimental	sentimental	keep	none						not_required	1a	pt_type=single_word
 4271	4271	austríaco = Austrian	austríaco	Austrian	keep	none						not_required	1a	pt_type=single_word
