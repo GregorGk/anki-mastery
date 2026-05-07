@@ -161,7 +161,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 160	160	voltar = to return	voltar	to return	keep	none						not_required	1a	pt_type=single_word
 161	161	tomar = to take (possession of) / drink	tomar	to take (possession of) / drink	keep	none						not_required	1a	pt_type=single_word
 162	162	obra = work / project	obra	work / project	keep	none						not_required	1a	pt_type=single_word
-163	163	facto = fact	facto	fact	keep	none						not_required	1a	pt_type=single_word
+163	163	facto = fact	facto	fact	keep	spelling						not_required	1a	pt_type=single_word
 164	164	ponto = point / dot / period	ponto	point / dot / period	keep	none						not_required	1a	pt_type=single_word
 165	165	trabalhar = to work	trabalhar	to work	keep	none						not_required	1a	pt_type=single_word
 166	166	fim = purpose / end	fim	purpose / end	keep	none						not_required	1a	pt_type=single_word
@@ -545,7 +545,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 543	543	evitar = to avoid	evitar	to avoid	keep	none						not_required	1a	pt_type=single_word
 544	544	ambiente = environment / surroundings	ambiente	environment / surroundings	keep	none						not_required	1a	pt_type=single_word
 545	545	guarda = guard / care	guarda	guard / care	keep	none						not_required	1a	pt_type=single_word
-546	546	económico = economic	económico	economic	keep	none						not_required	1a	pt_type=single_word
+546	546	económico = economic	económico	economic	keep	spelling						not_required	1a	pt_type=single_word
 547	547	casar = to marry	casar	to marry	keep	none						not_required	1a	pt_type=single_word
 548	548	participar = to participate	participar	to participate	keep	none						not_required	1a	pt_type=single_word
 549	549	rico = rich	rico	rich	keep	none						not_required	1a	pt_type=single_word
@@ -565,7 +565,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 563	563	ciência = science	ciência	science	keep	none						not_required	1a	pt_type=single_word
 564	564	marcar = to mark / set (a date)	marcar	to mark / set (a date)	keep	none						not_required	1a	pt_type=single_word
 565	565	cumprir = to fulfill / obey	cumprir	to fulfill / obey	keep	none						not_required	1a	pt_type=single_word
-566	566	contacto = contact	contacto	contact	keep	none						not_required	1a	pt_type=single_word
+566	566	contacto = contact	contacto	contact	keep	spelling						not_required	1a	pt_type=single_word
 567	567	realmente = really / truly	realmente	really / truly	keep	none						not_required	1a	pt_type=single_word
 568	568	morar = to live (in or at) / dwell	morar	to live (in or at) / dwell	keep	none						not_required	1a	pt_type=single_word
 569	569	rápido = fast / rapid	rápido	fast / rapid	keep	none						not_required	1a	pt_type=single_word
@@ -654,7 +654,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 651	651	prestar = to render (aid) / be useful	prestar	to render (aid) / be useful	keep	none						not_required	1a	pt_type=single_word
 652	652	dividir = to divide	dividir	to divide	keep	none						not_required	1a	pt_type=single_word
 653	653	erro = mistake / error	erro	mistake / error	keep	none						not_required	1a	pt_type=single_word
-654	654	género = kind / type / genus	género	kind / type / genus	keep	none						not_required	1a	pt_type=single_word
+654	654	género = kind / type / genus	género	kind / type / genus	keep	spelling						not_required	1a	pt_type=single_word
 655	655	favor = favor	favor	favor	keep	none						not_required	1a	pt_type=single_word
 656	656	oficial = official	oficial	official	keep	none						not_required	1a	pt_type=single_word
 657	657	administração = administration	administração	administration	keep	none						not_required	1a	pt_type=single_word
@@ -1235,7 +1235,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1231	1231	diretamente = directly	diretamente	directly	keep	none						not_required	1a	pt_type=single_word
 1232	1232	perfeito = perfect	perfeito	perfect	keep	none						not_required	1a	pt_type=single_word
 1233	1233	golpe = coup / hit / blow	golpe	coup / hit / blow	keep	none						not_required	1a	pt_type=single_word
-1234	1234	fenómeno = phenomenon	fenómeno	phenomenon	keep	none						not_required	1a	pt_type=single_word
+1234	1234	fenómeno = phenomenon	fenómeno	phenomenon	keep	spelling						not_required	1a	pt_type=single_word
 1235	1235	prédio = building	prédio	building	keep	none						not_required	1a	pt_type=single_word
 1236	1236	provar = to prove / test / try	provar	to prove / test / try	keep	none						not_required	1a	pt_type=single_word
 1237	1237	africano = African	africano	African	keep	none						not_required	1a	pt_type=single_word
@@ -1292,7 +1292,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1288	1288	leve = light (weight / color)	leve	light (weight / color)	keep	none						not_required	1a	pt_type=single_word
 1289	1289	clima = climate	clima	climate	keep	none						not_required	1a	pt_type=single_word
 1290	1290	permanente = permanent	permanente	permanent	keep	none						not_required	1a	pt_type=single_word
-1291	1291	quilómetro = kilometer	quilómetro	kilometer	keep	none						not_required	1a	pt_type=single_word
+1291	1291	quilómetro = kilometer	quilómetro	kilometer	keep	spelling						not_required	1a	pt_type=single_word
 1292	1292	jogador = player	jogador	player	keep	none						not_required	1a	pt_type=single_word
 1293	1293	troca = exchange / switch	troca	exchange / switch	keep	none						not_required	1a	pt_type=single_word
 1294	1294	divisão = division	divisão	division	keep	none						not_required	1a	pt_type=single_word
@@ -1352,7 +1352,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1348	1348	adotar = to adopt	adotar	to adopt	keep	none						not_required	1a	pt_type=single_word
 1349	1349	restar = to remain	restar	to remain	keep	none						not_required	1a	pt_type=single_word
 1350	1350	calor = heat / warmth	calor	heat / warmth	keep	none						not_required	1a	pt_type=single_word
-1351	1351	excepção = exception	excepção	exception	keep	none						not_required	1a	pt_type=single_word
+1351	1351	excepção = exception	excepção	exception	keep	spelling						not_required	1a	pt_type=single_word
 1352	1352	ausência = absence	ausência	absence	keep	none						not_required	1a	pt_type=single_word
 1353	1353	externo = external	externo	external	keep	none						not_required	1a	pt_type=single_word
 1354	1354	distribuir = to distribute	distribuir	to distribute	keep	none						not_required	1a	pt_type=single_word
@@ -1682,7 +1682,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1677	1677	complicado = complicated	complicado	complicated	keep	none						not_required	1a	pt_type=single_word
 1678	1678	quadrado = square / squared	quadrado	square / squared	keep	none						not_required	1a	pt_type=single_word
 1679	1679	condenar = to condemn	condenar	to condemn	keep	none						not_required	1a	pt_type=single_word
-1680	1680	património = estate / heritage / patrimony	património	estate / heritage / patrimony	keep	none						not_required	1a	pt_type=single_word
+1680	1680	património = estate / heritage / patrimony	património	estate / heritage / patrimony	keep	spelling						not_required	1a	pt_type=single_word
 1681	1681	destinado = meant for / destined	destinado	meant for / destined	keep	none						not_required	1a	pt_type=single_word
 1682	1682	visar = to aim at / have in sight / drive at	visar	to aim at / have in sight / drive at	keep	none						not_required	1a	pt_type=single_word
 1683	1683	transformação = transformation	transformação	transformation	keep	none						not_required	1a	pt_type=single_word
@@ -1800,7 +1800,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1795	1795	forçar = to force	forçar	to force	keep	none						not_required	1a	pt_type=single_word
 1796	1796	mecanismo = mechanism	mecanismo	mechanism	keep	none						not_required	1a	pt_type=single_word
 1797	1797	álcool = alcohol	álcool	alcohol	keep	none						not_required	1a	pt_type=single_word
-1798	1798	convénio = agreement / accord	convénio	agreement / accord	keep	none						not_required	1a	pt_type=single_word
+1798	1798	convénio = agreement / accord	convénio	agreement / accord	keep	spelling						not_required	1a	pt_type=single_word
 1799	1799	curva = curve	curva	curve	keep	none						not_required	1a	pt_type=single_word
 1800	1800	concentração = concentration	concentração	concentration	keep	none						not_required	1a	pt_type=single_word
 1801	1801	desconhecido = unknown	desconhecido	unknown	keep	none						not_required	1a	pt_type=single_word
@@ -2040,7 +2040,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2035	2035	masculino = masculine / male	masculino	masculine / male	keep	none						not_required	1a	pt_type=single_word
 2036	2036	alcance = range / reach	alcance	range / reach	keep	none						not_required	1a	pt_type=single_word
 2037	2037	centímetro = centimeter	centímetro	centimeter	keep	none						not_required	1a	pt_type=single_word
-2038	2038	crónica = newspaper column / narrative	crónica	newspaper column / narrative	keep	none						not_required	1a	pt_type=single_word
+2038	2038	crónica = newspaper column / narrative	crónica	newspaper column / narrative	keep	spelling						not_required	1a	pt_type=single_word
 2039	2039	condenado = condemned (person)	condenado	condemned (person)	keep	none						not_required	1a	pt_type=single_word
 2040	2040	concorrer = to compete (against) / apply for	concorrer	to compete (against) / apply for	keep	none						not_required	1a	pt_type=single_word
 2041	2041	tio = uncle	tio	uncle	keep	none						not_required	1a	pt_type=single_word
@@ -2142,7 +2142,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2136	2136	demanda = demand	demanda	demand	keep	none						not_required	1a	pt_type=single_word
 2137	2137	acerca = about / near	acerca	about / near	keep	none						not_required	1a	pt_type=single_word
 2138	2138	impulso = impulse / impetus	impulso	impulse / impetus	keep	none						not_required	1a	pt_type=single_word
-2139	2139	cerimónia = ceremony	cerimónia	ceremony	keep	none						not_required	1a	pt_type=single_word
+2139	2139	cerimónia = ceremony	cerimónia	ceremony	keep	spelling						not_required	1a	pt_type=single_word
 2140	2140	entendimento = understanding	entendimento	understanding	keep	none						not_required	1a	pt_type=single_word
 2141	2141	saltar = to jump / lead	saltar	to jump / lead	keep	none						not_required	1a	pt_type=single_word
 2142	2142	temperatura = temperature	temperatura	temperature	keep	none						not_required	1a	pt_type=single_word
@@ -2294,7 +2294,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2286	2286	registro = record	registro	record	keep	none						not_required	1a	pt_type=single_word
 2287	2287	típico = typical / characteristic	típico	typical / characteristic	keep	none						not_required	1a	pt_type=single_word
 2288	2288	solicitar = to solicit	solicitar	to solicit	keep	none						not_required	1a	pt_type=single_word
-2289	2289	académico = academic	académico	academic	keep	none						not_required	1a	pt_type=single_word
+2289	2289	académico = academic	académico	academic	keep	spelling						not_required	1a	pt_type=single_word
 2290	2290	compositor = composer	compositor	composer	keep	none						not_required	1a	pt_type=single_word
 2291	2291	frequente = common / frequent	frequente	common / frequent	keep	none						not_required	1a	pt_type=single_word
 2292	2292	residência = residence	residência	residence	keep	none						not_required	1a	pt_type=single_word
@@ -2499,7 +2499,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2490	2490	presidencial = presidential	presidencial	presidential	keep	none						not_required	1a	pt_type=single_word
 2491	2491	legítimo = legitimate	legítimo	legitimate	keep	none						not_required	1a	pt_type=single_word
 2492	2492	escolar = relating to school	escolar	relating to school	keep	none						not_required	1a	pt_type=single_word
-2493	2493	colónia = colony	colónia	colony	keep	none						not_required	1a	pt_type=single_word
+2493	2493	colónia = colony	colónia	colony	keep	spelling						not_required	1a	pt_type=single_word
 2494	2494	melhoria = improvement / benefit	melhoria	improvement / benefit	keep	none						not_required	1a	pt_type=single_word
 2495	2495	eficaz = effective	eficaz	effective	keep	none						not_required	1a	pt_type=single_word
 2496	2496	bilhão = billion	bilhão	billion	keep	none						not_required	1a	pt_type=single_word
@@ -2721,7 +2721,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2712	2712	carioca = From Rio de Janeiro	carioca	From Rio de Janeiro	keep	none						not_required	1a	pt_type=single_word
 2713	2713	passear = to go for a walk or stroll	passear	to go for a walk or stroll	keep	none						not_required	1a	pt_type=single_word
 2714	2714	tanque = tank	tanque	tank	keep	none						not_required	1a	pt_type=single_word
-2715	2715	autónomo = autonomous / self-employed	autónomo	autonomous / self-employed	keep	none						not_required	1a	pt_type=single_word
+2715	2715	autónomo = autonomous / self-employed	autónomo	autonomous / self-employed	keep	spelling						not_required	1a	pt_type=single_word
 2716	2716	comunitário = of the community	comunitário	of the community	keep	none						not_required	1a	pt_type=single_word
 2717	2717	competente = competent	competente	competent	keep	none						not_required	1a	pt_type=single_word
 2718	2718	horror = horror / fear	horror	horror / fear	keep	none						not_required	1a	pt_type=single_word
@@ -2997,7 +2997,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2988	2988	abraçar = to hug / embrace	abraçar	to hug / embrace	keep	none						not_required	1a	pt_type=single_word
 2989	2989	planície = plain / prairie	planície	plain / prairie	keep	none						not_required	1a	pt_type=single_word
 2990	2990	comprador = buyer	comprador	buyer	keep	none						not_required	1a	pt_type=single_word
-2991	2991	polémico = controversial	polémico	controversial	keep	none						not_required	1a	pt_type=single_word
+2991	2991	polémico = controversial	polémico	controversial	keep	spelling						not_required	1a	pt_type=single_word
 2992	2992	empresarial = related to a company	empresarial	related to a company	keep	none						not_required	1a	pt_type=single_word
 2993	2993	manga = sleeve / mango	manga	sleeve / mango	keep	none						not_required	1a	pt_type=single_word
 2994	2994	seda = silk	seda	silk	keep	none						not_required	1a	pt_type=single_word
@@ -3026,7 +3026,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3017	3017	estreia = debut / premiere	estreia	debut / premiere	keep	none						not_required	1a	pt_type=single_word
 3018	3018	catedral = cathedral	catedral	cathedral	keep	none						not_required	1a	pt_type=single_word
 3019	3019	estável = stable	estável	stable	keep	none						not_required	1a	pt_type=single_word
-3020	3020	bebé = baby	bebé	baby	keep	none						not_required	1a	pt_type=single_word
+3020	3020	bebé = baby	bebé	baby	keep	spelling						not_required	1a	pt_type=single_word
 3021	3021	misto = mix / mixed	misto	mix / mixed	keep	none						not_required	1a	pt_type=single_word
 3022	3022	desencadear = to unleash / cause	desencadear	to unleash / cause	keep	none						not_required	1a	pt_type=single_word
 3023	3023	estatal = relating to the state	estatal	relating to the state	keep	none						not_required	1a	pt_type=single_word
@@ -3231,7 +3231,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3222	3222	potência = power / potency	potência	power / potency	keep	none						not_required	1a	pt_type=single_word
 3223	3223	mediante = through / by means of	mediante	through / by means of	keep	none						not_required	1a	pt_type=single_word
 3224	3224	trágico = tragic	trágico	tragic	keep	none						not_required	1a	pt_type=single_word
-3225	3225	anónimo = anonymous	anónimo	anonymous	keep	none						not_required	1a	pt_type=single_word
+3225	3225	anónimo = anonymous	anónimo	anonymous	keep	spelling						not_required	1a	pt_type=single_word
 3226	3226	dicionário = dictionary	dicionário	dictionary	keep	none						not_required	1a	pt_type=single_word
 3227	3227	desgraça = disgrace	desgraça	disgrace	keep	none						not_required	1a	pt_type=single_word
 3228	3228	participante = participant	participante	participant	keep	none						not_required	1a	pt_type=single_word
@@ -3485,8 +3485,8 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3475	3475	samba = samba	samba	samba	keep	none						not_required	1a	pt_type=single_word
 3476	3476	tabaco = tobacco	tabaco	tobacco	keep	none						not_required	1a	pt_type=single_word
 3477	3477	noventa = ninety	noventa	ninety	keep	none						not_required	1a	pt_type=single_word
-3478	3478	óptimo = excellent / optimal	óptimo	excellent / optimal	keep	none						not_required	1a	pt_type=single_word
-3479	3479	adopção = adoption	adopção	adoption	keep	none						not_required	1a	pt_type=single_word
+3478	3478	óptimo = excellent / optimal	óptimo	excellent / optimal	keep	spelling						not_required	1a	pt_type=single_word
+3479	3479	adopção = adoption	adopção	adoption	keep	spelling						not_required	1a	pt_type=single_word
 3480	3480	ascensão = rise / ascension	ascensão	rise / ascension	keep	none						not_required	1a	pt_type=single_word
 3481	3481	parto = childbirth	parto	childbirth	keep	none						not_required	1a	pt_type=single_word
 3482	3482	medieval = medieval	medieval	medieval	keep	none						not_required	1a	pt_type=single_word
@@ -3501,7 +3501,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3491	3491	habitualmente = usually / habitually	habitualmente	usually / habitually	keep	none						not_required	1a	pt_type=single_word
 3492	3492	feição = feature / appearance	feição	feature / appearance	keep	none						not_required	1a	pt_type=single_word
 3493	3493	calçada = sidewalk	calçada	sidewalk	keep	none						not_required	1a	pt_type=single_word
-3494	3494	óptico = optic / optical	óptico	optic / optical	keep	none						not_required	1a	pt_type=single_word
+3494	3494	óptico = optic / optical	óptico	optic / optical	keep	spelling						not_required	1a	pt_type=single_word
 3495	3495	previdência = precaution / welfare	previdência	precaution / welfare	keep	none						not_required	1a	pt_type=single_word
 3496	3496	defensor = defender / defending	defensor	defender / defending	keep	none						not_required	1a	pt_type=single_word
 3497	3497	determinante = determining / decisive	determinante	determining / decisive	keep	none						not_required	1a	pt_type=single_word
@@ -4082,7 +4082,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4070	4070	investidor = investor	investidor	investor	keep	none						not_required	1a	pt_type=single_word
 4071	4071	agenda = agenda / schedule	agenda	agenda / schedule	keep	none						not_required	1a	pt_type=single_word
 4072	4072	condenação = sentence / condemnation	condenação	sentence / condemnation	keep	none						not_required	1a	pt_type=single_word
-4073	4073	afecto = affection	afecto	affection	keep	none						not_required	1a	pt_type=single_word
+4073	4073	afecto = affection	afecto	affection	keep	spelling						not_required	1a	pt_type=single_word
 4074	4074	remuneração = payment / salary	remuneração	payment / salary	keep	none						not_required	1a	pt_type=single_word
 4075	4075	auge = apex / climax / pinnacle	auge	apex / climax / pinnacle	keep	none						not_required	1a	pt_type=single_word
 4076	4076	punição = punishment	punição	punishment	keep	none						not_required	1a	pt_type=single_word
@@ -4245,7 +4245,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4233	4233	distrair = to distract	distrair	to distract	keep	none						not_required	1a	pt_type=single_word
 4234	4234	grade = bars / railing	grade	bars / railing	keep	none						not_required	1a	pt_type=single_word
 4235	4235	cancro = cancer	cancro	cancer	keep	none						not_required	1a	pt_type=single_word
-4236	4236	húmido = humid / moist	húmido	humid / moist	keep	none						not_required	1a	pt_type=single_word
+4236	4236	húmido = humid / moist	húmido	humid / moist	keep	spelling						not_required	1a	pt_type=single_word
 4237	4237	corporação = corporation	corporação	corporation	keep	none						not_required	1a	pt_type=single_word
 4238	4238	diferenciar = to differentiate	diferenciar	to differentiate	keep	none						not_required	1a	pt_type=single_word
 4239	4239	lazer = leisure / relaxation	lazer	leisure / relaxation	keep	none						not_required	1a	pt_type=single_word
@@ -4287,7 +4287,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4275	4275	modernização = modernization	modernização	modernization	keep	none						not_required	1a	pt_type=single_word
 4276	4276	interferência = interference	interferência	interference	keep	none						not_required	1a	pt_type=single_word
 4277	4277	exagerado = exaggerated	exagerado	exaggerated	keep	none						not_required	1a	pt_type=single_word
-4278	4278	gémeo = twin	gémeo	twin	keep	none						not_required	1a	pt_type=single_word
+4278	4278	gémeo = twin	gémeo	twin	keep	spelling						not_required	1a	pt_type=single_word
 4279	4279	garota = girl	garota	girl	keep	none						not_required	1a	pt_type=single_word
 4280	4280	competitivo = competitive	competitivo	competitive	keep	none						not_required	1a	pt_type=single_word
 4281	4281	cru = raw	cru	raw	keep	none						not_required	1a	pt_type=single_word
@@ -4318,7 +4318,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4306	4306	tributo = tribute	tributo	tribute	keep	none						not_required	1a	pt_type=single_word
 4307	4307	regulamentação = regulation	regulamentação	regulation	keep	none						not_required	1a	pt_type=single_word
 4308	4308	câmera = camera	câmera	camera	keep	none						not_required	1a	pt_type=single_word
-4309	4309	irónico = ironic / sarcastic	irónico	ironic / sarcastic	keep	none						not_required	1a	pt_type=single_word
+4309	4309	irónico = ironic / sarcastic	irónico	ironic / sarcastic	keep	spelling						not_required	1a	pt_type=single_word
 4310	4310	agredir = to attack / assault	agredir	to attack / assault	keep	none						not_required	1a	pt_type=single_word
 4311	4311	fluido = fluid	fluido	fluid	keep	none						not_required	1a	pt_type=single_word
 4312	4312	redigir = to write / handwrite	redigir	to write / handwrite	keep	none						not_required	1a	pt_type=single_word
@@ -4330,7 +4330,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4318	4318	interrupção = interruption	interrupção	interruption	keep	none						not_required	1a	pt_type=single_word
 4319	4319	fabricação = manufacturing / production	fabricação	manufacturing / production	keep	none						not_required	1a	pt_type=single_word
 4320	4320	convergência = convergence	convergência	convergence	keep	none						not_required	1a	pt_type=single_word
-4321	4321	contactar = to contact	contactar	to contact	keep	none						not_required	1a	pt_type=single_word
+4321	4321	contactar = to contact	contactar	to contact	keep	spelling						not_required	1a	pt_type=single_word
 4322	4322	missionário = missionary	missionário	missionary	keep	none						not_required	1a	pt_type=single_word
 4323	4323	auditório = auditorium / audible	auditório	auditorium / audible	keep	none						not_required	1a	pt_type=single_word
 4324	4324	ambicioso = ambitious	ambicioso	ambitious	keep	none						not_required	1a	pt_type=single_word
@@ -4388,7 +4388,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4376	4376	vinculado = linked / bound / connected to	vinculado	linked / bound / connected to	keep	none						not_required	1a	pt_type=single_word
 4377	4377	propício = favorable / propitious	propício	favorable / propitious	keep	none						not_required	1a	pt_type=single_word
 4378	4378	envelhecer = to grow old	envelhecer	to grow old	keep	none						not_required	1a	pt_type=single_word
-4379	4379	dia-a-dia = everyday life / day to day	dia-a-dia	everyday life / day to day	keep	none						not_required	1a	pt_type=hyphenated_compound
+4379	4379	dia-a-dia = everyday life / day to day	dia-a-dia	everyday life / day to day	keep	hyphen						not_required	1a	pt_type=hyphenated_compound
 4380	4380	casto = chaste	casto	chaste	keep	none						not_required	1a	pt_type=single_word
 4381	4381	cera = wax	cera	wax	keep	none						not_required	1a	pt_type=single_word
 4382	4382	reverter = to reverse / revert	reverter	to reverse / revert	keep	none						not_required	1a	pt_type=single_word
@@ -4503,12 +4503,12 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4491	4491	revólver = revolver	revólver	revolver	keep	none						not_required	1a	pt_type=single_word
 4492	4492	pálido = pale	pálido	pale	keep	none						not_required	1a	pt_type=single_word
 4493	4493	fecho = bolt / latch / clasp / lock	fecho	bolt / latch / clasp / lock	keep	none						not_required	1a	pt_type=single_word
-4494	4494	cómico = comic / comedian	cómico	comic / comedian	keep	none						not_required	1a	pt_type=single_word
+4494	4494	cómico = comic / comedian	cómico	comic / comedian	keep	spelling						not_required	1a	pt_type=single_word
 4495	4495	vivência = life / life experience	vivência	life / life experience	keep	none						not_required	1a	pt_type=single_word
 4496	4496	omissão = omission	omissão	omission	keep	none						not_required	1a	pt_type=single_word
 4497	4497	empreender = to undertake	empreender	to undertake	keep	none						not_required	1a	pt_type=single_word
 4498	4498	adicional = additional	adicional	additional	keep	none						not_required	1a	pt_type=single_word
-4499	4499	oxigénio = oxygen	oxigénio	oxygen	keep	none						not_required	1a	pt_type=single_word
+4499	4499	oxigénio = oxygen	oxigénio	oxygen	keep	spelling						not_required	1a	pt_type=single_word
 4500	4500	sigilo = secrecy	sigilo	secrecy	keep	none						not_required	1a	pt_type=single_word
 4501	4501	suor = sweat	suor	sweat	keep	none						not_required	1a	pt_type=single_word
 4502	4502	espesso = thick / dense / opaque	espesso	thick / dense / opaque	keep	none						not_required	1a	pt_type=single_word
@@ -4677,7 +4677,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4664	4664	mecânica = mechanics	mecânica	mechanics	keep	none						not_required	1a	pt_type=single_word
 4665	4665	sacar = to take out / pull out	sacar	to take out / pull out	keep	none						not_required	1a	pt_type=single_word
 4666	4666	porta-voz = spokesperson	porta-voz	spokesperson	keep	none						not_required	1a	pt_type=hyphenated_compound
-4667	4667	mão-de-obra = labor / workers	mão-de-obra	labor / workers	keep	none						not_required	1a	pt_type=hyphenated_compound
+4667	4667	mão-de-obra = labor / workers	mão-de-obra	labor / workers	keep	hyphen						not_required	1a	pt_type=hyphenated_compound
 4668	4668	distrital = relating to a district	distrital	relating to a district	keep	none						not_required	1a	pt_type=single_word
 4669	4669	burocrático = bureaucratic	burocrático	bureaucratic	keep	none						not_required	1a	pt_type=single_word
 4670	4670	extração = extraction	extração	extraction	keep	none						not_required	1a	pt_type=single_word
@@ -4715,7 +4715,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4702	4702	indignação = indignation	indignação	indignation	keep	none						not_required	1a	pt_type=single_word
 4703	4703	lavagem = washing	lavagem	washing	keep	none						not_required	1a	pt_type=single_word
 4704	4704	tigre = tiger	tigre	tiger	keep	none						not_required	1a	pt_type=single_word
-4705	4705	humidade = humidity / moisture	humidade	humidity / moisture	keep	none						not_required	1a	pt_type=single_word
+4705	4705	humidade = humidity / moisture	humidade	humidity / moisture	keep	spelling						not_required	1a	pt_type=single_word
 4706	4706	cumplicidade = complicity	cumplicidade	complicity	keep	none						not_required	1a	pt_type=single_word
 4707	4707	travessia = crossing	travessia	crossing	keep	none						not_required	1a	pt_type=single_word
 4708	4708	gerador = generator	gerador	generator	keep	none						not_required	1a	pt_type=single_word
