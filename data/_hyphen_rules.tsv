@@ -1,0 +1,12 @@
+pattern	pattern_type	action	rule_name	note
+mão-de-obra	literal	dehyphenate_to_spaces	acordo_1990_de_obra	mão de obra
+dia-a-dia	literal	dehyphenate_to_spaces	acordo_1990_repeated	dia a dia
+fim-de-semana	literal	dehyphenate_to_spaces	acordo_1990_de	fim de semana
+cor-de-rosa	literal	dehyphenate_to_spaces	acordo_1990_de	cor de rosa
+^(segunda|terça|quarta|quinta|sexta|sábado|domingo)-feira$	regex	preserve	weekday	weekdays keep hyphen
+^(vice|ex|bem|meio|meia|pós|pré|pró|recém|sub|super|ultra|além|aquém|sem|sota|soto)-	regex	preserve	prefix_class	productive prefixes keep hyphen
+-(presidente|geral|chefe|mor|prima)$	regex	preserve	suffix_class	titles and apposed nouns keep hyphen
+^(porta-voz|porta-malas|primeiro-ministro|secretário-geral|matéria-prima|guarda-chuva|guarda-roupa|guarda-costas|para-quedas|salva-vidas|alto-falante)$	regex	preserve	known_compound	well-established compounds
+^(norte|sul|leste|oeste|nordeste|sudeste|noroeste|sudoeste|centro)-(americano|africano|coreano|europeu|brasileiro|sul-americano)$	regex	preserve	geographic_adj	geographic adjectives keep hyphen
+^bem-(estar|vindo|sucedido|humorado|comportado|feito|disposto)$	regex	preserve	bem_class	bem- compounds keep hyphen
+^mal-(estar|vindo|humorado|comportado|criado|educado)$	regex	preserve	mal_class	mal- compounds keep hyphen

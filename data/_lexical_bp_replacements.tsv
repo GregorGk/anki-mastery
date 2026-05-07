@@ -1,0 +1,15 @@
+source_pt	bp_replacement	action	confidence	note
+comboio	trem	replace_or_merge	high
+equipa	equipe	replace_or_merge	high
+desporto	esporte	replace_or_merge	high
+paragem	parada	replace_or_merge	high
+utilizador	usuário	replace_or_merge	high
+registar	registrar	replace_or_merge	high
+registo	registro	replace_or_merge	high
+planeamento	planejamento	replace_or_merge	high
+controlo	controle	replace_or_merge	high
+autocarro	ônibus	replace_or_merge	high
+telemóvel	celular	replace_or_merge	high
+frigorífico	geladeira	replace_or_merge	high
+chouriço	linguiça	replace_or_review	medium	may differ regionally
+pequeno-almoço	café da manhã	replace_or_merge	high

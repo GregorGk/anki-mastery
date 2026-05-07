@@ -1,0 +1,21 @@
+# Append-only artifacts: union-merge so concurrent edits don't conflict on lines
+data/_source_ledger.tsv          merge=union  -text
+data/_sense_source_map.tsv       merge=union  -text
+data/_audio_manifest.tsv         merge=union  -text
+data/_ep_drops.tsv               merge=union  -text
+data/_idioms_expanded.tsv        merge=union  -text
+data/_flags.tsv                  merge=union  -text
+data/_normalized_duplicates.tsv  merge=union  -text
+data/_sensitive_terms.tsv        merge=union  -text
+data/_jury_disagreements.tsv     merge=union  -text
+data/_auditor_flags.tsv          merge=union  -text
+data/_audio_human_review.tsv     merge=union  -text
+data/_lookup_misses.tsv          merge=union  -text
+data/_example_fixes.tsv          merge=union  -text
+
+# Audit JSONLs (gitignored by default; if committed for snapshots, union-merge)
+audit/*.jsonl                    merge=union  -text
+
+# Final TSV: large, infrequent changes — Git LFS recommended once it's first generated.
+# Run `git lfs install && git lfs track "data/06-final.tsv"` before first commit.
+data/06-final.tsv                filter=lfs   diff=lfs   merge=lfs   -text

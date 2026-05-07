@@ -1,0 +1,12 @@
+source_line_number	rank	source_pt	pt	source_line	flag_type	flag_reason	manual_review_required	manual_status	approved_by	approved_at	notes
+913	913	sítio	sítio	sítio = site / place / small farm (BP)	bp_marker	RHS contains (BP)	yes	pending			
+1049	1049	fazenda	fazenda	fazenda = farm / fabric (EP)	ep_marker	RHS contains (EP)	yes	pending			
+1125	1125	policial	policial	policial = police (force) / policeman (BP)	bp_marker	RHS contains (BP)	yes	pending			
+1764	1764	marcha	marcha	marcha = march / long walk / parade (EP)	ep_marker	RHS contains (EP)	yes	pending			
+2124	2124	rapariga	rapariga	rapariga = young girl / prostitute (BP)	bp_marker	RHS contains (BP)	yes	pending			
+2604	2604	trem	trem	trem = train (BP)	bp_marker	RHS contains (BP)	yes	pending			
+2940	2940	bala	bala	bala = shot / bullet / candy (BP)	bp_marker	RHS contains (BP)	yes	pending			
+3276	3276	vosso	vosso	vosso = your (PL / mainly EP)	ep_marker	RHS contains 'mainly EP'	yes	pending			
+3842	3842	camisola	camisola	camisola = nightgown (BP) / sweater (EP)	bp_marker	RHS contains (BP)	yes	pending			
+3842	3842	camisola	camisola	camisola = nightgown (BP) / sweater (EP)	ep_marker	RHS contains (EP)	yes	pending			
+4393	4393	troço	troço	troço = something / stuff / section of road (EP)	ep_marker	RHS contains (EP)	yes	pending			

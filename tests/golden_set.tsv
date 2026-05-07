@@ -1,0 +1,59 @@
+source_line_number	source_raw	category	notes
+6	ser = to be (norm)	irregular_verb	Top-frequency irregular; verb tag, no gender, target_word_used should be conjugated form
+13	ter = to have	irregular_verb	Auxiliary + possession; high polysemy in EN
+17	estar = to be (change from norm)	irregular_verb	Parenthetical is sense annotation, not idiom abbreviation
+20	fazer = to do / make	irregular_verb	Slash split: 1 sense (synonyms) per sense-split rule
+29	ir = to go	irregular_verb	Highly irregular; example will use 'vou' not 'ir'
+31	eu = I (OBJ = me)	embedded_eq	Embedded `=` on RHS; split on FIRST ` = ` only
+83	lhe = to you / him / her	function_word	Pronoun policy applies; not a 3-way slash split
+117	melhor = better / best	polysemy_single_sense	Slash but ONE sense (comparative/superlative); pre-classifier should mark
+128	você = you (EP formal / BP informal)	function_word	Pronoun; (BP)/(EP) flag in RHS
+164	ponto = point / dot / period	polysemy_true	True 3-sense polysemy; should split into 3 rows
+314	medida = measure (a m. que = to the degree / extent that)	embedded_eq_idiom	BOTH embedded `=` AND idiom-expansion candidate (a m. que → à medida que)
+408	capital = capital (M investment / F city)	forced_gender_split	M/F homograph; force 2 senses with gender carried
+464	tu = you (SG)	function_word	Pronoun; regional; grammar note
+575	diante = (em d.) from then on / in front of	idiom_expansion	(em d.) → em diante
+591	polícia = police (M officer / F force)	forced_gender_split	M/F homograph; force 2 senses
+650	rádio = radio (M device / F means of communication)	forced_gender_split	M/F homograph; force 2 senses
+659	cento = percent (por c.)	idiom_expansion	(por c.) → por cento
+789	especializar = to specialize in (+se)	reflexive	+se annotation; canonicalize for lookup as 'especializar'
+913	sítio = site / place / small farm (BP)	bp_marker	(BP) flag → _flags.tsv with flag_type=bp_marker
+921	corte = cut (M) / court (F)	forced_gender_split	M/F homograph
+1125	policial = police (force) / policeman (BP)	bp_marker	(BP) flag in slash-split sense
+1135	mina = mine (M. Gerais: state in B)	mina_false_positive	`M. Gerais` must NOT be parsed as gender marker; mina stays single-sense
+1674	seguida = (em s.) afterwards / then	idiom_expansion	(em s.) → em seguida
+1782	equipa = team	ep_lexical	EP lexical → BP 'equipe'; collision merge if 'equipe' also in source
+2000	preparado = prepared	long_tail_random	Sanity row: random mid-corpus
+2042	vigor = (em v.) in effect / energy	idiom_expansion	(em v.) → em vigor
+2085	registar = to register	ep_lexical	EP lexical → BP 'registrar'
+2124	rapariga = young girl / prostitute (BP)	false_friend_nsfw	(BP) sense is NSFW; flag for sensitive screen
+2224	redor = (em / ao r.) all around	idiom_expansion	TWO expansions: em redor, ao redor
+2329	repente = (de r.) suddenly	idiom_expansion	(de r.) → de repente
+2377	primeiro-ministro = prime minister	hyphenated_compound	pt_type=hyphenated_compound; preserve hyphen; token-list validation must handle
+2604	trem = train (BP)	bp_marker	(BP) flag; common BP synonym for 'comboio'
+2828	registo = record / ledger	ep_lexical	EP lexical → BP 'registro'
+2940	bala = shot / bullet / candy (BP)	bp_marker_polysemy	True polysemy + (BP) flag; 3 senses with BP-specific candy meaning
+2949	desporto = sport	ep_lexical	EP lexical → BP 'esporte'
+3007	cabra = goat (F) / guy (M)	forced_gender_split	M/F homograph
+3107	controlo = control	ep_lexical	EP lexical → BP 'controle'
+3160	cura = cure (F) / curate (M)	forced_gender_split	M/F homograph
+3276	vosso = your (PL / mainly EP)	mainly_ep_marker	'mainly EP' marker; manual_review or drop
+3333	grama = grass (F) / gram (M)	forced_gender_split	M/F homograph
+3372	vós = you (PL) (OBJ = vos)	embedded_eq	Embedded `=` on RHS via 'OBJ ='
+3378	invés = instead (ao i.)	idiom_expansion	(ao i.) → ao invés
+3500	saia = skirt	long_tail_random	Sanity row
+3760	segunda-feira = Monday	hyphenated_weekday	pt_type=hyphenated_compound; PRESERVE hyphen (weekday rule)
+3791	contrapartida = (em c.) on the other hand	idiom_expansion	(em c.) → em contrapartida
+3832	bem-estar = well-being	hyphenated_compound	Preserve hyphen (bem-* rule)
+3842	camisola = nightgown (BP) / sweater (EP)	false_friend	Both (BP) and (EP) markers; classic false friend
+4060	obstante = (não o.) notwithstanding / nevertheless	idiom_expansion	(não o.) → não obstante
+4167	banana = banana (F) / fool (M)	forced_gender_split	M/F homograph
+4221	utilizador = user	ep_lexical	EP lexical → BP 'usuário'
+4268	paragem = (bus) stop	ep_lexical	EP lexical → BP 'parada'
+4321	contactar = to contact	ep_orthographic	ct→t cluster; orthographic normalization → 'contatar'
+4379	dia-a-dia = everyday life / day to day	hyphenated_deprecated	Post-1990 rule: hyphens removed → 'dia a dia'
+4500	sigilo = secrecy	long_tail_random	Sanity row
+4565	mercê = (a m. de) at the mercy of	idiom_expansion	(a m. de) → à mercê de
+4667	mão-de-obra = labor / workers	hyphenated_deprecated	Post-1990 rule: → 'mão de obra'
+4727	tona = (à t.) to the surface	idiom_expansion	(à t.) → à tona
+4792	acostumar = to get used to (+se)	reflexive	+se annotation; canonicalize for lookup

@@ -1,0 +1,43 @@
+# Secrets and local config
+.env
+.env.local
+*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Build artifacts (regenerable from manifest + ledger + source)
+build/audio_cache/
+build/cache/
+audit/*.jsonl
+!audit/.gitkeep
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor scratch
+.vscode/
+.idea/
+*.swp
+*~
+
+# Data outputs that get rebuilt on each run (commit selectively, not by default)
+# Uncomment if intermediate stage TSVs become noisy in diffs.
+# data/01-normalized.tsv
+# data/012-lexical_replaced.tsv
+# data/015-bp_status.tsv
+# data/018-deduped.tsv
+# data/02-senses.tsv
+# data/03-enriched.tsv
+# data/04-examples.tsv
+# data/05-ipa.tsv
