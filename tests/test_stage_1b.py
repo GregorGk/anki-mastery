@@ -157,17 +157,26 @@ class TestEndToEnd:
             update_ledger=True,
         )
 
-        # Sanity: 4985 originals + 13 idiom expansions = 4998 active rows
-        assert summary["active_rows_normalized"] == 4998
+        # Compute expected active rows from the LIVE ledger state (which may
+        # carry skip-action rows from later stages that have already run).
+        # Stage 1b skips action ∈ {manual_review, drop_ep_only}.
+        ledger_now = read_tsv(tmp_ledger)
+        expected_skipped = sum(
+            1 for r in ledger_now
+            if r["action"] in {"manual_review", "drop_ep_only"}
+        )
+        expected_active = len(ledger_now) - expected_skipped
+
+        assert summary["active_rows_normalized"] == expected_active
         # Spelling: at minimum `contactar` (line 4321 in golden), and a handful more
         assert summary["spelling_rules_applied"] >= 1
         # Hyphen: at minimum `mão-de-obra` and `dia-a-dia`
         assert summary["hyphen_rules_applied"] >= 2
-        assert summary["output_rows"] == 4998
+        assert summary["output_rows"] == expected_active
 
         # Validate the output rows
         rows = read_tsv(out_path)
-        assert len(rows) == 4998
+        assert len(rows) == expected_active
 
         # Check specific known cases from the golden set
         by_ln: dict[int, list[dict]] = {}

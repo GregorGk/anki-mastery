@@ -1,7 +1,16 @@
-"""Anthropic LLM wrapper with Tool Use enforcement and basic retry.
+"""Anthropic LLM wrapper with Tool Use enforcement, prompt caching, and retry.
 
-Stage 1a uses this only for idiom-expansion resolution (~12 calls). Later stages
-will extend with batch APIs, semaphore-bounded concurrency, and provenance JSONL.
+Used by every Stage that calls Anthropic. Prompt caching is mandatory for
+high-volume stages (1.5, 2, 4, 5, 5.5) — the system prompt is cached so that
+per-call cost drops ~5–6× because cached reads bill at 10% of base input rate.
+
+Cache hit/miss telemetry is logged in audit JSONL via:
+- `cache_creation_input_tokens` (first call seeds the cache)
+- `cache_read_input_tokens` (subsequent calls within ~5 min TTL)
+
+Validation expectation: cache-hit ratio should reach >95% within the first
+~50 calls of a sustained stage. If it doesn't, the system prompt is being
+mutated between calls (a bug) — cached reads will be 0.
 """
 from __future__ import annotations
 
@@ -9,6 +18,7 @@ import hashlib
 import json
 import os
 import random
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -33,6 +43,12 @@ _MAX_ATTEMPTS = 6
 _BASE_BACKOFF_SEC = 1.0
 _MAX_BACKOFF_SEC = 60.0
 
+# Caching minimum: Anthropic requires the cached block to be >= 1024 tokens
+# for Sonnet/Opus, >= 2048 for Haiku. We don't enforce that here — the API
+# returns 0 cache_creation_input_tokens for sub-threshold blocks, which we
+# detect via the cache_hit_ratio invariant.
+_CACHE_CONTROL = {"type": "ephemeral"}
+
 
 def _hash_payload(payload: Any) -> str:
     return hashlib.sha256(
@@ -55,7 +71,17 @@ def _backoff(attempt: int) -> float:
 
 
 class AnthropicClient:
-    """Synchronous Anthropic client with Tool-Use enforcement and retries."""
+    """Synchronous Anthropic client with Tool-Use enforcement, prompt caching,
+    and retries.
+
+    Args:
+        model: model ID (defaults to claude-sonnet-4-5)
+        api_key: explicit API key (else reads ANTHROPIC_API_KEY env var)
+        audit_path: append per-call provenance to this JSONL
+        enable_caching: if True (default), wraps the system prompt with
+            cache_control. Disable for tests or single-shot calls where
+            caching adds no value.
+    """
 
     def __init__(
         self,
@@ -63,12 +89,54 @@ class AnthropicClient:
         model: str | None = None,
         api_key: str | None = None,
         audit_path: str | Path | None = None,
+        enable_caching: bool = True,
     ) -> None:
         self.model = model or DEFAULT_GENERATOR_MODEL
         self.client = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
         self.audit_path = Path(audit_path) if audit_path else None
         if self.audit_path:
             self.audit_path.parent.mkdir(parents=True, exist_ok=True)
+        self.enable_caching = enable_caching
+        # Audit-write lock so concurrent threads don't interleave JSONL lines.
+        self._audit_lock = threading.Lock()
+        # Telemetry for cache hit ratio (read across threads).
+        self._stats_lock = threading.Lock()
+        self._cache_creation_tokens = 0
+        self._cache_read_tokens = 0
+        self._uncached_input_tokens = 0
+        self._calls = 0
+
+    @property
+    def cache_stats(self) -> dict:
+        """Snapshot of cumulative cache telemetry."""
+        with self._stats_lock:
+            total_input = (
+                self._cache_creation_tokens
+                + self._cache_read_tokens
+                + self._uncached_input_tokens
+            )
+            ratio = (
+                self._cache_read_tokens / total_input if total_input > 0 else 0.0
+            )
+            return {
+                "calls": self._calls,
+                "cache_creation_tokens": self._cache_creation_tokens,
+                "cache_read_tokens": self._cache_read_tokens,
+                "uncached_input_tokens": self._uncached_input_tokens,
+                "cache_hit_ratio": ratio,
+            }
+
+    def _build_system_param(self, system: str) -> Any:
+        """Wrap the system prompt with cache_control if caching is enabled."""
+        if not self.enable_caching:
+            return system
+        return [
+            {
+                "type": "text",
+                "text": system,
+                "cache_control": _CACHE_CONTROL,
+            }
+        ]
 
     def call_tool(
         self,
@@ -101,6 +169,7 @@ class AnthropicClient:
             "schema": tool_input_schema,
         }
         prompt_hash = _hash_payload(prompt_payload)
+        system_param = self._build_system_param(system)
 
         last_exc: Exception | None = None
         for attempt in range(_MAX_ATTEMPTS):
@@ -108,7 +177,7 @@ class AnthropicClient:
                 resp = self.client.messages.create(
                     model=self.model,
                     max_tokens=max_tokens,
-                    system=system,
+                    system=system_param,
                     tools=tools,
                     tool_choice={"type": "tool", "name": tool_name},
                     messages=[{"role": "user", "content": user_message}],
@@ -139,6 +208,19 @@ class AnthropicClient:
             decision = dict(tool_use_block.input)
             response_hash = _hash_payload(decision)
 
+            # Pull cache telemetry from the usage object.
+            usage = resp.usage
+            cache_creation = getattr(usage, "cache_creation_input_tokens", 0) or 0
+            cache_read = getattr(usage, "cache_read_input_tokens", 0) or 0
+            input_tokens = getattr(usage, "input_tokens", 0) or 0
+            output_tokens = getattr(usage, "output_tokens", 0) or 0
+
+            with self._stats_lock:
+                self._calls += 1
+                self._cache_creation_tokens += cache_creation
+                self._cache_read_tokens += cache_read
+                self._uncached_input_tokens += input_tokens
+
             if self.audit_path:
                 audit_record = {
                     "stage": stage,
@@ -148,12 +230,15 @@ class AnthropicClient:
                     "response_hash": response_hash,
                     "decision": decision,
                     "attempt": attempt,
-                    "input_tokens": getattr(resp.usage, "input_tokens", None),
-                    "output_tokens": getattr(resp.usage, "output_tokens", None),
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "cache_creation_input_tokens": cache_creation,
+                    "cache_read_input_tokens": cache_read,
                     "stop_reason": resp.stop_reason,
                 }
-                with self.audit_path.open("a", encoding="utf-8") as f:
-                    f.write(json.dumps(audit_record, ensure_ascii=False) + "\n")
+                with self._audit_lock:
+                    with self.audit_path.open("a", encoding="utf-8") as f:
+                        f.write(json.dumps(audit_record, ensure_ascii=False) + "\n")
 
             return decision
 
