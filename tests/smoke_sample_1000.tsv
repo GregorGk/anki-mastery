@@ -1,0 +1,1001 @@
+sense_id	rank	pt	pos	gender	en_primary	bp_status	split_category	sample_source
+4018.00.01	4018	semestre	noun	o	semester	standard	single_sense_no_split	pos_stratified
+0787.00.01	787	reforma	noun	a	reform	standard	single_sense_no_split	pos_stratified
+0266.00.02	266	volta	noun	a	turn	standard	lexical_polysemy	pos_stratified
+4635.00.02	4635	nordestino	noun	o	northeasterner	standard	lexical_polysemy	pos_stratified
+1812.00.01	1812	êxito	noun	o	success	standard	single_sense_no_split	pos_stratified
+1648.00.01	1648	concurso	noun	o	contest	standard	single_sense_no_split	pos_stratified
+1502.00.01	1502	imóvel	noun	o	real estate	standard	lexical_polysemy	pos_stratified
+0953.00.01	953	prazo	noun	o	deadline	standard	lexical_polysemy	pos_stratified
+4599.00.02	4599	tomada	noun	a	socket	standard	lexical_polysemy	pos_stratified
+0729.00.01	729	romance	noun	o	novel	standard	lexical_polysemy	pos_stratified
+4245.00.01	4245	mania	noun	a	craze	standard	lexical_polysemy	pos_stratified
+4630.00.01	4630	multinacional	noun	a	international corporation	standard	single_sense_no_split	pos_stratified
+3416.00.01	3416	reprodução	noun	a	reproduction	standard	single_sense_no_split	pos_stratified
+0643.00.01	643	massa	noun	a	mass	standard	lexical_polysemy	pos_stratified
+3697.00.01	3697	barraca	noun	a	shack / tent / hut	standard	lexical_polysemy	pos_stratified
+2685.00.01	2685	escada	noun	a	staircase	standard	lexical_polysemy	pos_stratified
+0309.00.01	309	amigo	noun	o	friend	standard	single_sense_no_split	pos_stratified
+0293.00.01	293	espécie	noun	a	type	standard	lexical_polysemy	pos_stratified
+0674.00.01	674	deputado	noun	o	representative	standard	lexical_polysemy	pos_stratified
+1461.00.01	1461	década	noun	a	decade	standard	single_sense_no_split	pos_stratified
+1569.00.01	1569	raio	noun	o	ray	standard	single_sense_no_split	pos_stratified
+3173.00.01	3173	atentado	noun	o	criminal attempt	standard	single_sense_no_split	pos_stratified
+3771.00.01	3771	escultor	noun	o	sculptor	standard	single_sense_no_split	pos_stratified
+0276.00.01	276	humano	noun	o	human	standard	single_sense_no_split	pos_stratified
+3518.00.01	3518	contorno	noun	o	contour	standard	lexical_polysemy	pos_stratified
+1335.00.02	1335	compromisso	noun	o	appointment	standard	lexical_polysemy	pos_stratified
+4489.00.01	4489	inclusão	noun	a	inclusion	standard	single_sense_no_split	pos_stratified
+4073.00.01	4073	afeto	noun	o	affection	standard	single_sense_no_split	pos_stratified
+4388.00.03	4388	protetor	noun	o	patron	standard	lexical_polysemy	pos_stratified
+3415.00.01	3415	deficiência	noun	a	deficiency	standard	single_sense_no_split	pos_stratified
+2675.00.03	2675	patente	noun	a	rank	standard	lexical_polysemy	pos_stratified
+1474.00.01	1474	alteração	noun	a	change	standard	lexical_polysemy	pos_stratified
+2839.00.01	2839	mito	noun	o	myth	standard	single_sense_no_split	pos_stratified
+3690.00.01	3690	retirada	noun	a	retreat	standard	lexical_polysemy	pos_stratified
+2063.00.03	2063	desviar	verb		to take a detour	standard	lexical_polysemy	pos_stratified
+0056.00.01	56	dever	verb		must / should	standard	lexical_polysemy	pos_stratified
+1179.00.01	1179	recuperar	verb		to recover	standard	lexical_polysemy	pos_stratified
+3437.00.02	3437	precipitar	verb		to rush	standard	lexical_polysemy	pos_stratified
+2524.00.01	2524	efetuar	verb		to carry out	standard	lexical_polysemy	pos_stratified
+1132.00.01	1132	declarar	verb		to declare	standard	single_sense_no_split	pos_stratified
+1567.00.02	1567	estimar	verb		to esteem	standard	lexical_polysemy	pos_stratified
+2466.00.01	2466	preservar	verb		to preserve	standard	single_sense_no_split	pos_stratified
+0737.00.01	737	admitir	verb		to admit	standard	single_sense_no_split	pos_stratified
+0648.00.01	648	desenvolver	verb		to develop	standard	single_sense_no_split	pos_stratified
+2964.00.01	2964	poupar	verb		to save	standard	lexical_polysemy	pos_stratified
+0688.00.01	688	entregar	verb		to deliver	standard	lexical_polysemy	pos_stratified
+2330.00.01	2330	marcado	adj		set	standard	lexical_polysemy	pos_stratified
+4668.00.01	4668	distrital	adj		relating to a district	standard	single_sense_no_split	pos_stratified
+2254.00.02	2254	cruzado	adj		crossed	standard	lexical_polysemy	pos_stratified
+3590.00.02	3590	exemplar	adj		exemplary	standard	lexical_polysemy	pos_stratified
+1781.00.01	1781	comprido	adj		long	standard	single_sense_no_split	pos_stratified
+4505.00.01	4505	incerto	adj		uncertain	standard	lexical_polysemy	pos_stratified
+0301.00.02	301	plano	adj		flat	standard	lexical_polysemy	pos_stratified
+4178.00.01	4178	assente	adj		settled	standard	lexical_polysemy	pos_stratified
+2867.00.01	2867	modesto	adj		modest	standard	single_sense_no_split	pos_stratified
+2997.00.01	2997	posteriormente	adv		later	standard	lexical_polysemy	pos_stratified
+0208.00.01	208	ali	adv		there (close)	standard	single_sense_no_split	pos_stratified
+0575.00.02	575	diante	prep		in front of	standard	lexical_polysemy	pos_stratified
+0025.00.01	25	esse	pron		that	standard	single_sense_no_split	pos_stratified
+0645.00.01	645	porém	conj		however	standard	lexical_polysemy	pos_stratified
+0253.00.01	253	sim	adv		yes	standard	single_sense_no_split	tier_top500
+0310.00.01	310	seguinte	adj		following	standard	single_sense_no_split	tier_top500
+0495.00.01	495	conselho	noun	o	advice	standard	lexical_polysemy	tier_top500
+0164.00.01	164	ponto	noun	o	point	standard	lexical_polysemy	tier_top500
+0055.00.01	55	ficar	verb		to stay	standard	lexical_polysemy	tier_top500
+0036.00.01	36	também	adv		also	standard	lexical_polysemy	tier_top500
+0697.00.01	697	estilo	noun	o	style	standard	single_sense_no_split	tier_top1000
+0756.00.01	756	aliás	adv		or rather	standard	lexical_polysemy	tier_top1000
+0568.00.01	568	morar	verb		to live	standard	lexical_polysemy	tier_top1000
+0701.00.02	701	vale	noun	o	receipt	standard	lexical_polysemy	tier_top1000
+0585.00.02	585	visão	noun	a	view	standard	lexical_polysemy	tier_top1000
+0839.00.01	839	familiar	adj		familiar	standard	lexical_polysemy	tier_top1000
+1509.00.01	1509	insistir	verb		to insist	standard	single_sense_no_split	tier_top2000
+1828.00.01	1828	contemplar	verb		to contemplate	standard	single_sense_no_split	tier_top2000
+1669.00.01	1669	frequência	noun	a	frequency	standard	lexical_polysemy	tier_top2000
+1298.00.01	1298	integrar	verb		to integrate	standard	lexical_polysemy	tier_top2000
+1678.00.01	1678	quadrado	noun	o	square	standard	lexical_polysemy	tier_top2000
+1651.00.01	1651	féria	noun	a	vacation	standard	lexical_polysemy	tier_top2000
+2356.00.01	2356	campeão	noun	o	champion	standard	single_sense_no_split	tier_top3000
+2454.00.01	2454	miúdo	adj		scrawny	false_friend	lexical_polysemy	tier_top3000
+2116.00.01	2116	antecipar	verb		to do earlier than planned	standard	lexical_polysemy	tier_top3000
+2282.00.02	2282	efetivo	noun	o	strength	standard	lexical_polysemy	tier_top3000
+2944.00.01	2944	separado	adj		separated	standard	single_sense_no_split	tier_top3000
+2419.00.01	2419	autorização	noun	a	authorization	standard	single_sense_no_split	tier_top3000
+3609.00.01	3609	picar	verb		to sting	standard	lexical_polysemy	tier_top5000
+4704.00.01	4704	tigre	noun	o	tiger	standard	single_sense_no_split	tier_top5000
+4404.00.01	4404	rolo	noun	o	roll	standard	lexical_polysemy	tier_top5000
+4002.00.02	4002	espectro	noun	o	specter	standard	lexical_polysemy	tier_top5000
+3811.00.01	3811	degradação	noun	a	degradation	standard	single_sense_no_split	tier_top5000
+4199.00.01	4199	nadar	verb		to swim	standard	single_sense_no_split	tier_top5000
+0314.01.01	314	à medida que	conj		to the degree that	standard	idiom_expansion	edge_case
+2224.01.01	2224	em redor	adv		all around	standard	idiom_expansion	edge_case
+2224.02.01	2224	ao redor	prep		all around	standard	idiom_expansion	edge_case
+0408.00.01	408	capital	noun	o	investment	standard	forced_gender_split	edge_case
+0408.00.02	408	capital	noun	a	city	standard	forced_gender_split	edge_case
+3007.00.01	3007	cabra	noun	a	goat	standard	forced_gender_split	edge_case
+3007.00.02	3007	cabra	noun	o	guy	standard	forced_gender_split	edge_case
+2124.00.01	2124	rapariga	noun	a	young girl	nsfw	lexical_polysemy	edge_case
+3842.00.01	3842	camisola	noun	a	nightgown	false_friend	lexical_polysemy	edge_case
+0021.00.01	21	poder	verb		can	standard	lexical_polysemy	edge_case
+0006.00.01	6	ser	verb		to be	standard	function_word_polysemy	edge_case
+0013.00.01	13	ter	verb		to have	standard	function_word_polysemy	edge_case
+4459.00.02	4459	inovador	noun	o	innovator	standard	lexical_polysemy	edge_case
+1595.00.01	1595	caça	noun	a	hunt	standard	single_sense_no_split	edge_case
+0259.00.01	259	tarde	adv		late	standard	lexical_polysemy	edge_case
+2377.00.01	2377	primeiro-ministro	noun	o	prime minister	standard	single_sense_no_split	edge_case
+3760.00.01	3760	segunda-feira	noun	a	Monday	standard	single_sense_no_split	edge_case
+3832.00.01	3832	bem-estar	noun	o	well-being	standard	single_sense_no_split	edge_case
+0789.00.01	789	especializar	verb		to specialize in (+se)	standard	single_sense_no_split	edge_case
+3451.00.01	3451	refugiar	verb		to take refuge (+se)	standard	single_sense_no_split	edge_case
+0001.00.01	1	o	art		the	standard	function_word_polysemy	edge_case
+0005.00.01	5	que	conj		that	standard	function_word_polysemy	edge_case
+0008.00.01	8	por	prep		by	standard	function_word_polysemy	edge_case
+0089.00.01	89	bom	adj		good	standard	single_sense_no_split	edge_case
+0044.00.01	44	grande	adj		big	standard	lexical_polysemy	edge_case
+0575.01.01	575	em diante	adv		from then on	standard	idiom_expansion	edge_case_v2
+0659.01.01	659	por cento	idiom		percent	standard	idiom_expansion	edge_case_v2
+1674.01.01	1674	em seguida	adv		afterwards	standard	idiom_expansion	edge_case_v2
+2042.01.01	2042	em vigor	idiom		in effect	standard	idiom_expansion	edge_case_v2
+2329.01.01	2329	de repente	adv		suddenly	standard	idiom_expansion	edge_case_v2
+3378.01.01	3378	ao invés	prep		instead	standard	idiom_expansion	edge_case_v2
+3791.01.01	3791	em contrapartida	conj		on the other hand	standard	idiom_expansion	edge_case_v2
+4060.01.01	4060	não obstante	prep		notwithstanding	uncommon	idiom_expansion	edge_case_v2
+4565.01.01	4565	à mercê de	prep		at the mercy of	standard	idiom_expansion	edge_case_v2
+4727.01.01	4727	à tona	idiom		to the surface	standard	idiom_expansion	edge_case_v2
+0591.00.01	591	polícia	noun	o	police officer	standard	forced_gender_split	edge_case_v2
+0591.00.02	591	polícia	noun	a	police force	standard	forced_gender_split	edge_case_v2
+0650.00.01	650	rádio	noun	o	radio device	standard	forced_gender_split	edge_case_v2
+0650.00.02	650	rádio	noun	a	radio broadcasting	standard	forced_gender_split	edge_case_v2
+0921.00.01	921	corte	noun	o	cut	standard	forced_gender_split	edge_case_v2
+0921.00.02	921	corte	noun	a	court	standard	forced_gender_split	edge_case_v2
+3160.00.01	3160	cura	noun	a	cure	standard	forced_gender_split	edge_case_v2
+3160.00.02	3160	cura	noun	o	curate	standard	forced_gender_split	edge_case_v2
+3333.00.01	3333	grama	noun	a	grass	standard	forced_gender_split	edge_case_v2
+3333.00.02	3333	grama	noun	o	gram	standard	forced_gender_split	edge_case_v2
+4167.00.01	4167	banana	noun	a	banana	standard	forced_gender_split	edge_case_v2
+4167.00.02	4167	banana	noun	o	fool	standard	forced_gender_split	edge_case_v2
+1600.00.01	1600	mulato	noun	o	mulatto	nsfw	single_sense_no_split	edge_case_v2
+2124.00.02	2124	rapariga	noun	a	prostitute	nsfw	lexical_polysemy	edge_case_v2
+2751.00.01	2751	gozar	verb		to enjoy	nsfw	lexical_polysemy	edge_case_v2
+4063.00.01	4063	corno	noun	o	horn	nsfw	single_sense_no_split	edge_case_v2
+0415.00.01	415	pretender	verb		to intend	false_friend	lexical_polysemy	edge_case_v2
+1049.00.01	1049	fazenda	noun	a	farm	false_friend	lexical_polysemy	edge_case_v2
+1049.00.02	1049	fazenda	noun	a	fabric	false_friend	lexical_polysemy	edge_case_v2
+1907.00.01	1907	sensível	adj		sensitive	false_friend	lexical_polysemy	edge_case_v2
+2143.00.01	2143	demitir	verb		to resign	false_friend	lexical_polysemy	edge_case_v2
+2251.00.01	2251	propaganda	noun	a	advertisement	false_friend	lexical_polysemy	edge_case_v2
+2251.00.02	2251	propaganda	noun	a	propaganda	false_friend	lexical_polysemy	edge_case_v2
+2401.00.01	2401	eventual	adj		eventual	false_friend	single_sense_no_split	edge_case_v2
+2454.00.02	2454	miúdo	adj	o	small	false_friend	lexical_polysemy	edge_case_v2
+2454.00.03	2454	miúdo	noun	o	child	false_friend	lexical_polysemy	edge_case_v2
+2838.00.01	2838	simpatia	noun	a	friendliness	false_friend	lexical_polysemy	edge_case_v2
+2838.00.02	2838	simpatia	noun	a	sympathy	false_friend	lexical_polysemy	edge_case_v2
+2916.00.01	2916	aperceber	verb		to realize	false_friend	lexical_polysemy	edge_case_v2
+3489.00.01	3489	eventualmente	adv		eventually	false_friend	single_sense_no_split	edge_case_v2
+3842.00.02	3842	camisola	noun	a	sweater	false_friend	lexical_polysemy	edge_case_v2
+4136.00.01	4136	realizador	noun	o	producer	false_friend	single_sense_no_split	edge_case_v2
+4231.00.01	4231	gelado	adj		cold	false_friend	lexical_polysemy	edge_case_v2
+4231.00.02	4231	gelado	noun	o	ice cream	false_friend	lexical_polysemy	edge_case_v2
+4732.00.01	4732	subúrbio	noun	o	suburbs	false_friend	single_sense_no_split	edge_case_v2
+0913.00.01	913	sítio	noun	o	site	standard	lexical_polysemy	edge_case_v2
+0913.00.02	913	sítio	noun	o	place	standard	lexical_polysemy	edge_case_v2
+1590.00.01	1590	meter	verb		to put into	standard	lexical_polysemy	edge_case_v2
+1699.00.01	1699	romper	verb		to tear	standard	lexical_polysemy	edge_case_v2
+3725.00.01	3725	consagrar	verb		to be recognized for	standard	lexical_polysemy	edge_case_v2
+3748.00.01	3748	cansar	verb		to get tired (+se)	standard	single_sense_no_split	edge_case_v2
+3983.00.01	3983	habituar	verb		to get used to (+se)	standard	single_sense_no_split	edge_case_v2
+4792.00.01	4792	acostumar	verb		to get used to (+se)	standard	single_sense_no_split	edge_case_v2
+4870.00.01	4870	envergonhar	verb		to be ashamed (+se)	standard	single_sense_no_split	edge_case_v2
+4909.00.01	4909	suicidar	verb		to commit suicide (+se)	standard	single_sense_no_split	edge_case_v2
+0142.00.01	142	tornar-se	verb		to become	standard	lexical_polysemy	edge_case_v2
+2130.00.01	2130	norte-americano	adj	o	North American (usually US)	standard	single_sense_no_split	edge_case_v2
+2968.00.01	2968	vice-presidente	noun	o/a	vice president	standard	single_sense_no_split	edge_case_v2
+3473.00.01	3473	sexta-feira	noun	a	Friday	standard	single_sense_no_split	edge_case_v2
+3872.00.01	3872	quinta-feira	noun	a	Thursday	standard	single_sense_no_split	edge_case_v2
+3890.00.01	3890	secretário-geral	noun	o	secretary-general	standard	single_sense_no_split	edge_case_v2
+4069.00.01	4069	meio-dia	noun	o	noon	standard	lexical_polysemy	edge_case_v2
+4205.00.01	4205	matéria-prima	noun	a	raw material	standard	single_sense_no_split	edge_case_v2
+4243.00.01	4243	terça-feira	noun	a	Tuesday	standard	single_sense_no_split	edge_case_v2
+4290.00.01	4290	quarta-feira	noun	a	Wednesday	standard	single_sense_no_split	edge_case_v2
+4666.00.01	4666	porta-voz	noun	o/a	spokesperson	standard	single_sense_no_split	edge_case_v2
+4674.00.01	4674	ex-presidente	noun	o	ex-president	standard	single_sense_no_split	edge_case_v2
+4760.00.01	4760	meia-noite	noun	a	midnight	standard	single_sense_no_split	edge_case_v2
+4820.00.01	4820	sul-africano	adj	o	South African	standard	single_sense_no_split	edge_case_v2
+4985.00.01	4985	sul-americano	adj		South-American	standard	single_sense_no_split	edge_case_v2
+0410.00.01	410	no entanto	conj		however	standard	lexical_polysemy	edge_case_v2
+0410.00.02	410	no entanto	conj		even though	standard	lexical_polysemy	edge_case_v2
+0750.00.01	750	em torno	prep		around	standard	lexical_polysemy	edge_case_v2
+4379.00.01	4379	dia a dia	noun	o	everyday life	standard	lexical_polysemy	edge_case_v2
+4667.00.01	4667	mão de obra	noun	a	labor	standard	lexical_polysemy	edge_case_v2
+0001.00.02	1	o	pron		him	standard	function_word_polysemy	edge_case_v2
+0002.00.02	2	de	prep		from	standard	function_word_polysemy	edge_case_v2
+0003.00.02	3	em	prep		on	standard	function_word_polysemy	edge_case_v2
+0005.00.02	5	que	conj		than	standard	function_word_polysemy	edge_case_v2
+0005.00.03	5	que	pron		what	standard	function_word_polysemy	edge_case_v2
+0008.00.02	8	por	prep		through	standard	function_word_polysemy	edge_case_v2
+0008.00.03	8	por	prep		for	standard	function_word_polysemy	edge_case_v2
+0009.00.02	9	para	prep		for	standard	function_word_polysemy	edge_case_v2
+0009.00.03	9	para	prep		in order to	standard	function_word_polysemy	edge_case_v2
+0010.00.02	10	a	prep		at	standard	function_word_polysemy	edge_case_v2
+0014.00.02	14	se	pron		one / they (impersonal)	standard	function_word_polysemy	edge_case_v2
+0014.00.03	14	se	conj		if	standard	function_word_polysemy	edge_case_v2
+0017.00.01	17	estar	verb		to be	standard	function_word_polysemy	edge_case_v2
+0020.00.01	20	fazer	verb		to do / to make	standard	lexical_polysemy	edge_case_v2
+0029.00.01	29	ir	verb		to go	standard	single_sense_no_split	edge_case_v2
+0033.00.01	33	dizer	verb		to say	standard	lexical_polysemy	edge_case_v2
+0035.00.01	35	dar	verb		to give	standard	single_sense_no_split	edge_case_v2
+0039.00.01	39	ver	verb		to see	standard	single_sense_no_split	edge_case_v2
+0060.00.01	60	querer	verb		to want	standard	single_sense_no_split	edge_case_v2
+0064.00.01	64	vir	verb		to come	standard	single_sense_no_split	edge_case_v2
+0147.00.01	147	problema	noun	o	problem	standard	single_sense_no_split	edge_case_v2
+0204.00.01	204	possível	adj		possible	standard	single_sense_no_split	edge_case_v2
+0205.00.01	205	importante	adj		important	standard	single_sense_no_split	edge_case_v2
+0214.00.01	214	situação	noun	a	situation	standard	single_sense_no_split	edge_case_v2
+0323.00.01	323	futuro	noun	o	future	standard	single_sense_no_split	edge_case_v2
+0379.00.01	379	natural	adj		natural	standard	single_sense_no_split	edge_case_v2
+0419.00.01	419	informação	noun	a	information	standard	single_sense_no_split	edge_case_v2
+0497.00.01	497	televisão	noun	a	television	standard	single_sense_no_split	edge_case_v2
+0535.00.01	535	atenção	noun	a	attention	standard	single_sense_no_split	edge_case_v2
+0777.00.01	777	hospital	noun	o	hospital	standard	single_sense_no_split	edge_case_v2
+1211.00.01	1211	telefone	noun	o	telephone	standard	single_sense_no_split	edge_case_v2
+4742.00.01	4742	chocolate	noun	o	chocolate	standard	single_sense_no_split	edge_case_v2
+0117.00.01	117	melhor	adj		better / best	standard	lexical_polysemy	edge_case_v2
+0955.00.01	955	pior	adj		worse / worst	standard	lexical_polysemy	edge_case_v2
+1591.00.01	1591	ai	interj		ouch	standard	lexical_polysemy	edge_case_v2
+1696.00.01	1696	obrigado	interj		thank you	standard	lexical_polysemy	edge_case_v2
+1818.00.01	1818	ah	interj		ah	standard	lexical_polysemy	edge_case_v2
+0041.00.01	41	dois	num		two	standard	single_sense_no_split	edge_case_v2
+0054.00.01	54	primeiro	num		first	standard	single_sense_no_split	edge_case_v2
+0100.00.01	100	três	num		three	standard	single_sense_no_split	edge_case_v2
+0107.00.01	107	segundo	num		second	standard	lexical_polysemy	edge_case_v2
+0107.00.02	107	segundo	num		according to	standard	lexical_polysemy	edge_case_v2
+0189.00.01	189	mil	num		thousand	standard	single_sense_no_split	edge_case_v2
+0195.00.01	195	quatro	num		four	standard	single_sense_no_split	edge_case_v2
+0002.00.01	2	de	prep		of	standard	function_word_polysemy	edge_case_v2
+0003.00.01	3	em	prep		in	standard	function_word_polysemy	edge_case_v2
+0004.00.01	4	e	conj		and	standard	function_word_polysemy	edge_case_v2
+0007.00.01	7	um	art		a	standard	function_word_polysemy	edge_case_v2
+0007.00.02	7	um	art		one	standard	function_word_polysemy	edge_case_v2
+0009.00.01	9	para	prep		to	standard	function_word_polysemy	edge_case_v2
+0010.00.01	10	a	prep		to	standard	function_word_polysemy	edge_case_v2
+0011.00.01	11	não	adv		no / not	standard	lexical_polysemy	edge_case_v2
+1958.00.01	1958	concelho	noun	o	municipality	uncommon	lexical_polysemy	edge_case_v2
+1958.00.02	1958	concelho	noun	o	council	uncommon	lexical_polysemy	edge_case_v2
+2851.00.01	2851	paço	noun	o	palace	uncommon	lexical_polysemy	edge_case_v2
+3035.00.01	3035	leito	noun	o	bed (archaic)	uncommon	single_sense_no_split	edge_case_v2
+3091.00.01	3091	outrora	adv		formerly	uncommon	lexical_polysemy	edge_case_v2
+3302.00.01	3302	liceu	noun	o	high school	uncommon	single_sense_no_split	edge_case_v2
+3372.00.01	3372	vós	pron		you (PL) (OBJ = vos)	uncommon	single_sense_no_split	edge_case_v2
+3508.00.01	3508	provir	verb		to come from	uncommon	lexical_polysemy	edge_case_v2
+3515.00.01	3515	oriundo	adj		originating from	uncommon	single_sense_no_split	edge_case_v2
+3732.00.01	3732	aquando	prep		at the time (of)	uncommon	single_sense_no_split	edge_case_v2
+4038.00.01	4038	lume	noun	o	light	uncommon	lexical_polysemy	edge_case_v2
+4038.00.02	4038	lume	noun	o	fire	uncommon	lexical_polysemy	edge_case_v2
+0012.00.01	12	com	prep		with	standard	function_word_polysemy	edge_case_v2
+0014.00.01	14	se	pron		reflexive pronoun	standard	function_word_polysemy	edge_case_v2
+4509.00.01	4509	bruxa	noun	a	witch	standard	single_sense_no_split	random_v2
+4685.00.01	4685	mobilização	noun	a	mobilization	standard	single_sense_no_split	random_v2
+2128.00.02	2128	estética	noun	a	beauty	standard	lexical_polysemy	random_v2
+1007.00.01	1007	praia	noun	a	beach	standard	single_sense_no_split	random_v2
+0122.00.02	122	mulher	noun	a	wife	standard	lexical_polysemy	random_v2
+1153.00.01	1153	fronteira	noun	a	border	standard	lexical_polysemy	random_v2
+1202.00.01	1202	raiz	noun	a	root	standard	single_sense_no_split	random_v2
+1140.00.01	1140	aparelho	noun	o	device	standard	lexical_polysemy	random_v2
+1860.00.01	1860	oferta	noun	a	supply	standard	lexical_polysemy	random_v2
+0375.00.01	375	respeito	noun	o	respect	standard	single_sense_no_split	random_v2
+4491.00.01	4491	revólver	noun	o	revolver	standard	single_sense_no_split	random_v2
+0819.00.01	819	ramo	noun	o	branch	standard	single_sense_no_split	random_v2
+4736.00.01	4736	pneu	noun	o	tire (car)	standard	single_sense_no_split	random_v2
+1294.00.01	1294	divisão	noun	a	division	standard	single_sense_no_split	random_v2
+0434.00.01	434	pena	noun	a	penalty	standard	lexical_polysemy	random_v2
+2999.00.01	2999	perseguição	noun	a	persecution	standard	single_sense_no_split	random_v2
+3242.00.01	3242	burguês	noun	o	bourgeois	standard	single_sense_no_split	random_v2
+3852.00.01	3852	incerteza	noun	a	uncertainty	standard	single_sense_no_split	random_v2
+1876.00.01	1876	cálculo	noun	o	calculation	standard	lexical_polysemy	random_v2
+1821.00.01	1821	parente	noun	o/a	relative	standard	lexical_polysemy	random_v2
+3099.00.01	3099	narrativa	noun	a	narrative	standard	single_sense_no_split	random_v2
+3088.00.01	3088	fibra	noun	a	fiber	standard	single_sense_no_split	random_v2
+1686.00.01	1686	gato	noun	o	cat	standard	single_sense_no_split	random_v2
+2437.00.01	2437	oficina	noun	a	workshop	standard	lexical_polysemy	random_v2
+4385.00.01	4385	publicitário	noun	o	advertising	standard	single_sense_no_split	random_v2
+3713.00.01	3713	ofensiva	noun	a	offensive	standard	single_sense_no_split	random_v2
+1995.00.01	1995	cartão	noun	o	card	standard	single_sense_no_split	random_v2
+3907.00.01	3907	pianista	noun	o/a	pianist	standard	single_sense_no_split	random_v2
+4099.00.01	4099	cautela	noun	a	caution	standard	lexical_polysemy	random_v2
+1778.00.01	1778	alegria	noun	a	joy	standard	lexical_polysemy	random_v2
+3735.00.02	3735	bateria	noun	a	percussion	standard	lexical_polysemy	random_v2
+2387.00.01	2387	chá	noun	o	tea	standard	single_sense_no_split	random_v2
+3459.00.01	3459	pêlo	noun	o	fur	standard	single_sense_no_split	random_v2
+3568.00.01	3568	admiração	noun	a	admiration	standard	single_sense_no_split	random_v2
+0141.00.01	141	filho	noun	o	son	standard	lexical_polysemy	random_v2
+2688.00.01	2688	fotógrafo	noun	o	photographer	standard	single_sense_no_split	random_v2
+2344.00.01	2344	arquiteto	noun	o	architect	standard	single_sense_no_split	random_v2
+3450.00.01	3450	maravilha	noun	a	wonder	standard	lexical_polysemy	random_v2
+2120.00.02	2120	pista	noun	a	field	standard	lexical_polysemy	random_v2
+3731.00.01	3731	delegação	noun	a	delegation	standard	single_sense_no_split	random_v2
+3132.00.01	3132	soma	noun	a	sum	standard	single_sense_no_split	random_v2
+0267.00.01	267	condição	noun	a	condition	standard	single_sense_no_split	random_v2
+1428.00.01	1428	agricultura	noun	a	agriculture	standard	lexical_polysemy	random_v2
+3869.00.02	3869	repartição	noun	a	distribution	standard	lexical_polysemy	random_v2
+4481.00.01	4481	antepassado	noun	o	ancestor	standard	single_sense_no_split	random_v2
+4002.00.01	4002	espectro	noun	o	spectrum	standard	lexical_polysemy	random_v2
+4348.00.02	4348	coleta	noun	a	tax	standard	lexical_polysemy	random_v2
+4201.00.01	4201	pauta	noun	a	agenda	standard	lexical_polysemy	random_v2
+0304.00.01	304	partido	noun	o	(political) party	standard	single_sense_no_split	random_v2
+0977.00.01	977	destino	noun	o	destination	standard	single_sense_no_split	random_v2
+4712.00.01	4712	prosperidade	noun	a	prosperity	standard	single_sense_no_split	random_v2
+4022.00.01	4022	ventre	noun	o	womb	standard	single_sense_no_split	random_v2
+4677.00.01	4677	queima	noun	a	burning	standard	single_sense_no_split	random_v2
+1528.00.01	1528	milho	noun	o	corn	standard	single_sense_no_split	random_v2
+0452.00.01	452	efeito	noun	o	effect	standard	single_sense_no_split	random_v2
+1026.00.01	1026	desenho	noun	o	drawing	standard	single_sense_no_split	random_v2
+0630.00.02	630	personagem	noun	o/a	personage	standard	lexical_polysemy	random_v2
+2693.00.01	2693	cigarro	noun	o	cigarette	standard	single_sense_no_split	random_v2
+3036.00.01	3036	plataforma	noun	a	platform	standard	single_sense_no_split	random_v2
+4113.00.01	4113	brigada	noun	a	brigade	standard	single_sense_no_split	random_v2
+1093.00.01	1093	equipamento	noun	o	equipment	standard	single_sense_no_split	random_v2
+4437.00.01	4437	indenização	noun	a	reparation	standard	single_sense_no_split	random_v2
+3750.00.02	3750	vencimento	noun	o	salary	standard	lexical_polysemy	random_v2
+3787.00.01	3787	instinto	noun	o	instinct	standard	single_sense_no_split	random_v2
+4610.00.01	4610	poste	noun	o	pole	standard	lexical_polysemy	random_v2
+0806.00.01	806	limite	noun	o	limit	standard	single_sense_no_split	random_v2
+0394.00.02	394	câmara	noun	a	chamber	standard	lexical_polysemy	random_v2
+3911.00.03	3911	cova	noun	a	hole	standard	lexical_polysemy	random_v2
+1860.00.02	1860	oferta	noun	a	offer	standard	lexical_polysemy	random_v2
+4900.00.01	4900	reparação	noun	a	reparation	standard	lexical_polysemy	random_v2
+2924.00.01	2924	utilidade	noun	a	usefulness	standard	lexical_polysemy	random_v2
+2027.00.01	2027	parlamento	noun	o	parliament	standard	single_sense_no_split	random_v2
+0423.00.01	423	saúde	noun	a	health	standard	single_sense_no_split	random_v2
+1193.00.01	1193	tribunal	noun	o	court	standard	lexical_polysemy	random_v2
+2833.00.01	2833	conduta	noun	a	behavior	standard	lexical_polysemy	random_v2
+3701.00.01	3701	repertório	noun	o	repertoire	standard	single_sense_no_split	random_v2
+1584.00.01	1584	montanha	noun	a	mountain	standard	single_sense_no_split	random_v2
+2660.00.01	2660	fantasia	noun	a	fantasy	standard	single_sense_no_split	random_v2
+3542.00.01	3542	avó	noun	a	grandmother	standard	single_sense_no_split	random_v2
+4056.00.01	4056	romancista	noun	o/a	novelist	standard	single_sense_no_split	random_v2
+0443.00.01	443	dificuldade	noun	a	difficulty	standard	single_sense_no_split	random_v2
+4810.00.01	4810	rancho	noun	o	ranch	standard	single_sense_no_split	random_v2
+2694.00.01	2694	garoto	noun	o	young boy	standard	single_sense_no_split	random_v2
+4563.00.01	4563	editorial	noun	o	editorial	standard	single_sense_no_split	random_v2
+2042.00.01	2042	vigor	noun	o	in effect	standard	lexical_polysemy	random_v2
+1139.00.01	1139	esperança	noun	a	hope	standard	single_sense_no_split	random_v2
+1602.00.01	1602	adulto	noun	o	adult	standard	single_sense_no_split	random_v2
+3724.00.01	3724	bicicleta	noun	a	bicycle	standard	single_sense_no_split	random_v2
+0442.00.01	442	interior	noun	o	interior	standard	lexical_polysemy	random_v2
+0328.00.01	328	banco	noun	o	bank	standard	lexical_polysemy	random_v2
+4940.00.01	4940	artifício	noun	o	device	standard	lexical_polysemy	random_v2
+4248.00.01	4248	boneca	noun	a	doll	standard	single_sense_no_split	random_v2
+4347.00.01	4347	banqueiro	noun	o	banker	standard	single_sense_no_split	random_v2
+2404.00.01	2404	cristal	noun	o	crystal	standard	single_sense_no_split	random_v2
+1085.00.01	1085	contrato	noun	o	contract	standard	single_sense_no_split	random_v2
+3670.00.01	3670	recusa	noun	a	refusal	standard	single_sense_no_split	random_v2
+4661.00.01	4661	maturidade	noun	a	maturity	standard	single_sense_no_split	random_v2
+3345.00.01	3345	minério	noun	o	mineral	standard	single_sense_no_split	random_v2
+0104.00.01	104	mundo	noun	o	world	standard	single_sense_no_split	random_v2
+0144.00.01	144	direito	noun	o	right	standard	lexical_polysemy	random_v2
+1551.00.01	1551	mata	noun	a	forest	standard	lexical_polysemy	random_v2
+1432.00.01	1432	dimensão	noun	a	dimension	standard	single_sense_no_split	random_v2
+0919.00.01	919	jardim	noun	o	garden	standard	single_sense_no_split	random_v2
+0299.00.01	299	dinheiro	noun	o	money	standard	single_sense_no_split	random_v2
+1635.00.01	1635	piano	noun	o	piano	standard	single_sense_no_split	random_v2
+3100.00.01	3100	psicologia	noun	a	psychology	standard	single_sense_no_split	random_v2
+4788.00.01	4788	flanco	noun	o	flank	standard	single_sense_no_split	random_v2
+4249.00.02	4249	piedade	noun	a	piety	standard	lexical_polysemy	random_v2
+1760.00.01	1760	mente	noun	a	mind	standard	single_sense_no_split	random_v2
+1766.00.01	1766	extensão	noun	a	extension	standard	lexical_polysemy	random_v2
+3106.00.01	3106	ódio	noun	o	hatred	standard	single_sense_no_split	random_v2
+1915.00.01	1915	pacto	noun	o	agreement	standard	lexical_polysemy	random_v2
+1029.00.01	1029	congresso	noun	o	congress	standard	single_sense_no_split	random_v2
+4418.00.01	4418	aluguel	noun	o	rent	standard	single_sense_no_split	random_v2
+4845.00.01	4845	burocracia	noun	a	bureaucracy	standard	single_sense_no_split	random_v2
+0900.00.02	900	seguro	noun	o	insurance	standard	lexical_polysemy	random_v2
+0457.00.01	457	quadro	noun	o	painting	standard	lexical_polysemy	random_v2
+1961.00.01	1961	primo	noun	o	cousin	standard	lexical_polysemy	random_v2
+2561.00.01	2561	lar	noun	o	home	standard	single_sense_no_split	random_v2
+3654.00.03	3654	cordão	noun	o	necklace	standard	lexical_polysemy	random_v2
+1433.00.02	1433	feira	noun	a	open-air market	standard	lexical_polysemy	random_v2
+4032.00.01	4032	cesta	noun	a	basket	standard	lexical_polysemy	random_v2
+1431.00.01	1431	declaração	noun	a	declaration	standard	single_sense_no_split	random_v2
+4004.00.01	4004	soberano	noun	o	sovereign	standard	single_sense_no_split	random_v2
+2680.00.02	2680	lance	noun	o	throw	standard	lexical_polysemy	random_v2
+3026.00.01	3026	excelência	noun	a	excellence	standard	single_sense_no_split	random_v2
+1412.00.01	1412	juventude	noun	a	youth	standard	single_sense_no_split	random_v2
+2433.00.01	2433	embaixador	noun	o	ambassador	standard	single_sense_no_split	random_v2
+2221.00.02	2221	rigor	noun	o	worst of	standard	lexical_polysemy	random_v2
+0343.00.01	343	via	noun	a	way	standard	lexical_polysemy	random_v2
+0735.00.01	735	marido	noun	o	husband	standard	single_sense_no_split	random_v2
+4137.00.02	4137	arrecadação	noun	a	saving	standard	lexical_polysemy	random_v2
+1950.00.01	1950	salão	noun	o	large room	standard	lexical_polysemy	random_v2
+4558.00.01	4558	tubarão	noun	o	shark	standard	single_sense_no_split	random_v2
+2317.00.01	2317	palmeira	noun	a	palm tree	standard	single_sense_no_split	random_v2
+4405.00.01	4405	usina	noun	a	plant	standard	lexical_polysemy	random_v2
+0437.00.01	437	estrangeiro	noun	o	foreigner	standard	lexical_polysemy	random_v2
+2721.00.01	2721	duque	noun	o	duke	standard	single_sense_no_split	random_v2
+2802.00.03	2802	roteiro	noun	o	route	standard	lexical_polysemy	random_v2
+4628.00.01	4628	coerência	noun	a	coherence	standard	single_sense_no_split	random_v2
+3080.00.03	3080	governante	noun	o/a	governing	standard	lexical_polysemy	random_v2
+1145.00.01	1145	cliente	noun	o/a	customer	standard	lexical_polysemy	random_v2
+1054.00.01	1054	confiança	noun	a	confidence / trust	standard	lexical_polysemy	random_v2
+1313.00.01	1313	garantia	noun	a	warranty	standard	lexical_polysemy	random_v2
+4623.00.01	4623	convocação	noun	a	convocation	standard	lexical_polysemy	random_v2
+0512.00.01	512	peixe	noun	o	fish	standard	single_sense_no_split	random_v2
+1109.00.01	1109	engenheiro	noun	o	engineer	standard	single_sense_no_split	random_v2
+0485.00.01	485	diretor	noun	o	director	standard	single_sense_no_split	random_v2
+2368.00.01	2368	fila	noun	a	line	standard	lexical_polysemy	random_v2
+2120.00.04	2120	pista	noun	a	lane	standard	lexical_polysemy	random_v2
+3113.00.01	3113	andamento	noun	o	progress	standard	single_sense_no_split	random_v2
+4539.00.01	4539	proteína	noun	a	protein	standard	single_sense_no_split	random_v2
+1646.00.01	1646	distribuição	noun	a	distribution	standard	single_sense_no_split	random_v2
+1259.00.01	1259	crédito	noun	o	credit	standard	single_sense_no_split	random_v2
+4680.00.01	4680	alinhamento	noun	o	alignment	standard	lexical_polysemy	random_v2
+4980.00.01	4980	crânio	noun	o	skull	standard	single_sense_no_split	random_v2
+4301.00.01	4301	delírio	noun	o	delirium	standard	single_sense_no_split	random_v2
+2796.00.01	2796	amostra	noun	a	sample	standard	lexical_polysemy	random_v2
+0926.00.02	926	voto	noun	o	vow	standard	lexical_polysemy	random_v2
+4701.00.01	4701	fação	noun	a	faction	standard	single_sense_no_split	random_v2
+3436.00.01	3436	chapa	noun	a	plate	standard	lexical_polysemy	random_v2
+1963.00.01	1963	miséria	noun	a	misery	standard	lexical_polysemy	random_v2
+1224.00.01	1224	sexo	noun	o	sex	standard	lexical_polysemy	random_v2
+1868.00.01	1868	orientação	noun	a	guidance	standard	lexical_polysemy	random_v2
+1715.00.01	1715	capela	noun	a	chapel	standard	single_sense_no_split	random_v2
+0948.00.01	948	cruz	noun	a	cross	standard	single_sense_no_split	random_v2
+0748.00.01	748	dado	noun	o	datum	standard	lexical_polysemy	random_v2
+4106.00.01	4106	renúncia	noun	a	renunciation	standard	lexical_polysemy	random_v2
+0344.00.01	344	semana	noun	a	week	standard	single_sense_no_split	random_v2
+3915.00.01	3915	intuição	noun	a	intuition	standard	single_sense_no_split	random_v2
+1841.00.01	1841	voo	noun	o	flight	standard	single_sense_no_split	random_v2
+0119.00.01	119	nome	noun	o	name	standard	single_sense_no_split	random_v2
+2797.00.01	2797	borracha	noun	a	rubber	standard	single_sense_no_split	random_v2
+2774.00.03	2774	jornada	noun	a	round	standard	lexical_polysemy	random_v2
+3371.00.01	3371	jóia	noun	a	jewel	standard	single_sense_no_split	random_v2
+3501.00.01	3501	barragem	noun	a	dam	standard	lexical_polysemy	random_v2
+3211.00.01	3211	fraqueza	noun	a	weakness	standard	single_sense_no_split	random_v2
+1223.00.01	1223	menina	noun	a	little girl	standard	single_sense_no_split	random_v2
+1046.00.01	1046	propriedade	noun	a	property	standard	single_sense_no_split	random_v2
+2333.00.01	2333	candidatura	noun	a	candidacy	standard	single_sense_no_split	random_v2
+2049.00.01	2049	desempenho	noun	o	performance	standard	single_sense_no_split	random_v2
+2102.00.01	2102	greve	noun	a	strike	standard	single_sense_no_split	random_v2
+4580.00.01	4580	romantismo	noun	o	romanticism	standard	single_sense_no_split	random_v2
+0531.00.01	531	doutor	noun	o	doctor	standard	single_sense_no_split	random_v2
+0256.00.03	256	senhor	noun	o	mister	standard	lexical_polysemy	random_v2
+3167.00.01	3167	cobre	noun	o	copper	standard	single_sense_no_split	random_v2
+3111.00.01	3111	muçulmano	noun	o	Muslim	standard	single_sense_no_split	random_v2
+1872.00.01	1872	derrota	noun	a	defeat	standard	single_sense_no_split	random_v2
+3029.00.02	3029	lembrança	noun	a	souvenir	standard	lexical_polysemy	random_v2
+3711.00.03	3711	ficha	noun	a	slip	standard	lexical_polysemy	random_v2
+3517.00.01	3517	pulso	noun	o	pulse	standard	lexical_polysemy	random_v2
+1004.00.01	1004	tentativa	noun	a	attempt	standard	single_sense_no_split	random_v2
+0504.00.01	504	diferença	noun	a	difference	standard	single_sense_no_split	random_v2
+2296.00.01	2296	arquivo	noun	o	archive	standard	single_sense_no_split	random_v2
+0404.00.01	404	idade	noun	a	age	standard	single_sense_no_split	random_v2
+0680.00.01	680	consciência	noun	a	conscience	standard	lexical_polysemy	random_v2
+4927.00.02	4927	pia	noun	a	font	standard	lexical_polysemy	random_v2
+1837.00.01	1837	reflexão	noun	a	reflection	standard	single_sense_no_split	random_v2
+4311.00.01	4311	fluido	noun	o	fluid	standard	single_sense_no_split	random_v2
+2686.00.01	2686	sucessão	noun	a	succession	standard	lexical_polysemy	random_v2
+2695.00.01	2695	arranjo	noun	o	arrangement	standard	single_sense_no_split	random_v2
+1175.00.01	1175	agente	noun	o/a	agent	standard	single_sense_no_split	random_v2
+0795.00.01	795	organização	noun	a	organization	standard	single_sense_no_split	random_v2
+2677.00.01	2677	editor	noun	o	editor	standard	single_sense_no_split	random_v2
+4305.00.01	4305	crista	noun	a	crest	standard	lexical_polysemy	random_v2
+1414.00.01	1414	categoria	noun	a	category	standard	single_sense_no_split	random_v2
+2059.00.01	2059	moça	noun	a	young woman	standard	lexical_polysemy	random_v2
+4954.00.01	4954	escuridão	noun	a	darkness	standard	single_sense_no_split	random_v2
+0551.00.02	551	cabo	noun	o	cable	standard	lexical_polysemy	random_v2
+1704.00.01	1704	identidade	noun	a	identity	standard	single_sense_no_split	random_v2
+3087.00.02	3087	sé	noun	a	parochial headquarters	standard	lexical_polysemy	random_v2
+0402.00.01	402	aspecto	noun	o	aspect	standard	single_sense_no_split	random_v2
+1975.00.01	1975	estatuto	noun	o	statute	standard	single_sense_no_split	random_v2
+1000.00.01	1000	original	noun	o	original	standard	single_sense_no_split	random_v2
+4484.00.01	4484	grilo	noun	o	cricket	standard	single_sense_no_split	random_v2
+3151.00.01	3151	mosca	noun	a	fly	standard	single_sense_no_split	random_v2
+4434.00.01	4434	contribuinte	noun	o/a	taxpayer	standard	lexical_polysemy	random_v2
+1588.00.02	1588	academia	noun	a	gym	standard	lexical_polysemy	random_v2
+0381.00.01	381	peça	noun	a	piece	standard	lexical_polysemy	random_v2
+4500.00.01	4500	sigilo	noun	o	secrecy	standard	single_sense_no_split	random_v2
+4516.00.01	4516	cotação	noun	a	value	standard	lexical_polysemy	random_v2
+0746.00.01	746	espetáculo	noun	o	show	standard	lexical_polysemy	random_v2
+3911.00.02	3911	cova	noun	a	cave	standard	lexical_polysemy	random_v2
+0411.00.01	411	cultura	noun	a	culture	standard	single_sense_no_split	random_v2
+1297.00.01	1297	palácio	noun	o	palace	standard	single_sense_no_split	random_v2
+4173.00.01	4173	formiga	noun	a	ant	standard	single_sense_no_split	random_v2
+1275.00.02	1275	folha	noun	a	page	standard	lexical_polysemy	random_v2
+0441.00.03	441	figura	noun	a	character	standard	lexical_polysemy	random_v2
+0144.00.02	144	direito	noun	o	law	standard	lexical_polysemy	random_v2
+3135.00.01	3135	vendedor	noun	o	seller	standard	lexical_polysemy	random_v2
+1939.00.01	1939	segredo	noun	o	secret	standard	single_sense_no_split	random_v2
+1563.00.01	1563	concreto	noun	o	concrete	standard	single_sense_no_split	random_v2
+2613.00.01	2613	tonelada	noun	a	ton	standard	single_sense_no_split	random_v2
+2517.00.02	2517	aproximação	noun	a	approximation	standard	lexical_polysemy	random_v2
+2178.00.01	2178	eixo	noun	o	axis	standard	lexical_polysemy	random_v2
+0394.00.01	394	câmara	noun	a	city council	standard	lexical_polysemy	random_v2
+2033.00.01	2033	erva	noun	a	herb	standard	single_sense_no_split	random_v2
+1483.00.01	1483	vara	noun	a	stick	standard	lexical_polysemy	random_v2
+3245.00.01	3245	lágrima	noun	a	tear	standard	single_sense_no_split	random_v2
+1106.00.01	1106	grau	noun	o	degree	standard	single_sense_no_split	random_v2
+0724.00.01	724	existência	noun	a	existence	standard	single_sense_no_split	random_v2
+0670.00.01	670	presença	noun	a	presence	standard	single_sense_no_split	random_v2
+1890.00.01	1890	tese	noun	a	thesis	standard	single_sense_no_split	random_v2
+2535.00.01	2535	retorno	noun	o	return	standard	single_sense_no_split	random_v2
+4299.00.01	4299	criminal	noun	o/a	criminal	standard	single_sense_no_split	random_v2
+2101.00.01	2101	ouvido	noun	o	ear	standard	lexical_polysemy	random_v2
+0762.00.01	762	passagem	noun	a	ticket	standard	lexical_polysemy	random_v2
+3709.00.01	3709	percentagem	noun	a	percentage	standard	single_sense_no_split	random_v2
+4395.00.01	4395	difusão	noun	a	spreading	standard	lexical_polysemy	random_v2
+1286.00.01	1286	perda	noun	a	loss	standard	single_sense_no_split	random_v2
+2515.00.01	2515	manual	noun	o	manual	standard	single_sense_no_split	random_v2
+1876.00.02	1876	cálculo	noun	o	calculus	standard	lexical_polysemy	random_v2
+3867.00.01	3867	monarquia	noun	a	monarchy	standard	single_sense_no_split	random_v2
+1447.00.01	1447	código	noun	o	code	standard	single_sense_no_split	random_v2
+0316.00.01	316	espaço	noun	o	space	standard	lexical_polysemy	random_v2
+4525.00.01	4525	inauguração	noun	a	inauguration	standard	single_sense_no_split	random_v2
+1797.00.01	1797	álcool	noun	o	alcohol	standard	single_sense_no_split	random_v2
+1575.00.01	1575	herói	noun	o	hero	standard	single_sense_no_split	random_v2
+1027.00.01	1027	domínio	noun	o	domain	standard	lexical_polysemy	random_v2
+0102.00.02	102	meio	noun	o	middle	standard	lexical_polysemy	random_v2
+0439.00.01	439	carro	noun	o	car	standard	lexical_polysemy	random_v2
+0780.00.02	780	monte	noun	o	mound	standard	lexical_polysemy	random_v2
+1708.00.01	1708	músico	noun	o	musician	standard	lexical_polysemy	random_v2
+2977.00.01	2977	tranquilidade	noun	a	tranquility	standard	lexical_polysemy	random_v2
+1689.00.01	1689	conferência	noun	a	conference	standard	single_sense_no_split	random_v2
+3555.00.01	3555	órbita	noun	a	orbit	standard	single_sense_no_split	random_v2
+4053.00.01	4053	supermercado	noun	o	supermarket	standard	single_sense_no_split	random_v2
+2061.00.02	2061	tecido	noun	o	tissue	standard	lexical_polysemy	random_v2
+1401.00.01	1401	receita	noun	a	revenue	standard	lexical_polysemy	random_v2
+4759.00.01	4759	papai	noun	o	daddy	standard	single_sense_no_split	random_v2
+4728.00.02	4728	sonda	noun	a	catheter	standard	lexical_polysemy	random_v2
+2173.00.01	2173	meta	noun	a	goal	standard	single_sense_no_split	random_v2
+4928.00.01	4928	namoro	noun	o	affair (romance)	standard	single_sense_no_split	random_v2
+2990.00.01	2990	comprador	noun	o	buyer	standard	single_sense_no_split	random_v2
+2376.00.02	2376	servidor	noun	o	server	standard	lexical_polysemy	random_v2
+0929.00.02	929	média	noun	a	middle class	standard	lexical_polysemy	random_v2
+4101.00.01	4101	arredor	noun	o	outskirts	uncommon	lexical_polysemy	random_v2
+0235.00.01	235	escola	noun	a	school	standard	single_sense_no_split	random_v2
+1513.00.01	1513	computador	noun	o	computer	standard	single_sense_no_split	random_v2
+4465.00.01	4465	recolha	noun	a	collection	standard	lexical_polysemy	random_v2
+1963.00.02	1963	miséria	noun	a	poverty	standard	lexical_polysemy	random_v2
+1848.00.01	1848	cópia	noun	a	copy	standard	single_sense_no_split	random_v2
+1005.00.01	1005	alemão	noun	o	German	standard	single_sense_no_split	random_v2
+4897.00.01	4897	tripa	noun	a	intestine	standard	lexical_polysemy	random_v2
+3997.00.01	3997	depressão	noun	a	depression	standard	single_sense_no_split	random_v2
+3884.00.01	3884	fogueira	noun	a	bonfire	standard	single_sense_no_split	random_v2
+4802.00.02	4802	giro	noun	o	return	standard	lexical_polysemy	random_v2
+1002.00.01	1002	chão	noun	o	ground / floor	standard	lexical_polysemy	random_v2
+1770.00.01	1770	aplicação	noun	a	application	standard	single_sense_no_split	random_v2
+2928.00.01	2928	finalidade	noun	a	purpose	standard	lexical_polysemy	random_v2
+1107.00.01	1107	chuva	noun	a	rain	standard	single_sense_no_split	random_v2
+0664.00.02	664	face	noun	a	surface	standard	lexical_polysemy	random_v2
+0930.00.01	930	exterior	noun	o	outside	standard	lexical_polysemy	random_v2
+0888.00.01	888	candidato	noun	o	candidate	standard	single_sense_no_split	random_v2
+2358.00.01	2358	projeção	noun	a	projection	standard	single_sense_no_split	random_v2
+1663.00.01	1663	laboratório	noun	o	laboratory	standard	single_sense_no_split	random_v2
+1439.00.01	1439	faixa	noun	a	strip	standard	lexical_polysemy	random_v2
+1052.00.01	1052	ensino	noun	o	education	standard	lexical_polysemy	random_v2
+1410.00.03	1410	corda	noun	a	spring	standard	lexical_polysemy	random_v2
+4545.00.01	4545	psicólogo	noun	o	psychologist	standard	single_sense_no_split	random_v2
+3708.00.01	3708	cineasta	noun	o/a	film producer	standard	single_sense_no_split	random_v2
+3392.00.01	3392	unha	noun	a	nail	standard	lexical_polysemy	random_v2
+0281.00.01	281	gente	noun	a	people	standard	lexical_polysemy	random_v2
+0466.00.01	466	filha	noun	a	daughter	standard	single_sense_no_split	random_v2
+4567.00.01	4567	balão	noun	o	balloon	standard	single_sense_no_split	random_v2
+3216.00.01	3216	atribuição	noun	a	awarding	standard	lexical_polysemy	random_v2
+0301.00.01	301	plano	noun	o	plan	standard	lexical_polysemy	random_v2
+2095.00.01	2095	grão	noun	o	grain	standard	single_sense_no_split	random_v2
+2111.00.01	2111	pesca	noun	a	fishing	standard	single_sense_no_split	random_v2
+1209.00.01	1209	exame	noun	o	exam	standard	single_sense_no_split	random_v2
+2407.00.01	2407	virgem	noun	o/a	virgin	standard	single_sense_no_split	random_v2
+0527.00.02	527	graça	noun	a	grace	standard	lexical_polysemy	random_v2
+2264.00.01	2264	pó	noun	o	powder	standard	lexical_polysemy	random_v2
+4421.00.01	4421	superioridade	noun	a	superiority	standard	single_sense_no_split	random_v2
+3763.00.01	3763	turista	noun	o/a	tourist	standard	single_sense_no_split	random_v2
+1559.00.01	1559	vidro	noun	o	glass	standard	single_sense_no_split	random_v2
+3583.00.01	3583	retórica	noun	a	rhetoric	standard	single_sense_no_split	random_v2
+0734.00.02	734	reunião	noun	a	reunion	standard	lexical_polysemy	random_v2
+1415.00.01	1415	controle	noun	o	control	standard	single_sense_no_split	random_v2
+0901.00.01	901	instituição	noun	a	institution	standard	single_sense_no_split	random_v2
+3092.00.01	3092	desculpa	noun	a	excuse	standard	single_sense_no_split	random_v2
+3172.00.01	3172	botão	noun	o	button	standard	single_sense_no_split	random_v2
+3805.00.01	3805	noiva	noun	a	bride	standard	lexical_polysemy	random_v2
+3527.00.01	3527	bíblia	noun	a	Bible	standard	single_sense_no_split	random_v2
+1365.00.01	1365	sorte	noun	a	luck	standard	lexical_polysemy	random_v2
+2984.00.01	2984	posto	noun	o	station	standard	lexical_polysemy	random_v2
+1887.00.01	1887	febre	noun	a	fever	standard	single_sense_no_split	random_v2
+1925.00.01	1925	mecânico	noun	o	mechanic	standard	lexical_polysemy	random_v2
+2179.00.01	2179	bico	noun	o	beak	standard	single_sense_no_split	random_v2
+0217.00.01	217	campo	noun	o	field	standard	single_sense_no_split	random_v2
+3075.00.01	3075	calendário	noun	o	calendar	standard	single_sense_no_split	random_v2
+1273.00.01	1273	barro	noun	o	clay / mud	standard	lexical_polysemy	random_v2
+2860.00.01	2860	dano	noun	o	damage	standard	single_sense_no_split	random_v2
+4293.00.01	4293	pensador	noun	o	thinker	standard	lexical_polysemy	random_v2
+0739.00.01	739	operação	noun	a	operation	standard	single_sense_no_split	random_v2
+3892.00.01	3892	valorização	noun	a	appreciation (in value)	standard	single_sense_no_split	random_v2
+3286.00.01	3286	conservação	noun	a	conservation	standard	single_sense_no_split	random_v2
+1374.00.01	1374	representante	noun	o/a	representative	standard	single_sense_no_split	random_v2
+2484.00.01	2484	circulação	noun	a	circulation	standard	single_sense_no_split	random_v2
+0334.00.01	334	caminho	noun	o	path	standard	lexical_polysemy	random_v2
+1888.00.01	1888	competência	noun	a	competence	standard	single_sense_no_split	random_v2
+2341.00.01	2341	festival	noun	o	festival	standard	single_sense_no_split	random_v2
+2077.00.03	2077	pasta	noun	a	paste	standard	lexical_polysemy	random_v2
+3633.00.01	3633	leque	noun	o	range	standard	lexical_polysemy	random_v2
+3347.00.01	3347	intimidade	noun	a	intimacy	standard	lexical_polysemy	random_v2
+1596.00.01	1596	capítulo	noun	o	chapter	standard	single_sense_no_split	random_v2
+0620.00.01	620	objetivo	noun	o	objective	standard	single_sense_no_split	random_v2
+1437.00.01	1437	medicina	noun	a	medicine	standard	single_sense_no_split	random_v2
+3918.00.01	3918	infeção	noun	a	infection	standard	single_sense_no_split	random_v2
+1703.00.01	1703	dólar	noun	o	dollar	standard	single_sense_no_split	random_v2
+3738.00.01	3738	sudeste	noun	o	Southeast	standard	single_sense_no_split	random_v2
+4977.00.01	4977	mendigo	noun	o	beggar	standard	single_sense_no_split	random_v2
+2559.00.01	2559	editora	noun	a	publishing house	standard	single_sense_no_split	random_v2
+2640.00.01	2640	indígena	noun	o/a	indigenous (person)	standard	single_sense_no_split	random_v2
+4284.00.01	4284	saneamento	noun	o	sanitation	standard	single_sense_no_split	random_v2
+4832.00.01	4832	cavalheiro	noun	o	gentleman	standard	single_sense_no_split	random_v2
+4387.00.01	4387	explosivo	noun	o	explosive	standard	single_sense_no_split	random_v2
+3148.00.02	3148	ala	noun	a	branch	standard	lexical_polysemy	random_v2
+3875.00.01	3875	júri	noun	o	jury	standard	single_sense_no_split	random_v2
+4342.00.01	4342	foro	noun	o	court	standard	single_sense_no_split	random_v2
+1141.00.01	1141	diálogo	noun	o	dialogue	standard	single_sense_no_split	random_v2
+3938.00.01	3938	sociologia	noun	a	sociology	standard	single_sense_no_split	random_v2
+0387.00.01	387	norte	noun	o	north	standard	single_sense_no_split	random_v2
+0616.00.01	616	crítica	noun	a	criticism	standard	single_sense_no_split	random_v2
+4925.00.01	4925	manipulação	noun	a	manipulation	standard	single_sense_no_split	random_v2
+4541.00.01	4541	bordado	noun	o	embroidered / embroidery	standard	lexical_polysemy	random_v2
+2292.00.01	2292	residência	noun	a	residence	standard	single_sense_no_split	random_v2
+0545.00.01	545	guarda	noun	o/a	guard	standard	lexical_polysemy	random_v2
+2919.00.01	2919	medalha	noun	a	medal	standard	single_sense_no_split	random_v2
+3444.00.01	3444	camarada	noun	o/a	comrade	standard	lexical_polysemy	random_v2
+4366.00.02	4366	ronda	noun	a	surveillance	standard	lexical_polysemy	random_v2
+1899.00.01	1899	novela	noun	a	soap opera	standard	single_sense_no_split	random_v2
+0553.00.01	553	apoio	noun	o	support	standard	single_sense_no_split	random_v2
+0887.00.01	887	roda	noun	a	wheel	standard	single_sense_no_split	random_v2
+4318.00.01	4318	interrupção	noun	a	interruption	standard	single_sense_no_split	random_v2
+3068.00.01	3068	autoria	noun	a	authorship	standard	single_sense_no_split	random_v2
+3063.00.01	3063	gravura	noun	a	picture	standard	lexical_polysemy	random_v2
+4806.00.01	4806	declínio	noun	o	decline	standard	single_sense_no_split	random_v2
+3018.00.01	3018	catedral	noun	a	cathedral	standard	single_sense_no_split	random_v2
+3093.00.01	3093	vegetal	noun	o	vegetable	standard	lexical_polysemy	random_v2
+0952.00.01	952	nação	noun	a	nation	standard	single_sense_no_split	random_v2
+1886.00.02	1886	exploração	noun	a	exploitation	standard	lexical_polysemy	random_v2
+0124.00.01	124	exemplo	noun	o	example	standard	single_sense_no_split	random_v2
+3407.00.01	3407	ignorância	noun	a	ignorance	standard	single_sense_no_split	random_v2
+1722.00.01	1722	excesso	noun	o	excess	standard	single_sense_no_split	random_v2
+1044.00.01	1044	barco	noun	o	boat	standard	lexical_polysemy	random_v2
+0784.00.01	784	tarefa	noun	a	task	standard	lexical_polysemy	random_v2
+1030.00.01	1030	secretário	noun	o	secretary	standard	single_sense_no_split	random_v2
+0533.00.01	533	francês	noun	o	French	standard	single_sense_no_split	random_v2
+3234.00.03	3234	bilhete	noun	o	pamphlet	standard	lexical_polysemy	random_v2
+3310.00.01	3310	tábua	noun	a	board	standard	lexical_polysemy	random_v2
+1427.00.01	1427	salário	noun	o	salary	standard	lexical_polysemy	random_v2
+2114.00.01	2114	impacto	noun	o	impact	standard	single_sense_no_split	random_v2
+2142.00.01	2142	temperatura	noun	a	temperature	standard	single_sense_no_split	random_v2
+3789.00.01	3789	tia	noun	a	aunt	standard	single_sense_no_split	random_v2
+1736.00.02	1736	mostra	noun	a	exhibition	standard	lexical_polysemy	random_v2
+2413.00.01	2413	patrão	noun	o	boss	standard	lexical_polysemy	random_v2
+2714.00.01	2714	tanque	noun	o	tank	standard	single_sense_no_split	random_v2
+4083.00.01	4083	veneno	noun	o	poison	standard	lexical_polysemy	random_v2
+4907.00.01	4907	proposição	noun	a	proposition	standard	single_sense_no_split	random_v2
+1713.00.01	1713	adversário	noun	o	opponent	standard	lexical_polysemy	random_v2
+4496.00.01	4496	omissão	noun	a	omission	standard	single_sense_no_split	random_v2
+2220.00.01	2220	comerciante	noun	o/a	business person	standard	lexical_polysemy	random_v2
+4790.00.01	4790	equação	noun	a	equation	standard	single_sense_no_split	random_v2
+2763.00.01	2763	copo	noun	o	glass	standard	lexical_polysemy	random_v2
+2261.00.01	2261	passe	noun	o	pass	standard	lexical_polysemy	random_v2
+0486.00.01	486	irmão	noun	o	brother	standard	single_sense_no_split	random_v2
+1450.00.01	1450	coluna	noun	a	column	standard	lexical_polysemy	random_v2
+3723.00.01	3723	fórum	noun	o	court	standard	lexical_polysemy	random_v2
+1824.00.01	1824	definição	noun	a	definition	standard	single_sense_no_split	random_v2
+1381.00.01	1381	jeito	noun	o	way	standard	lexical_polysemy	random_v2
+4354.00.01	4354	complicação	noun	a	complication	standard	single_sense_no_split	random_v2
+3212.00.01	3212	cirurgia	noun	a	surgery	standard	single_sense_no_split	random_v2
+3279.00.01	3279	concha	noun	a	shell	standard	single_sense_no_split	random_v2
+2619.00.01	2619	mosteiro	noun	o	monastery	standard	single_sense_no_split	random_v2
+3375.00.01	3375	coordenador	noun	o	coordinator	standard	lexical_polysemy	random_v2
+3341.00.01	3341	ansiedade	noun	a	anxiety	standard	single_sense_no_split	random_v2
+1459.00.01	1459	fiscal	noun	o/a	fiscal / customs inspector	standard	lexical_polysemy	random_v2
+1796.00.01	1796	mecanismo	noun	o	mechanism	standard	single_sense_no_split	random_v2
+2544.00.01	2544	taça	noun	a	glass (e.g. for wine)	standard	single_sense_no_split	random_v2
+1959.00.01	1959	satisfação	noun	a	satisfaction	standard	single_sense_no_split	random_v2
+0236.00.01	236	verdade	noun	a	truth	standard	single_sense_no_split	random_v2
+0530.00.01	530	americano	noun	o	American	standard	single_sense_no_split	random_v2
+3086.00.01	3086	conversação	noun	a	conversation	standard	lexical_polysemy	random_v2
+1480.00.01	1480	distrito	noun	o	district	standard	single_sense_no_split	random_v2
+4589.00.03	4589	traçado	noun	o	plan	standard	lexical_polysemy	random_v2
+4003.00.01	4003	plantação	noun	a	plantation	standard	single_sense_no_split	random_v2
+0352.00.01	352	militar	noun	o/a	military	standard	lexical_polysemy	random_v2
+1207.00.01	1207	informar	verb		to inform	standard	single_sense_no_split	random_v2
+1518.00.01	1518	afetar	verb		to affect	standard	single_sense_no_split	random_v2
+3681.00.01	3681	coordenar	verb		to coordinate	standard	lexical_polysemy	random_v2
+0814.00.01	814	aplicar	verb		to apply	standard	single_sense_no_split	random_v2
+3644.00.01	3644	dispersar	verb		to disperse	standard	lexical_polysemy	random_v2
+4957.00.01	4957	iludir	verb		to deceive	standard	lexical_polysemy	random_v2
+1909.00.01	1909	carecer	verb		to lack	standard	lexical_polysemy	random_v2
+3095.00.01	3095	alternar	verb		to alternate	standard	lexical_polysemy	random_v2
+0339.00.01	339	surgir	verb		to appear	standard	lexical_polysemy	random_v2
+3660.00.02	3660	decorar	verb		to decorate	standard	lexical_polysemy	random_v2
+2929.00.01	2929	abrigar	verb		to shelter	standard	lexical_polysemy	random_v2
+3730.00.01	3730	brilhar	verb		to shine	standard	lexical_polysemy	random_v2
+0596.00.01	596	fugir	verb		to flee	standard	lexical_polysemy	random_v2
+3089.00.01	3089	interrogar	verb		to interrogate	standard	lexical_polysemy	random_v2
+2164.00.01	2164	ampliar	verb		to enlarge	standard	lexical_polysemy	random_v2
+1343.00.01	1343	promover	verb		to promote	standard	single_sense_no_split	random_v2
+3834.00.02	3834	rondar	verb		to circle	standard	lexical_polysemy	random_v2
+1268.00.02	1268	decorrer	verb		to elapse	standard	lexical_polysemy	random_v2
+3764.00.01	3764	alugar	verb		to rent	standard	single_sense_no_split	random_v2
+1906.00.01	1906	confundir	verb		to confuse	standard	lexical_polysemy	random_v2
+4964.00.01	4964	edificar	verb		to build	standard	lexical_polysemy	random_v2
+2795.00.01	2795	conviver	verb		to spend time with / live with	standard	lexical_polysemy	random_v2
+2006.00.03	2006	mexer	verb		to stir	standard	lexical_polysemy	random_v2
+0816.00.01	816	conduzir	verb		to lead	standard	lexical_polysemy	random_v2
+4568.00.01	4568	tremer	verb		to shake	standard	lexical_polysemy	random_v2
+2418.00.01	2418	disparar	verb		to fire (weapon)	standard	single_sense_no_split	random_v2
+4765.00.01	4765	emigrar	verb		to emigrate	standard	single_sense_no_split	random_v2
+0478.00.01	478	mandar	verb		to send	standard	lexical_polysemy	random_v2
+2211.00.01	2211	apertar	verb		to shake	standard	lexical_polysemy	random_v2
+4114.00.01	4114	sorrir	verb		to smile	standard	single_sense_no_split	random_v2
+0523.00.01	523	buscar	verb		to look for	standard	lexical_polysemy	random_v2
+2227.00.01	2227	chorar	verb		to cry	standard	single_sense_no_split	random_v2
+1348.00.01	1348	adotar	verb		to adopt	standard	single_sense_no_split	random_v2
+4397.00.01	4397	atar	verb		to tie	standard	lexical_polysemy	random_v2
+3540.00.01	3540	apressar	verb		to hurry	standard	lexical_polysemy	random_v2
+4603.00.01	4603	desdobrar	verb		to unfold	standard	single_sense_no_split	random_v2
+2447.00.01	2447	girar	verb		to spin / turn / rotate	standard	lexical_polysemy	random_v2
+3387.00.01	3387	calhar	verb		to happen (by accident)	standard	single_sense_no_split	random_v2
+4168.00.01	4168	furar	verb		to penetrate / make a hole	standard	lexical_polysemy	random_v2
+2001.00.02	2001	ganho	verb		gained	standard	lexical_polysemy	random_v2
+0171.00.01	171	criar	verb		to create	standard	single_sense_no_split	random_v2
+1993.00.01	1993	sujeitar	verb		to subject	standard	single_sense_no_split	random_v2
+2563.00.01	2563	enterrar	verb		to bury	standard	single_sense_no_split	random_v2
+4786.00.01	4786	refazer	verb		to redo	standard	single_sense_no_split	random_v2
+1682.00.01	1682	visar	verb		to aim at	standard	lexical_polysemy	random_v2
+3262.00.01	3262	despedir	verb		to say goodbye	standard	lexical_polysemy	random_v2
+0055.00.02	55	ficar	verb		to be located	standard	lexical_polysemy	random_v2
+3358.00.01	3358	deparar	verb		to run into	standard	lexical_polysemy	random_v2
+2020.00.01	2020	eliminar	verb		to eliminate	standard	single_sense_no_split	random_v2
+0190.00.01	190	tratar	verb		to treat	standard	lexical_polysemy	random_v2
+0510.00.01	510	terminar	verb		to end / finish	standard	lexical_polysemy	random_v2
+0260.00.01	260	abrir	verb		to open	standard	single_sense_no_split	random_v2
+3116.00.01	3116	expandir	verb		to expand	standard	single_sense_no_split	random_v2
+0199.00.01	199	contar	verb		to tell	standard	lexical_polysemy	random_v2
+0580.00.01	580	garantir	verb		to guarantee	standard	single_sense_no_split	random_v2
+1464.00.01	1464	fornecer	verb		to provide	standard	lexical_polysemy	random_v2
+0954.00.01	954	separar	verb		to separate	standard	single_sense_no_split	random_v2
+1636.00.01	1636	negociar	verb		to negotiate	standard	single_sense_no_split	random_v2
+4750.00.01	4750	acomodar	verb		to accommodate	standard	lexical_polysemy	random_v2
+0902.00.01	902	exercer	verb		to exert / exercise	standard	lexical_polysemy	random_v2
+4797.00.02	4797	condicionar	verb		to subject	standard	lexical_polysemy	random_v2
+1455.00.01	1455	espalhar	verb		to spread	standard	single_sense_no_split	random_v2
+4572.00.01	4572	torturar	verb		to torture	standard	single_sense_no_split	random_v2
+3736.00.01	3736	restringir	verb		to restrict	standard	single_sense_no_split	random_v2
+4274.00.01	4274	evocar	verb		to evoke	standard	single_sense_no_split	random_v2
+1307.00.01	1307	esconder	verb		to hide	standard	single_sense_no_split	random_v2
+2278.00.01	2278	pregar	verb		to preach	standard	lexical_polysemy	random_v2
+1719.00.01	1719	adiantar	verb		to move forward	standard	lexical_polysemy	random_v2
+0477.00.01	477	levantar	verb		to raise	standard	lexical_polysemy	random_v2
+0889.00.02	889	compor	verb		to consist of	standard	lexical_polysemy	random_v2
+2051.00.01	2051	fundar	verb		to found	standard	single_sense_no_split	random_v2
+4238.00.01	4238	diferenciar	verb		to differentiate	standard	single_sense_no_split	random_v2
+1738.00.01	1738	intervir	verb		to intervene	standard	single_sense_no_split	random_v2
+1127.00.01	1127	custar	verb		to cost	standard	single_sense_no_split	random_v2
+2126.00.01	2126	convocar	verb		to call / to summon	standard	lexical_polysemy	random_v2
+1042.00.01	1042	corresponder	verb		to correspond (to)	standard	single_sense_no_split	random_v2
+1529.00.01	1529	proibir	verb		to prohibit	standard	single_sense_no_split	random_v2
+2072.00.01	2072	animar	verb		to encourage / cheer up	standard	lexical_polysemy	random_v2
+0988.00.01	988	estender	verb		to extend / stretch	standard	lexical_polysemy	random_v2
+0057.00.02	57	passar	verb		to spend (time)	standard	lexical_polysemy	random_v2
+4834.00.01	4834	presumir	verb		to presume	standard	lexical_polysemy	random_v2
+2420.00.01	2420	treinar	verb		to train	standard	single_sense_no_split	random_v2
+3390.00.01	3390	encomendar	verb		to order	standard	lexical_polysemy	random_v2
+1155.00.01	1155	carregar	verb		to carry	standard	lexical_polysemy	random_v2
+1795.00.01	1795	forçar	verb		to force	standard	single_sense_no_split	random_v2
+4125.00.01	4125	batizar	verb		to baptize	standard	single_sense_no_split	random_v2
+4026.00.01	4026	inclinar	verb		to lean	standard	lexical_polysemy	random_v2
+0213.00.01	213	seguir	verb		to follow	standard	single_sense_no_split	random_v2
+0783.00.01	783	prever	verb		to foresee	standard	single_sense_no_split	random_v2
+3813.00.01	3813	acarretar	verb		to cause	standard	lexical_polysemy	random_v2
+2004.00.01	2004	divulgar	verb		to make known	standard	lexical_polysemy	random_v2
+0463.00.01	463	comprar	verb		to buy	standard	single_sense_no_split	random_v2
+3137.00.01	3137	ilustrar	verb		to illustrate	standard	single_sense_no_split	random_v2
+0341.00.01	341	representar	verb		to represent	standard	single_sense_no_split	random_v2
+4604.00.01	4604	progredir	verb		to progress	standard	single_sense_no_split	random_v2
+0899.00.01	899	virar	verb		to turn	standard	lexical_polysemy	random_v2
+3169.00.01	3169	apelar	verb		to appeal (to)	standard	single_sense_no_split	random_v2
+0586.00.01	586	preparar	verb		to prepare	standard	single_sense_no_split	random_v2
+0238.00.01	238	morrer	verb		to die	standard	single_sense_no_split	random_v2
+2252.00.01	2252	abranger	verb		to span / encompass	standard	lexical_polysemy	random_v2
+1570.00.02	1570	suportar	verb		to support	standard	lexical_polysemy	random_v2
+3926.00.01	3926	acalmar	verb		to calm down	standard	lexical_polysemy	random_v2
+0658.00.01	658	reunir	verb		to gather	standard	single_sense_no_split	random_v2
+1123.00.01	1123	trocar	verb		to change	standard	lexical_polysemy	random_v2
+1210.00.01	1210	comentar	verb		to comment	standard	single_sense_no_split	random_v2
+0910.00.01	910	utilizar	verb		to utilize	standard	single_sense_no_split	random_v2
+0810.00.01	810	pesar	verb		to weigh	standard	single_sense_no_split	random_v2
+2720.00.01	2720	acolher	verb		to welcome	standard	lexical_polysemy	random_v2
+4849.00.01	4849	findar	verb		to end	uncommon	lexical_polysemy	random_v2
+0088.00.02	88	deixar	verb		to allow	standard	lexical_polysemy	random_v2
+4401.00.01	4401	distanciar	verb		to distance	standard	single_sense_no_split	random_v2
+3889.00.01	3889	confrontar	verb		to confront	standard	single_sense_no_split	random_v2
+0478.00.02	478	mandar	verb		to command	standard	lexical_polysemy	random_v2
+0462.00.01	462	transformar	verb		to transform	standard	single_sense_no_split	random_v2
+0667.00.01	667	determinar	verb		to determine	standard	single_sense_no_split	random_v2
+2400.00.02	2400	dispensar	verb		to give up	standard	lexical_polysemy	random_v2
+2539.00.01	2539	guiar	verb		to guide	standard	lexical_polysemy	random_v2
+4865.00.01	4865	lavrar	verb		to cultivate	standard	single_sense_no_split	random_v2
+1117.00.01	1117	destruir	verb		to destroy	standard	single_sense_no_split	random_v2
+3974.00.01	3974	assemelhar	verb		to be similar to	standard	single_sense_no_split	random_v2
+2529.00.01	2529	abalar	verb		to shake	standard	lexical_polysemy	random_v2
+3656.00.01	3656	exportar	verb		to export	standard	single_sense_no_split	random_v2
+3432.00.01	3432	perturbar	verb		to disturb	standard	lexical_polysemy	random_v2
+3878.00.01	3878	pousar	verb		to land	standard	lexical_polysemy	random_v2
+1574.00.01	1574	encher	verb		to fill	standard	single_sense_no_split	random_v2
+0412.00.01	412	escolher	verb		to choose	standard	single_sense_no_split	random_v2
+0509.00.01	509	afirmar	verb		to affirm	standard	single_sense_no_split	random_v2
+0579.00.01	579	provocar	verb		to provoke	standard	single_sense_no_split	random_v2
+0651.00.01	651	prestar	verb		to render	standard	lexical_polysemy	random_v2
+2818.00.01	2818	inserir	verb		to insert	standard	lexical_polysemy	random_v2
+1846.00.01	1846	comprometer	verb		to commit to	standard	lexical_polysemy	random_v2
+2348.00.01	2348	designar	verb		to designate	standard	single_sense_no_split	random_v2
+3801.00.01	3801	disfarçar	verb		to disguise	standard	lexical_polysemy	random_v2
+0360.00.01	360	ocorrer	verb		to occur	standard	single_sense_no_split	random_v2
+1514.00.01	1514	invadir	verb		to invade	standard	single_sense_no_split	random_v2
+3096.00.01	3096	enriquecer	verb		to enrich	standard	lexical_polysemy	random_v2
+3230.00.01	3230	ingressar	verb		to enter	standard	lexical_polysemy	random_v2
+0436.00.01	436	sofrer	verb		to suffer	standard	single_sense_no_split	random_v2
+0383.00.01	383	lançar	verb		to throw	standard	lexical_polysemy	random_v2
+2513.00.01	2513	improvisar	verb		to improvise	standard	single_sense_no_split	random_v2
+1301.00.01	1301	manifestar	verb		to manifest / express	standard	lexical_polysemy	random_v2
+1407.00.01	1407	chamado	verb		called	standard	lexical_polysemy	random_v2
+3851.00.01	3851	mobilizar	verb		to mobilize	standard	single_sense_no_split	random_v2
+3990.00.01	3990	equilibrar	verb		to balance	standard	single_sense_no_split	random_v2
+4779.00.01	4779	fracassar	verb		to fail	standard	single_sense_no_split	random_v2
+4432.00.01	4432	assaltar	verb		to rob	standard	lexical_polysemy	random_v2
+0980.00.01	980	conter	verb		to contain	standard	single_sense_no_split	random_v2
+3868.00.01	3868	esforçar	verb		to strive	standard	lexical_polysemy	random_v2
+4024.00.01	4024	almoçar	verb		to eat lunch	standard	single_sense_no_split	random_v2
+4011.00.01	4011	advertir	verb		to warn	standard	single_sense_no_split	random_v2
+1679.00.01	1679	condenar	verb		to condemn	standard	single_sense_no_split	random_v2
+3469.00.01	3469	proclamar	verb		to proclaim	standard	single_sense_no_split	random_v2
+1268.00.01	1268	decorrer	verb		to happen as a result of	standard	lexical_polysemy	random_v2
+2065.00.01	2065	dramático	adj		dramatic	standard	single_sense_no_split	random_v2
+4696.00.01	4696	inerente	adj		inherent	standard	single_sense_no_split	random_v2
+3159.00.01	3159	nativo	adj	o	native	standard	single_sense_no_split	random_v2
+3516.00.02	3516	cercado	adj	o	fenced	standard	lexical_polysemy	random_v2
+1725.00.01	1725	revolucionário	adj		revolutionary	standard	single_sense_no_split	random_v2
+4007.00.01	4007	pedagógico	adj		pedagogical	standard	lexical_polysemy	random_v2
+1471.00.02	1471	caro	adj		esteemed	standard	lexical_polysemy	random_v2
+2675.00.01	2675	patente	adj	a	obvious	standard	lexical_polysemy	random_v2
+0882.00.01	882	ideal	adj		ideal	standard	single_sense_no_split	random_v2
+0879.00.01	879	interno	adj		internal	standard	single_sense_no_split	random_v2
+4460.00.01	4460	brutal	adj		brutal	standard	single_sense_no_split	random_v2
+2743.00.01	2743	coberto	adj		covered	standard	single_sense_no_split	random_v2
+3602.00.01	3602	dotado	adj		gifted	standard	lexical_polysemy	random_v2
+0534.00.01	534	verde	adj		green	standard	lexical_polysemy	random_v2
+1340.00.01	1340	constante	adj		constant	standard	single_sense_no_split	random_v2
+3338.00.01	3338	simpático	adj		friendly	standard	lexical_polysemy	random_v2
+2438.00.01	2438	sucessivo	adj		successive	standard	single_sense_no_split	random_v2
+1997.00.01	1997	legislativo	adj		legislative	standard	single_sense_no_split	random_v2
+0853.00.01	853	físico	adj		physical	standard	lexical_polysemy	random_v2
+4521.00.01	4521	espetacular	adj		spectacular	standard	single_sense_no_split	random_v2
+2075.00.01	2075	ruim	adj		bad	standard	lexical_polysemy	random_v2
+3773.00.01	3773	humilde	adj		humble	standard	single_sense_no_split	random_v2
+2737.00.01	2737	primitivo	adj		primitive	standard	single_sense_no_split	random_v2
+1681.00.01	1681	destinado	adj		meant for / destined	standard	lexical_polysemy	random_v2
+4526.00.01	4526	satisfatório	adj		satisfactory	standard	single_sense_no_split	random_v2
+3114.00.01	3114	escasso	adj		scarce	standard	single_sense_no_split	random_v2
+1061.00.01	1061	católico	adj		catholic	standard	single_sense_no_split	random_v2
+0534.00.02	534	verde	adj		unripe	standard	lexical_polysemy	random_v2
+1212.00.01	1212	azul	adj		blue	standard	single_sense_no_split	random_v2
+2674.00.01	2674	ambiental	adj		environmental	standard	single_sense_no_split	random_v2
+1741.00.02	1741	latino	adj		Latin	standard	lexical_polysemy	random_v2
+2847.00.01	2847	reto	adj		straight	standard	single_sense_no_split	random_v2
+0348.00.01	348	pessoal	adj		personal	standard	lexical_polysemy	random_v2
+4923.00.01	4923	linear	adj		linear	standard	single_sense_no_split	random_v2
+1065.00.02	1065	privado	adj		deprived	standard	lexical_polysemy	random_v2
+4031.00.01	4031	repleto	adj		full	standard	lexical_polysemy	random_v2
+3592.00.01	3592	institucional	adj		institutional	standard	single_sense_no_split	random_v2
+3626.00.01	3626	integral	adj		whole	standard	lexical_polysemy	random_v2
+4194.00.01	4194	farmacêutico	adj	o	pharmaceutical	standard	lexical_polysemy	random_v2
+4503.00.01	4503	inverso	adj	o	opposite	standard	lexical_polysemy	random_v2
+3785.00.01	3785	superficial	adj		superficial	standard	single_sense_no_split	random_v2
+2772.00.01	2772	vulgar	adj		common	standard	lexical_polysemy	random_v2
+2760.00.01	2760	soviético	adj	o	soviet	standard	single_sense_no_split	random_v2
+4163.00.01	4163	insuficiente	adj		insufficient	standard	single_sense_no_split	random_v2
+0850.00.01	850	literário	adj		literary	standard	single_sense_no_split	random_v2
+1087.00.01	1087	independente	adj		independent	standard	single_sense_no_split	random_v2
+4357.00.01	4357	parado	adj		stopped	standard	lexical_polysemy	random_v2
+4805.00.01	4805	perpétuo	adj		perpetual	standard	lexical_polysemy	random_v2
+0856.00.01	856	suficiente	adj		sufficient	standard	single_sense_no_split	random_v2
+2000.00.01	2000	preparado	adj		prepared	standard	single_sense_no_split	random_v2
+0636.00.01	636	europeu	adj		European	standard	single_sense_no_split	random_v2
+4459.00.01	4459	inovador	adj		innovative	standard	lexical_polysemy	random_v2
+1531.00.01	1531	estreito	adj		narrow	standard	lexical_polysemy	random_v2
+0445.00.01	445	negro	adj	o	black	standard	lexical_polysemy	random_v2
+2215.00.01	2215	habitual	adj		familiar	standard	lexical_polysemy	random_v2
+0137.00.01	137	pequeno	adj		small	standard	single_sense_no_split	random_v2
+3414.00.01	3414	inocente	adj		innocent	standard	single_sense_no_split	random_v2
+4896.00.02	4896	brusco	adj		sudden	standard	lexical_polysemy	random_v2
+4868.00.01	4868	isento	adj		exempt	standard	lexical_polysemy	random_v2
+4122.00.01	4122	ansioso	adj		anxious	standard	single_sense_no_split	random_v2
+4089.00.01	4089	hospitalar	adj		relating to a hospital	standard	single_sense_no_split	random_v2
+3199.00.01	3199	desenvolvido	adj		developed	standard	single_sense_no_split	random_v2
+4502.00.01	4502	espesso	adj		thick	standard	lexical_polysemy	random_v2
+1806.00.02	1806	distinto	adj		distinctive	standard	lexical_polysemy	random_v2
+0431.00.01	431	especial	adj		special	standard	single_sense_no_split	random_v2
+0678.00.01	678	belo	adj		beautiful	standard	single_sense_no_split	random_v2
+2891.00.01	2891	salgado	adj		relating to salt	standard	single_sense_no_split	random_v2
+3485.00.01	3485	variável	adj		variable	standard	lexical_polysemy	random_v2
+4388.00.02	4388	protetor	adj	o	protective	standard	lexical_polysemy	random_v2
+3164.00.01	3164	marinho	adj		marine	standard	lexical_polysemy	random_v2
+0947.00.01	947	moral	adj		moral	standard	lexical_polysemy	random_v2
+2168.00.01	2168	ligeiro	adj		light	standard	lexical_polysemy	random_v2
+4523.00.01	4523	aplicado	adj		applied	standard	single_sense_no_split	random_v2
+3461.00.01	3461	experimental	adj		experimental	standard	single_sense_no_split	random_v2
+2125.00.01	2125	indispensável	adj		indispensable	standard	single_sense_no_split	random_v2
+1790.00.01	1790	nobre	adj		noble	standard	lexical_polysemy	random_v2
+3287.00.02	3287	exposto	adj		exposed	standard	lexical_polysemy	random_v2
+1874.00.01	1874	universitário	adj		relating to the university	standard	single_sense_no_split	random_v2
+1729.00.01	1729	associado	adj	o	associated	standard	lexical_polysemy	random_v2
+2923.00.01	2923	ideológico	adj		ideological	standard	single_sense_no_split	random_v2
+0604.00.01	604	central	adj		central	standard	lexical_polysemy	random_v2
+2422.00.03	2422	lateral	adj		lateral	standard	lexical_polysemy	random_v2
+3314.00.01	3314	tático	adj		tactical	standard	lexical_polysemy	random_v2
+3804.00.01	3804	étnico	adj		ethnic	standard	single_sense_no_split	random_v2
+0209.00.01	209	claro	adj		clear	standard	lexical_polysemy	random_v2
+4492.00.01	4492	pálido	adj		pale	standard	single_sense_no_split	random_v2
+3653.00.01	3653	gigantesco	adj		gigantic	standard	single_sense_no_split	random_v2
+0817.00.01	817	vermelho	adj		red	standard	single_sense_no_split	random_v2
+1996.00.01	1996	triste	adj		sad	standard	single_sense_no_split	random_v2
+3244.00.01	3244	representativo	adj		representative	standard	single_sense_no_split	random_v2
+3755.00.01	3755	ingénuo	adj		naive	standard	lexical_polysemy	random_v2
+4368.00.01	4368	cozido	adj		cooked	standard	lexical_polysemy	random_v2
+4384.00.01	4384	continental	adj		continental	standard	single_sense_no_split	random_v2
+4963.00.01	4963	afetado	adj		affected	standard	single_sense_no_split	random_v2
+4426.00.01	4426	coerente	adj		coherent	standard	single_sense_no_split	random_v2
+4045.00.01	4045	solidário	adj		fully supportive	standard	single_sense_no_split	random_v2
+3864.00.01	3864	virtual	adj		virtual	standard	single_sense_no_split	random_v2
+2235.00.01	2235	oriental	adj		Eastern	standard	lexical_polysemy	random_v2
+0263.00.01	263	forte	adj		strong	standard	lexical_polysemy	random_v2
+2422.00.02	2422	lateral	adj		sideline	standard	lexical_polysemy	random_v2
+0244.00.01	244	longo	adj		long	standard	single_sense_no_split	random_v2
+4217.00.01	4217	seguido	adj		followed (by)	standard	single_sense_no_split	random_v2
+1160.00.01	1160	doce	adj	o	sweet	standard	lexical_polysemy	random_v2
+4152.00.01	4152	sombrio	adj		somber	standard	lexical_polysemy	random_v2
+3843.00.01	3843	magnético	adj		magnetic	standard	single_sense_no_split	random_v2
+4280.00.01	4280	competitivo	adj		competitive	standard	single_sense_no_split	random_v2
+0242.00.01	242	baixo	adj		low	standard	lexical_polysemy	random_v2
+4532.00.01	4532	autárquico	adj		non-governmental	standard	single_sense_no_split	random_v2
+2804.00.01	2804	intermédio	adj	o	intermediate	standard	lexical_polysemy	random_v2
+0823.00.01	823	técnico	adj		technical	standard	lexical_polysemy	random_v2
+4746.00.01	4746	detalhado	adj		detailed	standard	single_sense_no_split	random_v2
+4687.00.01	4687	equipado	adj		equipped	standard	single_sense_no_split	random_v2
+2307.00.01	2307	britânico	adj		British	standard	single_sense_no_split	random_v2
+1228.00.01	1228	pleno	adj		complete	standard	lexical_polysemy	random_v2
+0736.00.01	736	interessante	adj		interesting	standard	single_sense_no_split	random_v2
+4869.00.01	4869	prudente	adj		prudent	standard	single_sense_no_split	random_v2
+1661.00.01	1661	vasto	adj		vast	standard	lexical_polysemy	random_v2
+3902.00.01	3902	sofisticado	adj		sophisticated	standard	single_sense_no_split	random_v2
+4637.00.01	4637	celeste	adj		heavenly	standard	single_sense_no_split	random_v2
+2346.00.01	2346	numeroso	adj		numerous	standard	single_sense_no_split	random_v2
+3024.00.01	3024	baiano	adj	o	from Bahia	standard	single_sense_no_split	random_v2
+4890.00.01	4890	descalço	adj		barefoot	standard	lexical_polysemy	random_v2
+1497.00.01	1497	mental	adj		mental	standard	single_sense_no_split	random_v2
+3871.00.01	3871	característico	adj		characteristic (feature)	standard	single_sense_no_split	random_v2
+1744.00.01	1744	praticamente	adv		practically	standard	single_sense_no_split	random_v2
+0138.00.01	138	quanto	adv		how much	standard	single_sense_no_split	random_v2
+0048.00.01	48	depois	adv		after	standard	single_sense_no_split	random_v2
+1262.00.01	1262	normalmente	adv		normally	standard	lexical_polysemy	random_v2
+0812.00.01	812	longe	adv		far	standard	single_sense_no_split	random_v2
+0351.00.01	351	mal	adv		poorly	standard	lexical_polysemy	random_v2
+2099.00.01	2099	juntamente	adv		together	standard	single_sense_no_split	random_v2
+3521.00.01	3521	possivelmente	adv		possibly	standard	single_sense_no_split	random_v2
+2886.00.01	2886	altamente	adv		highly	standard	single_sense_no_split	random_v2
+2005.00.01	2005	claramente	adv		clearly	standard	single_sense_no_split	random_v2
+0708.00.02	708	inclusive	adv		even	standard	lexical_polysemy	random_v2
+0061.00.01	61	onde	adv		where	standard	function_word_polysemy	random_v2
+1962.00.01	1962	exclusivamente	adv		exclusively	standard	single_sense_no_split	random_v2
+3548.00.01	3548	ligeiramente	adv		slightly	standard	lexical_polysemy	random_v2
+0126.00.01	126	antes	adv		before	standard	single_sense_no_split	random_v2
+2091.00.01	2091	aparentemente	adv		apparently	standard	single_sense_no_split	random_v2
+3318.00.01	3318	diariamente	adv		daily	standard	single_sense_no_split	random_v2
+4913.00.01	4913	regularmente	adv		regularly	standard	single_sense_no_split	random_v2
+1198.00.01	1198	provavelmente	adv		probably	standard	single_sense_no_split	random_v2
+0158.00.01	158	nunca	adv		never	standard	single_sense_no_split	random_v2
+0066.00.01	66	bem	adv		well / very	standard	lexical_polysemy	random_v2
+3182.00.01	3182	lentamente	adv		slowly	standard	single_sense_no_split	random_v2
+3412.00.01	3412	devidamente	adv		duly	standard	lexical_polysemy	random_v2
+0083.00.01	83	lhe	pron		to him/her/you	standard	function_word_polysemy	random_v2
+3196.00.01	3196	oitenta	num		eighty	standard	single_sense_no_split	random_v2
+0202.00.01	202	embora	conj		although	standard	lexical_polysemy	random_v2
+0842.00.02	842	entretanto	conj		however	standard	lexical_polysemy	random_v2
+2137.00.01	2137	acerca	prep		about	standard	lexical_polysemy	random_v2
+3729.00.01	3729	quinhentos	num		five hundred	standard	single_sense_no_split	random_v2
+0447.00.01	447	milhão	num		million	standard	single_sense_no_split	random_v2
+0040.00.01	40	até	prep		until	standard	lexical_polysemy	random_v2
+0464.00.01	464	tu	pron		you	standard	function_word_polysemy	random_v2
+0455.00.01	455	oito	num		eight	standard	single_sense_no_split	random_v2
+0072.00.01	72	quem	pron		who	standard	function_word_polysemy	random_v2
+0063.00.01	63	sem	prep		without	standard	single_sense_no_split	random_v2
+3954.00.01	3954	eh	interj		hey	standard	single_sense_no_split	random_v2
+2813.00.01	2813	oh	interj		oh	standard	single_sense_no_split	random_v2
+2961.00.01	2961	exceto	prep		except	standard	single_sense_no_split	random_v2
+3223.00.01	3223	mediante	prep		by means of	standard	lexical_polysemy	random_v2

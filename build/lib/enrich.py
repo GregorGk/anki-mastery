@@ -202,8 +202,20 @@ def compose_pt_display(pt: str, gender: str, pt_type: str) -> str:
     return pt
 
 
+# Locked regional list. Per plan pronoun policy, `tu` is the canonical regional
+# BP form. Extend this list if additional regional markers surface in QA.
+REGIONAL_PT: frozenset[str] = frozenset({"tu"})
+
+
 def derive_tags(row: dict, *, gender: str, pos: str, cognate_en: bool) -> str:
-    """Compose space-separated tags from existing row fields + LLM output."""
+    """Compose space-separated tags from existing row fields + LLM output.
+
+    Tag taxonomy matches docs/plan.md §"Tag taxonomy" exactly:
+      - Morphology / pt_type: #single-word #hyphenated-compound #space-compound
+        #idiom #abbreviation-expansion #reflexive #gendered-meaning
+      - Regional: #bp-rare #regional
+      - Special: #nsfw #false-friend #cognate-en #function-word #pronoun
+    """
     tags: list[str] = []
 
     # Frequency tier
@@ -223,28 +235,44 @@ def derive_tags(row: dict, *, gender: str, pos: str, cognate_en: bool) -> str:
     if pos:
         tags.append(f"#{pos}")
 
-    # Morphology / pt_type
+    # Morphology / pt_type — exact tag names per plan
     pt_type = row.get("pt_type") or ""
-    if pt_type == "hyphenated_compound":
-        tags.append("#hyphenated")
+    if pt_type == "single_word":
+        tags.append("#single-word")
+    elif pt_type == "hyphenated_compound":
+        tags.append("#hyphenated-compound")
     elif pt_type == "space_compound":
-        tags.append("#compound")
+        tags.append("#space-compound")
+    elif pt_type == "abbreviation_expansion":
+        tags.append("#abbreviation-expansion")
+
+    # Idiom expansion (any row whose expansion_index > 0)
     if int(row.get("expansion_index") or 0) > 0:
         tags.append("#idiom")
+
+    # Reflexive: detect via source_line containing the +se marker (more
+    # reliable than the annotation field, which is often empty after Stage 2
+    # sense splits drop the marker from en_primary).
+    source_line = row.get("source_line") or ""
     annotation = row.get("annotation") or ""
-    if "reflexive" in annotation.lower():
+    if "+se" in source_line or "reflexive" in annotation.lower():
         tags.append("#reflexive")
+
+    # Forced gender split + function word
     split_category = row.get("split_category") or ""
     if split_category == "forced_gender_split":
         tags.append("#gendered-meaning")
     if split_category == "function_word_polysemy":
         tags.append("#function-word")
-    if split_category == "function_word_polysemy" or pos == "pron":
-        # both function words and pronouns are grammatical
-        if "#pronoun" not in tags and pos == "pron":
-            tags.append("#pronoun")
+    if pos == "pron":
+        tags.append("#pronoun")
 
-    # Regional / status
+    # Regional
+    pt_lower = (row.get("pt") or "").strip().lower()
+    if pt_lower in REGIONAL_PT:
+        tags.append("#regional")
+
+    # Status
     bp_status = row.get("bp_status") or ""
     if bp_status == "uncommon":
         tags.append("#bp-rare")

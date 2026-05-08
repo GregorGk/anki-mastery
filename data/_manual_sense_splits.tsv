@@ -1,1 +1,10 @@
 source_line_number	source_pt	expansion_index	sense_index	en_primary	gender	pt_display	annotation_json	notes
+14	se	0	1	reflexive pronoun			se	{"register":"reflexive"}	function-word polysemy patch (himself / herself / oneself)
+14	se	0	2	one / they (impersonal)			se	{"register":"impersonal"}	function-word polysemy patch (vende-se carros)
+14	se	0	3	if			se	{"register":"conditional"}	function-word polysemy patch (se chover, fico em casa)
+2	de	0	1	of			de		function-word polysemy patch (possession: o livro de Maria)
+2	de	0	2	from			de		function-word polysemy patch (origin: sou de São Paulo)
+3	em	0	1	in			em		function-word polysemy patch (location: em casa, em maio)
+3	em	0	2	on			em		function-word polysemy patch (surface: na mesa)
+10	a	0	1	to			a		function-word polysemy patch (direction: vou a Brasília)
+10	a	0	2	at			a		function-word polysemy patch (time: a uma hora)

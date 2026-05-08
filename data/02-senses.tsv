@@ -1,12 +1,14 @@
 sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_type	gender	pos	en_primary	en_all	annotation	normalization_action	bp_status	bp_status_confidence	split_category	split_confidence	split_method	split_reason	manual_review_required	source_line
 0001.00.01	1	1	0	1	o	o	single_word			the	the / it / him / her / them / you	definite article	none	standard	high	function_word_polysemy	high	llm		no	o = the / it / him / her / them / you
-0001.00.02	1	1	0	2	o	o	single_word			him	the / it / him / her / them / you	direct object pronoun (3rd person)	none	standard	high	function_word_polysemy	high	llm		no	o = the / it / him / her / them / you
-0002.00.01	2	2	0	1	de	de	single_word			of / from	of / from		none	standard	high	function_word_polysemy	high	llm		no	de = of / from
-0003.00.01	3	3	0	1	em	em	single_word			in / on	in / on		none	standard	high	function_word_polysemy	high	llm		no	em = in / on
+0001.00.02	1	1	0	2	o	o	single_word		pron	him	the / it / him / her / them / you	direct object pronoun (3rd person)	none	standard	high	function_word_polysemy	high	llm		no	o = the / it / him / her / them / you
+0002.00.01	2	2	0	1	de	de	single_word		prep	of	of / from	de	none	standard	high	function_word_polysemy	high	manual_override		no	de = of / from
+0002.00.02	2	2	0	2	de	de	single_word		prep	from	of / from	de	none	standard	high	function_word_polysemy	high	manual_override		no	de = of / from
+0003.00.01	3	3	0	1	em	em	single_word		prep	in	in / on	em	none	standard	high	function_word_polysemy	high	manual_override		no	em = in / on
+0003.00.02	3	3	0	2	em	em	single_word		prep	on	in / on	em	none	standard	high	function_word_polysemy	high	manual_override		no	em = in / on
 0004.00.01	4	4	0	1	e	e	single_word			and	and		none	standard	high	function_word_polysemy	high	llm		no	e = and
 0005.00.01	5	5	0	1	que	que	single_word			that	that / than / what	relative pronoun / conjunction	none	standard	high	function_word_polysemy	high	llm		no	que = that / than / what
 0005.00.02	5	5	0	2	que	que	single_word			than	that / than / what	comparative conjunction	none	standard	high	function_word_polysemy	high	llm		no	que = that / than / what
-0005.00.03	5	5	0	3	que	que	single_word			what	that / than / what	interrogative pronoun	none	standard	high	function_word_polysemy	high	llm		no	que = that / than / what
+0005.00.03	5	5	0	3	que	que	single_word		pron	what	that / than / what	interrogative pronoun	none	standard	high	function_word_polysemy	high	llm		no	que = that / than / what
 0006.00.01	6	6	0	1	ser	ser	single_word			to be	to be (norm)		none	standard	high	function_word_polysemy	high	llm		no	ser = to be (norm)
 0007.00.01	7	7	0	1	um	um	single_word			a	a / one	indefinite article	none	standard	high	function_word_polysemy	high	llm		no	um = a / one
 0007.00.02	7	7	0	2	um	um	single_word			one	a / one	numeral	none	standard	high	function_word_polysemy	high	llm		no	um = a / one
@@ -16,11 +18,14 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 0009.00.01	9	9	0	1	para	para	single_word			to	to / for / in order to	direction/destination	none	standard	high	function_word_polysemy	medium	llm	As a preposition, 'para' has overlapping uses for direction ('to'), beneficiary ('for'), and purpose ('in order to'). These represent distinct grammatical contexts: 'Vou para casa' (to), 'Isso é para você' (for), 'Estudo para aprender' (in order to). However, some uses blur these lines, so medium confidence.	no	para = to / for / in order to
 0009.00.02	9	9	0	2	para	para	single_word			for	to / for / in order to	purpose/recipient	none	standard	high	function_word_polysemy	medium	llm	As a preposition, 'para' has overlapping uses for direction ('to'), beneficiary ('for'), and purpose ('in order to'). These represent distinct grammatical contexts: 'Vou para casa' (to), 'Isso é para você' (for), 'Estudo para aprender' (in order to). However, some uses blur these lines, so medium confidence.	no	para = to / for / in order to
 0009.00.03	9	9	0	3	para	para	single_word			in order to	to / for / in order to	purpose clause	none	standard	high	function_word_polysemy	medium	llm	As a preposition, 'para' has overlapping uses for direction ('to'), beneficiary ('for'), and purpose ('in order to'). These represent distinct grammatical contexts: 'Vou para casa' (to), 'Isso é para você' (for), 'Estudo para aprender' (in order to). However, some uses blur these lines, so medium confidence.	no	para = to / for / in order to
-0010.00.01	10	10	0	1	a	a	single_word			to / at	to / at	preposition	none	standard	high	function_word_polysemy	high	llm		no	a = to / at
+0010.00.01	10	10	0	1	a	a	single_word		prep	to	to / at	a	none	standard	high	function_word_polysemy	high	manual_override		no	a = to / at
+0010.00.02	10	10	0	2	a	a	single_word		prep	at	to / at	a	none	standard	high	function_word_polysemy	high	manual_override		no	a = to / at
 0011.00.01	11	11	0	1	não	não	single_word			no / not	no / not		none	standard	high	lexical_polysemy	high	llm		no	não = no / not
 0012.00.01	12	12	0	1	com	com	single_word			with	with		none	standard	high	function_word_polysemy	high	llm		no	com = with
 0013.00.01	13	13	0	1	ter	ter	single_word			to have	to have		none	standard	high	function_word_polysemy	high	llm		no	ter = to have
-0014.00.01	14	14	0	1	se	se	single_word			reflexive pronoun	reflexive pronoun		none	standard	high	function_word_polysemy	medium	llm	"The gloss only provides 'reflexive pronoun' as the meaning. While 'se' in Portuguese can also function as a conditional conjunction ('if') and has other grammatical roles, these are not indicated in the provided en_all. Based solely on the given gloss, this is a single sense.""}]"	no	se = reflexive pronoun
+0014.00.01	14	14	0	1	se	se	single_word		pron	reflexive pronoun	reflexive pronoun	se	none	standard	high	function_word_polysemy	high	manual_override	"{""register"":""reflexive""}"	no	se = reflexive pronoun
+0014.00.02	14	14	0	2	se	se	single_word		pron	one / they (impersonal)	reflexive pronoun	se	none	standard	high	function_word_polysemy	high	manual_override	"{""register"":""impersonal""}"	no	se = reflexive pronoun
+0014.00.03	14	14	0	3	se	se	single_word		conj	if	reflexive pronoun	se	none	standard	high	function_word_polysemy	high	manual_override	"{""register"":""conditional""}"	no	se = reflexive pronoun
 0015.00.01	15	15	0	1	seu	seu	single_word			your / his / her / their	his / her(s) / their(s) / your(s)	possessive determiner/pronoun	none	standard	high	function_word_polysemy	high	llm		no	seu = his / her(s) / their(s) / your(s)
 0016.00.01	16	16	0	1	como	como	single_word			how	how / like / as	interrogative/exclamative	none	standard	high	lexical_polysemy	high	llm		no	como = how / like / as
 0016.00.02	16	16	0	2	como	como	single_word			like	how / like / as	comparison/manner	none	standard	high	lexical_polysemy	high	llm		no	como = how / like / as
@@ -125,9 +130,9 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 0100.00.01	100	100	0	1	três	três	single_word			three	three		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	três = three
 0101.00.01	101	101	0	1	encontrar	encontrar	single_word			to find	to find / meet		none	standard	high	lexical_polysemy	high	llm		no	encontrar = to find / meet
 0101.00.02	101	101	0	2	encontrar	encontrar	single_word			to meet	to find / meet		none	standard	high	lexical_polysemy	high	llm		no	encontrar = to find / meet
-0102.00.01	102	102	0	1	meio	meio	single_word			means	means / way / half- / middle		none	standard	high	lexical_polysemy	high	llm		no	meio = means / way / half- / middle
+0102.00.01	102	102	0	1	meio	meio	single_word	o	noun	means	means / way / half- / middle		none	standard	high	lexical_polysemy	high	llm		no	meio = means / way / half- / middle
 0102.00.02	102	102	0	2	meio	meio	single_word			middle	means / way / half- / middle		none	standard	high	lexical_polysemy	high	llm		no	meio = means / way / half- / middle
-0102.00.03	102	102	0	3	meio	meio	single_word			half	means / way / half- / middle		none	standard	high	lexical_polysemy	high	llm		no	meio = means / way / half- / middle
+0102.00.03	102	102	0	3	meio	meio	single_word	o	noun	half	means / way / half- / middle		none	standard	high	lexical_polysemy	high	llm		no	meio = means / way / half- / middle
 0103.00.01	103	103	0	1	aqui	aqui	single_word			here	here		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	aqui = here
 0104.00.01	104	104	0	1	mundo	mundo	single_word			world	world		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	mundo = world
 0105.00.01	105	105	0	1	apenas	apenas	single_word			only	only / just		none	standard	high	lexical_polysemy	high	llm		no	apenas = only / just
@@ -314,7 +319,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 0256.00.03	256	256	0	3	senhor	senhor	single_word			mister	lord / sir / mister	title before name	none	standard	high	lexical_polysemy	medium	llm	While 'sir' and 'mister' are closely related (both polite forms of address), they differ in usage: 'sir' is direct address ('Yes, sir'), while 'mister' precedes a name ('Mr. Silva'). 'Lord' is clearly distinct (religious/noble context). An alternative would be to merge 'sir' and 'mister' into one sense, but the different syntactic patterns suggest learners need separate examples.	no	senhor = lord / sir / mister
 0257.00.01	257	257	0	1	número	número	single_word			number	number		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	número = number
 0258.00.01	258	258	0	1	definir	definir	single_word			to define	to define		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	definir = to define
-0259.00.01	259	259	0	1	tarde	tarde	single_word			late	late / afternoon		none	standard	high	lexical_polysemy	high	llm		no	tarde = late / afternoon
+0259.00.01	259	259	0	1	tarde	tarde	single_word		adv	late	late / afternoon		none	standard	high	lexical_polysemy	high	llm		no	tarde = late / afternoon
 0259.00.02	259	259	0	2	tarde	tarde	single_word			afternoon	late / afternoon		none	standard	high	lexical_polysemy	high	llm		no	tarde = late / afternoon
 0260.00.01	260	260	0	1	abrir	abrir	single_word			to open	to open		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	abrir = to open
 0261.00.01	261	261	0	1	sociedade	sociedade	single_word			society	society		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	sociedade = society
@@ -457,7 +462,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 0374.00.01	374	374	0	1	olho	olho	single_word			eye	eye		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	olho = eye
 0375.00.01	375	375	0	1	respeito	respeito	single_word			respect	respect		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	respeito = respect
 0376.00.01	376	376	0	1	tirar	tirar	single_word			to take out / remove	to take out / remove		none	standard	high	lexical_polysemy	high	llm		no	tirar = to take out / remove
-0377.00.01	377	377	0	1	cima	cima	single_word			top	top		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	cima = top
+0377.00.01	377	377	0	1	cima	cima	single_word	a	noun	top	top		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	cima = top
 0378.00.01	378	378	0	1	mar	mar	single_word			sea	sea		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	mar = sea
 0379.00.01	379	379	0	1	natural	natural	single_word			natural	natural		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	natural = natural
 0380.00.01	380	380	0	1	costa	costa	single_word			coast	coast / back (anatomy)		none	standard	high	lexical_polysemy	high	llm		no	costa = coast / back (anatomy)
@@ -655,7 +660,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 0539.00.01	539	539	0	1	justiça	justiça	single_word			justice	justice		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	justiça = justice
 0540.00.01	540	540	0	1	vivo	vivo	single_word			alive	alive		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	vivo = alive
 0541.00.01	541	541	0	1	educação	educação	single_word			education	education		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	educação = education
-0542.00.01	542	542	0	1	passado	passado	single_word			past	past / last / previous		none	standard	high	lexical_polysemy	high	llm		no	passado = past / last / previous
+0542.00.01	542	542	0	1	passado	passado	single_word	o	noun	past	past / last / previous		none	standard	high	lexical_polysemy	high	llm		no	passado = past / last / previous
 0543.00.01	543	543	0	1	evitar	evitar	single_word			to avoid	to avoid		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	evitar = to avoid
 0544.00.01	544	544	0	1	ambiente	ambiente	single_word			environment	environment / surroundings		none	standard	high	lexical_polysemy	high	llm		no	ambiente = environment / surroundings
 0545.00.01	545	545	0	1	guarda	guarda	single_word			guard	guard / care		none	standard	high	lexical_polysemy	high	llm		no	guarda = guard / care
@@ -798,7 +803,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 0657.00.01	657	657	0	1	administração	administração	single_word			administration	administration		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	administração = administration
 0658.00.01	658	658	0	1	reunir	reunir	single_word			to gather	to gather		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	reunir = to gather
 0659.00.01	659	659	0	1	cento	cento	single_word			percent (por c.)	percent (por c.)		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	cento = percent (por c.)
-0659.01.01	659	659	1	1	por cento	por cento	space_compound			percent	percent (por c.)		idiom_expansion	standard	high	idiom_expansion	high	llm		no	cento = percent (por c.)
+0659.01.01	659	659	1	1	por cento	por cento	space_compound		idiom	percent	percent (por c.)		idiom_expansion	standard	high	idiom_expansion	high	llm		no	cento = percent (por c.)
 0660.00.01	660	660	0	1	sangue	sangue	single_word			blood	blood		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	sangue = blood
 0661.00.01	661	661	0	1	letra	letra	single_word			letter	letter / handwriting / lyrics	character of the alphabet	none	standard	high	lexical_polysemy	high	llm		no	letra = letter / handwriting / lyrics
 0661.00.02	661	661	0	2	letra	letra	single_word			handwriting	letter / handwriting / lyrics		none	standard	high	lexical_polysemy	high	llm		no	letra = letter / handwriting / lyrics
@@ -1793,7 +1798,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 1529.00.01	1529	1529	0	1	proibir	proibir	single_word			to prohibit	to prohibit		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	proibir = to prohibit
 1530.00.01	1530	1530	0	1	exato	exato	single_word			exact	exact		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	exato = exact
 1531.00.01	1531	1531	0	1	estreito	estreito	single_word			narrow	straight / narrow / strait (water)		none	standard	high	lexical_polysemy	high	llm		no	estreito = straight / narrow / strait (water)
-1531.00.02	1531	1531	0	2	estreito	estreito	single_word			strait	straight / narrow / strait (water)	body of water	none	standard	high	lexical_polysemy	high	llm		no	estreito = straight / narrow / strait (water)
+1531.00.02	1531	1531	0	2	estreito	estreito	single_word	o	noun	strait	straight / narrow / strait (water)	body of water	none	standard	high	lexical_polysemy	high	llm		no	estreito = straight / narrow / strait (water)
 1532.00.01	1532	1532	0	1	criticar	criticar	single_word			to criticize	to criticize		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	criticar = to criticize
 1533.00.01	1533	1533	0	1	governar	governar	single_word			to govern	to govern / rule		none	standard	high	lexical_polysemy	high	llm		no	governar = to govern / rule
 1534.00.01	1534	1534	0	1	corrida	corrida	single_word			race	race		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	corrida = race
@@ -1864,7 +1869,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 1592.00.01	1592	1592	0	1	universal	universal	single_word			universal	universal		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	universal = universal
 1593.00.01	1593	1593	0	1	inteligência	inteligência	single_word			intelligence	intelligence		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	inteligência = intelligence
 1594.00.01	1594	1594	0	1	recordar	recordar	single_word			to remember	to recall / remember		none	standard	high	lexical_polysemy	high	llm		no	recordar = to recall / remember
-1595.00.01	1595	1595	0	1	caça	caça	single_word			hunt	hunt		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	caça = hunt
+1595.00.01	1595	1595	0	1	caça	caça	single_word	a	noun	hunt	hunt		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	caça = hunt
 1596.00.01	1596	1596	0	1	capítulo	capítulo	single_word			chapter	chapter		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	capítulo = chapter
 1597.00.01	1597	1597	0	1	frequentar	frequentar	single_word			to attend	to attend		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	frequentar = to attend
 1598.00.01	1598	1598	0	1	prosseguir	prosseguir	single_word			to proceed	to proceed		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	prosseguir = to proceed
@@ -2618,9 +2623,9 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 2221.00.02	2221	2221	0	2	rigor	rigor	single_word			worst of	rigor / worst of		none	standard	high	lexical_polysemy	high	llm		no	rigor = rigor / worst of
 2222.00.01	2222	2222	0	1	correção	correção	single_word			correction	correction		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	correção = correction
 2223.00.01	2223	2223	0	1	sonhar	sonhar	single_word			to dream	to dream		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	sonhar = to dream
-2224.00.01	2224	2224	0	1	redor	redor	single_word			all around	(em / ao r.) all around	(used in phrases 'em redor' / 'ao redor')	none	standard	high	lexical_polysemy	high	llm		no	redor = (em / ao r.) all around
-2224.01.01	2224	2224	1	1	em redor	em redor	space_compound			all around	(em / ao r.) all around		idiom_expansion	standard	high	idiom_expansion	high	llm		no	redor = (em / ao r.) all around
-2224.02.01	2224	2224	2	1	ao redor	ao redor	space_compound			all around	(em / ao r.) all around		idiom_expansion	standard	high	idiom_expansion	high	llm		no	redor = (em / ao r.) all around
+2224.00.01	2224	2224	0	1	redor	redor	single_word	o	noun	all around	(em / ao r.) all around	(used in phrases 'em redor' / 'ao redor')	none	standard	high	lexical_polysemy	high	llm		no	redor = (em / ao r.) all around
+2224.01.01	2224	2224	1	1	em redor	em redor	space_compound		adv	all around	(em / ao r.) all around		idiom_expansion	standard	high	idiom_expansion	high	llm		no	redor = (em / ao r.) all around
+2224.02.01	2224	2224	2	1	ao redor	ao redor	space_compound		adv	all around	(em / ao r.) all around		idiom_expansion	standard	high	idiom_expansion	high	llm		no	redor = (em / ao r.) all around
 2225.00.01	2225	2225	0	1	prioridade	prioridade	single_word			priority	priority		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	prioridade = priority
 2226.00.01	2226	2226	0	1	atento	atento	single_word			attentive	alert / attentive		none	standard	high	lexical_polysemy	high	llm		no	atento = alert / attentive
 2227.00.01	2227	2227	0	1	chorar	chorar	single_word			to cry	to cry		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	chorar = to cry
@@ -3166,7 +3171,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 2700.00.01	2700	2700	0	1	calças	calças	single_word			pants	pants / trousers		none	standard	high	lexical_polysemy	high	llm		no	calças = pants / trousers
 2701.00.01	2701	2701	0	1	simultaneamente	simultaneamente	single_word			simultaneously	simultaneously		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	simultaneamente = simultaneously
 2702.00.01	2702	2702	0	1	circular	circular	single_word			circular	circular / shuttle		none	standard	high	lexical_polysemy	high	llm		no	circular = circular / shuttle
-2702.00.02	2702	2702	0	2	circular	circular	single_word			shuttle	circular / shuttle		none	standard	high	lexical_polysemy	high	llm		no	circular = circular / shuttle
+2702.00.02	2702	2702	0	2	circular	circular	single_word	a	noun	shuttle	circular / shuttle		none	standard	high	lexical_polysemy	high	llm		no	circular = circular / shuttle
 2703.00.01	2703	2703	0	1	estátua	estátua	single_word			statue	statue		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	estátua = statue
 2704.00.01	2704	2704	0	1	proximidade	proximidade	single_word			proximity	nearness / proximity		none	standard	high	lexical_polysemy	high	llm		no	proximidade = nearness / proximity
 2705.00.01	2705	2705	0	1	chover	chover	single_word			to rain	to rain		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	chover = to rain
@@ -3567,7 +3572,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 3061.00.01	3061	3061	0	1	moinho	moinho	single_word			mill	mill		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	moinho = mill
 3062.00.01	3062	3062	0	1	assassino	assassino	single_word			assassin	assassin / murderer		none	standard	high	lexical_polysemy	high	llm		no	assassino = assassin / murderer
 3063.00.01	3063	3063	0	1	gravura	gravura	single_word			picture	painting / picture		none	standard	high	lexical_polysemy	high	llm		no	gravura = painting / picture
-3064.00.01	3064	3064	0	1	trabalhista	trabalhista	single_word			labor party member	labor party member / characteristic of a worker		none	standard	high	lexical_polysemy	high	llm		no	trabalhista = labor party member / characteristic of a worker
+3064.00.01	3064	3064	0	1	trabalhista	trabalhista	single_word	o/a	noun	labor party member	labor party member / characteristic of a worker		none	standard	high	lexical_polysemy	high	llm		no	trabalhista = labor party member / characteristic of a worker
 3064.00.02	3064	3064	0	2	trabalhista	trabalhista	single_word			characteristic of a worker	labor party member / characteristic of a worker		none	standard	high	lexical_polysemy	high	llm		no	trabalhista = labor party member / characteristic of a worker
 3065.00.01	3065	3065	0	1	uniforme	uniforme	single_word			uniform	uniform		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	uniforme = uniform
 3066.00.01	3066	3066	0	1	inesperado	inesperado	single_word			unexpected	unexpected		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	inesperado = unexpected
@@ -4065,7 +4070,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 3506.00.02	3506	3506	0	2	vanguarda	vanguarda	single_word			front line	avant-garde / front line		none	standard	high	lexical_polysemy	high	llm		no	vanguarda = avant-garde / front line
 3507.00.01	3507	3507	0	1	chocar	chocar	single_word			to shock	to shock		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	chocar = to shock
 3508.00.01	3508	3508	0	1	provir	provir	single_word			to come from	to come from / proceed from		none	uncommon	high	lexical_polysemy	high	llm		no	provir = to come from / proceed from
-3509.00.01	3509	3509	0	1	verbo	verbo	single_word			verb	verb		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	verbo = verb
+3509.00.01	3509	3509	0	1	verbo	verbo	single_word	o	noun	verb	verb		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	verbo = verb
 3510.00.01	3510	3510	0	1	balcão	balcão	single_word			counter	counter / balcony		none	standard	high	lexical_polysemy	high	llm		no	balcão = counter / balcony
 3510.00.02	3510	3510	0	2	balcão	balcão	single_word			balcony	counter / balcony		none	standard	high	lexical_polysemy	high	llm		no	balcão = counter / balcony
 3511.00.01	3511	3511	0	1	painel	painel	single_word			panel	panel		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	painel = panel
@@ -4301,7 +4306,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 3714.00.01	3714	3714	0	1	oscilar	oscilar	single_word			to oscillate	to shake / oscillate		none	standard	high	lexical_polysemy	high	llm		no	oscilar = to shake / oscillate
 3715.00.01	3715	3715	0	1	enxergar	enxergar	single_word			to see	to catch sight of / make out		none	standard	high	lexical_polysemy	high	llm		no	enxergar = to catch sight of / make out
 3716.00.01	3716	3716	0	1	desequilíbrio	desequilíbrio	single_word			imbalance	imbalance		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	desequilíbrio = imbalance
-3717.00.01	3717	3717	0	1	pop	pop	single_word			pop	pop		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	pop = pop
+3717.00.01	3717	3717	0	1	pop	pop	single_word	o	noun	pop	pop		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	pop = pop
 3718.00.01	3718	3718	0	1	detrás	detrás	single_word			behind	behind		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	detrás = behind
 3719.00.01	3719	3719	0	1	vestígio	vestígio	single_word			remains	remains / vestige		none	standard	high	lexical_polysemy	high	llm		no	vestígio = remains / vestige
 3720.00.01	3720	3720	0	1	vaidade	vaidade	single_word			vanity	vanity		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	vaidade = vanity
@@ -4325,7 +4330,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 3735.00.02	3735	3735	0	2	bateria	bateria	single_word			percussion	battery / percussion		none	standard	high	lexical_polysemy	high	llm		no	bateria = battery / percussion
 3736.00.01	3736	3736	0	1	restringir	restringir	single_word			to restrict	to restrict		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	restringir = to restrict
 3737.00.01	3737	3737	0	1	cofre	cofre	single_word			safe	safe / coffer / chest		none	standard	high	lexical_polysemy	high	llm		no	cofre = safe / coffer / chest
-3738.00.01	3738	3738	0	1	sudeste	sudeste	single_word			Southeast	Southeast		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	sudeste = Southeast
+3738.00.01	3738	3738	0	1	sudeste	sudeste	single_word	o	noun	Southeast	Southeast		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	sudeste = Southeast
 3739.00.01	3739	3739	0	1	lírico	lírico	single_word			lyric	lyric		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	lírico = lyric
 3740.00.01	3740	3740	0	1	invisível	invisível	single_word			invisible	invisible		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	invisível = invisible
 3741.00.01	3741	3741	0	1	místico	místico	single_word			mystic	mystic / mystical		none	standard	high	lexical_polysemy	high	llm		no	místico = mystic / mystical
@@ -4344,7 +4349,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 3751.00.01	3751	3751	0	1	liberado	liberado	single_word			free	free / available		none	standard	high	lexical_polysemy	high	llm		no	liberado = free / available
 3752.00.01	3752	3752	0	1	doação	doação	single_word			donation	donation		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	doação = donation
 3753.00.01	3753	3753	0	1	nascente	nascente	single_word			source	source / East / emerging		none	standard	high	lexical_polysemy	high	llm		no	nascente = source / East / emerging
-3753.00.02	3753	3753	0	2	nascente	nascente	single_word			East	source / East / emerging		none	standard	high	lexical_polysemy	high	llm		no	nascente = source / East / emerging
+3753.00.02	3753	3753	0	2	nascente	nascente	single_word	o	noun	East	source / East / emerging		none	standard	high	lexical_polysemy	high	llm		no	nascente = source / East / emerging
 3753.00.03	3753	3753	0	3	nascente	nascente	single_word			emerging	source / East / emerging		none	standard	high	lexical_polysemy	high	llm		no	nascente = source / East / emerging
 3754.00.01	3754	3754	0	1	consagrado	consagrado	single_word			consecrated	consecrated		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	consagrado = consecrated
 3755.00.01	3755	3755	0	1	ingénuo	ingénuo	single_word			naive	naive / innocent		none	standard	high	lexical_polysemy	high	llm		no	ingénuo = naive / innocent
@@ -4383,7 +4388,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 3788.00.01	3788	3788	0	1	nítido	nítido	single_word			clear	clear / explicit / sharp		none	standard	high	lexical_polysemy	high	llm		no	nítido = clear / explicit / sharp
 3789.00.01	3789	3789	0	1	tia	tia	single_word			aunt	aunt		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	tia = aunt
 3790.00.01	3790	3790	0	1	autoritário	autoritário	single_word			authoritarian	authoritarian		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	autoritário = authoritarian
-3791.00.01	3791	3791	0	1	contrapartida	contrapartida	single_word			(em c.) on the other hand	(em c.) on the other hand		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	contrapartida = (em c.) on the other hand
+3791.00.01	3791	3791	0	1	contrapartida	contrapartida	single_word	a	noun	(em c.) on the other hand	(em c.) on the other hand		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	contrapartida = (em c.) on the other hand
 3791.01.01	3791	3791	1	1	em contrapartida	em contrapartida	space_compound			on the other hand	(em c.) on the other hand		idiom_expansion	standard	high	idiom_expansion	high	llm		no	contrapartida = (em c.) on the other hand
 3792.00.01	3792	3792	0	1	continuação	continuação	single_word			continuation	continuation		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	continuação = continuation
 3793.00.01	3793	3793	0	1	bandido	bandido	single_word			outlaw	outlaw / bandit		none	standard	high	lexical_polysemy	high	llm		no	bandido = outlaw / bandit
@@ -5038,7 +5043,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 4376.00.01	4376	4376	0	1	vinculado	vinculado	single_word			linked	linked / bound / connected to		none	standard	high	lexical_polysemy	high	llm		no	vinculado = linked / bound / connected to
 4377.00.01	4377	4377	0	1	propício	propício	single_word			favorable	favorable / propitious		none	standard	high	lexical_polysemy	high	llm		no	propício = favorable / propitious
 4378.00.01	4378	4378	0	1	envelhecer	envelhecer	single_word			to grow old	to grow old		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	envelhecer = to grow old
-4379.00.01	4379	4379	0	1	dia-a-dia	dia a dia	space_compound			everyday life	everyday life / day to day		hyphen	standard	high	lexical_polysemy	high	llm		no	dia-a-dia = everyday life / day to day
+4379.00.01	4379	4379	0	1	dia-a-dia	dia a dia	space_compound	o	noun	everyday life	everyday life / day to day		hyphen	standard	high	lexical_polysemy	high	llm		no	dia-a-dia = everyday life / day to day
 4380.00.01	4380	4380	0	1	casto	casto	single_word			chaste	chaste		none	uncommon	high	single_sense_no_split	high	deterministic	no slash in en_all	no	casto = chaste
 4381.00.01	4381	4381	0	1	cera	cera	single_word			wax	wax		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	cera = wax
 4382.00.01	4382	4382	0	1	reverter	reverter	single_word			to reverse / revert	to reverse / revert		none	standard	high	lexical_polysemy	high	llm		no	reverter = to reverse / revert
@@ -5129,7 +5134,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 4457.00.01	4457	4457	0	1	galho	galho	single_word			branch	branch		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	galho = branch
 4458.00.01	4458	4458	0	1	suíço	suíço	single_word			Swiss	Swiss		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	suíço = Swiss
 4459.00.01	4459	4459	0	1	inovador	inovador	single_word			innovative	innovative / innovator	adjective	none	standard	high	lexical_polysemy	high	llm		no	inovador = innovative / innovator
-4459.00.02	4459	4459	0	2	inovador	inovador	single_word			innovator	innovative / innovator	noun	none	standard	high	lexical_polysemy	high	llm		no	inovador = innovative / innovator
+4459.00.02	4459	4459	0	2	inovador	inovador	single_word	o	noun	innovator	innovative / innovator	noun	none	standard	high	lexical_polysemy	high	llm		no	inovador = innovative / innovator
 4460.00.01	4460	4460	0	1	brutal	brutal	single_word			brutal	brutal		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	brutal = brutal
 4461.00.01	4461	4461	0	1	ilustração	ilustração	single_word			illustration	illustration		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	ilustração = illustration
 4462.00.01	4462	4462	0	1	homossexual	homossexual	single_word			homosexual	homosexual		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	homossexual = homosexual
@@ -5320,7 +5325,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 4621.00.01	4621	4621	0	1	brisa	brisa	single_word			breeze	breeze		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	brisa = breeze
 4622.00.01	4622	4622	0	1	internado	internado	single_word			hospitalized	hospitalized		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	internado = hospitalized
 4623.00.01	4623	4623	0	1	convocação	convocação	single_word			convocation	convocation / gathering		none	standard	high	lexical_polysemy	high	llm		no	convocação = convocation / gathering
-4624.00.01	4624	4624	0	1	adjetivo	adjetivo	single_word			adjective	adjective		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	adjetivo = adjective
+4624.00.01	4624	4624	0	1	adjetivo	adjetivo	single_word	o	noun	adjective	adjective		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	adjetivo = adjective
 4625.00.01	4625	4625	0	1	trajeto	trajeto	single_word			route	route / distance / stretch		none	standard	high	lexical_polysemy	medium	llm	"""Route"" (path taken) vs ""distance"" (length/extent) require different example contexts. ""Stretch"" overlaps with both route (a stretch of road) and distance (a stretch between points), so treated as synonym rather than distinct sense."	no	trajeto = route / distance / stretch
 4625.00.02	4625	4625	0	2	trajeto	trajeto	single_word			distance	route / distance / stretch		none	standard	high	lexical_polysemy	medium	llm	"""Route"" (path taken) vs ""distance"" (length/extent) require different example contexts. ""Stretch"" overlaps with both route (a stretch of road) and distance (a stretch between points), so treated as synonym rather than distinct sense."	no	trajeto = route / distance / stretch
 4626.00.01	4626	4626	0	1	chefiar	chefiar	single_word			to head	to head / lead		none	standard	high	lexical_polysemy	high	llm		no	chefiar = to head / lead
@@ -5435,7 +5440,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 4724.00.01	4724	4724	0	1	atributo	atributo	single_word			attribute	attribute / trait		none	standard	high	lexical_polysemy	high	llm		no	atributo = attribute / trait
 4725.00.01	4725	4725	0	1	educacional	educacional	single_word			educational	educational		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	educacional = educational
 4726.00.01	4726	4726	0	1	acrescido	acrescido	single_word			increased	increased / addition		none	standard	high	lexical_polysemy	high	llm		no	acrescido = increased / addition
-4727.00.01	4727	4727	0	1	tona	tona	single_word			(à t.) to the surface	(à t.) to the surface		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	tona = (à t.) to the surface
+4727.00.01	4727	4727	0	1	tona	tona	single_word	a	noun	(à t.) to the surface	(à t.) to the surface		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	tona = (à t.) to the surface
 4727.01.01	4727	4727	1	1	à tona	à tona	space_compound			to the surface	(à t.) to the surface		idiom_expansion	standard	high	idiom_expansion	high	llm		no	tona = (à t.) to the surface
 4728.00.01	4728	4728	0	1	sonda	sonda	single_word			probe	probe / catheter		none	standard	high	lexical_polysemy	high	llm		no	sonda = probe / catheter
 4728.00.02	4728	4728	0	2	sonda	sonda	single_word			catheter	probe / catheter		none	standard	high	lexical_polysemy	high	llm		no	sonda = probe / catheter
@@ -5670,7 +5675,7 @@ sense_id	source_line_number	rank	expansion_index	sense_index	source_pt	pt	pt_typ
 4939.00.01	4939	4939	0	1	vigente	vigente	single_word			current	current / currently in force		none	standard	high	lexical_polysemy	high	llm		no	vigente = current / currently in force
 4940.00.01	4940	4940	0	1	artifício	artifício	single_word			device	device / tool		none	standard	high	lexical_polysemy	high	llm		no	artifício = device / tool
 4941.00.01	4941	4941	0	1	expediente	expediente	single_word			business hours	business hours / escape from problem		none	standard	high	lexical_polysemy	high	llm		no	expediente = business hours / escape from problem
-4941.00.02	4941	4941	0	2	expediente	expediente	single_word			escape from problem	business hours / escape from problem		none	standard	high	lexical_polysemy	high	llm		no	expediente = business hours / escape from problem
+4941.00.02	4941	4941	0	2	expediente	expediente	single_word	o	noun	escape from problem	business hours / escape from problem		none	standard	high	lexical_polysemy	high	llm		no	expediente = business hours / escape from problem
 4942.00.01	4942	4942	0	1	armadilha	armadilha	single_word			trap	trap		none	standard	high	single_sense_no_split	high	deterministic	no slash in en_all	no	armadilha = trap
 4943.00.01	4943	4943	0	1	gripe	gripe	single_word			flu	cold / flu		none	standard	high	lexical_polysemy	high	llm		no	gripe = cold / flu
 4944.00.01	4944	4944	0	1	contornar	contornar	single_word			to go around	to go around / bypass		none	standard	high	lexical_polysemy	high	llm		no	contornar = to go around / bypass

@@ -162,17 +162,39 @@ class TestDeriveTags:
     def test_hyphenated(self):
         row = {"rank": "2000", "pt_type": "hyphenated_compound"}
         tags = derive_tags(row, gender="", pos="noun", cognate_en=False)
-        assert "#hyphenated" in tags
+        assert "#hyphenated-compound" in tags.split()
 
-    def test_compound(self):
+    def test_space_compound(self):
         row = {"rank": "2000", "pt_type": "space_compound"}
         tags = derive_tags(row, gender="", pos="", cognate_en=False)
-        assert "#compound" in tags
+        assert "#space-compound" in tags.split()
 
-    def test_reflexive_tag(self):
+    def test_single_word_tag(self):
+        row = {"rank": "100", "pt_type": "single_word"}
+        tags = derive_tags(row, gender="", pos="noun", cognate_en=False)
+        assert "#single-word" in tags.split()
+
+    def test_reflexive_tag_via_annotation(self):
         row = {"rank": "100", "pt_type": "single_word", "annotation": "reflexive"}
         tags = derive_tags(row, gender="", pos="verb", cognate_en=False)
-        assert "#reflexive" in tags
+        assert "#reflexive" in tags.split()
+
+    def test_reflexive_tag_via_source_line(self):
+        # The +se marker in source_line should also trigger the tag, even when
+        # the annotation field is empty (which happens after Stage 2 splits).
+        row = {
+            "rank": "1590",
+            "pt_type": "single_word",
+            "annotation": "",
+            "source_line": "meter = to put into / get involved (+se)",
+        }
+        tags = derive_tags(row, gender="", pos="verb", cognate_en=False)
+        assert "#reflexive" in tags.split()
+
+    def test_regional_tag(self):
+        row = {"rank": "150", "pt": "tu", "pt_type": "single_word"}
+        tags = derive_tags(row, gender="", pos="pron", cognate_en=False)
+        assert "#regional" in tags.split()
 
     def test_gendered_meaning_tag(self):
         row = {

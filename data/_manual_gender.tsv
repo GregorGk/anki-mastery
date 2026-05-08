@@ -22,3 +22,14 @@ sense_id	pt	gender	pos	is_cognate_en	notes
 4941.00.02	expediente	o	noun	false	"masculine noun ""scheme/resourcefulness"""
 2224.01.01	em redor		adv	false	idiom expansion of redor; force adv (was already adv) for consistency with ao redor
 2224.02.01	ao redor		adv	false	idiom expansion of redor; force adv (was prep) for consistency with em redor
+0014.00.01	se		pron	false	function-word patch (reflexive pronoun)
+0014.00.02	se		pron	false	function-word patch (impersonal subject)
+0014.00.03	se		conj	false	function-word patch (conditional if)
+0002.00.01	de		prep	false	function-word patch (of)
+0002.00.02	de		prep	false	function-word patch (from)
+0003.00.01	em		prep	false	function-word patch (in)
+0003.00.02	em		prep	false	function-word patch (on)
+0010.00.01	a		prep	false	function-word patch (to) — fixes incorrect pos=art
+0010.00.02	a		prep	false	function-word patch (at)
+0001.00.02	o		pron	false	function-word patch — object pronoun "him" (was pos=art from deterministic shortcut)
+0005.00.03	que		pron	false	function-word patch — interrogative pronoun "what" (was pos=conj)

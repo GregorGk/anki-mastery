@@ -1,18 +1,18 @@
 source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_action	bp_replacement	merge_target_rank	merge_target_pt	output_sense_ids	drop_reason	manual_review_status	stage_decided	notes
 1	1	o = the / it / him / her / them / you	o	the / it / him / her / them / you	keep	none				0001.00.01,0001.00.02		not_required	1a	pt_type=single_word
-2	2	de = of / from	de	of / from	keep	none				0002.00.01		not_required	1a	pt_type=single_word
-3	3	em = in / on	em	in / on	keep	none				0003.00.01		not_required	1a	pt_type=single_word
+2	2	de = of / from	de	of / from	keep	none				0002.00.01,0002.00.02		not_required	1a	pt_type=single_word
+3	3	em = in / on	em	in / on	keep	none				0003.00.01,0003.00.02		not_required	1a	pt_type=single_word
 4	4	e = and	e	and	keep	none				0004.00.01		not_required	1a	pt_type=single_word
 5	5	que = that / than / what	que	that / than / what	keep	none				0005.00.01,0005.00.02,0005.00.03		not_required	1a	pt_type=single_word
 6	6	ser = to be (norm)	ser	to be (norm)	keep	none				0006.00.01		not_required	1a	pt_type=single_word
 7	7	um = a / one	um	a / one	keep	none				0007.00.01,0007.00.02		not_required	1a	pt_type=single_word
 8	8	por = by / through / for	por	by / through / for	keep	none				0008.00.01,0008.00.02,0008.00.03		not_required	1a	pt_type=single_word
 9	9	para = to / for / in order to	para	to / for / in order to	keep	none				0009.00.01,0009.00.02,0009.00.03		not_required	1a	pt_type=single_word
-10	10	a = to / at	a	to / at	keep	none				0010.00.01		not_required	1a	pt_type=single_word
+10	10	a = to / at	a	to / at	keep	none				0010.00.01,0010.00.02		not_required	1a	pt_type=single_word
 11	11	não = no / not	não	no / not	keep	none				0011.00.01		not_required	1a	pt_type=single_word
 12	12	com = with	com	with	keep	none				0012.00.01		not_required	1a	pt_type=single_word
 13	13	ter = to have	ter	to have	keep	none				0013.00.01		not_required	1a	pt_type=single_word
-14	14	se = reflexive pronoun	se	reflexive pronoun	keep	none				0014.00.01		not_required	1a	pt_type=single_word
+14	14	se = reflexive pronoun	se	reflexive pronoun	keep	none				0014.00.01,0014.00.02,0014.00.03		not_required	1a	pt_type=single_word
 15	15	seu = his / her(s) / their(s) / your(s)	seu	his / her(s) / their(s) / your(s)	keep	none				0015.00.01		not_required	1a	pt_type=single_word
 16	16	como = how / like / as	como	how / like / as	keep	none				0016.00.01,0016.00.02,0016.00.03		not_required	1a	pt_type=single_word
 17	17	estar = to be (change from norm)	estar	to be (change from norm)	keep	none				0017.00.01		not_required	1a	pt_type=single_word
