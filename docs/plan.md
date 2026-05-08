@@ -33,7 +33,8 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | IPA | BP neutral-paulistano, broad phonemic with stress; **deterministic baseline + LLM correction** |
 | **IPA sandhi gap** | Documented: per-word IPA does not reflect connected-speech word-linking present in audio. Not patched. |
 | **Audio (REVISED)** | **2 clips per sense (1 voice × {word, example})** — voice gender chosen per-sense by Stage 4.5 speaker gender classifier (matches sentence cues). Fixed 1M+1F voice IDs across the deck. **ElevenLabs Multilingual v2** (locked — user prefers premium naturalness over Google TTS savings). Pro tier ($99 one month) for one-shot generation; Starter ($6/mo) for ongoing flag-and-regenerate. Total ~$282k chars × 1 voice/sense ≈ 367k credits with retry buffer; fits Pro tier 600k cap with 233k headroom. |
-| **Audio voice assignment** | For each sense, Stage 4.5 emits `speaker_gender ∈ {male, female, neutral}` based on cues in `example_pt` (Obrigado/Obrigada, estou curioso/curiosa, "vou ganhar um menino" → female, etc.). Voice rule: gendered → matching voice; **neutral → seeded balanced shuffle (not hash) — `random.Random(44).shuffle(sorted(neutral_sids))`, then alternate; guarantees 50/50 split off-by-at-most-1**. Single voice per sense, used for both word + example clips. |
+| **Voice pool (LOCKED)** | **11 ElevenLabs voices: 4 female + 7 male** (user-selected, committed at `config/voices.tsv`). Each gender pool gets uniform allocation: every female voice generates ⌈N_F/4⌉ or ⌊N_F/4⌋ senses; every male voice generates ⌈N_M/7⌉ or ⌊N_M/7⌋ senses (off-by-at-most-1 per pool). Per-record voice provenance preserved end-to-end: `045-speaker_gender.tsv` → `_audio_manifest.tsv` → `06-final.tsv` all carry `voice_id`. |
+| **Audio voice assignment** | Three deterministic layers: (1) Stage 4.5 emits `speaker_gender ∈ {male, female, neutral}` per sense based on `example_pt` cues (Obrigado/Obrigada, estou curioso/curiosa, "vou ganhar um menino" → female, etc.). (2) Neutrals resolve to balanced M/F via `random.Random(44).shuffle(sorted(neutral_sids))` then alternate i%2 — off-by-at-most-1. (3) Within each gender bucket, specific `voice_id` is assigned via seeded round-robin: `random.Random(45)` shuffles female bucket → `FEMALE_VOICES[i%4]`; `random.Random(46)` shuffles male bucket → `MALE_VOICES[i%7]`. Single voice per sense, used for both word + example clips. |
 | **Audio column naming (REVISED)** | `audio_word`, `audio_example` (one voice per sense, no `_m/_f` infix). Voice ID and gender baked into `_audio_manifest.tsv` per row. Filename: `{sense_id}-{word|ex}-v{N}.mp3`. |
 | Audio stage | Pilot first 500, then full batch |
 | **Audio storage** | **Cloudflare R2**, exposed via R2 public bucket custom domain (not per-object public-read ACL). Stable HTTPS URLs with **filename-baked versioning** (`-v{N}.mp3`) — Anki strips query strings on download, so `?v=N` would silently fail to propagate regenerated clips to mobile devices. |
@@ -190,8 +191,8 @@ This distributes correction across the study lifetime instead of front-loading i
 
 ### Human gates that remain (~2 hours total, lifetime)
 
-- **Voice ID selection** (~10 min): pick male and female ElevenLabs voices.
-- **Audio pilot voice quality sample** (~15 min): listen to 10 random pilot clips (post-ASR-roundtrip) to confirm the chosen voices sound right. Sanity check, not pronunciation review.
+- **Voice ID selection** — DONE (committed at `config/voices.tsv`, 4F + 7M).
+- **Audio pilot voice quality sample** (~15 min): listen to ~10 random pilot clips per voice (≈110 clips total across 11 voices, post-ASR-roundtrip) to confirm the pool sounds right. Sanity check, not pronunciation review. Reject any voice that fails (re-pick → re-commit voices.tsv → regenerate that voice's slice only).
 - **`_jury_disagreements.tsv` review** (~30–60 min): scan the LLM disagreement queue at the end. Most rows are easy 5-second decisions.
 - **`_audio_human_review.tsv` review** (~10–20 min): listen to the clips that failed ASR roundtrip twice. Probably <50 clips.
 - **Final 50-row sanity scroll on `06-final.tsv`** (~30 min): open in Numbers, eyeball 50 random rows end-to-end. Catches systemic errors the jury and auditor missed.
@@ -339,7 +340,8 @@ anki-mastery/
 │       ├── audio_manifest.py               # manifest read/write, version bumping, hash dedupe
 │       └── validate.py                     # token_in_sentence, ledger math, schema invariants
 ├── config/
-│   └── models.yaml                         # model IDs (bp_status, sense_split, example, ipa, validator)
+│   ├── models.yaml                         # model IDs (bp_status, sense_split, example, ipa, validator)
+│   └── voices.tsv                          # ElevenLabs voice pool (4F + 7M user-selected; committed)
 ├── audit/                                  # JSONL provenance per stage (gitignored beyond samples)
 │   ├── 015_bp_status.jsonl
 │   ├── 02_sense_split.jsonl
@@ -838,78 +840,130 @@ Reasoning:
 - `data/_example_fixes.tsv` (308 rows) is preserved as input to Stage 5.5; do not clear it.
 - The 2 deterministic token-match fails (`à mercê de` → `à mercê das` contraction; one other contraction edge case) are accepted as borderline rather than regenerated. Stage 5.5's deterministic re-check after any regen will catch them again if relevant.
 
-### Stage 4.5 — Speaker gender classifier ([build/045_speaker_gender.py](build/045_speaker_gender.py))
+### Stage 4.5 — Speaker gender classifier + voice assignment ([build/045_speaker_gender.py](build/045_speaker_gender.py))
 
-**In**: `data/04-examples.tsv` → **Out**: `data/045-speaker_gender.tsv`, `audit/045_speaker_gender.jsonl`
+**In**: `data/04-examples.tsv`, `config/voices.tsv` → **Out**: `data/045-speaker_gender.tsv`, `audit/045_speaker_gender.jsonl`
 
-**Goal.** Decide which voice (male / female / neutral) each Anki record should use, so audio gender matches the sentence's likely speaker. Required because ElevenLabs renders one voice per clip and the user wants gender-marked sentences to sound natural ("Estou curiosa" must be female; "Obrigado" must be male).
+**Goal.** For each sense, decide (a) which gender voice to use based on sentence cues, and (b) which specific ElevenLabs voice from the user's pool. Required because ElevenLabs renders one voice per clip and the user wants gender-marked sentences to sound natural ("Estou curiosa" must be female; "Obrigado" must be male) AND wants every voice in the pool to be used roughly equally for variety.
 
-**Pipeline.**
-1. For each row in `04-examples.tsv`, build a small user prompt with `pt`, `en_primary`, `example_pt`, `example_en`.
-2. Call OpenAI gpt-4o-mini (cheap, fast) via Tool Use with this schema:
-   ```json
-   {
-     "type": "object",
-     "properties": {
-       "speaker_gender": {"type": "string", "enum": ["male", "female", "neutral"]},
-       "evidence": {"type": "string", "description": "The cue that determined the choice (one phrase, ≤80 chars)"},
-       "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
-     },
-     "required": ["speaker_gender", "evidence", "confidence"]
-   }
-   ```
-3. Detection rules in the system prompt:
-   - **Predicate adjective / past-participle ending** after first-person aux (`estou`, `sou`, `fui`, `fiquei`, `me senti`, `tenho`): `-o` ending → male; `-a` ending → female. Examples: `Obrigado/Obrigada`, `cansado/cansada`, `curioso/curiosa`, `preocupado/preocupada`.
-   - **Cultural / biological cues**: "vou ganhar um menino" / "estou grávida" → female; "como pai" → male; "como mãe" → female; "minha namorada" → speaker is male; "meu namorado" → speaker is female; "vestido para mim" / "vou usar maquiagem" → female.
-   - **No cue** → `neutral` (the most common outcome).
+#### Voice pool — `config/voices.tsv` (committed)
 
-**Voice assignment** (consumed by Stages 6/7):
+User-selected, pinned for the lifetime of the deck. New voices appended later trigger re-shuffling and partial regeneration.
+
+```tsv
+voice_id	gender	pool_index	notes
+MZLCplaCGYxFwJ9LXmx1	female	1	user-selected 2026
+wxoDdfPKBuna5KnUEotz	male	1	user-selected 2026
+Rw38T6bn0lTNOb1aUevR	female	2	user-selected 2026
+qPfM2laM0pRL4rrZtBGl	male	2	user-selected 2026
+ny3E2DZImeZm00WLGZi9	male	3	user-selected 2026
+GOkMqfyKMLVUcYfO2WbB	female	3	user-selected 2026
+4za2kOXGgUd57HRSQ1fn	male	4	user-selected 2026
+xNGAXaCH8MaasNuo7Hr7	male	5	user-selected 2026
+uju3wxzG5OhpWcoi3SMy	male	6	user-selected 2026
+m151rjrbWXbBqyq56tly	female	4	user-selected 2026
+sKbNSlHXq99bttvf8rRF	male	7	user-selected 2026
+```
+
+Counts: 4 female + 7 male = 11 voices total. `pool_index` is monotonic within gender (1..N) and used as a stable sort key for round-robin assignment. The `gender` column is the locked input to the assignment algorithm; user can later flip a voice's gender in this file if perceived voice gender differs from the metadata.
+
+`config/voices.tsv` is **committed** to the repo. Voice IDs are not secret (they're public ElevenLabs catalog IDs). The `ELEVENLABS_API_KEY` stays in `.env` (gitignored).
+
+#### Phase 1 — LLM gender classification
+
+For each row in `04-examples.tsv`, build a small user prompt with `pt`, `en_primary`, `example_pt`, `example_en`. Call OpenAI gpt-4o-mini (cheap, fast) via Tool Use with this schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "speaker_gender": {"type": "string", "enum": ["male", "female", "neutral"]},
+    "evidence": {"type": "string", "description": "The cue that determined the choice (one phrase, ≤80 chars)"},
+    "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
+  },
+  "required": ["speaker_gender", "evidence", "confidence"]
+}
+```
+
+Detection rules in the system prompt:
+- **Predicate adjective / past-participle ending** after first-person aux (`estou`, `sou`, `fui`, `fiquei`, `me senti`, `tenho`): `-o` ending → male; `-a` ending → female. Examples: `Obrigado/Obrigada`, `cansado/cansada`, `curioso/curiosa`, `preocupado/preocupada`.
+- **Cultural / biological cues**: "vou ganhar um menino" / "estou grávida" → female; "como pai" → male; "como mãe" → female; "minha namorada" → speaker is male; "meu namorado" → speaker is female; "vestido para mim" / "vou usar maquiagem" → female.
+- **No cue** → `neutral` (the most common outcome).
+
+#### Phase 2 — Deterministic voice assignment (no LLM)
+
+Three sub-phases run after all rows are classified:
 
 ```python
 import random
+from build.lib.tsv import read_tsv
 
-# After loading 045-speaker_gender.tsv
+voices = read_tsv("config/voices.tsv")
+FEMALE_VOICES = [v["voice_id"] for v in voices if v["gender"] == "female"]
+FEMALE_VOICES.sort(key=lambda vid: next(v["pool_index"] for v in voices if v["voice_id"] == vid))
+MALE_VOICES   = [v["voice_id"] for v in voices if v["gender"] == "male"]
+MALE_VOICES.sort(key=lambda vid: next(v["pool_index"] for v in voices if v["voice_id"] == vid))
+# (in actual code, sort once via a single pass — pseudocode here is illustrative)
+
+# Phase 2a: resolve neutrals to balanced M/F (seed=44)
 neutral_sids = sorted(r["sense_id"] for r in rows if r["speaker_gender"] == "neutral")
-rng = random.Random(44)             # locked seed for reproducibility
-rng.shuffle(neutral_sids)
-voice_for: dict[str, str] = {}
+random.Random(44).shuffle(neutral_sids)
+voice_gender_assigned: dict[str, str] = {}
 for r in rows:
     sid = r["sense_id"]
-    if r["speaker_gender"] == "male":
-        voice_for[sid] = "male"
-    elif r["speaker_gender"] == "female":
-        voice_for[sid] = "female"
-    # else handled below
-
+    if r["speaker_gender"] in ("male", "female"):
+        voice_gender_assigned[sid] = r["speaker_gender"]
 for i, sid in enumerate(neutral_sids):
-    voice_for[sid] = "female" if i % 2 == 0 else "male"
+    voice_gender_assigned[sid] = "female" if i % 2 == 0 else "male"
+
+# Phase 2b: assign specific voice_id within each gender pool (seeds 45/46)
+female_sids = sorted(sid for sid, g in voice_gender_assigned.items() if g == "female")
+random.Random(45).shuffle(female_sids)
+voice_id_for: dict[str, str] = {}
+for i, sid in enumerate(female_sids):
+    voice_id_for[sid] = FEMALE_VOICES[i % len(FEMALE_VOICES)]
+
+male_sids = sorted(sid for sid, g in voice_gender_assigned.items() if g == "male")
+random.Random(46).shuffle(male_sids)
+for i, sid in enumerate(male_sids):
+    voice_id_for[sid] = MALE_VOICES[i % len(MALE_VOICES)]
 ```
 
 **Properties:**
-- Deterministic (seed=44 → same assignment every run).
-- Balanced: among neutrals, exactly `⌈N/2⌉` female and `⌊N/2⌋` male — off-by-at-most-1.
+- Fully deterministic (seeds 44/45/46 → same assignment every run on identical inputs).
+- Balanced gender split: among neutrals, exactly `⌈N/2⌉` female and `⌊N/2⌋` male — off-by-at-most-1.
+- Balanced voice usage within each pool: every female voice gets `⌈N_F/4⌉` or `⌊N_F/4⌋` senses; every male voice gets `⌈N_M/7⌉` or `⌊N_M/7⌋` senses — off-by-at-most-1 per pool.
 - No correlation with sense_id structure (sort + shuffle decouples adjacent senses).
-- Net deck-wide voice balance lands close to 50/50 even if "explicit female" and "explicit male" buckets are skewed.
+- Net deck-wide voice balance lands close to 50/50 M/F even if "explicit female" and "explicit male" buckets are skewed.
+- For ~5,725 senses with ~70% neutral: each female voice ≈ 700 senses, each male voice ≈ 410 senses.
 
-**Output schema** (`045-speaker_gender.tsv`):
+#### Output schema — `data/045-speaker_gender.tsv`
 
 | Column | Notes |
 |---|---|
 | `sense_id` | Join key |
-| `speaker_gender` | `male` / `female` / `neutral` |
-| `evidence` | One-phrase cue text |
+| `speaker_gender` | `male` / `female` / `neutral` (raw classifier output) |
+| `evidence` | One-phrase cue text from classifier |
 | `confidence` | `high` / `medium` / `low` |
-| `voice_assigned` | `male` / `female` (post-shuffle for neutrals) |
+| `voice_gender_assigned` | `male` / `female` (post-Phase-2a; no `neutral`) |
+| `voice_id` | Specific ElevenLabs voice ID (post-Phase-2b) |
+| `assignment_method` | `llm` / `manual_override` |
 
-**Cost.** ~$1 (5,725 calls × ~$0.0002 gpt-4o-mini). Wall clock ~5 min sync at concurrency 8.
+`voice_id` flows downstream into:
+- `_audio_manifest.tsv` (one manifest row per (sense_id, clip_type), all carrying voice_id) — already part of the manifest schema.
+- `data/06-final.tsv` (one column `voice_id` per sense, since both clips of a sense use the same voice).
+
+**Cost.** ~$1 (5,725 calls × ~$0.0002 gpt-4o-mini). Wall clock ~5 min sync at concurrency 8. Phase 2 is local Python (no API), <1 second.
 
 **Validation invariants.**
 - Every `04-examples.tsv` `sense_id` has exactly one row in `045-speaker_gender.tsv`.
-- `voice_assigned ∈ {male, female}` for every row (no `neutral` after assignment).
+- `voice_gender_assigned ∈ {male, female}` for every row (no `neutral` after Phase 2a).
+- `voice_id` is non-empty and resolves in `config/voices.tsv` for every row.
 - Female / male counts on the corpus differ by at most 1 within the neutral bucket.
+- Per-voice usage counts (computed at end of Phase 2b): max − min within each gender pool ≤ 1.
 - Gender-marked rows match the rule (spot-check: 20 rows with `Obrigada` / `Obrigado` / `curiosa` / `curioso` should classify correctly with `confidence: high`).
 
-**Manual override**: `data/_manual_speaker_gender.tsv` (single column override on `sense_id`, optional `voice_assigned` field). Wins over LLM. Empty for the first run.
+**Manual override**: `data/_manual_speaker_gender.tsv` (one row per `sense_id` with optional `voice_gender_override` and/or `voice_id_override`). Wins over LLM and Phase 2 round-robin. Empty for the first run.
 
 ### Stage 5 — IPA ([build/05_ipa.py](build/05_ipa.py))
 
@@ -974,7 +1028,7 @@ Pricing comparison (locked: only ElevenLabs is used; alternatives kept for refer
 - Total at 1 voice/sense: 282,197 base
 - With 30% retry buffer: 366,856 — fits Pro tier 600k cap with **233k headroom**
 
-`config/models.yaml` carries the active TTS provider as a role-key. Voice IDs are pinned per gender (user picks at runbook step 13). ASR roundtrip and filename versioning (`-v{N}.mp3`) are unchanged.
+`config/models.yaml` carries the active TTS provider as a role-key. Voice IDs are pinned at `config/voices.tsv` (4 female + 7 male, user-selected, committed); per-sense voice assignment happens at Stage 4.5 via seeded round-robin within each gender pool. ASR roundtrip and filename versioning (`-v{N}.mp3`) are unchanged.
 
 ### Stage 6 — Audio pilot ([build/06_audio_pilot.py](build/06_audio_pilot.py))
 
@@ -994,27 +1048,27 @@ sense_id	clip_type	voice_gender	tts_provider	tts_model	voice_id	text_input	text_
 
 Generate 2 mp3 clips per sense via **ElevenLabs Multilingual v2** (locked TTS provider — Pro tier $99 first month):
 
-- `audio_word`: voice picked by Stage 4.5, headword text
-- `audio_example`: same voice as audio_word, example sentence text
+- `audio_word`: voice picked by Stage 4.5 (`voice_id` column), headword text
+- `audio_example`: same voice as `audio_word`, example sentence text
 
-**Voice gender per sense**: read from `data/045-speaker_gender.tsv` `voice_assigned` column. The same voice is used for both clips of one sense — this is the user's locked rule (one speaker per Anki record).
+**Voice per sense**: read from `data/045-speaker_gender.tsv` `voice_id` column. The same voice is used for both clips of one sense — this is the user's locked rule (one speaker per Anki record). Voice IDs come from `config/voices.tsv` (4 female + 7 male, user-pinned). Round-robin allocation in Stage 4.5 ensures every voice in the pool gets approximately equal usage.
 
 **File naming**: `{sense_id}-{word|ex}-v{version}.mp3` (e.g., `0001.00.03-word-v1.mp3`). Voice gender is **NOT** in the filename (each sense has only one voice anyway; the manifest records which one). Version is in the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
 
-- **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.00.03-word-m.mp3?v=2` lands locally as `0001.00.03-word-m.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.00.03-word-m-v2.mp3` are net-new filenames; Anki always fetches them.
+- **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.00.03-word.mp3?v=2` lands locally as `0001.00.03-word.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.00.03-word-v2.mp3` are net-new filenames; Anki always fetches them.
 - **Anki's media sync compares filenames, not file hashes.** If a regenerated clip keeps the same filename, mobile devices won't re-download it during the next AnkiWeb sync. Versioning the filename guarantees clean propagation across desktop + iPhone.
 - Cloudflare CDN caching becomes irrelevant (different filename = different object key = cache miss = new fetch).
 - The `?v=N` query-string strategy from prior iterations is **abandoned** for audio URLs that are referenced by Anki notes. It would still work for browser-only previews, but Anki is the consumer that matters.
 
-When a clip is regenerated: bump the manifest `version`, write to a new R2 object key with the new filename, update the manifest URL, and the final TSV's audio columns now point at the new filename. The old object can be deleted from R2 after a grace period (or kept; storage is ~$0.02/mo for the lot). Voice mix-up after a mid-batch crash remains structurally impossible because gender stays baked in.
+When a clip is regenerated: bump the manifest `version`, write to a new R2 object key with the new filename, update the manifest URL, and the final TSV's audio columns now point at the new filename. The old object can be deleted from R2 after a grace period (or kept; storage is ~$0.02/mo for the lot). Voice mix-up after a mid-batch crash remains structurally impossible because the manifest's `voice_id` column is the source of truth — a regen reads back the previously-assigned `voice_id` for that sense before calling ElevenLabs, so the same voice is always used.
 
 #### Workflow
 
-1. Voices: user-provided male voice ID; female voice ID placeholder until user supplies.
-2. Compute md5 per file; store in manifest and `_md5` columns.
+1. Voices: read from `config/voices.tsv` (committed; 4F + 7M user-pinned). Stage 4.5 has already assigned a specific `voice_id` to every sense.
+2. For each sense, generate 2 clips (`word`, `example`) using the assigned `voice_id`. Compute md5 per file; store in manifest and `_md5` columns. Persist `voice_id` in the manifest (already part of the schema) and in the final TSV.
 3. Upload objects to R2.
 4. **Public access**: expose audio through an **R2 public bucket custom domain**. Do **not** rely on per-object public-read ACL semantics — that wording was incorrect in v1. Public base URL stored in `.env`.
-5. Stable URL pattern: `https://<R2-public-domain>/audio/{sense_id}-{word|ex}-{m|f}-v{version}.mp3`. Version is **in the filename**, not the query string (see § File naming above for the Anki-compatibility rationale).
+5. Stable URL pattern: `https://<R2-public-domain>/audio/{sense_id}-{word|ex}-v{version}.mp3`. Version is **in the filename**, not the query string (see § File naming above for the Anki-compatibility rationale). Voice gender is **not** in the filename (one voice per sense; provenance lives in the manifest + final TSV `voice_id` column).
 6. Local `build/audio_cache/` retained until final `.apkg` bundling.
 
 #### TTS error handling (explicit policy)
@@ -1096,19 +1150,17 @@ Same pipeline for the remaining ~7,500–9,500 senses after pilot approval.
 | 17 | `example_en` | string | English translation |
 | 18 | `target_word_used` | string | Exact surface form of target word in `example_pt` |
 | 19 | `ipa_example` | string | `ipa_example_final`; per-word IPA, space-separated, isolated form |
-| 20 | `audio_word_m` | URL | R2 link, filename ends `-v{N}.mp3`, male voice (derived from manifest) |
-| 21 | `audio_word_f` | URL | R2 link, filename ends `-v{N}.mp3`, female voice |
-| 22 | `audio_example_m` | URL | R2 link, filename ends `-v{N}.mp3`, male voice |
-| 23 | `audio_example_f` | URL | R2 link, filename ends `-v{N}.mp3`, female voice |
-| 24 | `audio_word_m_md5` | hex | Corruption detection |
-| 25 | `audio_word_f_md5` | hex | |
-| 26 | `audio_example_m_md5` | hex | |
-| 27 | `audio_example_f_md5` | hex | |
-| 28 | `family_root` | string | Empty if standalone |
-| 29 | `tags` | string | Space-separated |
-| 30 | `source_line` | string | Raw original; never mutated |
-| 31 | `source_line_number` | int | Ledger join key |
-| 32 | `notes` | string | Escape hatch |
+| 20 | `audio_word` | URL | R2 link to headword audio, filename ends `-v{N}.mp3` (derived from manifest). One voice per sense. |
+| 21 | `audio_example` | URL | R2 link to example-sentence audio, same voice as `audio_word`. |
+| 22 | `audio_word_md5` | hex | Corruption detection |
+| 23 | `audio_example_md5` | hex | |
+| 24 | `voice_id` | string | ElevenLabs voice ID that generated both clips for this sense. Resolves in `config/voices.tsv`. |
+| 25 | `voice_gender` | enum | `m` / `f`. Redundant with `voice_id` but human-readable in spreadsheets. |
+| 26 | `family_root` | string | Empty if standalone |
+| 27 | `tags` | string | Space-separated |
+| 28 | `source_line` | string | Raw original; never mutated |
+| 29 | `source_line_number` | int | Ledger join key |
+| 30 | `notes` | string | Escape hatch |
 
 Audit-only columns kept in stage TSVs and ledger but **not** in final TSV: `expansion_index`, `bp_replacement`, `merge_target_*`, `decision_model`, `decision_prompt_hash`, `decision_confidence`, `manual_override`, `ipa_word_machine`, `ipa_example_machine`, `ipa_source`, `ipa_confidence`.
 
@@ -1501,8 +1553,8 @@ Most of this runs unattended. Human touchpoints are explicitly tagged ⚑.
 9a. `python build/045_speaker_gender.py` → OpenAI gpt-4o-mini classifier emits `speaker_gender ∈ {male, female, neutral}` per sense; seeded balanced shuffle assigns voices to neutrals; produces `data/045-speaker_gender.tsv`. Cost ~$1, wall clock ~5 min.
 10. `python build/05_ipa.py` → eSpeak baseline + LLM correction; `05-ipa.tsv`.
 11. `python build/055_audit.py` → auditor pass; failures auto-regenerate; borderlines into `_jury_disagreements.tsv`.
-12. ⚑ **Pre-audio cost report**: review character count and confirm spend (~5 min). Confirm ElevenLabs Pro subscription is active.
-13. ⚑ **Supply ElevenLabs API key + male and female voice IDs** (~10 min); configure R2 public custom domain.
+12. ⚑ **Pre-audio cost report**: review character count and confirm spend (~5 min). Confirm ElevenLabs Pro subscription is active and `ELEVENLABS_API_KEY` in `.env`.
+13. ⚑ **Configure R2 public custom domain** (~10 min). (Voice IDs already committed at `config/voices.tsv` — no longer a per-run human step.)
 14. `python build/06_audio_pilot.py` → ASR-validated; `_pilot_500.tsv`.
 15. ⚑ **Voice quality check**: listen to ~10 random ASR-passed pilot clips (~15 min). If voices are wrong, swap and rerun pilot.
 16. `python build/07_audio_full.py` → ASR-validated; `06-final.tsv` produced; `_audio_human_review.tsv` for the rare twice-failed clips.
