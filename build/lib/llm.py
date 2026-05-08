@@ -31,9 +31,21 @@ from anthropic import (
     RateLimitError,
 )
 from dotenv import load_dotenv
+from openai import (
+    APIConnectionError as OpenAIConnectionError,
+    APIStatusError as OpenAIStatusError,
+    APITimeoutError as OpenAITimeoutError,
+    OpenAI,
+    RateLimitError as OpenAIRateLimitError,
+)
 
 # Same override rationale as stage_1a.py — shell env may have an empty value.
 load_dotenv(override=True)
+
+# OpenAI validator model — used as the cross-family validator at Stage 4
+# (different family from the Anthropic generator). Mid-tier, cheap, fast.
+# Override per-call or via constructor if you want to upgrade.
+DEFAULT_OPENAI_VALIDATOR_MODEL = "gpt-4o-mini"
 
 # Default model — registry will replace this once config/models.yaml exists.
 DEFAULT_GENERATOR_MODEL = "claude-sonnet-4-5"
@@ -494,3 +506,249 @@ class AnthropicClient:
             poll_interval_s=poll_interval_s,
             progress_callback=progress_callback,
         )
+
+
+# ---------------------------------------------------------------------------- #
+# OpenAI client (cross-family validator role)
+# ---------------------------------------------------------------------------- #
+
+
+def _openai_retryable(exc: Exception) -> bool:
+    if isinstance(exc, (OpenAIRateLimitError, OpenAIConnectionError, OpenAITimeoutError)):
+        return True
+    if isinstance(exc, OpenAIStatusError):
+        status = getattr(exc, "status_code", None)
+        return status in _RETRYABLE_STATUS
+    return False
+
+
+class OpenAIClient:
+    """Synchronous OpenAI client with Tool-Use enforcement and retry.
+
+    Mirrors AnthropicClient's interface so Stage scripts can swap providers
+    by changing the client instance. Used at Stage 4 as the cross-family
+    validator: a different model family from the generator (Anthropic) means
+    shared blind spots have to be bi-coincident, not single-model.
+
+    OpenAI's automatic prompt caching kicks in for prompts ≥1024 tokens with
+    no extra parameters — no `cache_control` block needed (unlike Anthropic).
+    The first ~50 calls within a 5-min window establish the cache; subsequent
+    calls bill cached input at 50% of base rate.
+
+    Args:
+        model: model ID (defaults to gpt-4o-mini)
+        api_key: explicit API key (else reads OPENAI_API_KEY env var)
+        audit_path: append per-call provenance to this JSONL
+    """
+
+    def __init__(
+        self,
+        *,
+        model: str | None = None,
+        api_key: str | None = None,
+        audit_path: str | Path | None = None,
+    ) -> None:
+        self.model = model or DEFAULT_OPENAI_VALIDATOR_MODEL
+        self.client = OpenAI(api_key=api_key or os.environ.get("OPENAI_API_KEY"))
+        self.audit_path = Path(audit_path) if audit_path else None
+        if self.audit_path:
+            self.audit_path.parent.mkdir(parents=True, exist_ok=True)
+        self._audit_lock = threading.Lock()
+        self._stats_lock = threading.Lock()
+        self._calls = 0
+        self._cached_input_tokens = 0  # tokens read from cache
+        self._uncached_input_tokens = 0
+        self._output_tokens = 0
+
+    @property
+    def stats(self) -> dict:
+        with self._stats_lock:
+            total_input = self._cached_input_tokens + self._uncached_input_tokens
+            ratio = (
+                self._cached_input_tokens / total_input if total_input > 0 else 0.0
+            )
+            return {
+                "calls": self._calls,
+                "cached_input_tokens": self._cached_input_tokens,
+                "uncached_input_tokens": self._uncached_input_tokens,
+                "output_tokens": self._output_tokens,
+                "cache_hit_ratio": ratio,
+            }
+
+    def call_tool(
+        self,
+        *,
+        system: str,
+        user_message: str,
+        tool_name: str,
+        tool_input_schema: dict,
+        tool_description: str = "",
+        max_tokens: int = 1024,
+        stage: str = "",
+        provenance_key: str = "",
+    ) -> dict:
+        """Force tool invocation; return the structured tool input as a dict.
+
+        OpenAI uses chat completions with function-calling tools.
+        """
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool_name,
+                    "description": tool_description,
+                    "parameters": tool_input_schema,
+                },
+            }
+        ]
+        prompt_payload = {
+            "model": self.model,
+            "system": system,
+            "user": user_message,
+            "tool": tool_name,
+            "schema": tool_input_schema,
+        }
+        prompt_hash = _hash_payload(prompt_payload)
+
+        last_exc: Exception | None = None
+        for attempt in range(_MAX_ATTEMPTS):
+            try:
+                resp = self.client.chat.completions.create(
+                    model=self.model,
+                    max_tokens=max_tokens,
+                    messages=[
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": user_message},
+                    ],
+                    tools=tools,
+                    tool_choice={
+                        "type": "function",
+                        "function": {"name": tool_name},
+                    },
+                )
+            except Exception as exc:
+                last_exc = exc
+                if not _openai_retryable(exc) or attempt == _MAX_ATTEMPTS - 1:
+                    raise
+                time.sleep(_backoff(attempt))
+                continue
+
+            msg = resp.choices[0].message
+            tool_calls = msg.tool_calls or []
+            if not tool_calls:
+                last_exc = RuntimeError(
+                    f"OpenAI did not call tool {tool_name!r}; got: "
+                    f"{msg.content[:80] if msg.content else 'empty'}"
+                )
+                if attempt == _MAX_ATTEMPTS - 1:
+                    raise last_exc
+                time.sleep(_backoff(attempt))
+                continue
+
+            tc = tool_calls[0]
+            try:
+                decision = json.loads(tc.function.arguments)
+            except json.JSONDecodeError as exc:
+                last_exc = RuntimeError(
+                    f"OpenAI returned malformed tool arguments: {exc}; "
+                    f"raw: {tc.function.arguments[:200]}"
+                )
+                if attempt == _MAX_ATTEMPTS - 1:
+                    raise last_exc
+                time.sleep(_backoff(attempt))
+                continue
+            response_hash = _hash_payload(decision)
+
+            usage = resp.usage
+            input_tokens = getattr(usage, "prompt_tokens", 0) or 0
+            output_tokens = getattr(usage, "completion_tokens", 0) or 0
+            # OpenAI exposes cached_tokens via prompt_tokens_details (newer API)
+            ptd = getattr(usage, "prompt_tokens_details", None)
+            cached_tokens = getattr(ptd, "cached_tokens", 0) if ptd else 0
+            uncached = max(input_tokens - cached_tokens, 0)
+
+            with self._stats_lock:
+                self._calls += 1
+                self._cached_input_tokens += cached_tokens
+                self._uncached_input_tokens += uncached
+                self._output_tokens += output_tokens
+
+            if self.audit_path:
+                audit_record = {
+                    "stage": stage,
+                    "provenance_key": provenance_key,
+                    "model": self.model,
+                    "provider": "openai",
+                    "prompt_hash": prompt_hash,
+                    "response_hash": response_hash,
+                    "decision": decision,
+                    "attempt": attempt,
+                    "input_tokens": input_tokens,
+                    "cached_input_tokens": cached_tokens,
+                    "output_tokens": output_tokens,
+                    "finish_reason": resp.choices[0].finish_reason,
+                }
+                with self._audit_lock:
+                    with self.audit_path.open("a", encoding="utf-8") as f:
+                        f.write(json.dumps(audit_record, ensure_ascii=False) + "\n")
+
+            return decision
+
+        raise last_exc or RuntimeError("OpenAI call failed without exception")
+
+    def call_tool_concurrent(
+        self,
+        rows: list[dict],
+        *,
+        system: str,
+        tool_name: str,
+        tool_input_schema: dict,
+        tool_description: str = "",
+        max_tokens: int = 1024,
+        stage: str = "",
+        concurrency: int = 6,
+    ) -> dict[str, dict]:
+        """Concurrent per-row sync calls using a thread pool.
+
+        We don't implement OpenAI Batch API here — it requires file-upload
+        + polling and is overkill for the validator pass at Stage 4 (where
+        ~5,725 rows × Sonnet generator cost ~$30 already, so OpenAI batch
+        50% saving on validator is small absolute spend).
+
+        Each row dict: {"id": str, "user_message": str}.
+        Returns {id: decision_dict_or_error}.
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        if not rows:
+            return {}
+
+        results: dict[str, dict] = {}
+
+        def _one(row: dict) -> tuple[str, dict]:
+            cid = row["id"]
+            try:
+                d = self.call_tool(
+                    system=system,
+                    user_message=row["user_message"],
+                    tool_name=tool_name,
+                    tool_input_schema=tool_input_schema,
+                    tool_description=tool_description,
+                    max_tokens=max_tokens,
+                    stage=stage,
+                    provenance_key=cid,
+                )
+                return cid, d
+            except Exception as exc:
+                return cid, {
+                    "_error": type(exc).__name__,
+                    "_error_message": str(exc),
+                }
+
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            futures = [pool.submit(_one, row) for row in rows]
+            for fut in as_completed(futures):
+                cid, decision = fut.result()
+                results[cid] = decision
+
+        return results
