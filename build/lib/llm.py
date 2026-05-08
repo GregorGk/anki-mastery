@@ -38,6 +38,18 @@ load_dotenv(override=True)
 # Default model — registry will replace this once config/models.yaml exists.
 DEFAULT_GENERATOR_MODEL = "claude-sonnet-4-5"
 
+# Premium tier — used selectively for high-risk, low-volume rows where
+# Sonnet's quality ceiling matters (function-word polysemy, low-confidence
+# pre-classifier outputs, top-100 examples, hard auditor cases). Per-call
+# cost is ~5× Sonnet's, but at <100 calls the absolute spend is trivial
+# (under $2). Override via AnthropicClient(premium_model=...) or by passing
+# `tier="premium"` to call_tool.
+DEFAULT_PREMIUM_MODEL = "claude-opus-4-5"
+
+TIER_DEFAULT = "default"
+TIER_PREMIUM = "premium"
+VALID_TIERS = {TIER_DEFAULT, TIER_PREMIUM}
+
 _RETRYABLE_STATUS = {408, 425, 429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 6
 _BASE_BACKOFF_SEC = 1.0
@@ -87,11 +99,13 @@ class AnthropicClient:
         self,
         *,
         model: str | None = None,
+        premium_model: str | None = None,
         api_key: str | None = None,
         audit_path: str | Path | None = None,
         enable_caching: bool = True,
     ) -> None:
         self.model = model or DEFAULT_GENERATOR_MODEL
+        self.premium_model = premium_model or DEFAULT_PREMIUM_MODEL
         self.client = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
         self.audit_path = Path(audit_path) if audit_path else None
         if self.audit_path:
@@ -105,6 +119,12 @@ class AnthropicClient:
         self._cache_read_tokens = 0
         self._uncached_input_tokens = 0
         self._calls = 0
+        # Per-tier counters for cost auditing.
+        self._calls_by_tier: dict[str, int] = {TIER_DEFAULT: 0, TIER_PREMIUM: 0}
+        self._tokens_by_tier: dict[str, dict] = {
+            TIER_DEFAULT: {"input": 0, "output": 0, "cache_read": 0, "cache_create": 0},
+            TIER_PREMIUM: {"input": 0, "output": 0, "cache_read": 0, "cache_create": 0},
+        }
 
     @property
     def cache_stats(self) -> dict:
@@ -124,7 +144,21 @@ class AnthropicClient:
                 "cache_read_tokens": self._cache_read_tokens,
                 "uncached_input_tokens": self._uncached_input_tokens,
                 "cache_hit_ratio": ratio,
+                "calls_by_tier": dict(self._calls_by_tier),
+                "tokens_by_tier": {
+                    tier: dict(toks) for tier, toks in self._tokens_by_tier.items()
+                },
             }
+
+    def _model_for_tier(self, tier: str) -> str:
+        """Resolve tier → model ID. Raises on invalid tier."""
+        if tier == TIER_PREMIUM:
+            return self.premium_model
+        if tier == TIER_DEFAULT:
+            return self.model
+        raise ValueError(
+            f"Invalid tier {tier!r}; must be one of {sorted(VALID_TIERS)}"
+        )
 
     def _build_system_param(self, system: str) -> Any:
         """Wrap the system prompt with cache_control if caching is enabled."""
@@ -149,11 +183,22 @@ class AnthropicClient:
         max_tokens: int = 1024,
         stage: str = "",
         provenance_key: str = "",
+        tier: str = TIER_DEFAULT,
     ) -> dict:
         """Force tool invocation; return the structured tool input as a dict.
 
+        Args:
+            tier: 'default' (Sonnet) or 'premium' (Opus). Premium routes to a
+                stronger model for high-risk, low-volume calls. Default
+                tier is appropriate for >95% of pipeline calls.
+
         Raises if all retries fail or the model refuses to call the tool.
         """
+        if tier not in VALID_TIERS:
+            raise ValueError(
+                f"Invalid tier {tier!r}; must be one of {sorted(VALID_TIERS)}"
+            )
+        model_id = self._model_for_tier(tier)
         tools = [
             {
                 "name": tool_name,
@@ -162,7 +207,7 @@ class AnthropicClient:
             }
         ]
         prompt_payload = {
-            "model": self.model,
+            "model": model_id,
             "system": system,
             "user": user_message,
             "tool": tool_name,
@@ -175,7 +220,7 @@ class AnthropicClient:
         for attempt in range(_MAX_ATTEMPTS):
             try:
                 resp = self.client.messages.create(
-                    model=self.model,
+                    model=model_id,
                     max_tokens=max_tokens,
                     system=system_param,
                     tools=tools,
@@ -220,12 +265,19 @@ class AnthropicClient:
                 self._cache_creation_tokens += cache_creation
                 self._cache_read_tokens += cache_read
                 self._uncached_input_tokens += input_tokens
+                # Per-tier breakdown for cost auditing
+                self._calls_by_tier[tier] += 1
+                self._tokens_by_tier[tier]["input"] += input_tokens
+                self._tokens_by_tier[tier]["output"] += output_tokens
+                self._tokens_by_tier[tier]["cache_read"] += cache_read
+                self._tokens_by_tier[tier]["cache_create"] += cache_creation
 
             if self.audit_path:
                 audit_record = {
                     "stage": stage,
                     "provenance_key": provenance_key,
-                    "model": self.model,
+                    "model": model_id,
+                    "tier": tier,
                     "prompt_hash": prompt_hash,
                     "response_hash": response_hash,
                     "decision": decision,
