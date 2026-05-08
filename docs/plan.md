@@ -523,7 +523,9 @@ Cheap Claude Haiku 3.5 pass with **mandatory Tool Use**. For each row not covere
 
 Out-of-enum values are rejected by the API. Same Tool-Use pattern reused for cognate-classify, idiom-expand, sense-split, and sensitive-term classification.
 
-**Provenance**: every call writes to `audit/015_bp_status.jsonl` with `source_line_number, model_id, prompt_hash, response_hash, decision, confidence, generated_at`.
+**Prompt caching**: mandatory (see § API client conventions). The system prompt is identical across all ~5000 calls — cache it. Cuts Stage 1.5 cost from ~$30 to ~$5–8.
+
+**Provenance**: every call writes to `audit/015_bp_status.jsonl` with `source_line_number, model_id, prompt_hash, response_hash, decision, confidence, cache_creation_input_tokens, cache_read_input_tokens, generated_at`.
 
 **Cost**: ~$0.20 (Haiku, ~5k entries × ~50 tokens).
 
@@ -575,13 +577,16 @@ For rows reaching the LLM, prompt with the rule: *"Two items are distinct senses
 
 #### Function words and pronouns
 
-Function words (`o`, `de`, `em`, `que`, `se`, `a`, `lhe`, `por`, `para`, …) and pronouns (`você`, `tu`, `vós`, `vosso`, …) are exempt from generic slash-splitting. They follow [`build/policies/function_word_strategy.md`](build/policies/function_word_strategy.md) and [`build/policies/pronoun_policy.md`](build/policies/pronoun_policy.md). Special handling:
+**Decision (locked):** Stage 2 trusts the LLM jury for function-word polysemy classification rather than routing to a manual queue or pre-writing policy docs. Acceptable quality risk for shipping speed; user-flagged corrections at study time will catch any over- or under-splits. The hand-written `build/policies/function_word_strategy.md` and `pronoun_policy.md` are deferred — may be added later if specific patterns of error emerge.
+
+Pronoun policy (locked):
 
 | Item | Treatment |
 |---|---|
 | `você` | Keep; central BP |
-| `tu` | Keep but tag `#regional` and grammar note |
-| `vós` | Likely drop or tag `#archaic` (manual review) |
+| `tu` | Keep with `#regional` tag (used in some BP regions) |
+| `vós` | **Drop** as `ep_only` (already flagged by Stage 1.5); not in study deck |
+| `vosso` | **Drop** as `ep_only` (already flagged by Stage 1.5; mainly EP); not in study deck |
 | `vosso` | Manual review; mainly EP/formal/religious |
 | `lhe` | Keep but explain BP usage carefully |
 | `se` | Special handling: reflexive, impersonal, passive-like, conditional senses each forced |
@@ -603,7 +608,7 @@ Sense IDs are stable forever. `expansion_index = 00` is the original headword ro
 
 Stage 2 runs the **3-model jury** on the sense-split classification (§ Review strategy). Three-way disagreements go to `_jury_disagreements.tsv` and are auto-resolved by the tiebreaker model. The auditor pass at Stage 5.5 catches anything that slipped through. **No upfront human review queues** for Stage 2 — the v2 plan's six queues (`_sense_review_top1000.tsv`, `_sense_review_low_confidence.tsv`, `_sense_review_polysemous.tsv`, `_sense_review_idioms.tsv`, `_sense_review_function_words.tsv`, `_sense_review_sensitive.tsv`) are removed.
 
-The 8 forced-gender-split entries and the ~12 idiom-expansion entries are short enough to **inline as manual seed senses** in `_manual_sense_splits.tsv` once at the start of the project (~5 min), bypassing both LLM splitting and review.
+The 8 forced-gender-split entries and the ~12 idiom-expansion entries are short enough to inline as manual seed senses in `_manual_sense_splits.tsv` (~5 min). **Decision (locked):** for first run, skip manual seeding — trust LLM defaults via the deterministic forced-split rule. User can manually correct the auto-generated `en_primary` text in `_manual_sense_splits.tsv` after Stage 2 if any look wrong.
 
 **Validation**:
 
@@ -629,34 +634,51 @@ This is **not a drop list**. Most words remain. The purpose is to ensure example
 
 ### Stage 3 — Enrichment ([build/03_enrich.py](build/03_enrich.py))
 
-**In**: `02-senses.tsv` + `_manual_gender.tsv` → **Out**: `03-enriched.tsv`
+**In**: `02-senses.tsv` + `_manual_gender.tsv` (manual overrides) → **Out**: `03-enriched.tsv`, `audit/03_enrich.jsonl`
 
-Deterministic + LLM hybrid:
+Deterministic + single LLM call hybrid. **Decisions locked for this run:**
+- **Wiktionary/Priberam scraper: dropped.** The originally-planned cascade (manual override → Wiktionary BR → Priberam BR → LLM) has been simplified to (manual override → LLM). Frontier LLMs are >99% accurate on BP noun gender; the scraper saved ~$1–2 of compute at the cost of ~500 lines of cache + DOM parser code and ongoing maintenance when DOMs change. Graceful-fail-to-LLM was already in the cascade; this just removes the early steps.
+- **Family root: deferred.** Schema column stays in the final TSV but is left empty in this run. Saves ~30% of Stage 3 LLM output tokens. Can be batch-generated later with a single dedicated pass if the user decides they want it.
+- **Cognate flag: included.** Binary `#cognate-en` tag adds ~$1; useful for an A1 learner to identify easy wins.
+- **PoS: deterministic-when-100%-certain.** Verb when `en_primary` matches `^to \w` pattern; noun when `gender ∈ {o, a, o/a}` is set; adj when bare adjective gloss; interj/num from explicit lists; LLM otherwise; blank when truly ambiguous.
 
-1. **Canonicalize headword for API lookup** ([build/lib/lookup.py](build/lib/lookup.py)):
-   - Strip `-se` from reflexive verbs (preserve flag in `annotation.reflexive`).
-   - Try alternate hyphenations if first attempt 404s.
-   - Try without diacritics as last resort.
-   - For compound nouns, look up the **whole compound** (e.g., `mão de obra`, not `mão` + `obra`).
-   - **Aggressive local cache** — Wiktionary and Priberam are not stable APIs. `lookup.py` scrapes HTML; structure changes break the pipeline, and unthrottled re-runs invite IP bans. Cache layer: SQLite at `build/cache/lookup.sqlite` keyed by `(source, canonical_form)` with columns `source, canonical_form, raw_html, fetched_at, http_status, etag, parser_version`. Re-runs hit the cache; only forced refresh (`--refresh`) or rows older than `LOOKUP_CACHE_TTL` (default 90 days) re-fetch. Parsing happens off the cached HTML so a Wiktionary layout change requires only a parser update, not a re-scrape. Politeness: per-host rate limit (default 1 req/sec) + jittered backoff (see § API client conventions).
-   - **Graceful parser failure (do not crash the pipeline)** — Wiktionary and Priberam DOM structures change with no warning. The parser MUST handle "field absent" as a valid outcome, not an exception:
-     - Parser returns `LookupResult(gender=None, pos=None, confidence='none', parser_status='dom_miss')` when it cannot find the expected DOM nodes.
-     - The stage logs the miss (with `source`, `canonical_form`, `parser_version`, snippet of the cached HTML) to `_lookup_misses.tsv` for later review.
-     - Lookup-cascade (manual override → Wiktionary → Priberam → LLM Tool-Use) treats `dom_miss` as "this source had no answer," moves to the next source, and ultimately falls through to the LLM jury. The pipeline never crashes on a scraper failure.
-     - When `_lookup_misses.tsv` accumulates >5% of rows from a single source, it's signal that the parser needs an update — fix the parser, bump `parser_version` in the cache schema, re-parse from cached HTML (no re-scrape needed). The cost is engineering time, not API quota.
-2. **Gender** (nouns): manual override → Wiktionary BR → Priberam BR → Claude Tool-Use classification (`{"gender": "o" | "a" | "o/a" | "—"}`). Fill `gender` and compose `pt_display` (`a casa`, `o caminho`, or bare word for non-nouns / idioms with their natural form).
-3. **PoS**: derive from gloss pattern — `"to X"` → `verb`; gender known → `noun`; bare adjective → `adj`. **Leave blank when ambiguous**.
-4. **Tags**:
-   - Frequency tier: `#top500`/`#top1000`/`#top2000`/`#top3000`/`#top5000`.
-   - PoS: `#verb`/`#noun`/`#adj`/etc. when known.
-   - Morphology: `#reflexive`, `#gendered-meaning`, `#hyphenated`, `#idiom`.
-   - `pt_type`: `#single-word`, `#hyphenated-compound`, `#space-compound`, `#idiom`, `#abbreviation-expansion`.
-   - Regional: `#bp-rare` from Stage 1.5.
-   - Special: `#interjection`, `#numeral`, `#nsfw`, `#false-friend`, `#cognate-en`, `#sensitive-reviewed`, `#function-word`, `#pronoun`, `#manual-sense`.
-5. **Family root**: Claude proposes Portuguese derivational root. Empty when standalone. Schema-reserved.
-6. M/F-split senses from Stage 2: gender already assigned, just confirm.
+#### Pipeline
 
-**Validation**: every noun has `gender ∈ {o, a, o/a, —}`; every reflexive verb has flag; tags space-separated and well-formed.
+1. **Deterministic shortcuts** (no LLM):
+   - Forced gender splits from Stage 2 → gender already populated; pt_display computed from `{gender_article} {pt}`.
+   - Idiom expansion rows (expansion_index ≥ 1) → PoS = `idiom`, gender = empty, pt_display = pt.
+   - Reflexive verbs (annotation.reflexive from Stage 1a) → PoS = `verb`, `#reflexive` tag.
+   - `en_primary` matches `^to \w` → PoS = `verb`.
+   - Function words from `PREMIUM_FUNCTION_WORDS` set → PoS = derived from list (article / preposition / pronoun / etc.); no gender.
+2. **Single LLM call per remaining row** (Tool Use enforced):
+   ```json
+   {
+     "type": "object",
+     "properties": {
+       "gender": {"type": "string", "enum": ["o", "a", "o/a", ""]},
+       "pos": {"type": "string", "enum": ["noun", "verb", "adj", "adv", "prep", "conj", "pron", "art", "num", "interj", ""]},
+       "is_cognate_en": {"type": "boolean"},
+       "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+       "reason": {"type": "string"}
+     },
+     "required": ["gender", "pos", "is_cognate_en", "confidence"]
+   }
+   ```
+   Empty string for gender/pos means "not applicable / leave blank". Tier = `default` (Sonnet); no premium routing needed for this stage.
+3. **Compose `pt_display`**: `o {pt}` for masculine nouns, `a {pt}` for feminine, bare `{pt}` for everything else.
+4. **Compute tags deterministically** from existing fields:
+   - Frequency tier from `rank` band: `#top500` / `#top1000` / `#top2000` / `#top3000` / `#top5000`.
+   - PoS tag from resolved `pos` field.
+   - Morphology: `#reflexive`, `#gendered-meaning`, `#hyphenated`, `#idiom`, `#space-compound` from `pt_type` and `annotation`.
+   - Regional: `#bp-rare` if `bp_status = uncommon`.
+   - Special: `#nsfw`, `#false-friend` from `bp_status`; `#cognate-en` from LLM result.
+5. **Family root**: schema column left empty (deferred per locked decision).
+
+#### Cost & validation
+
+- ~5720 senses; ~4000 hit the LLM after deterministic shortcuts. With caching, **~$8–11**.
+- Tier = default (Sonnet 4.5) only. No premium tier on this stage.
+- Validation: every noun has `gender ∈ {o, a, o/a}`; every reflexive verb tagged; tags space-separated and well-formed; `pt_display` populated for every row.
 
 ### Stage 4 — Example sentences ([build/04_examples.py](build/04_examples.py))
 
@@ -949,9 +971,70 @@ For every model-derived decision, audit JSONL files in `audit/` record:
 
 Applies to Stages 1.5, 2 (sense split + sensitive screen), 3 (gender fallback, cognate, family root), 4 (generation + validation), 5 (IPA correction). Re-runs are reproducible because model IDs and prompt hashes are recorded.
 
-## API client conventions (rate limits, concurrency, retries)
+## API client conventions (rate limits, concurrency, retries, caching)
 
 Sequential calls across ~10,000 senses take days; naive `asyncio.gather` immediately trips Anthropic, OpenAI, and ElevenLabs rate limits. All three API wrappers ([build/lib/llm.py](build/lib/llm.py) for Anthropic+OpenAI, [build/lib/elevenlabs_client.py](build/lib/elevenlabs_client.py) for audio, [build/lib/lookup.py](build/lib/lookup.py) for HTML scrapers) follow one shared policy.
+
+### Prompt caching is MANDATORY for high-volume stages
+
+**Discovered the hard way during the Stage 1.5 first run:** without prompt caching, Sonnet costs ~$0.006 per row × 4989 rows ≈ ~$30 for one stage. With Anthropic prompt caching applied to the system prompt (which is stable across all rows), per-call cost drops ~5–6× because cached reads bill at 10% of base input rate.
+
+Apply to **every** Anthropic stage where the system prompt is identical across calls and length > 1024 tokens:
+
+- Stage 1.5 (bp_status) — ~4989 calls
+- Stage 2 (sense split) — ~5000 LLM-targeted calls
+- Stage 3 (gender / cognate / family fallback) — ~3000 LLM-eligible calls
+- Stage 4 (example generation + validator) — ~9000 + ~9000 calls
+- Stage 5 (IPA correction) — ~9000 calls
+- Stage 5.5 (adversarial + verdict auditor) — ~18,000 calls
+
+Rough corpus-wide LLM cost without caching: ~$300+. With caching: ~$50–80. The 6× factor is real and load-bearing for project affordability.
+
+#### Implementation in `lib/llm.py`
+
+Use Anthropic's [prompt caching beta](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) — cache the system prompt with `cache_control={"type": "ephemeral"}`:
+
+```python
+resp = client.messages.create(
+    model=model,
+    system=[
+        {
+            "type": "text",
+            "text": system_prompt,
+            "cache_control": {"type": "ephemeral"},
+        }
+    ],
+    tools=[...],
+    tool_choice={"type": "tool", "name": tool_name},
+    messages=[{"role": "user", "content": user_message}],
+)
+```
+
+The first call seeds the cache (~5 min TTL); subsequent calls within the TTL pay 0.1× input rate for the cached portion. Concurrency above the rate-limit cap doesn't break caching — the cache is keyed on prompt content, not request flow.
+
+Validation: log `usage.cache_creation_input_tokens` and `usage.cache_read_input_tokens` in the audit JSONL. Cache-hit ratio should reach >95% within the first ~50 calls. If it doesn't, the system prompt is being mutated between calls (a bug).
+
+### Anthropic Batch API (implement before Stage 3)
+
+**Decision (locked):** implement Anthropic Message Batches API in [build/lib/llm.py](build/lib/llm.py) before Stage 3 kicks off. Stage 3's spend is small enough that batch is marginally useful, but Stages 4 + 5 + 5.5 (the big ones, ~18,000 calls combined at $30–50 each) get a **50% discount** with no quality loss when using Batch.
+
+#### Implementation surface
+
+- New method on `AnthropicClient`: `submit_batch(requests: list[dict]) -> str` returns batch ID; `poll_batch(batch_id: str, timeout_s: int = 86400) -> list[dict]` blocks until results are ready (or times out at 24h SLA).
+- Internal: chunk requests into ≤10k-per-batch (Anthropic limit), submit in parallel, gather results.
+- Each batch result item is parsed exactly like a sync result: extract the tool_use block, write to audit JSONL with `batch_id` field added.
+- Stage scripts invoke via a new helper `call_tool_batch(rows, ...) -> list[dict]` that decides sync vs batch based on row count (default: batch when >100 rows).
+- Caching still applies inside batches; cache_creation/cache_read tokens reported per item.
+
+#### What batch is/isn't good for
+
+- **Good for**: offline stages with no inter-row dependency (1.5, 2 LLM-eligible rows, 3, 4, 5, 5.5). 50% discount, 24h SLA.
+- **Not good for**: tiebreaker calls in the 3-model jury (those are conditional on jury disagreement; can't pre-batch). Stay sync.
+- **Not good for**: Stage 1a idiom expansion (only 12 calls; sync is faster wall-clock).
+
+#### Wall-clock impact
+
+Stages 4 + 5 + 5.5 sync would take ~6–10 hours total. Batch SLA is 24h but real-world turnaround is typically 2–6h. Net: similar wall clock, half the cost.
 
 ### Concurrency model
 
