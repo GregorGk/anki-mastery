@@ -32,8 +32,9 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | Register | Neutral-everyday; tag if naturally travel/legal |
 | IPA | BP neutral-paulistano, broad phonemic with stress; **deterministic baseline + LLM correction** |
 | **IPA sandhi gap** | Documented: per-word IPA does not reflect connected-speech word-linking present in audio. Not patched. |
-| Audio | 4 clips per sense (2 voices × {word, example}); fixed 1M+1F across whole deck; **Google Cloud TTS Neural2 BR voices** (default — ~$30–60 vs. ElevenLabs' ~$260–430). ElevenLabs swap-in available if user later wants premium naturalness. Open-source local TTS (Kokoro / XTTS / MeloTTS) is the zero-cost option. |
-| **Audio column naming** | `audio_word_m`, `audio_word_f`, `audio_example_m`, `audio_example_f` — never `_v1/_v2`. Eliminates voice-mix-up risk on script restart. |
+| **Audio (REVISED)** | **2 clips per sense (1 voice × {word, example})** — voice gender chosen per-sense by Stage 4.5 speaker gender classifier (matches sentence cues). Fixed 1M+1F voice IDs across the deck. **ElevenLabs Multilingual v2** (locked — user prefers premium naturalness over Google TTS savings). Pro tier ($99 one month) for one-shot generation; Starter ($6/mo) for ongoing flag-and-regenerate. Total ~$282k chars × 1 voice/sense ≈ 367k credits with retry buffer; fits Pro tier 600k cap with 233k headroom. |
+| **Audio voice assignment** | For each sense, Stage 4.5 emits `speaker_gender ∈ {male, female, neutral}` based on cues in `example_pt` (Obrigado/Obrigada, estou curioso/curiosa, "vou ganhar um menino" → female, etc.). Voice rule: gendered → matching voice; **neutral → seeded balanced shuffle (not hash) — `random.Random(44).shuffle(sorted(neutral_sids))`, then alternate; guarantees 50/50 split off-by-at-most-1**. Single voice per sense, used for both word + example clips. |
+| **Audio column naming (REVISED)** | `audio_word`, `audio_example` (one voice per sense, no `_m/_f` infix). Voice ID and gender baked into `_audio_manifest.tsv` per row. Filename: `{sense_id}-{word|ex}-v{N}.mp3`. |
 | Audio stage | Pilot first 500, then full batch |
 | **Audio storage** | **Cloudflare R2**, exposed via R2 public bucket custom domain (not per-object public-read ACL). Stable HTTPS URLs with **filename-baked versioning** (`-v{N}.mp3`) — Anki strips query strings on download, so `?v=N` would silently fail to propagate regenerated clips to mobile devices. |
 | Audio manifest | `data/_audio_manifest.tsv` is source of truth; final TSV URL columns derived from it |
@@ -774,6 +775,142 @@ Stage 4 examples flow into Stage 5.5's adversarial + verdict auditor pair (§ Re
 
 **Cost**: ~$30–60 (Sonnet generator full corpus) + ~$15–25 (top-1000 N=2 second generation) + ~$15–25 (validator pass).
 
+### Stage 4 quality verdict (executed run, commit 67e12fd)
+
+**Context.** First full-corpus Stage 4 run completed: 5,725 senses, single Anthropic Sonnet 4.5 generator + OpenAI gpt-4o-mini validator. Pre-Stage-5 quality assessment to confirm we are in best shape before IPA.
+
+**Headline numbers.**
+
+| Metric | Value | Plan target |
+|---|---|---|
+| Senses generated | 5,725 / 5,725 | 100% |
+| Generation failures | 0 | 0 |
+| Empty fields (example_pt/en/target) | 0 / 0 / 0 | 0 |
+| Validator pass | 5,415 (94.6%) | — |
+| Validator fail | 306 (5.3%) | — |
+| Validator borderline | 4 (0.07%) | — |
+| Deterministic token-match fail | 2 (0.03%) | — |
+| Deterministic word-count fail | 0 | 0 |
+| EP-slip automated grep (genuine) | 0 | 0 |
+| Example word count median / max | 7 / 15 | ≤15 |
+| Spend | ~$21 | ≤$50 |
+
+**Edge-category quality (manual verification).**
+
+- **Forced gender splits** (16 senses across `capital`/`polícia`/`rádio`/`corte`/`cabra`/`cura`/`grama`/`banana`): 16/16 pass with cleanly distinguished M vs F examples.
+- **Function-word polysemy patches** (13 senses across `o`/`se`/`para`/`de`/`em`/`que`/`por`/`a`): 12/13 pass; the 1 flagged (`de` sense 1 = "of") is a validator nitpick on natural BP possession ("Maria's book" rendering).
+- **Idiom expansions** (14 rows): 12/14 pass; 2 flagged (`à medida que` = validator nitpick; `em diante` sense 2 "in front of" = real Stage-2-defined sense that's rare/awkward in BP).
+- **Sensitive terms** (44 rows with `bp_status=nsfw` or non-empty `example_policy`): ~95% appropriately framed (scholarly/news/clinical register). Real false-friend issues on `fazenda` sense 2 ("fabric") and `camisola` sense 2 ("sweater") trace to Stage 2 sense definitions that don't exist in BP usage.
+- **Reflexive verbs** (10 senses): all generate reflexive forms with proclitic placement.
+- **Duplicate examples**: 32/5725 PT examples appear ≥2× (0.6%, A1-natural repetition); 76 EN translations appear ≥2× (1.3%). Acceptable.
+
+**Real-vs-false-positive triage of the 306 validator fails.**
+
+Failure-axes distribution:
+
+| Axis pattern | Count | Estimated FP rate |
+|---|---|---|
+| `translation_matches` + `uses_intended_sense` | 127 | 30-50% |
+| `translation_matches` alone | 107 | 70% (nitpicks) |
+| `uses_intended_sense` alone | 40 | 40% |
+| `is_bp` alone | 22 | 50% (validator BP gaps, e.g., flagging `universidade`) |
+| `sensitive_policy` (combined) | 4 | 75% (mostly miscategorized sense issues) |
+| Other | 8 | mixed |
+
+Heuristic estimate of **real failures: ~167 / 5725 = ~2.9%**, slightly over plan's 2% target. Failure rate is 4× higher on `sense_index ≥ 2` rows (15.1%) than on primary senses (4.0%) — secondary senses are harder for the LLM to disambiguate from primary.
+
+**Recommendation: proceed to Stage 5 (IPA); do not regenerate now.**
+
+Reasoning:
+1. The Stage 4 prompt is working correctly — generation quality is high. The `2.9%` estimated real-failure rate is within bounds the design anticipated.
+2. **Stage 5.5 (adversarial + verdict auditor) is the correct place to triage these rows.** That stage runs two additional models from different families across every row, producing a defect list and a verdict (`pass`/`regenerate`/`human_review`). Failures auto-regenerate with the defect list as anti-example. Doing surgical regen at Stage 4 now would duplicate Stage 5.5's work.
+3. Regenerating the 306 flagged rows immediately would cost ~$2-3 and 5 min, but would not address the ~140 real failures the validator missed (false negatives from the validator are unmeasured here).
+4. Stage 5 (IPA) is independent of Stage 4 quality issues — IPA is keyed on `pt` (always correct) and `example_pt` (already validated for word/token integrity). IPA can run on current Stage 4 output without prejudice.
+
+**Action items for downstream stages.**
+- **Stage 5 (IPA)**: proceeds on `04-examples.tsv` as-is. No Stage 4 changes required.
+- **Stage 5.5 (auditor)**: when built, will use `data/_example_fixes.tsv` as a prior-flag input plus run independent adversarial+verdict on every row. Failures route to a Stage 4 regeneration loop with `≤2` retries and the defect list as anti-example.
+- **Defer to study-time loop**: 0.3-1% residual real errors (the slice the auditor doesn't catch) get fixed via Anki's flag-for-regeneration field after deck launch. This is the v3 plan's design.
+
+**Locked decisions.**
+- No prompt revision before Stage 5.
+- No N-best top-1000 second generation before Stage 5 (defer to Stage 5.5 if specific top-1000 senses fail audit).
+- `data/_example_fixes.tsv` (308 rows) is preserved as input to Stage 5.5; do not clear it.
+- The 2 deterministic token-match fails (`à mercê de` → `à mercê das` contraction; one other contraction edge case) are accepted as borderline rather than regenerated. Stage 5.5's deterministic re-check after any regen will catch them again if relevant.
+
+### Stage 4.5 — Speaker gender classifier ([build/045_speaker_gender.py](build/045_speaker_gender.py))
+
+**In**: `data/04-examples.tsv` → **Out**: `data/045-speaker_gender.tsv`, `audit/045_speaker_gender.jsonl`
+
+**Goal.** Decide which voice (male / female / neutral) each Anki record should use, so audio gender matches the sentence's likely speaker. Required because ElevenLabs renders one voice per clip and the user wants gender-marked sentences to sound natural ("Estou curiosa" must be female; "Obrigado" must be male).
+
+**Pipeline.**
+1. For each row in `04-examples.tsv`, build a small user prompt with `pt`, `en_primary`, `example_pt`, `example_en`.
+2. Call OpenAI gpt-4o-mini (cheap, fast) via Tool Use with this schema:
+   ```json
+   {
+     "type": "object",
+     "properties": {
+       "speaker_gender": {"type": "string", "enum": ["male", "female", "neutral"]},
+       "evidence": {"type": "string", "description": "The cue that determined the choice (one phrase, ≤80 chars)"},
+       "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
+     },
+     "required": ["speaker_gender", "evidence", "confidence"]
+   }
+   ```
+3. Detection rules in the system prompt:
+   - **Predicate adjective / past-participle ending** after first-person aux (`estou`, `sou`, `fui`, `fiquei`, `me senti`, `tenho`): `-o` ending → male; `-a` ending → female. Examples: `Obrigado/Obrigada`, `cansado/cansada`, `curioso/curiosa`, `preocupado/preocupada`.
+   - **Cultural / biological cues**: "vou ganhar um menino" / "estou grávida" → female; "como pai" → male; "como mãe" → female; "minha namorada" → speaker is male; "meu namorado" → speaker is female; "vestido para mim" / "vou usar maquiagem" → female.
+   - **No cue** → `neutral` (the most common outcome).
+
+**Voice assignment** (consumed by Stages 6/7):
+
+```python
+import random
+
+# After loading 045-speaker_gender.tsv
+neutral_sids = sorted(r["sense_id"] for r in rows if r["speaker_gender"] == "neutral")
+rng = random.Random(44)             # locked seed for reproducibility
+rng.shuffle(neutral_sids)
+voice_for: dict[str, str] = {}
+for r in rows:
+    sid = r["sense_id"]
+    if r["speaker_gender"] == "male":
+        voice_for[sid] = "male"
+    elif r["speaker_gender"] == "female":
+        voice_for[sid] = "female"
+    # else handled below
+
+for i, sid in enumerate(neutral_sids):
+    voice_for[sid] = "female" if i % 2 == 0 else "male"
+```
+
+**Properties:**
+- Deterministic (seed=44 → same assignment every run).
+- Balanced: among neutrals, exactly `⌈N/2⌉` female and `⌊N/2⌋` male — off-by-at-most-1.
+- No correlation with sense_id structure (sort + shuffle decouples adjacent senses).
+- Net deck-wide voice balance lands close to 50/50 even if "explicit female" and "explicit male" buckets are skewed.
+
+**Output schema** (`045-speaker_gender.tsv`):
+
+| Column | Notes |
+|---|---|
+| `sense_id` | Join key |
+| `speaker_gender` | `male` / `female` / `neutral` |
+| `evidence` | One-phrase cue text |
+| `confidence` | `high` / `medium` / `low` |
+| `voice_assigned` | `male` / `female` (post-shuffle for neutrals) |
+
+**Cost.** ~$1 (5,725 calls × ~$0.0002 gpt-4o-mini). Wall clock ~5 min sync at concurrency 8.
+
+**Validation invariants.**
+- Every `04-examples.tsv` `sense_id` has exactly one row in `045-speaker_gender.tsv`.
+- `voice_assigned ∈ {male, female}` for every row (no `neutral` after assignment).
+- Female / male counts on the corpus differ by at most 1 within the neutral bucket.
+- Gender-marked rows match the rule (spot-check: 20 rows with `Obrigada` / `Obrigado` / `curiosa` / `curioso` should classify correctly with `confidence: high`).
+
+**Manual override**: `data/_manual_speaker_gender.tsv` (single column override on `sense_id`, optional `voice_assigned` field). Wins over LLM. Empty for the first run.
+
 ### Stage 5 — IPA ([build/05_ipa.py](build/05_ipa.py))
 
 **In**: `04-examples.tsv` + `_manual_ipa.tsv` → **Out**: `05-ipa.tsv`, `audit/05_ipa.jsonl`
@@ -811,21 +948,33 @@ The two auditor models are different from each other AND different from the gene
 
 **Validation**: every row in `05-ipa.tsv` has both an adversarial defect list and a verdict. Rows with `verdict = regenerate` after 2 failed regen attempts are surfaced loudly to `_auditor_flags.tsv` — should be rare (<1%).
 
-### TTS provider (default: Google Cloud TTS)
+### TTS provider (LOCKED: ElevenLabs Multilingual v2)
 
-Audio is the largest cost line by a wide margin. Switching from ElevenLabs to **Google Cloud TTS Neural2 BR voices** is the single biggest cost win. Naturalness gap is small at A1 listening level; both produce intelligible Brazilian Portuguese with correct stress and prosody. Pricing comparison (rough, as of 2026):
+User decision: pay the premium for natural BP audio rather than save money on Google TTS Neural2. The original plan made Google TTS the default for cost reasons; the user has reversed this in favor of naturalness. ElevenLabs Pro tier ($99 first month, 600k credits) covers the one-shot generation; Starter ($6/month) covers ongoing flag-and-regenerate cycles.
 
-| Provider | Quality (A1 use) | Pricing | Total at ~970k chars × 2 voices |
+Pricing comparison (locked: only ElevenLabs is used; alternatives kept for reference if user later wants to swap):
+
+| Provider | Quality (A1 use) | Per 1k chars | Total at ~282k chars × 1 voice/sense |
 |---|---|---|---|
-| ElevenLabs (Multilingual v2) | premium | ~$0.15–0.22/1k chars | ~$260–430 |
-| **Google Cloud TTS Neural2 (default)** | excellent | ~$0.016/1k chars | **~$30–60** |
-| Azure Neural TTS | excellent | ~$0.016/1k chars | ~$30–60 |
-| OpenAI TTS (`tts-1` / `tts-1-hd`) | very good | ~$0.015–0.030/1k chars | ~$30–60 |
+| **ElevenLabs (Multilingual v2)** ⭐ | premium | ~$0.16/1k chars (Pro tier ratio) | **~$45–55 in chars-equivalent; covered by Pro tier $99 monthly** |
+| Google Cloud TTS Neural2 | excellent | ~$0.016/1k chars | ~$5–7 |
+| Azure Neural TTS | excellent | ~$0.016/1k chars | ~$5–7 |
+| OpenAI TTS (`tts-1-hd`) | very good | ~$0.030/1k chars | ~$10 |
 | Open-source local (Kokoro / XTTS / MeloTTS) | adequate | $0 (local compute) | $0 |
 
-`config/models.yaml` carries the active TTS provider as a role-key. Switching providers later is a config change + regenerate-with-version-bump (Stage 6 idempotency handles this).
+**ElevenLabs Pro tier specifics** (verified at elevenlabs.io/pricing as of 2026):
+- $99/month, 600,000 credits/month (1 credit = 1 character on Multilingual v2)
+- Professional voice cloning included (user can clone a specific voice if desired; defaults to ElevenLabs stock voices)
+- Commercial use OK
+- After one-shot full-corpus run, downgrade to Starter ($6/month, 30k credits) — plenty for weekly flag-and-regenerate (~1–3 cards/week typical study-time correction loop)
 
-Voice IDs are pinned per gender. For Google Cloud TTS BR voices, defaults: male = `pt-BR-Neural2-B`, female = `pt-BR-Neural2-A`. User picks final voices at step 13 of runbook. ASR roundtrip and filename versioning (`-v{N}.mp3`) are unchanged across providers.
+**Character budget computation** (verified from `data/04-examples.tsv`):
+- Headword chars (5,725 senses): 41,915
+- Example chars (5,725 senses, mean 42 chars): 240,282
+- Total at 1 voice/sense: 282,197 base
+- With 30% retry buffer: 366,856 — fits Pro tier 600k cap with **233k headroom**
+
+`config/models.yaml` carries the active TTS provider as a role-key. Voice IDs are pinned per gender (user picks at runbook step 13). ASR roundtrip and filename versioning (`-v{N}.mp3`) are unchanged.
 
 ### Stage 6 — Audio pilot ([build/06_audio_pilot.py](build/06_audio_pilot.py))
 
@@ -839,18 +988,18 @@ Voice IDs are pinned per gender. For Google Cloud TTS BR voices, defaults: male 
 sense_id	clip_type	voice_gender	tts_provider	tts_model	voice_id	text_input	text_hash	object_key	url	version	md5	generated_at	status	notes
 ```
 
-`clip_type` ∈ `{word, example}`. Each sense has 4 manifest rows. Final TSV's URL columns are **derived** from the manifest, not hand-maintained. Regeneration: bump `version`, re-upload, update manifest, re-derive TSV.
+`clip_type` ∈ `{word, example}`. **REVISED**: each sense has **2 manifest rows** (one voice gender per sense, picked by Stage 4.5). Final TSV's URL columns are **derived** from the manifest, not hand-maintained. Regeneration: bump `version`, re-upload, update manifest, re-derive TSV.
 
-#### Generation
+#### Generation (REVISED)
 
-Generate 4 mp3 clips per sense via the configured TTS provider (default: Google Cloud TTS Neural2):
+Generate 2 mp3 clips per sense via **ElevenLabs Multilingual v2** (locked TTS provider — Pro tier $99 first month):
 
-- `audio_word_m`: male voice, headword
-- `audio_word_f`: female voice, headword
-- `audio_example_m`: male voice, example sentence
-- `audio_example_f`: female voice, example sentence
+- `audio_word`: voice picked by Stage 4.5, headword text
+- `audio_example`: same voice as audio_word, example sentence text
 
-**File naming**: `{sense_id}-{word|ex}-{m|f}-v{version}.mp3` (e.g., `0001.00.03-word-m-v1.mp3`). Gender AND version are baked into the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
+**Voice gender per sense**: read from `data/045-speaker_gender.tsv` `voice_assigned` column. The same voice is used for both clips of one sense — this is the user's locked rule (one speaker per Anki record).
+
+**File naming**: `{sense_id}-{word|ex}-v{version}.mp3` (e.g., `0001.00.03-word-v1.mp3`). Voice gender is **NOT** in the filename (each sense has only one voice anyway; the manifest records which one). Version is in the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
 
 - **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.00.03-word-m.mp3?v=2` lands locally as `0001.00.03-word-m.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.00.03-word-m-v2.mp3` are net-new filenames; Anki always fetches them.
 - **Anki's media sync compares filenames, not file hashes.** If a regenerated clip keeps the same filename, mobile devices won't re-download it during the next AnkiWeb sync. Versioning the filename guarantees clean propagation across desktop + iPhone.
@@ -1158,9 +1307,18 @@ Total: ~100 rows. Each pipeline stage has a corresponding `tests/test_<stage>_go
 
 The golden set is committed; the expected outputs are committed (`tests/golden_outputs/`); diff failures are loud. This is the cheapest possible insurance against silent pipeline regressions when models or prompts change.
 
-### Smoke sample for Stage 4+ (`tests/smoke_sample_100.tsv`)
+### Smoke sample for Stage 4+ — two-tier setup
 
-Past stages used `--limit 100` for smoke tests, biasing toward top-frequency function words. Stage 4 (example generation) is sensitive to PoS distribution, so we use a stratified random sample committed at `tests/smoke_sample_100.tsv`:
+We use a **two-tier smoke sample** for Stage 4 (example generation), the most quality-sensitive stage in the pipeline:
+
+- **Tier A — quick iteration** (`tests/smoke_sample_100.tsv`, 115 rows): used during prompt drafting and code iteration. Cheap (~$0.50 per run via sync API), fast (~1 min), enough to catch obvious prompt failures.
+- **Tier B — pre-batch quality gate** (`tests/smoke_sample_1000.tsv`, 1000 rows): used as the final go/no-go before submitting the full ~5,720-row corpus to Anthropic Message Batches. Costs ~$5–8 sync (~$2.50–4 batch), runs in ~10–20 min, dense enough to catch systemic edge-case failures and statistical clusters of subtle errors.
+
+Both files are committed; both are deterministic; both are regenerable from the build scripts in `tests/`.
+
+#### Tier A — `tests/smoke_sample_100.tsv` (115 rows, locked)
+
+Stratified random sample committed at `tests/smoke_sample_100.tsv`:
 
 - ~57 nouns, ~23 verbs, ~13 adjectives, ~7 adverbs, ~4 other (proportional to corpus)
 - 30 frequency-tier-stratified (6 each across top500/1000/2000/3000/5000)
@@ -1176,6 +1334,94 @@ Past stages used `--limit 100` for smoke tests, biasing toward top-frequency fun
   - **2 high-frequency adjectives** (`bom`, `grande`) — locked addition
 
 Generated deterministically via `random.seed(42)`. Re-runs hit the same sense_ids so quality can be compared across model/prompt iterations.
+
+#### Tier B — `tests/smoke_sample_1000.tsv` (1000 rows, pre-batch gate)
+
+A 1000-row superset of Tier A, designed to catch systemic Stage 4 failures across every edge category before paying for the full-corpus batch.
+
+**Composition (1000 rows total):**
+
+| Bucket | Count | `sample_source` value |
+|---|---|---|
+| Tier A preserved verbatim | 115 | `pos_stratified` / `freq_stratified` / `edge_case` (unchanged) |
+| New hand-picked edge cases (Option B coverage) | 141 | `edge_case_v2` |
+| New stratified random via `random.seed(43)` | 744 | `random_v2` |
+
+The seed-43 random selection is **disjoint** from seed-42's already-locked picks (the generator excludes any sense_id already present in Tier A or in the v2 edge-case list).
+
+**New hand-picked edge cases (141 rows on top of Tier A's 25):**
+
+| Category | New count | Detection signal |
+|---|---|---|
+| All remaining idiom expansions | 10 | `_idioms_expanded.tsv` minus the 3 already in Tier A; covers `em diante`, `por cento`, `em seguida`, `em vigor`, `de repente`, `ao invés`, `em contrapartida`, `não obstante`, `à mercê de`, `à tona` |
+| All remaining forced gender splits | 12 | `tags` contains `#gendered-meaning` minus the 4 in Tier A; covers `polícia`/`rádio`/`corte`/`cura`/`grama`/`banana` × M/F |
+| Sensitive terms — full coverage of NSFW / false-friend / BP-EP-flagged | 25 | Union of `bp_status ∈ {nsfw, false_friend}` (26 rows) ∪ `_flags.tsv` rows (11 rows) ∪ deterministic keyword screen (`gozar`, `mulato`, `índio`, `aborto`, `arma`, `bala`, `faca`, `morrer`, `matar`, `droga`); de-duplicated; minus rows already in Tier A. Bucket includes ALL false-friend senses — no separate false-friend bucket below to avoid double-count |
+| Reflexive verbs | 18 | `data/source.txt` lines containing ` +se ` or `(+se)` joined back via `source_line_number` to enriched rows; sample 18 distinct, varied across rank tiers |
+| Hyphenated compounds | 12 | `pt_type = "hyphenated_compound"` (note: `#hyphenated-compound` tag is not propagated — Stage 3 follow-up); sample stratified by rank; covers weekday compounds, `vice-*`, `ex-*`, `bem-*`, `meio-*`, `porta-voz`, `secretário-geral`, `matéria-prima` |
+| Space compounds | 5 | `pt_type = "space_compound"`; covers `dia a dia`, `café da manhã`, etc. |
+| Deep-polysemy function-word secondary senses | 12 | For each of `o, que, se, de, em, para, com, a, por`: include senses with `sense_index ≥ 2` (catches the polysemy that 1-sense-per-headword misses) |
+| High-frequency irregular verb senses | 8 | Manually curated from rank ≤ 100 verb list: `ir`, `fazer`, `estar`, `dizer`, `ver`, `vir`, `dar`, `querer` (Tier A already has `ser`, `ter`, `poder`) |
+| Cognates stratified across frequency tiers | 10 | `tags` contains `#cognate-en`; sample 2 each from top500/1000/2000/3000/5000; covers `importante`, `hospital`, `televisão`, `informação`, `chocolate`, `telefone`, `atenção`, `situação`, `possível`, `problema` |
+| Numerals + interjections + comparatives | 10 | `pos = "num"` (5 sampled), `pos = "interj"` (3 sampled), plus `melhor` and `pior` (comparatives) |
+| Top-100 frequency padding | 10 | Senses from `rank ≤ 100` not yet picked; ensures the highest-leverage rows are well-covered |
+| Words with `#bp-rare` tag | 6 | Sample from the 26 `#bp-rare` rows; ensures rare-but-valid BP forms are tested |
+| Words with `+se` reflexive that are NOT verbs (edge case) | 3 | Some rows mark `+se` but resolve to non-verb PoS — important to test |
+
+Total new edge cases: 141. Combined with 115 Tier A → 256 hand-defined; remaining 744 are stratified random.
+
+**Stratified random (744 rows, `random.seed(43)`):**
+
+- Excludes all sense_ids in Tier A (115) and in the new edge-case bucket (141). Universe = 5,720 − 256 = 5,464 candidates.
+- PoS-stratified proportional to corpus minus already-picked: roughly ~424 nouns, ~157 verbs, ~122 adjectives, ~23 adverbs, ~18 other (function words, etc.).
+- Frequency naturally distributed within each PoS stratum.
+- All sense_ids must resolve in `data/03-enriched.tsv`.
+
+**Generator: `tests/build_smoke_sample_1000.py`**
+
+A new committed script (no LLM calls; pure data shaping). Reads:
+
+- `tests/smoke_sample_100.tsv` (preserved verbatim)
+- `data/03-enriched.tsv` (canonical sense source)
+- `data/_idioms_expanded.tsv` (idiom inclusion list)
+- `data/_flags.tsv` (NSFW / false-friend / EP-flag list)
+- `data/source.txt` (for `+se` reflexive detection via `source_line_number` join)
+- `data/01-normalized.tsv` (for `pt_type` lookup; `03-enriched.tsv` carries it forward but tag-derivation lost some signals — see Stage 3 follow-up)
+
+Writes `tests/smoke_sample_1000.tsv` with the same column schema as Tier A:
+
+```
+sense_id  rank  pt  pos  gender  en_primary  bp_status  split_category  sample_source
+```
+
+Idempotent: same inputs → same output. Run via `uv run python tests/build_smoke_sample_1000.py`. Re-runs after a re-pick of Stage 3 (e.g., after `_manual_gender.tsv` patches) auto-refresh.
+
+**Tests: `tests/test_smoke_sample_1000.py`**
+
+Hard-asserts the following invariants on `smoke_sample_1000.tsv`:
+
+- Total row count = 1000.
+- No duplicate `sense_id`s.
+- All 115 Tier A `sense_id`s present unchanged.
+- All 13 idiom expansions present (covers `_idioms_expanded.tsv` fully).
+- All 16 forced gender split senses present (`#gendered-meaning` tag).
+- All 5 `bp_status = "nsfw"` rows present.
+- ≥ 18 reflexive verbs present (detected via `+se` source-line join).
+- ≥ 12 hyphenated compounds present (`pt_type = "hyphenated_compound"`).
+- ≥ 5 space compounds present (`pt_type = "space_compound"`).
+- ≥ 12 function-word secondary senses present (sense_index ≥ 2 for `{o, que, se, de, em, para, com, a, por}`).
+- ≥ 10 `#cognate-en` rows present, with at least 1 from each frequency tier.
+- Every sense_id in the file resolves to a row in `03-enriched.tsv` (no orphans).
+- Stratified random rows sum to exactly 1000 − 256 = 744.
+
+**Stage 3 follow-up issue (noted, not blocking):** the `#hyphenated-compound`, `#space-compound`, `#reflexive`, and `#regional` tags are sparsely or never populated in `data/03-enriched.tsv` — Stage 3's tag-derivation pass missed these signals. The smoke-sample generator works around it by detecting via `pt_type` and source-text grep instead. A separate Stage 3 patch will re-derive these tags before final TSV; tracked outside this plan section.
+
+**Cost & wall clock:**
+
+- Building the sample: $0 (pure data shaping; no LLM calls).
+- Running Stage 4 on the 1000-row sample: ~$5–8 sync, ~$2.50–4 via Batch API. Wall clock ~10–20 min sync, ~1–6 h via Batch.
+- Running Stage 4 on the full corpus afterward (post-validation): ~$30–45 batch-discounted, ~3–6 h via Batch API.
+
+The Tier B smoke gate adds ~$5/wall-clock-cycle of insurance against a $30+ full-corpus failure. Well worth it.
 
 ### Stage 3 follow-up patch: em redor / ao redor consistency
 
@@ -1250,11 +1496,13 @@ Most of this runs unattended. Human touchpoints are explicitly tagged ⚑.
 6. `python build/02_split_senses.py` → jury + tiebreaker; `02-senses.tsv`. **No `--limit`, no human gate.**
 7. `python build/sensitive_screen.py` → jury-classified `_sensitive_terms.tsv`; `example_policy` populated for Stage 4.
 8. `python build/03_enrich.py` → cached Wiktionary/Priberam + jury fallback; `03-enriched.tsv`.
+8a. **Pre-Stage-4 smoke gate**: `uv run python tests/build_smoke_sample_1000.py` regenerates `tests/smoke_sample_1000.tsv` from the latest enriched data; `pytest tests/test_smoke_sample_1000.py` enforces invariants. Then run Stage 4 against the 1000-row sample (sync, ~$5–8, ~10–20 min) and spot-check ~30 random rows for sentence quality before submitting full corpus to Batch API. Block full run on systemic failures.
 9. `python build/04_examples.py` → generator + separate-model semantic validator; failures auto-regenerate; `04-examples.tsv`. **No human gate.**
+9a. `python build/045_speaker_gender.py` → OpenAI gpt-4o-mini classifier emits `speaker_gender ∈ {male, female, neutral}` per sense; seeded balanced shuffle assigns voices to neutrals; produces `data/045-speaker_gender.tsv`. Cost ~$1, wall clock ~5 min.
 10. `python build/05_ipa.py` → eSpeak baseline + LLM correction; `05-ipa.tsv`.
 11. `python build/055_audit.py` → auditor pass; failures auto-regenerate; borderlines into `_jury_disagreements.tsv`.
-12. ⚑ **Pre-audio cost report**: review character count and confirm spend (~5 min).
-13. ⚑ **Supply male and female voice IDs** (~10 min); configure R2 public custom domain.
+12. ⚑ **Pre-audio cost report**: review character count and confirm spend (~5 min). Confirm ElevenLabs Pro subscription is active.
+13. ⚑ **Supply ElevenLabs API key + male and female voice IDs** (~10 min); configure R2 public custom domain.
 14. `python build/06_audio_pilot.py` → ASR-validated; `_pilot_500.tsv`.
 15. ⚑ **Voice quality check**: listen to ~10 random ASR-passed pilot clips (~15 min). If voices are wrong, swap and rerun pilot.
 16. `python build/07_audio_full.py` → ASR-validated; `06-final.tsv` produced; `_audio_human_review.tsv` for the rare twice-failed clips.
