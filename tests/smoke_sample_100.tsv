@@ -1,0 +1,106 @@
+sense_id	rank	pt	pos	gender	en_primary	bp_status	split_category	sample_source
+4018.00.01	4018	semestre	noun	o	semester	standard	single_sense_no_split	pos_stratified
+0787.00.01	787	reforma	noun	a	reform	standard	single_sense_no_split	pos_stratified
+0266.00.02	266	volta	noun	a	turn	standard	lexical_polysemy	pos_stratified
+4635.00.02	4635	nordestino	noun	o	northeasterner	standard	lexical_polysemy	pos_stratified
+1812.00.01	1812	êxito	noun	o	success	standard	single_sense_no_split	pos_stratified
+1648.00.01	1648	concurso	noun	o	contest	standard	single_sense_no_split	pos_stratified
+1502.00.01	1502	imóvel	noun	o	real estate	standard	lexical_polysemy	pos_stratified
+0953.00.01	953	prazo	noun	o	deadline	standard	lexical_polysemy	pos_stratified
+4599.00.02	4599	tomada	noun	a	socket	standard	lexical_polysemy	pos_stratified
+0729.00.01	729	romance	noun	o	novel	standard	lexical_polysemy	pos_stratified
+4245.00.01	4245	mania	noun	a	craze	standard	lexical_polysemy	pos_stratified
+4630.00.01	4630	multinacional	noun	a	international corporation	standard	single_sense_no_split	pos_stratified
+3416.00.01	3416	reprodução	noun	a	reproduction	standard	single_sense_no_split	pos_stratified
+0643.00.01	643	massa	noun	a	mass	standard	lexical_polysemy	pos_stratified
+3697.00.01	3697	barraca	noun	a	shack / tent / hut	standard	lexical_polysemy	pos_stratified
+2685.00.01	2685	escada	noun	a	staircase	standard	lexical_polysemy	pos_stratified
+0309.00.01	309	amigo	noun	o	friend	standard	single_sense_no_split	pos_stratified
+0293.00.01	293	espécie	noun	a	type	standard	lexical_polysemy	pos_stratified
+0674.00.01	674	deputado	noun	o	representative	standard	lexical_polysemy	pos_stratified
+1461.00.01	1461	década	noun	a	decade	standard	single_sense_no_split	pos_stratified
+1569.00.01	1569	raio	noun	o	ray	standard	single_sense_no_split	pos_stratified
+3173.00.01	3173	atentado	noun	o	criminal attempt	standard	single_sense_no_split	pos_stratified
+3771.00.01	3771	escultor	noun	o	sculptor	standard	single_sense_no_split	pos_stratified
+0276.00.01	276	humano	noun	o	human	standard	single_sense_no_split	pos_stratified
+3518.00.01	3518	contorno	noun	o	contour	standard	lexical_polysemy	pos_stratified
+1335.00.02	1335	compromisso	noun	o	appointment	standard	lexical_polysemy	pos_stratified
+4489.00.01	4489	inclusão	noun	a	inclusion	standard	single_sense_no_split	pos_stratified
+4073.00.01	4073	afeto	noun	o	affection	standard	single_sense_no_split	pos_stratified
+4388.00.03	4388	protetor	noun	o	patron	standard	lexical_polysemy	pos_stratified
+3415.00.01	3415	deficiência	noun	a	deficiency	standard	single_sense_no_split	pos_stratified
+2675.00.03	2675	patente	noun	a	rank	standard	lexical_polysemy	pos_stratified
+1474.00.01	1474	alteração	noun	a	change	standard	lexical_polysemy	pos_stratified
+2839.00.01	2839	mito	noun	o	myth	standard	single_sense_no_split	pos_stratified
+3690.00.01	3690	retirada	noun	a	retreat	standard	lexical_polysemy	pos_stratified
+2063.00.03	2063	desviar	verb		to take a detour	standard	lexical_polysemy	pos_stratified
+0056.00.01	56	dever	verb		must / should	standard	lexical_polysemy	pos_stratified
+1179.00.01	1179	recuperar	verb		to recover	standard	lexical_polysemy	pos_stratified
+3437.00.02	3437	precipitar	verb		to rush	standard	lexical_polysemy	pos_stratified
+2524.00.01	2524	efetuar	verb		to carry out	standard	lexical_polysemy	pos_stratified
+1132.00.01	1132	declarar	verb		to declare	standard	single_sense_no_split	pos_stratified
+1567.00.02	1567	estimar	verb		to esteem	standard	lexical_polysemy	pos_stratified
+2466.00.01	2466	preservar	verb		to preserve	standard	single_sense_no_split	pos_stratified
+0737.00.01	737	admitir	verb		to admit	standard	single_sense_no_split	pos_stratified
+0648.00.01	648	desenvolver	verb		to develop	standard	single_sense_no_split	pos_stratified
+2964.00.01	2964	poupar	verb		to save	standard	lexical_polysemy	pos_stratified
+0688.00.01	688	entregar	verb		to deliver	standard	lexical_polysemy	pos_stratified
+2330.00.01	2330	marcado	adj		set	standard	lexical_polysemy	pos_stratified
+4668.00.01	4668	distrital	adj		relating to a district	standard	single_sense_no_split	pos_stratified
+2254.00.02	2254	cruzado	adj		crossed	standard	lexical_polysemy	pos_stratified
+3590.00.02	3590	exemplar	adj		exemplary	standard	lexical_polysemy	pos_stratified
+1781.00.01	1781	comprido	adj		long	standard	single_sense_no_split	pos_stratified
+4505.00.01	4505	incerto	adj		uncertain	standard	lexical_polysemy	pos_stratified
+0301.00.02	301	plano	adj		flat	standard	lexical_polysemy	pos_stratified
+4178.00.01	4178	assente	adj		settled	standard	lexical_polysemy	pos_stratified
+2867.00.01	2867	modesto	adj		modest	standard	single_sense_no_split	pos_stratified
+2997.00.01	2997	posteriormente	adv		later	standard	lexical_polysemy	pos_stratified
+0208.00.01	208	ali	adv		there (close)	standard	single_sense_no_split	pos_stratified
+0575.00.02	575	diante	prep		in front of	standard	lexical_polysemy	pos_stratified
+0025.00.01	25	esse	pron		that	standard	single_sense_no_split	pos_stratified
+0645.00.01	645	porém	conj		however	standard	lexical_polysemy	pos_stratified
+0253.00.01	253	sim	adv		yes	standard	single_sense_no_split	tier_top500
+0310.00.01	310	seguinte	adj		following	standard	single_sense_no_split	tier_top500
+0495.00.01	495	conselho	noun	o	advice	standard	lexical_polysemy	tier_top500
+0164.00.01	164	ponto	noun	o	point	standard	lexical_polysemy	tier_top500
+0055.00.01	55	ficar	verb		to stay	standard	lexical_polysemy	tier_top500
+0036.00.01	36	também	adv		also	standard	lexical_polysemy	tier_top500
+0697.00.01	697	estilo	noun	o	style	standard	single_sense_no_split	tier_top1000
+0756.00.01	756	aliás	adv		or rather	standard	lexical_polysemy	tier_top1000
+0568.00.01	568	morar	verb		to live	standard	lexical_polysemy	tier_top1000
+0701.00.02	701	vale	noun	o	receipt	standard	lexical_polysemy	tier_top1000
+0585.00.02	585	visão	noun	a	view	standard	lexical_polysemy	tier_top1000
+0839.00.01	839	familiar	adj		familiar	standard	lexical_polysemy	tier_top1000
+1509.00.01	1509	insistir	verb		to insist	standard	single_sense_no_split	tier_top2000
+1828.00.01	1828	contemplar	verb		to contemplate	standard	single_sense_no_split	tier_top2000
+1669.00.01	1669	frequência	noun	a	frequency	standard	lexical_polysemy	tier_top2000
+1298.00.01	1298	integrar	verb		to integrate	standard	lexical_polysemy	tier_top2000
+1678.00.01	1678	quadrado	noun	o	square	standard	lexical_polysemy	tier_top2000
+1651.00.01	1651	féria	noun	a	vacation	standard	lexical_polysemy	tier_top2000
+2356.00.01	2356	campeão	noun	o	champion	standard	single_sense_no_split	tier_top3000
+2454.00.01	2454	miúdo	adj		scrawny	false_friend	lexical_polysemy	tier_top3000
+2116.00.01	2116	antecipar	verb		to do earlier than planned	standard	lexical_polysemy	tier_top3000
+2282.00.02	2282	efetivo	noun	o	strength	standard	lexical_polysemy	tier_top3000
+2944.00.01	2944	separado	adj		separated	standard	single_sense_no_split	tier_top3000
+2419.00.01	2419	autorização	noun	a	authorization	standard	single_sense_no_split	tier_top3000
+3609.00.01	3609	picar	verb		to sting	standard	lexical_polysemy	tier_top5000
+4704.00.01	4704	tigre	noun	o	tiger	standard	single_sense_no_split	tier_top5000
+4404.00.01	4404	rolo	noun	o	roll	standard	lexical_polysemy	tier_top5000
+4002.00.02	4002	espectro	noun	o	specter	standard	lexical_polysemy	tier_top5000
+3811.00.01	3811	degradação	noun	a	degradation	standard	single_sense_no_split	tier_top5000
+4199.00.01	4199	nadar	verb		to swim	standard	single_sense_no_split	tier_top5000
+0314.01.01	314	à medida que	conj		to the degree that	standard	idiom_expansion	edge_case
+2224.01.01	2224	em redor	adv		all around	standard	idiom_expansion	edge_case
+2224.02.01	2224	ao redor	prep		all around	standard	idiom_expansion	edge_case
+0408.00.01	408	capital	noun	o	investment	standard	forced_gender_split	edge_case
+0408.00.02	408	capital	noun	a	city	standard	forced_gender_split	edge_case
+3007.00.01	3007	cabra	noun	a	goat	standard	forced_gender_split	edge_case
+3007.00.02	3007	cabra	noun	o	guy	standard	forced_gender_split	edge_case
+2124.00.01	2124	rapariga	noun	a	young girl	nsfw	lexical_polysemy	edge_case
+3842.00.01	3842	camisola	noun	a	nightgown	false_friend	lexical_polysemy	edge_case
+0021.00.01	21	poder	verb		can	standard	lexical_polysemy	edge_case
+0006.00.01	6	ser	verb		to be	standard	function_word_polysemy	edge_case
+0013.00.01	13	ter	verb		to have	standard	function_word_polysemy	edge_case
+4459.00.02	4459	inovador	noun	o	innovator	standard	lexical_polysemy	edge_case
+1595.00.01	1595	caça	noun	a	hunt	standard	single_sense_no_split	edge_case
+0259.00.01	259	tarde	adv		late	standard	lexical_polysemy	edge_case
