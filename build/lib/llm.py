@@ -296,3 +296,201 @@ class AnthropicClient:
 
         # Unreachable in practice
         raise last_exc or RuntimeError("LLM call failed without exception")
+
+    # ------------------------------------------------------------------ #
+    # Batch API
+    # ------------------------------------------------------------------ #
+
+    def submit_batch(
+        self,
+        requests: list[dict],
+        *,
+        system: str,
+        tool_name: str,
+        tool_input_schema: dict,
+        tool_description: str = "",
+        max_tokens: int = 1024,
+        tier: str = TIER_DEFAULT,
+    ) -> str:
+        """Submit a batch of tool-use requests. Returns batch_id.
+
+        Each request dict needs `custom_id` (unique str) and `user_message`.
+        """
+        if tier not in VALID_TIERS:
+            raise ValueError(
+                f"Invalid tier {tier!r}; must be one of {sorted(VALID_TIERS)}"
+            )
+        model_id = self._model_for_tier(tier)
+        system_param = self._build_system_param(system)
+        tools = [
+            {
+                "name": tool_name,
+                "description": tool_description,
+                "input_schema": tool_input_schema,
+            }
+        ]
+
+        batch_requests = []
+        for req in requests:
+            cid = req.get("custom_id")
+            user_msg = req.get("user_message")
+            if not cid or not user_msg:
+                raise ValueError(
+                    f"Batch request needs 'custom_id' and 'user_message': {req}"
+                )
+            batch_requests.append(
+                {
+                    "custom_id": cid,
+                    "params": {
+                        "model": model_id,
+                        "max_tokens": max_tokens,
+                        "system": system_param,
+                        "tools": tools,
+                        "tool_choice": {"type": "tool", "name": tool_name},
+                        "messages": [{"role": "user", "content": user_msg}],
+                    },
+                }
+            )
+
+        result = self.client.messages.batches.create(requests=batch_requests)
+        return result.id
+
+    def poll_batch(
+        self,
+        batch_id: str,
+        *,
+        timeout_s: int = 86400,
+        poll_interval_s: int = 30,
+        progress_callback=None,
+    ) -> dict[str, dict]:
+        """Block until the batch completes; return {custom_id: tool_input_dict}.
+
+        Errored, expired, or canceled items are returned with a special
+        sentinel key `_error` instead of the tool input dict.
+        Results are NOT logged to audit JSONL here — callers decide whether
+        to log per-row decisions after parsing.
+        """
+        deadline = time.monotonic() + timeout_s
+        while True:
+            batch = self.client.messages.batches.retrieve(batch_id)
+            status = getattr(batch, "processing_status", None)
+            if progress_callback:
+                progress_callback(status, batch)
+            if status == "ended":
+                break
+            if time.monotonic() > deadline:
+                raise TimeoutError(
+                    f"Batch {batch_id} did not finish within {timeout_s}s "
+                    f"(last status: {status})"
+                )
+            time.sleep(poll_interval_s)
+
+        # Stream results
+        out: dict[str, dict] = {}
+        for entry in self.client.messages.batches.results(batch_id):
+            cid = entry.custom_id
+            r = entry.result
+            rtype = getattr(r, "type", None)
+            if rtype == "succeeded":
+                msg = r.message
+                tool_block = next(
+                    (b for b in msg.content if getattr(b, "type", None) == "tool_use"),
+                    None,
+                )
+                if tool_block is None:
+                    out[cid] = {"_error": "no_tool_use_block"}
+                    continue
+                # Telemetry
+                usage = msg.usage
+                cache_creation = getattr(usage, "cache_creation_input_tokens", 0) or 0
+                cache_read = getattr(usage, "cache_read_input_tokens", 0) or 0
+                input_tokens = getattr(usage, "input_tokens", 0) or 0
+                output_tokens = getattr(usage, "output_tokens", 0) or 0
+                with self._stats_lock:
+                    self._calls += 1
+                    self._cache_creation_tokens += cache_creation
+                    self._cache_read_tokens += cache_read
+                    self._uncached_input_tokens += input_tokens
+                # Note: tier tracking on batch is approximated by the submitter
+                # (caller can pass tier explicitly via call_tool_batch).
+                out[cid] = dict(tool_block.input)
+            else:
+                # errored / canceled / expired
+                err = getattr(r, "error", None)
+                err_type = getattr(err, "type", None) if err else rtype
+                err_message = getattr(err, "message", None) if err else None
+                out[cid] = {
+                    "_error": err_type or "unknown",
+                    "_error_message": err_message or "",
+                    "_error_status": rtype,
+                }
+        return out
+
+    def call_tool_batch(
+        self,
+        rows: list[dict],
+        *,
+        system: str,
+        tool_name: str,
+        tool_input_schema: dict,
+        tool_description: str = "",
+        max_tokens: int = 1024,
+        tier: str = TIER_DEFAULT,
+        stage: str = "",
+        sync_threshold: int = 100,
+        timeout_s: int = 86400,
+        poll_interval_s: int = 30,
+        progress_callback=None,
+    ) -> dict[str, dict]:
+        """High-level batch helper. Falls through to per-row sync if rows < sync_threshold.
+
+        `rows` is a list of dicts each containing:
+            - id: unique string (used as custom_id and provenance key)
+            - user_message: the per-row prompt content
+
+        Returns {id: decision_dict_or_error}. Errors are flagged with a `_error`
+        key so callers can detect and route them.
+        """
+        if not rows:
+            return {}
+
+        # Small batches — go sync.
+        if len(rows) < sync_threshold:
+            results: dict[str, dict] = {}
+            for row in rows:
+                cid = row["id"]
+                try:
+                    results[cid] = self.call_tool(
+                        system=system,
+                        user_message=row["user_message"],
+                        tool_name=tool_name,
+                        tool_input_schema=tool_input_schema,
+                        tool_description=tool_description,
+                        max_tokens=max_tokens,
+                        tier=tier,
+                        stage=stage,
+                        provenance_key=cid,
+                    )
+                except Exception as exc:
+                    results[cid] = {
+                        "_error": type(exc).__name__,
+                        "_error_message": str(exc),
+                    }
+            return results
+
+        # Large enough to use batch.
+        batch_id = self.submit_batch(
+            rows,
+            system=system,
+            tool_name=tool_name,
+            tool_input_schema=tool_input_schema,
+            tool_description=tool_description,
+            max_tokens=max_tokens,
+            tier=tier,
+        )
+        return self.poll_batch(
+            batch_id,
+            timeout_s=timeout_s,
+            poll_interval_s=poll_interval_s,
+            progress_callback=progress_callback,
+        )
