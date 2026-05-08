@@ -959,7 +959,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 955	955	pior = worse / worst	pior	worse / worst	keep	none						not_required	1a	pt_type=single_word
 956	956	rapaz = young man / kid	rapaz	young man / kid	keep	none						not_required	1a	pt_type=single_word
 957	957	braço = arm	braço	arm	keep	none						not_required	1a	pt_type=single_word
-958	958	prémio = prize	prémio	prize	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+958	958	prémio = prize	prémio	prize	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 959	959	atravessar = to cross / pass	atravessar	to cross / pass	keep	none						not_required	1a	pt_type=single_word
 960	960	batalha = battle	batalha	battle	keep	none						not_required	1a	pt_type=single_word
 961	961	reação = reaction	reação	reaction	keep	none						not_required	1a	pt_type=single_word
@@ -1737,7 +1737,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 1732	1732	rumo = course of action / way / path	rumo	course of action / way / path	keep	none						not_required	1a	pt_type=single_word
 1733	1733	encerrar = to close / end	encerrar	to close / end	keep	none						not_required	1a	pt_type=single_word
 1734	1734	concerto = concert	concerto	concert	keep	none						not_required	1a	pt_type=single_word
-1735	1735	eletrónico = electronic	eletrónico	electronic	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+1735	1735	eletrónico = electronic	eletrónico	electronic	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 1736	1736	mostra = sampling / exhibition / display	mostra	sampling / exhibition / display	keep	none						not_required	1a	pt_type=single_word
 1737	1737	trecho = excerpt / passage	trecho	excerpt / passage	keep	none						not_required	1a	pt_type=single_word
 1738	1738	intervir = to intervene	intervir	to intervene	keep	none						not_required	1a	pt_type=single_word
@@ -2420,7 +2420,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2411	2411	confronto = confrontation	confronto	confrontation	keep	none						not_required	1a	pt_type=single_word
 2412	2412	transição = transition	transição	transition	keep	none						not_required	1a	pt_type=single_word
 2413	2413	patrão = boss / business owner	patrão	boss / business owner	keep	none						not_required	1a	pt_type=single_word
-2414	2414	desportivo = athletic / sports (club)	desportivo	athletic / sports (club)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+2414	2414	desportivo = athletic / sports (club)	desportivo	athletic / sports (club)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 2415	2415	depositar = to deposit	depositar	to deposit	keep	none						not_required	1a	pt_type=single_word
 2416	2416	mérito = merit	mérito	merit	keep	none						not_required	1a	pt_type=single_word
 2417	2417	testemunha = witness	testemunha	witness	keep	none						not_required	1a	pt_type=single_word
@@ -2460,7 +2460,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2451	2451	habitar = to inhabit	habitar	to inhabit	keep	none						not_required	1a	pt_type=single_word
 2452	2452	adaptação = adaptation	adaptação	adaptation	keep	none						not_required	1a	pt_type=single_word
 2453	2453	exprimir = to express	exprimir	to express	keep	none						not_required	1a	pt_type=single_word
-2454	2454	miúdo = scrawny / small / child	miúdo	scrawny / small / child	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+2454	2454	miúdo = scrawny / small / child	miúdo	scrawny / small / child	keep	none						not_required	1c	pt_type=single_word; reason=
 2455	2455	gasolina = gasoline	gasolina	gasoline	keep	none						not_required	1a	pt_type=single_word
 2456	2456	aço = steel	aço	steel	keep	none						not_required	1a	pt_type=single_word
 2457	2457	litoral = coast / coastal	litoral	coast / coastal	keep	none						not_required	1a	pt_type=single_word
@@ -2810,7 +2810,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2801	2801	ó = oh + N (vocative)	ó	oh + N (vocative)	keep	none						not_required	1a	pt_type=single_word
 2802	2802	roteiro = script / itinerary / route	roteiro	script / itinerary / route	keep	none						not_required	1a	pt_type=single_word
 2803	2803	valorizar = to value	valorizar	to value	keep	none						not_required	1a	pt_type=single_word
-2804	2804	intermédio = intermediary / intermediate	intermédio	intermediary / intermediate	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+2804	2804	intermédio = intermediary / intermediate	intermédio	intermediary / intermediate	keep	none						not_required	1c	pt_type=single_word; reason=
 2805	2805	ritual = ritual	ritual	ritual	keep	none						not_required	1a	pt_type=single_word
 2806	2806	planejar = to plan	planejar	to plan	keep	none						not_required	1a	pt_type=single_word
 2807	2807	pecado = sin	pecado	sin	keep	none						not_required	1a	pt_type=single_word
@@ -2937,7 +2937,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2928	2928	finalidade = objective / purpose / end	finalidade	objective / purpose / end	keep	none						not_required	1a	pt_type=single_word
 2929	2929	abrigar = to shelter / protect	abrigar	to shelter / protect	keep	none						not_required	1a	pt_type=single_word
 2930	2930	simbólico = symbolic	simbólico	symbolic	keep	none						not_required	1a	pt_type=single_word
-2931	2931	comité = committee	comité	committee	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+2931	2931	comité = committee	comité	committee	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 2932	2932	contratado = contracted (employees)	contratado	contracted (employees)	keep	none						not_required	1a	pt_type=single_word
 2933	2933	paraíso = paradise	paraíso	paradise	keep	none						not_required	1a	pt_type=single_word
 2934	2934	burro = donkey / ass / fool	burro	donkey / ass / fool	keep	none						not_required	1a	pt_type=single_word
@@ -2953,7 +2953,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 2944	2944	separado = separated	separado	separated	keep	none						not_required	1a	pt_type=single_word
 2945	2945	agudo = sharp / acute	agudo	sharp / acute	keep	none						not_required	1a	pt_type=single_word
 2946	2946	cemitério = cemetery	cemitério	cemetery	keep	none						not_required	1a	pt_type=single_word
-2947	2947	telefónico = telephone	telefónico	telephone	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+2947	2947	telefónico = telephone	telefónico	telephone	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 2948	2948	baile = dance / ball	baile	dance / ball	keep	none						not_required	1a	pt_type=single_word
 2949	2949	desporto = sport	desporto	sport	merge_into_existing_bp_row	lexical		2629	esporte			not_required	1c	pt_type=single_word
 2950	2950	eletricidade = electricity	eletricidade	electricity	keep	none						not_required	1a	pt_type=single_word
@@ -3282,7 +3282,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3273	3273	multa = fine	multa	fine	keep	none						not_required	1a	pt_type=single_word
 3274	3274	explodir = to explode	explodir	to explode	keep	none						not_required	1a	pt_type=single_word
 3275	3275	urgente = urgent	urgente	urgent	keep	none						not_required	1a	pt_type=single_word
-3276	3276	vosso = your (PL / mainly EP)	vosso	your (PL / mainly EP)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3276	3276	vosso = your (PL / mainly EP)	vosso	your (PL / mainly EP)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 3277	3277	aborto = abortion	aborto	abortion	keep	none						not_required	1a	pt_type=single_word
 3278	3278	faca = knife	faca	knife	keep	none						not_required	1a	pt_type=single_word
 3279	3279	concha = shell	concha	shell	keep	none						not_required	1a	pt_type=single_word
@@ -3387,7 +3387,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3378	3378	invés = instead (ao i.)	invés	instead (ao i.)	keep	none						not_required	1a	pt_type=single_word
 3378	3378	invés = instead (ao i.)	ao invés	instead (ao i.)	expand_idiom_added	idiom_expansion						not_required	1a	expanded from parenthetical 'ao i.' (method=llm, confidence=high)
 3379	3379	derrotar = to defeat / overthrow	derrotar	to defeat / overthrow	keep	none						not_required	1a	pt_type=single_word
-3380	3380	golo = goal (soccer / football)	golo	goal (soccer / football)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3380	3380	golo = goal (soccer / football)	golo	goal (soccer / football)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 3381	3381	fado = Portuguese musical genre / fate	fado	Portuguese musical genre / fate	keep	none						not_required	1a	pt_type=single_word
 3382	3382	sorriso = smile	sorriso	smile	keep	none						not_required	1a	pt_type=single_word
 3383	3383	ilegal = illegal	ilegal	illegal	keep	none						not_required	1a	pt_type=single_word
@@ -3466,7 +3466,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3456	3456	sanitário = sanitary / health	sanitário	sanitary / health	keep	none						not_required	1a	pt_type=single_word
 3457	3457	remeter = to send / remit / forward	remeter	to send / remit / forward	keep	none						not_required	1a	pt_type=single_word
 3458	3458	desligar = to turn off / disconnect	desligar	to turn off / disconnect	keep	none						not_required	1a	pt_type=single_word
-3459	3459	pêlo = fur	pêlo	fur	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3459	3459	pêlo = fur	pêlo	fur	keep	none						not_required	1c	pt_type=single_word; reason=
 3460	3460	consenso = consensus	consenso	consensus	keep	none						not_required	1a	pt_type=single_word
 3461	3461	experimental = experimental	experimental	experimental	keep	none						not_required	1a	pt_type=single_word
 3462	3462	cúpula = dome / cupola	cúpula	dome / cupola	keep	none						not_required	1a	pt_type=single_word
@@ -3739,7 +3739,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3729	3729	quinhentos = five hundred	quinhentos	five hundred	keep	none						not_required	1a	pt_type=single_word
 3730	3730	brilhar = to sparkle / shine	brilhar	to sparkle / shine	keep	none						not_required	1a	pt_type=single_word
 3731	3731	delegação = delegation	delegação	delegation	keep	none						not_required	1a	pt_type=single_word
-3732	3732	aquando = at the time (of)	aquando	at the time (of)	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3732	3732	aquando = at the time (of)	aquando	at the time (of)	keep	none						not_required	1c	pt_type=single_word; reason=
 3733	3733	fotografar = to photograph	fotografar	to photograph	keep	none						not_required	1a	pt_type=single_word
 3734	3734	morder = to bite	morder	to bite	keep	none						not_required	1a	pt_type=single_word
 3735	3735	bateria = battery / percussion	bateria	battery / percussion	keep	none						not_required	1a	pt_type=single_word
@@ -3762,7 +3762,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3752	3752	doação = donation	doação	donation	keep	none						not_required	1a	pt_type=single_word
 3753	3753	nascente = source / East / emerging	nascente	source / East / emerging	keep	none						not_required	1a	pt_type=single_word
 3754	3754	consagrado = consecrated	consagrado	consecrated	keep	none						not_required	1a	pt_type=single_word
-3755	3755	ingénuo = naive / innocent	ingénuo	naive / innocent	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3755	3755	ingénuo = naive / innocent	ingénuo	naive / innocent	keep	none						not_required	1c	pt_type=single_word; reason=
 3756	3756	sopa = soup	sopa	soup	keep	none						not_required	1a	pt_type=single_word
 3757	3757	livraria = bookstore	livraria	bookstore	keep	none						not_required	1a	pt_type=single_word
 3758	3758	panorama = scene / panorama / view	panorama	scene / panorama / view	keep	none						not_required	1a	pt_type=single_word
@@ -3815,7 +3815,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3804	3804	étnico = ethnic	étnico	ethnic	keep	none						not_required	1a	pt_type=single_word
 3805	3805	noiva = bride / fiancée	noiva	bride / fiancée	keep	none						not_required	1a	pt_type=single_word
 3806	3806	fundado = based / founded	fundado	based / founded	keep	none						not_required	1a	pt_type=single_word
-3807	3807	demónio = devil / demon	demónio	devil / demon	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3807	3807	demónio = devil / demon	demónio	devil / demon	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 3808	3808	honesto = honest	honesto	honest	keep	none						not_required	1a	pt_type=single_word
 3809	3809	desculpar = to forgive / excuse	desculpar	to forgive / excuse	keep	none						not_required	1a	pt_type=single_word
 3810	3810	ultimamente = lately	ultimamente	lately	keep	none						not_required	1a	pt_type=single_word
@@ -3845,7 +3845,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3834	3834	rondar = to be approximately / circle	rondar	to be approximately / circle	keep	none						not_required	1a	pt_type=single_word
 3835	3835	reclamação = complaint / grievance	reclamação	complaint / grievance	keep	none						not_required	1a	pt_type=single_word
 3836	3836	infeliz = unhappy	infeliz	unhappy	keep	none						not_required	1a	pt_type=single_word
-3837	3837	ténis = tennis / tennis shoes	ténis	tennis / tennis shoes	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3837	3837	ténis = tennis / tennis shoes	ténis	tennis / tennis shoes	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 3838	3838	manso = meek / tame / gentle	manso	meek / tame / gentle	keep	none						not_required	1a	pt_type=single_word
 3839	3839	confuso = confused / confusing	confuso	confused / confusing	keep	none						not_required	1a	pt_type=single_word
 3840	3840	oposto = opposite / opposing	oposto	opposite / opposing	keep	none						not_required	1a	pt_type=single_word
@@ -3926,7 +3926,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3915	3915	intuição = intuition	intuição	intuition	keep	none						not_required	1a	pt_type=single_word
 3916	3916	imigrante = immigrant	imigrante	immigrant	keep	none						not_required	1a	pt_type=single_word
 3917	3917	ditar = to dictate	ditar	to dictate	keep	none						not_required	1a	pt_type=single_word
-3918	3918	infeção = infection	infeção	infection	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3918	3918	infeção = infection	infeção	infection	keep	none						not_required	1c	pt_type=single_word; reason=
 3919	3919	sabedoria = wisdom	sabedoria	wisdom	keep	none						not_required	1a	pt_type=single_word
 3920	3920	pioneiro = pioneer / pioneering	pioneiro	pioneer / pioneering	keep	none						not_required	1a	pt_type=single_word
 3921	3921	banhar = to bathe	banhar	to bathe	keep	none						not_required	1a	pt_type=single_word
@@ -3966,7 +3966,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3955	3955	península = peninsula	península	peninsula	keep	none						not_required	1a	pt_type=single_word
 3956	3956	atualidade = the present / modern times	atualidade	the present / modern times	keep	none						not_required	1a	pt_type=single_word
 3957	3957	vibração = vibration	vibração	vibration	keep	none						not_required	1a	pt_type=single_word
-3958	3958	fabrico = production	fabrico	production	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3958	3958	fabrico = production	fabrico	production	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 3959	3959	moderado = moderate	moderado	moderate	keep	none						not_required	1a	pt_type=single_word
 3960	3960	esportivo = sporting / sport	esportivo	sporting / sport	keep	none						not_required	1a	pt_type=single_word
 3961	3961	ênfase = emphasis	ênfase	emphasis	keep	none						not_required	1a	pt_type=single_word
@@ -3980,7 +3980,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 3969	3969	abundante = abundant	abundante	abundant	keep	none						not_required	1a	pt_type=single_word
 3970	3970	ilustre = illustrious	ilustre	illustrious	keep	none						not_required	1a	pt_type=single_word
 3971	3971	socialismo = socialism	socialismo	socialism	keep	none						not_required	1a	pt_type=single_word
-3972	3972	atómico = atomic	atómico	atomic	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
+3972	3972	atómico = atomic	atómico	atomic	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; reason=; classifier_confidence=high; reason=
 3973	3973	delegacia = police station / office	delegacia	police station / office	keep	none						not_required	1a	pt_type=single_word
 3974	3974	assemelhar = to be similar to	assemelhar	to be similar to	keep	none						not_required	1a	pt_type=single_word
 3975	3975	desenrolar = to take place / unfold	desenrolar	to take place / unfold	keep	none						not_required	1a	pt_type=single_word
@@ -4244,7 +4244,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4232	4232	trair = to betray	trair	to betray	keep	none						not_required	1a	pt_type=single_word
 4233	4233	distrair = to distract	distrair	to distract	keep	none						not_required	1a	pt_type=single_word
 4234	4234	grade = bars / railing	grade	bars / railing	keep	none						not_required	1a	pt_type=single_word
-4235	4235	cancro = cancer	cancro	cancer	keep	none						not_required	1a	pt_type=single_word
+4235	4235	cancro = cancer	cancro	cancer	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
 4236	4236	húmido = humid / moist	húmido	humid / moist	keep	spelling						not_required	1a	pt_type=single_word
 4237	4237	corporação = corporation	corporação	corporation	keep	none						not_required	1a	pt_type=single_word
 4238	4238	diferenciar = to differentiate	diferenciar	to differentiate	keep	none						not_required	1a	pt_type=single_word
@@ -4579,7 +4579,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4566	4566	marechal = marshal	marechal	marshal	keep	none						not_required	1a	pt_type=single_word
 4567	4567	balão = balloon	balão	balloon	keep	none						not_required	1a	pt_type=single_word
 4568	4568	tremer = to shake / tremble	tremer	to shake / tremble	keep	none						not_required	1a	pt_type=single_word
-4569	4569	milénio = millennium	milénio	millennium	keep	none						not_required	1a	pt_type=single_word
+4569	4569	milénio = millennium	milénio	millennium	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
 4570	4570	reajuste = adjustment (income)	reajuste	adjustment (income)	keep	none						not_required	1a	pt_type=single_word
 4571	4571	aquecimento = warming / heating	aquecimento	warming / heating	keep	none						not_required	1a	pt_type=single_word
 4572	4572	torturar = to torture	torturar	to torture	keep	none						not_required	1a	pt_type=single_word
@@ -4617,7 +4617,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4604	4604	progredir = to progress	progredir	to progress	keep	none						not_required	1a	pt_type=single_word
 4605	4605	montado = mounted / assembled	montado	mounted / assembled	keep	none						not_required	1a	pt_type=single_word
 4606	4606	furtar = to steal	furtar	to steal	keep	none						not_required	1a	pt_type=single_word
-4607	4607	contributo = contribution	contributo	contribution	keep	none						not_required	1a	pt_type=single_word
+4607	4607	contributo = contribution	contributo	contribution	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
 4608	4608	precoce = premature / precocious	precoce	premature / precocious	keep	none						not_required	1a	pt_type=single_word
 4609	4609	pardo = mulatto / off-white	pardo	mulatto / off-white	keep	none						not_required	1a	pt_type=single_word
 4610	4610	poste = pole / vertical post	poste	pole / vertical post	keep	none						not_required	1a	pt_type=single_word
@@ -4872,7 +4872,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4858	4858	sopro = puff / breath	sopro	puff / breath	keep	none						not_required	1a	pt_type=single_word
 4859	4859	vulcão = volcano	vulcão	volcano	keep	none						not_required	1a	pt_type=single_word
 4860	4860	site = website	site	website	keep	none						not_required	1a	pt_type=single_word
-4861	4861	índex = index	índex	index	keep	none						not_required	1a	pt_type=single_word
+4861	4861	índex = index	índex	index	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
 4862	4862	escorrer = to trickle / drain / drip	escorrer	to trickle / drain / drip	keep	none						not_required	1a	pt_type=single_word
 4863	4863	decerto = certainly	decerto	certainly	keep	none						not_required	1a	pt_type=single_word
 4864	4864	detetive = detective	detetive	detective	keep	none						not_required	1a	pt_type=single_word
@@ -4922,7 +4922,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4908	4908	flauta = flute	flauta	flute	keep	none						not_required	1a	pt_type=single_word
 4909	4909	suicidar = to commit suicide (+se)	suicidar	to commit suicide (+se)	keep	none						not_required	1a	pt_type=single_word
 4910	4910	roer = to gnaw / bite (off)	roer	to gnaw / bite (off)	keep	none						not_required	1a	pt_type=single_word
-4911	4911	incómodo = inconvenient / difficulty	incómodo	inconvenient / difficulty	keep	none						not_required	1a	pt_type=single_word
+4911	4911	incómodo = inconvenient / difficulty	incómodo	inconvenient / difficulty	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
 4912	4912	edificação = building / construction / edification	edificação	building / construction / edification	keep	none						not_required	1a	pt_type=single_word
 4913	4913	regularmente = regularly	regularmente	regularly	keep	none						not_required	1a	pt_type=single_word
 4914	4914	opositor = opponent / opposing	opositor	opponent / opposing	keep	none						not_required	1a	pt_type=single_word
@@ -4942,7 +4942,7 @@ source_line_number	rank	source_raw	source_pt	source_en_all	action	normalization_
 4928	4928	namoro = affair (romance)	namoro	affair (romance)	keep	none						not_required	1a	pt_type=single_word
 4929	4929	divisa = border / money	divisa	border / money	keep	none						not_required	1a	pt_type=single_word
 4930	4930	compatível = compatible	compatível	compatible	keep	none						not_required	1a	pt_type=single_word
-4931	4931	deslocação = travel / displacement	deslocação	travel / displacement	keep	none						not_required	1a	pt_type=single_word
+4931	4931	deslocação = travel / displacement	deslocação	travel / displacement	drop_ep_only	none					Stage 1.5 LLM bp_status=ep_only	not_required	1.5	pt_type=single_word; classifier_confidence=high; reason=
 4932	4932	amarrado = fastened / tied	amarrado	fastened / tied	keep	none						not_required	1a	pt_type=single_word
 4933	4933	paralisar = to paralyze	paralisar	to paralyze	keep	none						not_required	1a	pt_type=single_word
 4934	4934	casado = married	casado	married	keep	none						not_required	1a	pt_type=single_word
