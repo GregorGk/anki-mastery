@@ -1,22 +1,24 @@
 sense_id	pt	gender	pos	is_cognate_en	notes
-0102.00.01	meio	o	noun	false	masculine noun "means"
-0102.00.03	meio	o	noun	false	masculine noun "half"
+0102.00.01	meio	o	noun	false	"masculine noun ""means"""
+0102.00.03	meio	o	noun	false	"masculine noun ""half"""
 0259.00.01	tarde		adv	false	ambiguous adv/noun; chose adv (Stage 2 should ideally split into 2 senses but keeping single)
-0377.00.01	cima	a	noun	false	feminine noun "top"
-0542.00.01	passado	o	noun	false	masculine noun "past"
+0377.00.01	cima	a	noun	false	"feminine noun ""top"""
+0542.00.01	passado	o	noun	false	"masculine noun ""past"""
 0659.01.01	por cento		idiom	true	idiom expansion of cento; pos=idiom not noun
-1531.00.02	estreito	o	noun	false	masculine geographical noun "strait"
-1595.00.01	caça	a	noun	false	noun "hunt" (feminine); verb form is caçar
-2224.00.01	redor	o	noun	false	masculine noun "surroundings/around"
-2702.00.02	circular	a	noun	true	feminine noun "circular bus / shuttle"
-3064.00.01	trabalhista	o/a	noun	false	epicene noun "labor party member"
-3509.00.01	verbo	o	noun	true	masculine noun "verb"
+1531.00.02	estreito	o	noun	false	"masculine geographical noun ""strait"""
+1595.00.01	caça	a	noun	false	"noun ""hunt"" (feminine); verb form is caçar"
+2224.00.01	redor	o	noun	false	"masculine noun ""surroundings/around"""
+2702.00.02	circular	a	noun	true	"feminine noun ""circular bus / shuttle"""
+3064.00.01	trabalhista	o/a	noun	false	"epicene noun ""labor party member"""
+3509.00.01	verbo	o	noun	true	"masculine noun ""verb"""
 3717.00.01	pop	o	noun	true	masculine loanword (genre)
 3738.00.01	sudeste	o	noun	true	masculine compass direction
-3753.00.02	nascente	o	noun	false	masculine "East" (sunrise direction)
-3791.00.01	contrapartida	a	noun	false	feminine noun "counterpart"
-4379.00.01	dia a dia	o	noun	false	masculine noun phrase "everyday life"
-4459.00.02	inovador	o	noun	true	noun "innovator" (masculine); sense 01 is the adj "innovative"
-4624.00.01	adjetivo	o	noun	true	masculine noun "adjective"
-4727.00.01	tona	a	noun	false	feminine noun "thin layer/surface"
-4941.00.02	expediente	o	noun	false	masculine noun "scheme/resourcefulness"
+3753.00.02	nascente	o	noun	false	"masculine ""East"" (sunrise direction)"
+3791.00.01	contrapartida	a	noun	false	"feminine noun ""counterpart"""
+4379.00.01	dia a dia	o	noun	false	"masculine noun phrase ""everyday life"""
+4459.00.02	inovador	o	noun	true	"noun ""innovator"" (masculine); sense 01 is the adj ""innovative"""
+4624.00.01	adjetivo	o	noun	true	"masculine noun ""adjective"""
+4727.00.01	tona	a	noun	false	"feminine noun ""thin layer/surface"""
+4941.00.02	expediente	o	noun	false	"masculine noun ""scheme/resourcefulness"""
+2224.01.01	em redor		adv	false	idiom expansion of redor; force adv (was already adv) for consistency with ao redor
+2224.02.01	ao redor		adv	false	idiom expansion of redor; force adv (was prep) for consistency with em redor

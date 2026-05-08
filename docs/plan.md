@@ -1158,6 +1158,29 @@ Total: ~100 rows. Each pipeline stage has a corresponding `tests/test_<stage>_go
 
 The golden set is committed; the expected outputs are committed (`tests/golden_outputs/`); diff failures are loud. This is the cheapest possible insurance against silent pipeline regressions when models or prompts change.
 
+### Smoke sample for Stage 4+ (`tests/smoke_sample_100.tsv`)
+
+Past stages used `--limit 100` for smoke tests, biasing toward top-frequency function words. Stage 4 (example generation) is sensitive to PoS distribution, so we use a stratified random sample committed at `tests/smoke_sample_100.tsv`:
+
+- ~57 nouns, ~23 verbs, ~13 adjectives, ~7 adverbs, ~4 other (proportional to corpus)
+- 30 frequency-tier-stratified (6 each across top500/1000/2000/3000/5000)
+- **25 hand-picked edge cases:**
+  - 3 idiom expansions (`à medida que`, `em redor`, `ao redor`)
+  - 4 forced gender splits (`capital` M/F, `cabra` M/F)
+  - 2 NSFW / false friend (`rapariga`, `camisola`)
+  - 3 high-frequency irregular verbs (`poder`, `ser`, `ter`)
+  - 3 Stage 3 patched rows (`inovador`, `caça`, `tarde`)
+  - **3 hyphenated compounds** (`primeiro-ministro`, `segunda-feira`, `bem-estar`) — locked addition
+  - **2 reflexive verbs** with `+se` annotation — locked addition
+  - **3 deep-polysemy function words** (`o`, `que`, `por`) — locked addition
+  - **2 high-frequency adjectives** (`bom`, `grande`) — locked addition
+
+Generated deterministically via `random.seed(42)`. Re-runs hit the same sense_ids so quality can be compared across model/prompt iterations.
+
+### Stage 3 follow-up patch: em redor / ao redor consistency
+
+Spot-check on the smoke-sample edge cases revealed that Stage 3 classified `em redor` as `pos=adv` but `ao redor` as `pos=prep`. Both are adverbial idiom expansions; differing PoS is an LLM inconsistency. Patch via `_manual_gender.tsv`: force both to `pos=adv`. Applied in-place (no LLM cost). Idempotent for re-runs.
+
 ## Verification
 
 **Per-stage**: each `build/NN_*.py` ends with assertions (uniqueness, no empty required fields, ledger consistency). Cross-stage validator at [build/verify_all.py](build/verify_all.py).

@@ -104,3 +104,13 @@ sense_id	rank	pt	pos	gender	en_primary	bp_status	split_category	sample_source
 4459.00.02	4459	inovador	noun	o	innovator	standard	lexical_polysemy	edge_case
 1595.00.01	1595	caça	noun	a	hunt	standard	single_sense_no_split	edge_case
 0259.00.01	259	tarde	adv		late	standard	lexical_polysemy	edge_case
+2377.00.01	2377	primeiro-ministro	noun	o	prime minister	standard	single_sense_no_split	edge_case
+3760.00.01	3760	segunda-feira	noun	a	Monday	standard	single_sense_no_split	edge_case
+3832.00.01	3832	bem-estar	noun	o	well-being	standard	single_sense_no_split	edge_case
+0789.00.01	789	especializar	verb		to specialize in (+se)	standard	single_sense_no_split	edge_case
+3451.00.01	3451	refugiar	verb		to take refuge (+se)	standard	single_sense_no_split	edge_case
+0001.00.01	1	o	art		the	standard	function_word_polysemy	edge_case
+0005.00.01	5	que	conj		that	standard	function_word_polysemy	edge_case
+0008.00.01	8	por	prep		by	standard	function_word_polysemy	edge_case
+0089.00.01	89	bom	adj		good	standard	single_sense_no_split	edge_case
+0044.00.01	44	grande	adj		big	standard	lexical_polysemy	edge_case
