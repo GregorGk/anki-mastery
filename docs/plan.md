@@ -676,9 +676,36 @@ Deterministic + single LLM call hybrid. **Decisions locked for this run:**
 
 #### Cost & validation
 
-- ~5720 senses; ~4000 hit the LLM after deterministic shortcuts. With caching, **~$8–11**.
+- ~5720 senses; ~4000 hit the LLM after deterministic shortcuts. With caching, **~$8–11** (actual on first run: $19.10 — output tokens were ~1.5× projected).
 - Tier = default (Sonnet 4.5) only. No premium tier on this stage.
-- Validation: every noun has `gender ∈ {o, a, o/a}`; every reflexive verb tagged; tags space-separated and well-formed; `pt_display` populated for every row.
+- Validation: every noun has `gender ∈ {o, a, o/a}` (soft warning, not crash, when LLM returns `pos="noun"` with empty gender); every reflexive verb tagged; tags space-separated and well-formed; `pt_display` populated for every row.
+
+#### Post-run gender patch (locked: apply 18-row manual override)
+
+The first Stage 3 run produced 18 rows where the LLM returned `pos="noun"` with empty `gender`. Resolving via `data/_manual_gender.tsv` with hand-curated values, applied in-place (no LLM calls, $0):
+
+| sense_id | pt | en_primary | gender | pos | cognate (preserved) |
+|---|---|---|---|---|---|
+| 0102.00.01 | meio | means | o | noun | false |
+| 0102.00.03 | meio | half | o | noun | false |
+| 0377.00.01 | cima | top | a | noun | false |
+| 0542.00.01 | passado | past | o | noun | false |
+| 0659.01.01 | por cento | percent | (empty) | idiom | true |
+| 1531.00.02 | estreito | strait | o | noun | false |
+| 2224.00.01 | redor | all around | o | noun | false |
+| 2702.00.02 | circular | shuttle | a | noun | true |
+| 3064.00.01 | trabalhista | labor party member | o/a | noun | false |
+| 3509.00.01 | verbo | verb | o | noun | true |
+| 3717.00.01 | pop | pop | o | noun | true |
+| 3738.00.01 | sudeste | Southeast | o | noun | true |
+| 3753.00.02 | nascente | East | o | noun | false |
+| 3791.00.01 | contrapartida | (em c.) on the other hand | a | noun | false |
+| 4379.00.01 | dia a dia | everyday life | o | noun | false |
+| 4624.00.01 | adjetivo | adjective | o | noun | true |
+| 4727.00.01 | tona | (à t.) to the surface | a | noun | false |
+| 4941.00.02 | expediente | escape from problem | o | noun | false |
+
+Row 0659.01.01 (`por cento`) is the idiom expansion of `cento`; reclassify `pos` to `idiom` (deterministic shortcut had returned `idiom` but the LLM overrode to `noun`). The other 17 keep `pos="noun"` and gain a gender. Patch is idempotent — re-running Stage 3 with the populated `_manual_gender.tsv` produces the same output.
 
 ### Stage 4 — Example sentences ([build/04_examples.py](build/04_examples.py))
 
