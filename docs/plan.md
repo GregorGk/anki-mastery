@@ -965,6 +965,37 @@ for i, sid in enumerate(male_sids):
 
 **Manual override**: `data/_manual_speaker_gender.tsv` (one row per `sense_id` with optional `voice_gender_override` and/or `voice_id_override`). Wins over LLM and Phase 2 round-robin. Empty for the first run.
 
+#### Patch — confidence policy: only `high` confidence locks gender (post-run)
+
+The first Stage 4.5 run produced 21 rows with `confidence ∈ {medium, low}`. Each of these had a weak inference (e.g., "minha mãe" / "meu pai" / "minha família" — possessives that work for any speaker gender). The pipeline still routed them into the explicit-male/female bucket and skipped the balanced shuffle. That locked an LLM coin-flip into a hard voice choice.
+
+**Locked policy: only `confidence=high` keeps explicit gender. Medium/low classifications are demoted to `neutral` for voice assignment, so they go through the seeded balanced shuffle along with all other genuinely-ambiguous rows.**
+
+Implementation (no LLM cost — re-uses existing `045-speaker_gender.tsv` classifications):
+
+1. Modify `build/stage_45.py::run()` so that, after Phase 1 classification, any row with `confidence != "high"` AND no manual gender override has its gender demoted to `neutral` before passing to `resolve_neutrals` (Phase 2a).
+2. Add a `build/recompute_voice_assignment.py` standalone script that reads the existing `data/045-speaker_gender.tsv`, applies the new policy, re-runs Phase 2a + 2b, and writes back. Idempotent. Zero API cost. Reproducible.
+3. Manual overrides in `_manual_speaker_gender.tsv` always win over the confidence demotion (an explicit `speaker_gender_override` is treated as `confidence=high`).
+4. Add a unit test that confirms `medium`-confidence inputs are demoted to neutral before voice assignment, and that `high`-confidence + manual overrides bypass the demotion.
+
+**Expected effect on the corpus** (5,725 rows):
+- Before: 21 medium + 0 low classified rows are routed into explicit gender buckets.
+- After: those 21 rows go into the neutral bucket → seeded balanced shuffle picks their voice gender.
+- Voice pool balance is unchanged (off-by-1 within each pool guaranteed by the shuffle).
+- Deck-wide voice gender split shifts by ≤ 21 rows toward the post-shuffle 50/50 mean — negligible perceptible difference, but more honest accounting of the LLM's stated uncertainty.
+
+**Files modified:**
+- [build/stage_45.py](build/stage_45.py) — Phase 2 entry: demote non-high confidence before `resolve_neutrals`. The classifier output (raw `speaker_gender`, `evidence`, `confidence`) is preserved verbatim in the output TSV; only `voice_gender_assigned` and `voice_id` change.
+- [build/recompute_voice_assignment.py](build/recompute_voice_assignment.py) — new standalone re-runner.
+- [tests/test_stage_45.py](tests/test_stage_45.py) — add tests for the demotion policy.
+
+**Verification:**
+- `python3 build/recompute_voice_assignment.py` produces an updated `data/045-speaker_gender.tsv`.
+- Run twice; second run produces identical md5 (idempotent).
+- Spot check: the 21 previously-medium-confidence rows now show `voice_gender_assigned` from the seeded shuffle (some flip, some don't).
+- Per-voice usage still off-by-at-most-1 within each pool.
+- `pytest tests/test_stage_45.py` passes including the new tests.
+
 ### Stage 5 — IPA ([build/05_ipa.py](build/05_ipa.py))
 
 **In**: `04-examples.tsv` + `_manual_ipa.tsv` → **Out**: `05-ipa.tsv`, `audit/05_ipa.jsonl`

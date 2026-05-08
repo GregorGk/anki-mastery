@@ -472,6 +472,211 @@ class TestEndToEnd:
         assert out[0]["assignment_method"] == "manual_override"
 
 
+# --- confidence policy -----------------------------------------------------
+
+
+class TestConfidencePolicy:
+    """Only `confidence=high` keeps explicit gender; medium/low rows are
+    demoted to neutral so they go through the seeded balanced shuffle."""
+
+    def _write_input(self, path: Path, rows: list[dict]) -> None:
+        fieldnames = [
+            "sense_id",
+            "rank",
+            "expansion_index",
+            "sense_index",
+            "pt",
+            "pt_display",
+            "pt_type",
+            "gender",
+            "pos",
+            "en_primary",
+            "en_all",
+            "tags",
+            "bp_status",
+            "example_pt",
+            "example_en",
+            "target_word_used",
+            "example_method",
+            "example_token_match",
+            "example_word_count_ok",
+            "example_validation_status",
+            "example_validation_reason",
+            "example_policy",
+        ]
+        write_tsv(path, rows, fieldnames=fieldnames)
+
+    def _make_row(self, sid: str, ex_pt: str) -> dict:
+        return {
+            "sense_id": sid,
+            "rank": "1",
+            "expansion_index": "0",
+            "sense_index": "1",
+            "pt": "x",
+            "pt_display": "x",
+            "pt_type": "single_word",
+            "gender": "",
+            "pos": "noun",
+            "en_primary": "x",
+            "en_all": "x",
+            "tags": "",
+            "bp_status": "standard",
+            "example_pt": ex_pt,
+            "example_en": "x",
+            "target_word_used": "x",
+            "example_method": "llm",
+            "example_token_match": "pass",
+            "example_word_count_ok": "pass",
+            "example_validation_status": "pass",
+            "example_validation_reason": "",
+            "example_policy": "",
+        }
+
+    def test_high_confidence_male_keeps_male(self, tmp_path):
+        input_path = tmp_path / "04-examples.tsv"
+        self._write_input(
+            input_path,
+            [self._make_row("0001.00.01", "Estou cansado.")],
+        )
+
+        class _Mock:
+            stats = {"calls": 0, "cache_hit_ratio": 0}
+            def call_tool(self, **kwargs):
+                return {
+                    "speaker_gender": "male",
+                    "evidence": "cansado",
+                    "confidence": "high",
+                }
+
+        summary = run(
+            input_path=input_path,
+            overrides_path=tmp_path / "no_manual.tsv",
+            voices_path=CONFIG_DIR / "voices.tsv",
+            output_path=tmp_path / "045.tsv",
+            audit_path=tmp_path / "audit.jsonl",
+            concurrency=1,
+            openai_client=_Mock(),
+        )
+        assert summary["demoted_to_neutral_due_to_low_confidence"] == 0
+        out = read_tsv(tmp_path / "045.tsv")
+        assert out[0]["voice_gender_assigned"] == "male"
+
+    def test_medium_confidence_male_demoted_to_neutral(self, tmp_path):
+        # Build a corpus where ALL rows are medium-confidence so the demotion
+        # is observable. With 4 senses (all neutral after demote), the seeded
+        # shuffle splits 2/2.
+        input_path = tmp_path / "04-examples.tsv"
+        self._write_input(
+            input_path,
+            [self._make_row(f"000{i}.00.01", "minha mãe") for i in range(1, 5)],
+        )
+
+        class _Mock:
+            stats = {"calls": 0, "cache_hit_ratio": 0}
+            def call_tool(self, **kwargs):
+                return {
+                    "speaker_gender": "male",  # weak inference
+                    "evidence": "minha mãe (weak)",
+                    "confidence": "medium",
+                }
+
+        summary = run(
+            input_path=input_path,
+            overrides_path=tmp_path / "no_manual.tsv",
+            voices_path=CONFIG_DIR / "voices.tsv",
+            output_path=tmp_path / "045.tsv",
+            audit_path=tmp_path / "audit.jsonl",
+            concurrency=1,
+            openai_client=_Mock(),
+        )
+        # All 4 rows should be demoted (confidence=medium)
+        assert summary["demoted_to_neutral_due_to_low_confidence"] == 4
+
+        out = read_tsv(tmp_path / "045.tsv")
+        # Raw classifier output preserved
+        for r in out:
+            assert r["speaker_gender"] == "male"
+            assert r["confidence"] == "medium"
+        # But voice_gender_assigned should split 2/2 (balanced shuffle on neutrals)
+        from collections import Counter
+        c = Counter(r["voice_gender_assigned"] for r in out)
+        assert c["female"] == 2 and c["male"] == 2
+
+    def test_low_confidence_female_demoted_to_neutral(self, tmp_path):
+        input_path = tmp_path / "04-examples.tsv"
+        self._write_input(
+            input_path,
+            [self._make_row(f"000{i}.00.01", "x") for i in range(1, 3)],
+        )
+
+        class _Mock:
+            stats = {"calls": 0, "cache_hit_ratio": 0}
+            def call_tool(self, **kwargs):
+                return {
+                    "speaker_gender": "female",
+                    "evidence": "weak",
+                    "confidence": "low",
+                }
+
+        summary = run(
+            input_path=input_path,
+            overrides_path=tmp_path / "no_manual.tsv",
+            voices_path=CONFIG_DIR / "voices.tsv",
+            output_path=tmp_path / "045.tsv",
+            audit_path=tmp_path / "audit.jsonl",
+            concurrency=1,
+            openai_client=_Mock(),
+        )
+        assert summary["demoted_to_neutral_due_to_low_confidence"] == 2
+
+    def test_manual_override_bypasses_demotion(self, tmp_path):
+        input_path = tmp_path / "04-examples.tsv"
+        self._write_input(
+            input_path,
+            [self._make_row("0001.00.01", "x")],
+        )
+        # Manual override forces "male" — should bypass any LLM call AND the
+        # confidence demotion.
+        overrides_path = tmp_path / "manual.tsv"
+        write_tsv(
+            overrides_path,
+            [
+                {
+                    "sense_id": "0001.00.01",
+                    "speaker_gender_override": "male",
+                    "voice_gender_override": "",
+                    "voice_id_override": "",
+                    "notes": "manual",
+                }
+            ],
+            fieldnames=[
+                "sense_id",
+                "speaker_gender_override",
+                "voice_gender_override",
+                "voice_id_override",
+                "notes",
+            ],
+        )
+
+        class _RaisingMock:
+            stats = {"calls": 0, "cache_hit_ratio": 0}
+            def call_tool(self, **kwargs):
+                raise RuntimeError("LLM should not be called")
+
+        summary = run(
+            input_path=input_path,
+            overrides_path=overrides_path,
+            voices_path=CONFIG_DIR / "voices.tsv",
+            output_path=tmp_path / "045.tsv",
+            audit_path=tmp_path / "audit.jsonl",
+            concurrency=1,
+            openai_client=_RaisingMock(),
+        )
+        assert summary["demoted_to_neutral_due_to_low_confidence"] == 0
+        out = read_tsv(tmp_path / "045.tsv")
+        assert out[0]["voice_gender_assigned"] == "male"
+
+
 # --- schema -----------------------------------------------------------------
 
 

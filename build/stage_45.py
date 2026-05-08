@@ -277,7 +277,24 @@ def run(
 
     # --- Phase 2a: balanced gender resolution --------------------------------
 
-    raw_gender = {sid: cls.speaker_gender for sid, cls in classifications.items()}
+    # Confidence policy: only `high`-confidence classifications keep explicit
+    # gender. Medium/low classifications are demoted to "neutral" so they go
+    # through the seeded balanced shuffle (rather than locking the LLM's
+    # weak inference into a hard voice choice). Manual gender overrides
+    # bypass this — they're treated as authoritative.
+    raw_gender: dict[str, str] = {}
+    demoted_count = 0
+    for sid, cls in classifications.items():
+        sg = cls.speaker_gender
+        # Manual override means classifier's confidence flag is irrelevant
+        if cls.method == "manual_override":
+            raw_gender[sid] = sg
+            continue
+        if sg in ("male", "female") and cls.confidence != "high":
+            raw_gender[sid] = "neutral"
+            demoted_count += 1
+        else:
+            raw_gender[sid] = sg
 
     # Apply explicit voice_gender overrides (skip Phase 2a balancing for these)
     for sid, ov in overrides.items():
@@ -363,6 +380,7 @@ def run(
         "input_rows": len(rows),
         "output_rows": n_out,
         "manual_overrides": manual_count,
+        "demoted_to_neutral_due_to_low_confidence": demoted_count,
         "raw_gender_counts": dict(raw_gender_counts),
         "voice_gender_assigned_counts": dict(assigned_gender_counts),
         "confidence_counts": dict(confidence_counts),
