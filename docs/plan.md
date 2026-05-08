@@ -45,7 +45,7 @@ Enforced by `_source_ledger.tsv` (§ Source ledger) — the backbone of the proj
 | Manual overrides | First-class: every LLM stage has a corresponding `_manual_*.tsv`; overrides always win |
 | LLM provenance | Recorded in stage audit JSONL files (model, prompt-hash, response-hash, confidence) |
 | Model config | Centralized in `config/models.yaml`; never hard-coded in scripts |
-| **Review strategy** | **LLM 3-model jury + adversarial auditor + verdict auditor + N-best on top-1000 + ASR roundtrip; human review is study-time flagging, not upfront QA queues** |
+| **Review strategy** | **LLM 3-model jury + adversarial auditor + verdict auditor + N-best on top-1000 + ASR roundtrip; human review is study-time flagging, not upfront QA queues**. *2026-05 update*: Stage 5.5 simplified to **single-pass Sonnet auditor** (combines adversarial + verdict in one call) — driven by 2026 output-token pricing on Opus making the two-pass design ~$120 for 5,725 rows. See § Stage 5.5 for the locked single-pass design. |
 | **Audio QA** | **Whisper-class ASR roundtrip + phonetic-distance check; human listens only to ASR-flagged clips and the pilot voice-quality sample (~15 min)** |
 | Study-time loop | Anki flag-for-regeneration field → weekly batch regeneration of flagged cards |
 | Study app | macOS desktop + iPhone |
@@ -1021,17 +1021,276 @@ Final TSV exposes `ipa_word` and `ipa_example` (= `*_final`).
 
 **Cost**: ~$15–25 (LLM correction only; eSpeak-NG is free).
 
-### Stage 5.5 — Adversarial + verdict auditor ([build/055_audit.py](build/055_audit.py))
+### Stage 5.5 — Single-pass auditor ([build/055_audit.py](build/055_audit.py))
 
-**In**: `05-ipa.tsv` → **Out**: `_auditor_flags.tsv`, regeneration directives, `_jury_disagreements.tsv` borderline queue
+**Context.** The original plan called for two auditor passes (adversarial + verdict) using top-tier models from a third family. Cost projection at 2026 prices for 5,725 rows:
 
-Runs the **two-auditor pipeline** described in § Review strategy: adversarial auditor produces a defect list; verdict auditor (different model) reviews the row + defect list and decides `pass` / `regenerate` / `human_review`. Tool Use enforces both schemas. Failures route to auto-regeneration (≤2 attempts, with the defect list in the regen prompt as anti-examples). Borderlines route to the small human disagreement queue.
+| Configuration | Total |
+|---|---|
+| gpt-4o adversarial + Opus 4.5 verdict | ~$123 |
+| gpt-4o adversarial + Gemini-Pro verdict | ~$52 + Google integration |
+| **Single-pass Sonnet 4.5 (locked)** | **~$20** |
 
-The two auditor models are different from each other AND different from the generator AND different from any of the three jurors. In practice this means rotating across families: e.g., generator = Anthropic, jurors = {Anthropic-small, OpenAI, Google}, adversarial auditor = OpenAI top-tier, verdict auditor = Google top-tier. The registry handles the assignment.
+The killer in the two-pass design is Opus output at $75/M (5,725 × 80 verdict tokens = $34 just for verdicts). The user explicitly chose **single-pass Sonnet 4.5 over the full corpus** — same prompt does both adversarial-framing defect listing AND verdict in one call.
 
-**Cost**: ~$30–60 (two auditor calls per row × ~9k rows).
+Cross-family invariant is preserved: Sonnet (auditor) is in a different model than the gpt-4o-mini that played jury at Stage 4. Across the pipeline, every row is touched by 4 distinct models from 2 distinct families: Sonnet generator (Stage 4) + gpt-4o-mini validator (Stage 4) + gpt-4o-mini classifier (Stage 4.5) + Sonnet IPA corrector (Stage 5) + **Sonnet auditor (Stage 5.5)**.
 
-**Validation**: every row in `05-ipa.tsv` has both an adversarial defect list and a verdict. Rows with `verdict = regenerate` after 2 failed regen attempts are surfaced loudly to `_auditor_flags.tsv` — should be rare (<1%).
+**In**: `data/05-ipa.tsv` (full corpus, 5,725 rows) + `data/_example_fixes.tsv` (Stage 4 prior flags, used as input signal) → **Out**: `data/055-audit.tsv`, `data/_jury_disagreements.tsv`, regeneration directives via `data/_example_fixes.tsv` (rewritten if any failures), `audit/055_audit.jsonl`
+
+#### Single-pass auditor design
+
+For each row, Anthropic Sonnet 4.5 receives the row's full context (pt, gender, pos, en_primary, en_all, tags, bp_status, example_pt, example_en, target_word_used, ipa_word_final, ipa_example_final, plus the Stage 4 validator's prior flag if any) and produces, in one Tool Use call:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "axis": {"type": "string", "enum": [
+            "sense_consistency", "example_uses_intended_sense", "translation_match",
+            "bp_purity", "sensitive_policy", "ipa_plausibility", "target_word_token_match",
+            "naturalness", "level_appropriateness", "other"
+          ]},
+          "severity": {"type": "string", "enum": ["low", "medium", "high"]},
+          "description": {"type": "string"}
+        },
+        "required": ["axis", "severity", "description"]
+      }
+    },
+    "verdict": {"type": "string", "enum": ["pass", "regenerate", "human_review"]},
+    "reason": {"type": "string"},
+    "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
+  },
+  "required": ["defects", "verdict", "reason", "confidence"]
+}
+```
+
+System prompt uses **adversarial framing** explicitly: *"Your job is to find faults. List every defect you can identify in this row, even minor ones. After listing defects, decide a verdict: `pass` if defects are all `low` severity or absent; `regenerate` if any defect is `medium` or `high` severity AND fixable by re-prompting Stage 4; `human_review` if the row is borderline or needs domain judgment."*
+
+#### Decision flow
+
+- `verdict = pass`: row accepted (low-severity defects acceptable noise floor).
+- `verdict = regenerate`: row queued for Stage 4 regeneration with the defect list as anti-example. **≤ 2 regen attempts**; if the second regen still fails the auditor, row routes to `_jury_disagreements.tsv`.
+- `verdict = human_review`: row written to `_jury_disagreements.tsv` immediately for end-of-run human eyeball.
+
+Regen reuses [build/stage_4.py](build/stage_4.py)'s sense-id-filter mode (already supported) — only the failed sense_ids are re-prompted, with a new `--anti-examples-from` flag pointing at `_example_fixes.tsv` so the generator sees the prior flawed output and the auditor's defect list as "do NOT produce something like this."
+
+#### Output schema — `data/055-audit.tsv`
+
+| Column | Notes |
+|---|---|
+| `sense_id` | Join key |
+| `verdict` | `pass` / `regenerate` / `human_review` |
+| `defect_count` | Integer; 0 means clean |
+| `defects_json` | JSON-serialized defect array (axis, severity, description) |
+| `reason` | Auditor's one-sentence summary |
+| `confidence` | `high` / `medium` / `low` |
+| `regen_attempts` | 0 / 1 / 2 — number of regen rounds taken |
+| `final_status` | `pass_first` / `pass_after_regen` / `human_review` / `failed_after_regen` |
+
+#### Cost & wall clock
+
+- Single Sonnet 4.5 call per row × 5,725 rows
+- Per-row tokens: ~1,500 cached input (system prompt + tool schema) + ~500 uncached input (per-row context) + ~150 output (defects + verdict + reason)
+- Cached input: 8.59M × $0.30/M = $2.58
+- Uncached input: 2.86M × $3/M = $8.58
+- Output: 859K × $15/M = $12.89
+- **First-pass total: ~$24**
+- Regen: ≤ ~5% of rows × 1-2 calls = <$2
+- **Stage 5.5 total: ~$25** (vs. plan's original ~$30-60 for the two-pass design)
+
+Wall clock: ~30-60 min sync at concurrency 16. Cache hit ratio expected ≥90%.
+
+#### Validation invariants
+
+- Every row in `05-ipa.tsv` has exactly one row in `055-audit.tsv`.
+- `verdict ∈ {pass, regenerate, human_review}`.
+- `defect_count == len(defects_json)`.
+- For rows with `final_status = pass_after_regen`: corresponding `04-examples.tsv` row's `example_pt`/`example_en`/`target_word_used` were updated.
+- Rows with `final_status = failed_after_regen` route to `_jury_disagreements.tsv` AND are surfaced loudly in the run summary (should be <1% of corpus).
+
+#### Manual override
+
+`data/_manual_audit.tsv` (per-sense_id verdict override). Wins over LLM. Use to force `pass` on a row the auditor flagged but you've decided is acceptable, or vice versa.
+
+#### Post-run remediation plan (locked, 2026-05-09)
+
+The first Stage 5.5 full-corpus run produced 5,725 verdicts: pass 3,267 / regenerate 1,034 / human_review 1,424. After axis-based triage (read all 53 sense-only rows by hand to verify), the actionable buckets are:
+
+| Bucket | Count | Action | Cost | Why |
+|---|---|---|---|---|
+| Auditor IPA-only flags (1+ defects, all `axis=ipa_plausibility`) | 1,679 | **Reclassify as `pass_after_axis_review`** | $0 | Sonnet auditor consistently misreads its own IPA output, hallucinates rules, confuses narrow vs broad transcription. Stage 5 IPA quality was verified clean separately; these flags are auditor failure mode. |
+| IPA + minor low-severity others | 15 | Reclassify as pass | $0 | Same |
+| Nuance-only (`translation_match`/`naturalness`/`level_appropriateness` low/medium, no other axes) | 146 | Reclassify as pass | $0 | Stylistic nitpicks; Stage 4 validator already exhibited this same over-strictness on translation. |
+| Stage 4 fixable (real `bp_purity` high, `example_uses_intended_sense` high, `target_word_token_match` high, `naturalness` high) | 367 | Auto-regen via Stage 4 (1 attempt) + Stage 5 IPA refresh for affected rows | ~$3 | Genuine Stage 4 issues that fresh prompting will likely improve. |
+| Mixed (other defect combinations) | 199 | Auto-regen via Stage 4 (1 attempt) + Stage 5 refresh | ~$1 | Catch-all; same remediation as the fixable bucket. |
+| **Stage 2 gloss errors (15 cataloged below)** | **15** | **Auto-fix the gloss via LLM** | ~$0.05 | The English `en_primary` is wrong but the BP example is correct. A targeted Sonnet "gloss correction" call per row reads `pt + example_pt + example_en + en_all + auditor_defect` and emits a corrected `en_primary`. Applied directly to `04-examples.tsv` (which propagates to Stage 5 + final TSV). No tag — the row is fixed, not flagged. |
+| Stage 4 wrong-sense-in-example (15 cataloged below) | 15 | **Auto-regen the example via Stage 4** with explicit sense hint | ~$0.20 | Gloss is correct but Stage 4 picked the wrong sense; regen with the auditor's defect description in the prompt will produce the right sentence. |
+| Sense-consistency rows NOT in either cataloged bucket (~23) | ~23 | **Run gloss-correction pass first**; if LLM says gloss is fine, reclassify as pass; if LLM says gloss is wrong, apply fix | ~$0.05 | The auditor flagged but I judged borderline/false-positive. Let the gloss-correction LLM be the second opinion: same prompt as the 15 cataloged errors, pre-filled with the LLM's "no change needed" output as one valid answer. |
+
+**Net:** ~566 rows regenerated via Stage 4 + Stage 5 IPA refresh; ~38 rows get gloss correction (15 cataloged + ~23 borderline); rest reclassified to pass without action.
+
+**Total remediation cost: ~$4.** Wall clock ~10 min. **Zero manual work. No `#sense-disputed` tag in final TSV — every row is either fixed or confirmed clean.**
+
+#### Gloss-correction LLM call (NEW for this remediation)
+
+For each sense-consistency-flagged row, call Sonnet 4.5 with Tool Use:
+
+**System prompt** (terse, ~500 tokens):
+*"You are correcting the English gloss `en_primary` for a Brazilian-Portuguese sense. The current gloss may be wrong, too narrow, too broad, or a false friend. Read the BP word, the example sentence, the original full RHS, and the auditor's identified defect. Output either (a) a corrected concise gloss that accurately translates the BP word as used in the example, or (b) the original gloss if it's actually correct. Keep the gloss short (1-5 words). Use BP-natural English."*
+
+**Tool input schema:**
+```json
+{
+  "type": "object",
+  "properties": {
+    "corrected_en_primary": {"type": "string"},
+    "is_changed": {"type": "boolean"},
+    "reasoning": {"type": "string"}
+  },
+  "required": ["corrected_en_primary", "is_changed"]
+}
+```
+
+**Per-row inputs:** pt, en_primary (current), en_all (full RHS), example_pt, example_en, auditor_defect_description.
+
+**Cost:** 53 rows × ~600 input tokens × $0.30/M cached + ~150 output × $15/M = ~$0.15.
+
+**Application:** for rows where `is_changed=true`, write the corrected `en_primary` directly to `data/04-examples.tsv` and `data/05-ipa.tsv` (the column appears in both). Audit log records the old + new gloss for traceability.
+
+##### Cataloged Stage 2 gloss errors (#sense-disputed)
+
+| sense_id | pt | Current `en_primary` | Note |
+|---|---|---|---|
+| 2401.00.01 | `eventual` | "eventual" | False friend; should be "occasional" |
+| 2215.00.01 | `habitual` | "familiar" | Should be "usual / customary" |
+| 2891.00.01 | `salgado` | "relating to salt" | Should be "salty" |
+| 4512.00.01 | `cultivo` | "act of planting" | Should be "cultivation" |
+| 4547.00.01 | `recair` | "to go back to" | Should be "to relapse" |
+| 4630.00.01 | `multinacional` | "international corporation" | Should be "multinational" |
+| 1871.00.01 | `constar` | "to consist of" | Needs "constar de" |
+| 2938.00.01 | `abater` | "to come down" | Transitive: "to bring down" |
+| 2603.00.02 | `solar` | "sole" | Should be "manor house" |
+| 4965.00.02 | `edital` | "relating to editing" | Should be "public notice" |
+| 0503.00.01 | `quarto` | "room" with `pos=num` | sense vs PoS mismatch |
+| 1306.00.01 | `casal` | "married couple" | Just "couple" |
+| 2873.00.01 | `ruído` | "loud and unpleasant noise" | Just "noise" |
+| 1712.00.01 | `jurídico` | "judicial" | Should be "legal / juridical" |
+| 1768.00.01 | `paulista` | "from São Paulo" | Should be noun "person from São Paulo" |
+
+##### Cataloged Stage 4 wrong-sense rows (regen with sense hint)
+
+| sense_id | pt | en_primary | Mismatch |
+|---|---|---|---|
+| 1510.00.01 | `japonês` | "Japanese" (noun) | Example uses adjective form |
+| 2193.00.01 | `argentino` | "Argentine" (noun) | Same |
+| 1284.00.02 | `espera` | "expectation" | Example uses "wait" |
+| 1880.00.01 | `sentença` | "sentence" (grammatical) | Example uses "verdict" |
+| 1410.00.02 | `corda` | "cord" | Example uses "string" |
+| 1277.00.01 | `reserva` | "reserve" | Example uses "reservation" |
+| 2802.00.03 | `roteiro` | "route" | Example uses "itinerary" |
+| 3911.00.01 | `cova` | "opening" | Example uses "hole" |
+| 3711.00.02 | `ficha` | "card" | Example uses "form" |
+| 3711.00.03 | `ficha` | "slip" | Example uses "form" |
+| 1684.00.01 | `interpretação` | "interpretation" | Example uses "performance" |
+| 0164.00.02 | `ponto` | "dot" | Example uses "period" |
+| 2596.00.02 | `limpeza` | "cleanliness" | Example uses "cleaning" act |
+| 4218.00.01 | `caseiro` | "household" | Example uses "homemade" |
+| 4799.00.01 | `ingresso` | "admission" | Example uses "ticket" |
+
+##### Implementation
+
+A new script `build/apply_audit_remediation.py` orchestrates four phases, all automated:
+
+**Phase A — axis-based reclassification** (zero LLM cost):
+- IPA-only rows (1,679) → `final_status = pass_after_axis_review`
+- IPA + minor low-severity rows (15) → `pass_after_axis_review`
+- Nuance-only rows (146) → `pass_after_axis_review`
+- Borderline / auditor-FP rows (~23) → flagged for Phase B (gloss correction may confirm)
+
+**Phase B — gloss correction** (~$0.15, ~38 rows):
+- For all `sense_consistency`-defect rows (53 total), call Sonnet 4.5 with the gloss-correction prompt described above.
+- For each row where `is_changed=true`: write the corrected `en_primary` to `data/04-examples.tsv` and `data/05-ipa.tsv`. Mark `final_status = pass_after_gloss_fix`.
+- For each row where `is_changed=false`: mark `final_status = pass_after_axis_review` (auditor was wrong; LLM confirms gloss is fine).
+- Audit log: `audit/055_gloss_corrections.jsonl` with `{sense_id, old_en_primary, new_en_primary, reasoning}`.
+
+**Phase C — Stage 4 example regen** (~$3, ~566 rows):
+- Regen queue: 367 fixable + 199 mixed + 15 cataloged wrong-sense = up to ~580 rows.
+- Call `build/stage_4.py::run(sense_id_filter=regen_sids, anti_examples=defect_descriptions)`.
+- Updates `data/04-examples.tsv` for those rows.
+- Mark `final_status = pass_after_regen`.
+
+**Phase D — Stage 5 IPA refresh** (~$2, regen rows only):
+- Re-run Stage 5 on the same regen sense_ids. Updates `data/05-ipa.tsv`.
+
+**No re-audit** — the auditor demonstrated unreliable IPA judgment and re-running it would just produce the same skew. Trust the corrections.
+
+Final state: every row in `055-audit.tsv` has `final_status` ∈ {`pass_first`, `pass_after_axis_review`, `pass_after_gloss_fix`, `pass_after_regen`}. **No `human_review` and no `#sense-disputed` tag survives** — every flag was either fixed (regen / gloss correction) or confirmed clean (axis-review / borderline reclassification).
+
+Verification: spot-check 30 random `pass_after_gloss_fix` and `pass_after_regen` rows to confirm the corrections look right; spot-check 10 `pass_after_axis_review` rows to confirm they're indeed clean. ~10 min of eyeball time, but the work is **confirming correctness** of automated fixes, not deciding their fate.
+
+#### Live monitoring (NEW — for Stage 5.5 and reusable elsewhere)
+
+Stage 5.5 spends ~30-60 min hitting Sonnet on 5,725 rows. The user wants to watch progress and react if individual calls hang. Three lightweight mechanisms, all zero-cost:
+
+**1. Per-row progress JSONL** — `audit/055_progress.jsonl`
+
+Every API call appends one line as soon as it starts AND another when it ends:
+
+```
+{"event": "started", "sense_id": "0042.00.01", "started_at": "2026-05-09T14:23:11.123Z", "attempt": 0}
+{"event": "completed", "sense_id": "0042.00.01", "started_at": "...", "completed_at": "...", "latency_ms": 1842, "verdict": "pass", "defect_count": 0}
+{"event": "errored", "sense_id": "0042.00.02", "started_at": "...", "attempt": 1, "error_type": "APITimeoutError", "error_msg": "..."}
+```
+
+User can `tail -f audit/055_progress.jsonl` in a second terminal to watch live.
+
+**2. Periodic stdout summary** — printed by the main loop every 30 seconds:
+
+```
+[Stage 5.5  3,217 / 5,725 done | 14 in-flight | 1 stuck (>120s) | avg 1.4s | p99 4.2s | ETA 18 min | $14.20 spent]
+```
+
+Counts come from the progress JSONL + an in-memory tally. Visible in foreground OR via tailing the bash background-task output file.
+
+**3. Per-attempt timeout + stuck-call detection**
+
+- Each individual API call has a hard `timeout=120s` per attempt (existing retry envelope already has 60s backoff cap; add a per-call wall timeout).
+- The main loop tracks in-flight call timestamps. Any call running > 120s is logged as `event: "stuck"` to the progress JSONL. The thread continues (Python can't cleanly kill an HTTP request mid-flight), but the user sees the stuck row immediately and can:
+  - Wait — most "stuck" calls succeed within another 60s
+  - Or kill the whole process; resume picks up where it left off (Stage 5.5 is idempotent — already-audited rows are skipped on resume)
+
+**4. Status snapshot tool** — `build/audit_status.py`
+
+Standalone script that reads `audit/055_progress.jsonl` and prints a current snapshot:
+
+```bash
+$ python3 build/audit_status.py
+Stage 5.5 progress as of 2026-05-09T14:32:08Z
+─────────────────────────────────────────────
+Total rows in input:    5,725
+Done:                   3,217  (56.2%)
+In-flight:                 14
+Stuck (>120s):              1   sense_id 4521.00.01 (running 187s)
+Errored (final):            3   sense_ids 1234.00.01, 2345.00.02, ...
+ETA:                   ~18 min  (avg latency 1.4s, concurrency 16)
+Cost so far:           $14.20   (cache_read 5.2M, uncached 1.8M, output 0.5M)
+
+Verdict distribution (so far):
+  pass            3,012  (93.6%)
+  regenerate        178  (5.5%)
+  human_review       27  (0.8%)
+```
+
+Idempotent. Can be run any time (also after the run completes — gives final summary).
+
+#### Resume + idempotency
+
+Stage 5.5 reads the existing `data/055-audit.tsv` at startup and skips any sense_id that already has a `final_status`. Killing and re-running picks up where it left off, no duplicate work, no duplicate cost. The progress JSONL is append-only and never truncated, so the audit history survives restarts.
 
 ### TTS provider (LOCKED: ElevenLabs Multilingual v2)
 
