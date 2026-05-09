@@ -1618,246 +1618,187 @@ Same pipeline for the remaining ~7,500–9,500 senses after pilot approval.
 
 **Validation**: every row has 4 audio URLs (derived from manifest); HEAD requests 200 OK on a random 5% sample; md5 matches between local cache, manifest, and R2-downloaded.
 
-### Stage 8 — Pronunciation correction ([build/08_pronunciation.py](build/08_pronunciation.py))
+### Stage 8 — Pronunciation correction (v3 LEAN, LOCKED 2026-05-10)
 
-**In**: `data/_audio_manifest.tsv` (post-Stage-7) + R2-uploaded word clips → **Out**: same manifest with re-rendered v2 word clips for flagged senses, `data/_pronunciation_aliases.tsv`, `data/_pronunciation_alias_applications.tsv`, `data/_audio_risk_classification.tsv`, ElevenLabs alias dictionary, refreshed `data/06-final.tsv`, `audit/08_*.{jsonl,txt,html}`
+**In**: `data/_audio_manifest.tsv` (post-Stage-7) + R2-uploaded word clips → **Out**: same manifest with re-rendered v2 word clips for confirmed-flagged senses, `data/_pronunciation_aliases.tsv` (deduped by `pt`), `data/_pronunciation_alias_applications.tsv`, `data/_pronunciation_alias_conflicts.tsv`, `data/_audio_risk_classification.tsv`, ElevenLabs alias dictionary, refreshed `data/06-final.tsv`, `audit/08_*.{jsonl,txt,html}`
 
-**Plan revision**: this section is the **v2 design** locked 2026-05-10 after
-an implementation-readiness review of v1. The v1 plan (commit `040b501`)
-had a Phase A blind spot on same-orthography cross-language drift that
-would have silently false-PASSed the exact failure class the stage exists
-to fix. v2 adds a deterministic risk pre-classifier (Phase 0), an audio
-LLM judge (Phase A.5), stratified family-aware calibration sampling, by-pt
-deduplication of aliases with conflict detection, an after-fix listening
-gate (Phase F.5), and a final-TSV rebuild step (Phase H). Net cost rises
-from ~$2.80 to ~$6 (or ~$34 if the audio judge is run on the full corpus
-rather than the risky bucket).
+**Plan revision history**: v1 (commit `040b501`) leaned on ASR + a returned
+`language` field that `gpt-4o-transcribe` JSON mode does not document, with
+a same-orthography blind spot. v2 (commit `ac4196b`) over-corrected by
+adding 11 phases including a full ASR sweep, F1 threshold-fitting,
+N-best across many families, triple-verification, and a separate EP audit
+phase. **v3 (this section) keeps v2's correctness fixes — risk classifier,
+audio LLM judge, by-`pt` aliases with conflict detection, after-fix
+listening — but cuts the rest as overengineering for the actual failure
+mode. The pipeline is 7 scripts, not 11. Cost ~$6 default / ~$32 with
+full-corpus audio judge.**
 
 #### Why this stage exists (LOCKED 2026-05-10)
 
 After Stage 7 completed the 12,450-clip corpus, user listening surfaced a
-class of mispronunciation that the existing ASR roundtrip cannot detect:
-**ElevenLabs Multilingual v2 occasionally falls back to non-BP phonetic
-priors despite `language_code="pt"` being passed.** Drift directions
-observed or anticipated:
-
-- **English-leaning** on identically-spelled EN/PT cognates: `animal`,
-  `total`, `social`, `normal`, `local`, `legal`, `mental`, `digital`,
-  `material`, `general`, `natural`, `central`, `cultural`, `liberal`,
-  `federal`, `vital`, `final`, `principal`, `original`, `horizontal`,
-  `hospital`, `civil`, `hotel`, `motel`, `gel`. The user reported
-  `0317.00.01 animal` rendered as `[ˈænɪməl]` instead of BP `[ˌaniˈmaw]`.
-- **EP-leaning** on words with the BP-vs-EP palatalization split (final
-  `-de`/`-te` → BP `[dʒi]`/`[tʃi]` vs EP `[d]`/`[t]`): `cidade`, `verdade`,
-  `idade`, `qualidade`, `dente`, `gente`, `ponte`, `mente`, `cliente`,
-  `paciente`, `presente`, `ambiente`, `acidente`. Plus initial / double-`r`
-  realization (BP `[h]`/`[χ]` vs EP `[ʁ]`): `rua`, `roda`, `real`, `ratos`,
-  `carro`, `terra`. Plus coda-`s` voicing (BP `[s]`/`[z]` vs EP `[ʃ]`/`[ʒ]`):
-  `festa`, `escola`, `isto`, `três`. Plus unstressed final `-e`
-  (BP `[i]` vs EP `[ɨ]`/silent): `fome`, `nome`, `sete`, `este`.
-- **Spanish-leaning** on identically-spelled ES/PT tokens (smaller risk in
-  our corpus): `mesa`, `casa`, `cama`, `tio`, `tia`, `três`.
-- **French-leaning** on Romance loanwords: `restaurante`, `garagem`, `chefe`.
-- **Other regional flavors** the user has not yet inventoried.
-
-Stage 8 must therefore be **language-agnostic**, not just an
-English-spotting filter. v2 handles all the above via the same risk
-pre-classifier + audio judge + alias-dictionary pipeline; the family
-templates differ, but the architecture does not.
-
-**Why the existing pipeline missed this.** Stage 6/7 ASR uses
-`gpt-4o-transcribe` with `language="pt"` hardcoded. That hint **forces**
-the ASR engine to transcribe non-BP-pronounced audio as Portuguese
-spelling — `[ˈænɪməl]` audio still returns the transcript `"animal"`,
-Levenshtein 1.0, decision PASS. The phonetic-distance signal is computed
-and logged to `audit/06_audio.jsonl` but not stored on the manifest, never
-gated on, and effectively unused. Stage 8 closes both gaps.
-
-#### Why v1 was insufficient (LOCKED 2026-05-10 — implementation-readiness review)
-
-The v1 plan proposed re-ASR with no `language` parameter and a
-returned-language field as the discriminator. Two structural problems:
-
-1. **`gpt-4o-transcribe` JSON mode does not document a returned language
-   field** ([OpenAI transcription API reference](https://platform.openai.com/docs/api-reference/audio/createTranscription)
-   lists `text`, optional `logprobs`, and `usage` only). v1's fallback to
-   "eSpeak-multilingual-roundtrip" produces the same false-PASS as the
-   primary path on same-orthography input.
-2. **Same-orthography cross-language drift defeats text-mediated
-   detection.** When the audio is English-pronounced `[ˈænɪməl]` and the
-   spelling `animal` is identical in both languages, every text-only
-   signal (Levenshtein, eSpeak-IPA via pt) returns clean. The same applies
-   to EP-pronounced `[siˈðad]` for `cidade`, ES-pronounced `[ˈmesa]` for
-   `mesa`, and any other same-orthography drift.
-
-v2 rejects the language-field-as-load-bearing assumption and adds two
-non-text-mediated signals:
-
-- **A deterministic risk pre-classifier** (Phase 0) that flags risky words
-  based on orthographic patterns (e.g., final `-al`, final `-de`/`-te`,
-  initial `r-`) regardless of ASR output. Risky words are FORCED into the
-  calibration sample even if ASR clears them.
-- **An audio LLM judge** (Phase A.5) that listens to the audio directly
-  and classifies the perceived dialect. This is the only signal that can
-  discriminate same-orthography cross-language drift without depending on
-  text intermediation.
+class of mispronunciation the existing pipeline cannot catch: **ElevenLabs
+Multilingual v2 occasionally falls back to non-BP phonetic priors despite
+`language_code="pt"` being passed.** Examples include English-leaning
+cognates (`animal` rendered as `[ˈænɪməl]`), EP-leaning palatalization
+slips (`cidade` rendered without final `[i]`), and possible Spanish/French
+flavoring on identically-spelled tokens. Stage 6/7 ASR uses
+`gpt-4o-transcribe` with `language="pt"` which **forces** non-BP audio to
+transcribe as Portuguese spelling — same-orthography drift like `animal`
+returns Levenshtein 1.0, decision PASS. Text-mediated detection cannot
+reach this failure class. The fix is non-text-mediated: a deterministic
+risk pre-classifier (orthographic patterns) plus an audio LLM judge
+(perceives the actual dialect from the audio) plus alias respellings (the
+official ElevenLabs mitigation for non-English pronunciation).
 
 #### Why alias rules, not phoneme rules (LOCKED)
 
-ElevenLabs supports two pronunciation-dictionary rule types: alias
-(string→string substitution before TTS sees the input) and phoneme
-(string→IPA bypassing the spelling-to-sound model). The
-[ElevenLabs FAQ](https://elevenlabs.io/docs/eleven-agents/customization/voice/pronunciation-dictionary)
-states:
+The [ElevenLabs FAQ](https://elevenlabs.io/docs/eleven-agents/customization/voice/pronunciation-dictionary)
+states phoneme tags are supported only on `eleven_flash_v2` and that *"for
+non-English languages, it is recommended to use alias tags, as phoneme
+tags are designed only for English pronunciations."* Switching to
+flash_v2 for word clips would break voice continuity (different acoustic
+decoder than the multilingual_v2 example clips on the same card) and
+regress audio quality. Alias rules apply on every model and feed the TTS
+engine a Portuguese-shaped respelling that maps to the same target
+phonemes the word has when spoken naturally — `animal → animau` because
+BP final-`l` is realized as `[w]`. The respelling is a phonemically-
+faithful alternate spelling, not a fictional word.
 
-> Phoneme tags are supported exclusively on the `eleven_flash_v2` model.
-> Other models will bypass phoneme entries and use their standard
-> pronunciation rules. **For non-English languages, it is recommended to use
-> alias tags, as phoneme tags are designed only for English pronunciations.**
-
-Implications:
-
-1. **Phoneme rules with our existing 5,688 BP IPAs would be silently
-   bypassed** by `eleven_multilingual_v2` (the locked production model).
-2. **Switching word clips to `eleven_flash_v2`** to unlock phoneme rules
-   would (a) break the one-voice-per-sense promise — flash_v2 acoustic
-   decoder renders the same `voice_id` with subtly different timbre than
-   multilingual_v2, audible when the word and example clips play
-   sequentially on a card; (b) regress audio quality (flash_v2 is the
-   lower-tier model the user explicitly rejected in favor of multilingual_v2's
-   premium naturalness); (c) put BP IPA through an acoustic decoder
-   ElevenLabs documents as English-only, with unpredictable behavior on
-   non-English IPA.
-3. **Alias rules apply on every model including multilingual_v2.** They feed
-   the model a Portuguese-shaped respelling that maps to the same target
-   phonemes the original word has when spoken naturally — e.g., `animal →
-   animau` because BP final-`l` is realized as `[w]`. The respelling is a
-   phonemically-faithful alternate spelling, not a fictional word; the
-   resulting audio is acoustically indistinguishable from a correctly-
-   pronounced standard rendering.
-
-The respelling path is also reversible (remove the dict locator + re-render
-with original text), auditable (TSV with `pt` → respelling → rationale),
-and follows ElevenLabs' explicit recommendation for non-English use.
-
-#### Settled decisions (LOCKED post-AskUserQuestion + readiness review 2026-05-10)
+#### Settled decisions (LOCKED v3 2026-05-10)
 
 | Decision | Value |
 |---|---|
 | Scope | Word clips only (~6,250). Example clips out of scope. |
-| Detection — primary | **Risk pre-classifier (deterministic) + audio LLM judge (perceived-dialect) + ASR sweep (auxiliary)**. ASR no longer load-bearing. |
-| Detection — language field | Not load-bearing. `gpt-4o-transcribe` may or may not return a `language` field; v2 records it as diagnostic data only. |
-| Audio judge model | `gpt-4o-audio-preview` (or successor) via OpenAI; fallback to Gemini 2.5 Pro audio. Tier = audio-input frontier model. Pinned in `config/models.yaml` under role-key `audio_judge`. |
-| Audio judge scope | **Risky bucket only** (default): risk-pattern ≠ none ∪ ASR-suspicious ∪ user-reported ≈ ~600–1,200 clips. `--full-corpus` flag available for ~6,250-clip rerun if residuals are high. |
-| Remediation | **Both**: local respelling map (`data/_pronunciation_aliases.tsv`, source-of-truth, hand-editable, deduped by `pt`) AND uploaded ElevenLabs alias dictionary (runtime application via `pronunciation_dictionary_locators`). |
-| Phoneme rules | Rejected (multilingual_v2 ignores them; flash_v2 unsuitable per above). |
-| Voice continuity | Same `voice_id` for re-rendered clip as the original Stage 6/7 rendering (preserved end-to-end via the manifest's `voice_id` column). |
-| Manifest schema | New columns: `text_input_canonical`, `text_sent_to_tts`, `alias_applied`, `alias_id`, `alias_respelling`, `pronunciation_dict_locator_id`, `pronunciation_dict_version_id`. The legacy `text_input` is kept for back-compat (mirror of canonical). |
-| Alias map dedup | One row per UNIQUE `pt` in `_pronunciation_aliases.tsv` (NOT per `sense_id`). Conflicts (two senses with same `pt` proposing different respellings) BLOCK upload and route to manual review. Per-sense application tracked separately in `_pronunciation_alias_applications.tsv`. |
-| EP-leftover audit | Hand-audit the 5 already-flagged words: `camisola`, `fazenda`, `marcha`, `troço`, `vosso`. Broader EP scan covered by Phase 0's `de_te_palatalization` and other EP-discriminator risk patterns. |
-| Verification loop | Every re-rendered clip runs biased ASR (`language=pt`, parity with Stage 6/7 audit history) AND audio LLM judge AND unbiased ASR before being marked fixed. All three must agree the clip is BP-leaning, or the clip routes to `data/_audio_manual_respelling_review.tsv`. |
-| After-fix QA | Mandatory before Final TSV rebuild: HTML before/after listening sample (~30 clips: all user-reported failures + all changed cognates from -al family + 20 random fixed clips + all `respelling_failed`). |
-| Cost projection (default) | **~$6 total**: ~$2 detection ASR + ~$3 audio judge (risky bucket) + ~$0.50 LLM respelling + ~$0.50 verification ASR + ElevenLabs character cost negligible. Full-corpus audio judge variant: ~$34. |
-| Wall clock | ~70 min compute + ~65 min user listening (calibration ~40 + EP audit ~5 + after-fix QA ~20). |
+| Detection backbone | Deterministic risk pre-classifier + audio LLM judge on the risky bucket. ASR is diagnostic only, never a gate. |
+| Audio judge model | `gpt-4o-audio-preview` (or successor) via OpenAI; pinned in `config/models.yaml` under role-key `audio_judge`. |
+| Audio judge scope | Risky bucket (P0 + P1 + P2 + ASR-leftovers, ~600–1,200 clips); `--full-corpus` flag (~6,250) only if Phase 6 reveals residuals. |
+| Calibration | Descriptive sample (75–100 clips); no F1 threshold-fitting. Auto-confirm rule combines audio-judge verdict + risk priority + human label. |
+| Remediation | Local respelling map (`data/_pronunciation_aliases.tsv`, deduped by `pt`) + uploaded ElevenLabs alias dictionary. Conflict detection blocks upload if two senses share a `pt` with different respellings. |
+| Sentinel-word smoke test | Render `animal`, `hospital`, `hotel`, `cidade`, `gente`, `rua`/`carro` with candidate respellings BEFORE generating aliases for the full risky bucket. Confirms patterns produce BP audio and that the dict pipeline is wired right. |
+| Re-render scope | Only clips whose `pt` has a confirmed alias, plus all other word clips sharing that exact `pt`. |
+| Re-render verification | Primary: audio judge `bp_ok` at medium/high confidence. Sanity: biased ASR still matches canonical `pt`; loudness still passes existing constraints. Diagnostic only: unbiased ASR (not a gate, since it can miss the very same-orthography failure mode the stage exists to fix). |
+| Phoneme rules | Rejected — `eleven_multilingual_v2` ignores them; `eleven_flash_v2` unsuitable for our voice continuity / quality requirements. |
+| Voice continuity | Same `voice_id` for re-rendered clip as the original Stage 6/7 rendering (preserved end-to-end via the manifest). |
+| EP-leftover audit | Folded into Phase 0 risk classification via the `ep_leftover_named` pattern (5 named words). No separate EP audit script. |
+| After-fix listening | Mandatory final gate (Phase 6). HTML with all user-reported repaired clips, all high-severity repaired clips, 10–20 random repaired clips, ≥1 clip per alias family, ≥1 clip per voice. |
+| Cost projection | ~$6 default (~$32 with `--full-corpus` audio judge). |
+| Wall clock | ~50 min compute + ~60 min user listening. |
 
-#### Risk taxonomy (LOCKED — used by Phase 0)
+#### Risk taxonomy and priority levels (LOCKED — used by 08_0)
 
 `data/_audio_risk_classification.tsv` is built once from `data/05-ipa.tsv`
-plus a small hand-curated rules file. One row per word-clip `sense_id`,
-multi-valued `risk_patterns` field. Risk patterns:
+plus hand-curated seed lists. One row per word-clip `sense_id`,
+multi-valued `risk_patterns`, single `priority` derived as the highest
+priority across the row's patterns.
 
-| pattern | trigger | example targets | drift direction |
+| Pattern | Priority | Trigger | Drift direction |
 |---|---|---|---|
-| `identical_en_pt_orthography` | `pt` exists as a common English word with same letters | animal, hotel, hospital, total, social, mental, digital, real, original, normal | EN |
-| `final_l_cognate` | regex `(.)al$|(.)el$|(.)il$|(.)ol$` AND BP IPA ends in `[w]` | animal, total, hospital, normal, social, hotel, motel, civil, futebol, álcool | EN |
-| `de_te_palatalization` | regex `(.)de$|(.)te$` AND BP IPA contains `[dʒi]` or `[tʃi]` | cidade, verdade, dente, gente, ponte, cliente, paciente, presente, idade, qualidade | EP |
-| `initial_r_or_rr` | starts with `r` OR contains `rr` | rua, roda, real, ratos, carro, terra, correr, ferrar | EP |
-| `unstressed_final_e` | regex `[^aáâãeéêiíoóôõuú]e$` (final `-e` not in stressed syllable) | fome, nome, sete, este, sabe | EP |
-| `coda_s_voicing` | contains coda `s` (regex `s[^aáâãeéêiíoóôõuúyẁ]`) | festa, escola, isto, três, espelho | EP |
-| `english_loanword` | hand-curated list of modern BP loanwords | internet, marketing, software, online, link, chat, download, mouse, site, show, web | EN |
-| `spanish_collision` | `pt` is also a high-frequency Spanish word with same orthography | mesa, casa, cama, tio, tia, três | ES |
-| `french_loanword` | hand-curated list | restaurante, garagem, chefe, garçom | FR |
-| `user_reported` | `pt` appears in `data/_audio_user_reported_failures.tsv` | animal (current); future additions | mixed |
-| `none` | no pattern matched | majority of corpus | — |
+| `user_reported` | **P0** | `pt` appears in `data/_audio_user_reported_failures.tsv` | mixed |
+| `ep_leftover_named` | **P0** | `pt ∈ {camisola, fazenda, marcha, troço, vosso, comboio, equipa, registo, utilizador, paragem, desporto, golo}` (Stage-1 EP audit seed list) | EP |
+| `same_spelling_en_pt` | **P1** | `pt` exists as a common English word with same letters | EN |
+| `final_l_vocalization` | **P1** | regex `(.)al$|(.)el$|(.)il$|(.)ol$` AND BP IPA ends in `[w]` | EN |
+| `h_initial_english_risk` | **P1** | `pt` starts with `h` (BP `h-` is silent; English isn't) | EN |
+| `english_loanword` | **P1** | `pt ∈` hand-curated `data/_risk_seeds_en_loanwords.tsv` | EN |
+| `de_te_palatalization` | **P2** | regex `(.)de$|(.)te$` AND BP IPA contains `[dʒi]` or `[tʃi]` | EP |
+| `final_unstressed_e` | **P2** | regex `[^aáâãeéêiíoóôõuú]e$` | EP |
+| `initial_r_or_rr` | **P2** | starts with `r` OR contains `rr` | EP |
+| `coda_s_ep_risk` | **P3** | contains coda `s` (regex `s[^aáâãeéêiíoóôõuú]`) | EP |
+| `spanish_collision` | **P3** | `pt ∈` hand-curated `data/_risk_seeds_es_collisions.tsv` | ES |
+| `french_loanword` | **P3** | `pt ∈` hand-curated `data/_risk_seeds_fr_loanwords.tsv` | FR |
+| `none` | — | no pattern matched | — |
 
-A single `pt` may carry multiple patterns (e.g., `cidade` =
-`de_te_palatalization` AND `unstressed_final_e`; `dente` = same).
+A single `pt` can carry multiple patterns (e.g., `cidade` =
+`de_te_palatalization` AND `final_unstressed_e`). The row's `priority` =
+min priority value across all matched patterns (P0 < P1 < P2 < P3).
 
-The hand-curated EN-loanword and FR-loanword lists live at
-`data/_risk_seeds_en_loanwords.tsv` and `data/_risk_seeds_fr_loanwords.tsv`,
-maintained alongside the source ledger. Adding a row is a normal git change.
+##### Concrete risk-family seed lists (corpus-grounded)
 
-#### Phase 0 — Risk pre-classifier ([build/08_0_classify_risk.py](build/08_0_classify_risk.py))
+These lists are the starting point for Phase 0's regex/membership checks
+and for Phase 2's stratified calibration sampling. They will be fleshed
+out by intersection with the actual corpus during Phase 0 execution.
 
-Pure Python, no API calls, no LLM. Walks `data/05-ipa.tsv`, applies the
-regex/membership rules above, writes `data/_audio_risk_classification.tsv`:
+**same-spelling EN/PT (P1)**: animal, social, final, principal, natural,
+capital, central, material, hospital, hotel, legal, general, digital,
+terminal, tropical, fatal.
 
-```tsv
-sense_id     pt          risk_patterns                              ipa_word_final  rank
-0317.00.01   animal      identical_en_pt_orthography,final_l_cognate,user_reported  ˌaniˈmaw   317
-0001.00.01   o           none                                       u               1
-0042.00.01   cidade      de_te_palatalization,unstressed_final_e    siˈdadʒi        42
+**final-l vocalization (P1)**: animal, social, nacional, geral, papel,
+jornal, local, pessoal, principal, natural, capital, especial, igual,
+oficial, civil, hospital, hotel, futebol, legal, vital, horizontal,
+cereal, lençol.
+
+**de/te palatalization (P2)**: cidade, verdade, idade, qualidade,
+sociedade, gente, noite, presente, seguinte, ambiente, doente, paciente,
+cliente, acidente, dente, adolescente, contente, semente, mente, fonte,
+ponte.
+
+**initial r/rr (P2)**: rua, rio, real, razão, relação, região, resultado,
+resolver, terra, guerra, carro, correr, corrente, ocorrer, ferro, serra,
+arranjar, enterrar, morrer.
+
+**English loanwords (P1)**: software, marketing, rock, jazz, bar, pop,
+vídeo, site, festival, hotel, piano, deficit, terror, horror, time.
+
+**EP leftovers / BP audit seeds (P0)**: camisola, troço, vosso, comboio,
+equipa, registo, utilizador, paragem, desporto, golo. (Plus `fazenda` and
+`marcha` from the 5 originally-named EP markers, retained from Stage 1.)
+
+These are CANDIDATES for detection, not a declaration that they are
+wrong. Phase 1 (audio judge) decides per-clip; Phase 2 (calibration)
+validates Phase 1's threshold against ground truth.
+
+#### Lean pipeline — 7 scripts
+
+The pipeline is intentionally short. Each script reads its predecessor's
+output, writes a TSV plus a JSONL audit trail, and is idempotent on
+re-run.
+
+```
+build/08_0_classify_risk.py
+    → build/08_1_audio_judge.py
+        → build/08_2_calibration.py
+            → build/08_3_generate_aliases.py
+                → build/08_4_upload_dictionary.py
+                    → build/08_5_rerender_verify.py
+                        → build/08_6_after_fix_and_finalize.py
 ```
 
-Idempotent. `risk_patterns` is a comma-separated, sorted set. Counts per
-pattern logged at end of run for visibility (e.g., "385 final_l_cognate,
-512 de_te_palatalization, 67 initial_r_or_rr, ...").
+##### 08_0 — Risk classifier ([build/08_0_classify_risk.py](build/08_0_classify_risk.py))
+
+Pure Python, no API calls. Walks `data/05-ipa.tsv` and emits
+`data/_audio_risk_classification.tsv` (one row per word `sense_id`).
+Reads three seed files (`_risk_seeds_en_loanwords.tsv`,
+`_risk_seeds_es_collisions.tsv`, `_risk_seeds_fr_loanwords.tsv`) for
+membership checks and `_audio_user_reported_failures.tsv` for P0 entries.
+Logs counts per pattern at end of run.
+
+Output schema:
+
+```tsv
+sense_id     pt          risk_patterns                                       priority  ipa_word_final  rank
+0317.00.01   animal      user_reported,same_spelling_en_pt,final_l_vocalization  P0       ˌaniˈmaw       317
+0042.00.01   cidade      de_te_palatalization,final_unstressed_e             P2        siˈdadʒi       42
+0001.00.01   o           none                                                —         u              1
+```
 
 **Cost**: $0. **Wall clock**: ~5 min.
 
-#### Phase A — ASR sweep ([build/08a_detect_mispronunciation.py](build/08a_detect_mispronunciation.py))
+##### 08_1 — Audio LLM judge ([build/08_1_audio_judge.py](build/08_1_audio_judge.py))
 
-Auxiliary detection signal (no longer the load-bearing one). For every
-manifest row with `clip_type="word"` and `status="uploaded"`:
+Runs the audio judge on the **risky bucket** by default (priority ∈ {P0,
+P1, P2} ∪ ASR-human/regenerated leftovers from Stage 6/7). `--full-corpus`
+flag promotes scope to all 6,250 word clips (~$31 instead of ~$3–6).
 
-1. Resolve local cache or fetch MP3 from R2.
-2. Two ASR calls in parallel:
-   - **Biased**: `gpt-4o-transcribe` with `language="pt"`. Captures the same
-     transcript Stage 6/7 stored — used as a sanity reference and for
-     logprob analysis.
-   - **Unbiased**: `gpt-4o-transcribe` with no `language` parameter. Records
-     `text` and any `logprobs`/`usage` fields the model returns. The
-     `language` field is recorded if present but treated as diagnostic only.
-3. Compute three signals (all are ADVISORY for Phase A.5 routing):
-   - `unbiased_text_lev_sim` = normalized Levenshtein(`unbiased_transcript`, `pt`).
-   - `biased_logprob_low` = boolean (lowest token logprob below threshold,
-     if logprobs supported).
-   - `unbiased_phonetic_distance_pt` = Levenshtein(eSpeak-IPA(`unbiased_transcript`,
-     lang=`pt`), `ipa_word_final`) / max-length.
-4. Append per-clip evidence to `audit/08a_asr.jsonl`.
-5. Write `data/_audio_asr_signals.tsv` joined by `sense_id`.
+Per-clip call to `gpt-4o-audio-preview`:
 
-**Routing rule into Phase A.5**: `pt` is sent to the audio judge if ANY of:
-- `risk_patterns ≠ none` (from Phase 0)
-- `unbiased_text_lev_sim < 0.85`
-- `biased_logprob_low == true` (when logprobs available)
-- `unbiased_phonetic_distance_pt > 0.30`
-- `pt ∈ user_reported_failures`
-
-**Cost**: 6,250 × 2 calls × ~3s × $0.006/min ÷ 60 ≈ **$2.00**.
-**Wall clock**: ~25 min at concurrency 8. Idempotent on `(sense_id, version)`.
-
-#### Phase A.5 — Audio LLM judge ([build/08a5_audio_judge.py](build/08a5_audio_judge.py))
-
-The discriminator for same-orthography drift. Reads the routing output from
-Phase A and sends each routed clip to an audio-input frontier model.
-
-Default scope (LOCKED): risky bucket only (~600–1,200 clips). `--full-corpus`
-flag available for full 6,250-clip rerun if Phase F.5 reveals residuals.
-
-Per-clip call:
-
-- Model: `gpt-4o-audio-preview` (resolved via `config/models.yaml` role-key
-  `audio_judge`). Audio MP3 attached as input; structured output via Tool Use.
-- System prompt (cached): *"You are judging the dialect/accent of a
-  Brazilian Portuguese vocabulary recording. Listen to the attached audio
-  and decide whether the speaker pronounces the given word as standard
-  Brazilian Portuguese, European Portuguese, English, Spanish, French, or
-  some other accent. Focus on phonetic features only (vowel quality,
+- Audio MP3 attached as input.
+- Tool-Use structured output (no free-text parsing).
+- Cached system prompt: *"You are judging whether a Brazilian Portuguese
+  vocabulary recording is pronounced as standard BP. Listen to the audio
+  and give a verdict. Focus on phonetic features only — vowel quality,
   stress placement, /l/ realization, /r/ realization, palatalization of
-  /t/, /d/ before /i/, coda /s/ voicing). Do not transcribe. Do not
-  evaluate audio quality."*
-- User content per call: audio MP3 + JSON: `{pt, ipa_word_final, voice_id}`.
+  /t/, /d/ before /i/, coda /s/ voicing. Your primary decision is BP-OK
+  vs non-BP vs unclear. The drift source guess (EN/EP/ES/FR/other) is
+  secondary diagnostic information."*
 
 Tool schema:
 
@@ -1865,102 +1806,128 @@ Tool schema:
 {
   "type": "object",
   "properties": {
-    "perceived_dialect": {
-      "type": "string",
-      "enum": ["BP", "EP", "EN", "ES", "FR", "other"]
-    },
-    "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+    "pronunciation_verdict": {"type": "string", "enum": ["bp_ok", "non_bp", "unclear"]},
+    "drift": {"type": "string", "enum": ["EN", "EP", "ES", "FR", "other", "none"]},
+    "severity": {"type": "string", "enum": ["low", "medium", "high"]},
+    "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
     "evidence": {"type": "string"}
   },
-  "required": ["perceived_dialect", "confidence", "evidence"]
+  "required": ["pronunciation_verdict", "drift", "severity", "confidence", "evidence"]
 }
 ```
 
-Output: `audit/08a5_audio_judge.jsonl` and `data/_audio_judge_verdicts.tsv`:
+Output: `audit/08_1_audio_judge.jsonl` and
+`data/_audio_judge_verdicts.tsv`.
 
-```tsv
-sense_id     pt        perceived_dialect  confidence  evidence
-0317.00.01   animal    EN                 high        "final /l/ pronounced as English dark-l, vowel /æ/ on first syllable"
-0042.00.01   cidade    BP                 high        "final palatalized [dʒi] present"
+**Decision rule** (consumed by 08_2 calibration and 08_3 alias generation):
+
+```
+needs_alias =
+  pronunciation_verdict == "non_bp" AND confidence == "high"
+  OR
+  pronunciation_verdict == "non_bp" AND confidence == "medium" AND priority in {P0, P1}
+
+needs_human_review =
+  pronunciation_verdict == "unclear"
+  OR
+  pronunciation_verdict == "non_bp" AND confidence == "low"
 ```
 
-**Decision rule**: `perceived_dialect == "BP"` AND `confidence != "low"` →
-clean. Anything else → flagged for calibration.
+**Cost**: ~$3–6 risky bucket; ~$31 full-corpus. **Wall clock**: ~30 min
+risky / ~60 min full at concurrency 4. Idempotent.
 
-**Cost** (risky bucket, ~600–1,200 clips × ~$0.005/clip): **~$3–6**.
-**Wall clock**: ~30 min at concurrency 4. Idempotent.
+##### 08_2 — Calibration ([build/08_2_calibration.py](build/08_2_calibration.py))
 
-**Full-corpus variant** (toggled by `--full-corpus` flag): 6,250 × ~$0.005
-≈ **~$31**, ~60 min wall.
+Generates `audit/08_2_calibration.html` with **75–100 stratified clips**.
+No threshold-fitting / F1 optimization — calibration's job is to verify
+the audio judge is catching real failures without too many false
+positives, AND to surface borderline cases the judge marked `unclear`.
 
-#### Phase B — Stratified calibration ([build/08b_build_calibration_html.py](build/08b_build_calibration_html.py))
+Stratification (~85 clips):
 
-Generates `audit/08_calibration.html` with **75 stratified clips** (vs v1's
-generic 50). Stratification:
-
-| Bucket | Count | Selection rule |
+| Bucket | Count | Source |
 |---|---|---|
-| User-reported failures | 10 | All entries from `_audio_user_reported_failures.tsv` (currently 1: `animal`); pad with random ASR-suspicious if shorter |
-| `final_l_cognate` family | 12 | Random sample stratified by frequency tier |
-| `de_te_palatalization` family | 12 | Random sample stratified by frequency tier |
-| `initial_r_or_rr` | 6 | Random sample |
-| `unstressed_final_e` + `coda_s_voicing` | 6 | Random sample |
-| `english_loanword` | 4 | Random from the seed list intersected with corpus |
-| `spanish_collision` | 3 | All matched (small set) |
-| `french_loanword` | 2 | Random sample |
-| ASR-suspicious boundary band (suspicion 0.25–0.45) | 10 | Random within band |
-| Audio-judge-only flagged (would have been missed by ASR alone) | 8 | Random within bucket |
-| Voice-coverage minimum | 8 | At least 1 clip per voice in the 8-voice pool, drawn from any of the above buckets |
-| Random low-suspicion controls | 4 | Sanity check that easy cases are still PASS |
+| All user-reported failures | all (≥1) | `_audio_user_reported_failures.tsv` |
+| `final_l_vocalization` family | 20 | Stratified by frequency tier across -al/-el/-il/-ol |
+| `de_te_palatalization` family | 15 | Stratified by frequency tier |
+| `initial_r_or_rr` | 10 | Random sample |
+| `coda_s_ep_risk` ∪ `final_unstressed_e` | 10 | Random sample |
+| `english_loanword` ∪ `spanish_collision` ∪ `french_loanword` | 10 | Random sample combined |
+| Audio-judge `bp_ok` controls | 10 | Sanity: easy cases must stay PASS |
+| Voice-coverage minimum | overlap | At least 1 clip per voice in the 8-voice pool, drawn from the above buckets |
 
-Each card shows an `<audio>` element pointing at the R2 URL, the expected
-`pt` text, the unbiased ASR transcript, the audio-judge verdict (if any),
-the assigned voice ID, and a 3-button radio: `OK / MISPRONOUNCED / UNCLEAR`.
+Each card: `<audio>` + expected `pt` + audio-judge verdict + 3-button
+radio (`OK / MISPRONOUNCED / UNCLEAR`). Form output pasted into
+`data/_audio_calibration_labels.tsv`.
 
 After listening (~40 min), `--apply-calibration`:
-1. Fits two thresholds in parallel — one for the audio-judge confidence
-   bucket, one for the ASR-suspicion score — maximizing F1 against user
-   labels.
-2. Writes `data/_audio_mispronunciation_confirmed.tsv` = (audio-judge
-   non-BP at high/medium confidence) ∪ (ASR-suspicion ≥ threshold) ∪
-   (user-flagged-below) ∖ (user-cleared-above).
+
+1. Computes `confirmed_for_alias` per the auto-confirm rule (intersection
+   of audio-judge verdict + risk priority + human label):
+   ```
+   confirmed_for_alias =
+     human_label == "MISPRONOUNCED"
+     OR
+     (judge.pronunciation_verdict == "non_bp" AND judge.confidence == "high")
+     OR
+     (judge.pronunciation_verdict == "non_bp" AND judge.confidence == "medium"
+      AND priority in {P0, P1})
+   ```
+2. Routes `unclear` rows to `data/_audio_calibration_unclear.tsv` for a
+   small manual queue.
+3. Writes `data/_audio_mispronunciation_confirmed.tsv` for downstream
+   alias generation.
 
 **Cost**: $0. **Wall clock**: ~40 min user listening.
 
-#### Phase C — Respelling generation ([build/08c_generate_respellings.py](build/08c_generate_respellings.py))
+##### 08_3 — Alias generation ([build/08_3_generate_aliases.py](build/08_3_generate_aliases.py))
 
-Two-step: **family templates first**, then **individual fill** for
-non-template words.
+Two phases: sentinel-word smoke test FIRST, then bulk family + individual
+generation.
 
-##### Step C.1 — Family-template N-best smoke test
+**Step 3.1 — Sentinel smoke test.** Pick six representative words covering
+the main risk families: `animal` (final_l -al), `hospital` (final_l -al,
+also h_initial), `hotel` (final_l -el, also h_initial), `cidade`
+(de_te -de), `gente` (de_te -te), `rua` or `carro` (initial_r/rr).
 
-For each risk family with ≥10 confirmed-flagged members, ask Sonnet 4.5 for
-2–3 candidate respelling patterns at the FAMILY level. Then smoke-test each
-candidate on one representative clip via Phase E1 mini-render (one
-TTS call per candidate, ~$0.01). User listens via a 3-clip HTML page and
-picks the winning pattern.
+For each sentinel, ask Sonnet 4.5 for 1–3 candidate respellings (Tool
+Use). Suggested initial candidates (reviewed and overridable in
+`data/_pronunciation_alias_seeds.tsv`):
 
-Concrete examples:
+```
+final_l_vocalization:
+  animal    → animau
+  social    → sociau
+  material  → materiaw / materiáu        (smoke-test 2)
+  hospital  → ospitau / hospitau         (smoke-test 2)
+  hotel     → otéu / hotéu               (smoke-test 2)
 
-| Family | Representative | Candidates | Likely winner |
-|---|---|---|---|
-| `final_l_cognate` (-al) | animal | animau / animál / animáu / animáo | TBD by smoke test |
-| `final_l_cognate` (-el) | hotel | otéu / hotéu / otél / hotél | TBD |
-| `final_l_cognate` (-il) | civil | civiu / civíl / civíu | TBD |
-| `final_l_cognate` (-ol) | futebol | futebóu / futebáo / futebóu | TBD |
-| `de_te_palatalization` (-de) | cidade | cidadi / cidàdji / cidadje | TBD |
-| `de_te_palatalization` (-te) | gente | gentchi / genti / gêntchi | TBD |
-| `initial_r_or_rr` | rua | hua / rrua | TBD |
-| `coda_s_voicing` | festa | fesssta / fézta | TBD |
+de_te_palatalization:
+  cidade    → cidadji / cidadi           (smoke-test 2)
+  verdade   → verdadji / verdadi         (smoke-test 2)
+  gente     → gentchi / genti            (smoke-test 2)
+  dente     → dentchi / denti            (smoke-test 2)
 
-Once a family pattern wins, the full family is mechanically respelled by
-applying the pattern (e.g., `final_l_cognate(-al)` → strip `-al`, append
-template suffix). Output rows are tagged `source: family_template_v1`.
+english_loanword:   per-word only — no broad template (loanwords are too
+                    heterogeneous to share a respelling shape)
 
-##### Step C.2 — Individual fill for non-template words
+initial_r_or_rr / coda_s_ep_risk:
+  do NOT auto-template at this stage. Only alias if the audio judge AND
+  human calibration both confirm a real failure on a specific clip.
+```
 
-For confirmed-flagged words that don't match a family template (or where
-the family test failed), call Sonnet 4.5 per-word via Tool Use. Schema:
+Each sentinel candidate is rendered once via 08_5's `--smoke` mode
+(~$0.01 per candidate, ~$0.12 total). User listens to the 12-clip HTML
+result (`audit/08_3_sentinel_smoke.html`) and picks the winning candidate
+per family. The locked family templates are written to
+`data/_pronunciation_alias_seeds.tsv`.
+
+**Step 3.2 — Bulk generation.** For every confirmed-flagged `pt` in
+`_audio_mispronunciation_confirmed.tsv`:
+
+- If the `pt` matches a locked family template, mechanically apply the
+  template (no LLM call).
+- Otherwise, call Sonnet 4.5 per-word via Tool Use. Schema:
 
 ```json
 {
@@ -1968,326 +1935,255 @@ the family test failed), call Sonnet 4.5 per-word via Tool Use. Schema:
   "properties": {
     "respelling": {"type": "string"},
     "rationale": {"type": "string"},
-    "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
-    "applied_family": {"type": "string"}
+    "applied_family": {"type": "string"},
+    "confidence": {"type": "string", "enum": ["low", "medium", "high"]}
   },
   "required": ["respelling", "rationale", "confidence"]
 }
 ```
 
-System prompt (cached): *"You are correcting Brazilian Portuguese TTS
-mispronunciation. Given a BP word, its target IPA, the perceived drift
-direction (EN/EP/ES/FR/other), and an unbiased ASR transcript, propose a
-respelling that will cue ElevenLabs Multilingual v2 to produce the correct
-BP pronunciation. Use orthographic accents and folk-respelling patterns
-common in BP (final `-l` → `-u`, final `-de`/`-te` → palatalization-cuing
-spellings, explicit acute on stressed final syllables). Do not change the
-meaning. Do not propose IPA — the dictionary uses alias substitution."*
-
-##### Output schema — `data/_pronunciation_aliases.tsv`
-
-**Deduped by `pt`** (one row per unique `pt`, NOT per `sense_id`):
+Output deduped by `pt` to `data/_pronunciation_aliases.tsv`:
 
 ```tsv
-alias_id  pt          pt_respelling  rationale                                              source_ipa     drift_direction  source           confidence  affected_count  created_at
-1         animal      animau         Final -l vocalized to -u (BP final-l → [w])            ˌaniˈmaw      EN               family_template  high        1               2026-05-10T...
-2         hospital    ospitau        Same family template; final -l → -u                    ospiˈtaw      EN               family_template  high        2               2026-05-10T...
-3         cidade      cidadi         Final -e → -i to cue palatalized [dʒi]                 siˈdadʒi      EP               family_template  medium      3               2026-05-10T...
+alias_id  pt        pt_respelling  rationale                                source_ipa  drift  source           confidence  affected_count  created_at
+1         animal    animau         Final -l → -u (BP final-l vocalizes)     ˌaniˈmaw   EN     family_template  high        1               2026-05-10T...
+2         hospital  ospitau        Family template + h-initial drop         ospiˈtaw   EN     family_template  high        1               2026-05-10T...
 ```
 
-Companion table — `data/_pronunciation_alias_applications.tsv`:
+Per-sense application table — `data/_pronunciation_alias_applications.tsv`:
 
 ```tsv
 sense_id     clip_type  alias_id  applied_at
 0317.00.01   word       1         2026-05-10T...
 1234.00.01   word       2         2026-05-10T...
-1234.00.02   word       2         2026-05-10T...
 ```
 
-##### Conflict detection (MANDATORY before upload)
+Conflict table — `data/_pronunciation_alias_conflicts.tsv`: any `pt`
+appearing in multiple confirmed sense_ids that would generate different
+respellings. Rows here BLOCK upload until resolved manually.
 
-If two sense_ids share the same `pt` and Phase C generates different
-respellings for them, **block upload** and route both rows to
-`data/_audio_alias_conflicts.tsv` for manual review. The dictionary cannot
-hold conflicting rules for the same `string_to_replace`.
+**Cost**: ~$0.50 LLM (mostly cached) + ~$0.12 sentinel smoke renders.
 
-**Cost**: ~$0.50 (mostly cached system prompt; output ~150 tokens × Sonnet
-output rate × ~300 unique `pt`s after dedup).
+##### 08_4 — Dictionary upload ([build/08_4_upload_dictionary.py](build/08_4_upload_dictionary.py))
 
-#### Phase D — Dictionary upload ([build/08d_upload_pronunciation_dict.py](build/08d_upload_pronunciation_dict.py))
+1. Read `data/_pronunciation_aliases.tsv` (deduped by `pt`).
+2. Verify `data/_pronunciation_alias_conflicts.tsv` is empty; abort
+   loudly if not.
+3. Smoke-test ONE alias rule via a 1-rule sandbox dictionary (name
+   `anki-bp-stage-8-smoke-vN`) to confirm the SDK accepts the
+   `case_sensitive` and `word_boundaries` fields as documented in the
+   [API reference](https://elevenlabs.io/docs/api-reference/pronunciation-dictionaries/create-from-rules).
+   Cost: ~$0.001 (one tiny TTS call to confirm the dict applies).
+4. Build the alias rules array and POST
+   `/v1/pronunciation-dictionaries/add-from-rules` with name
+   `anki-bp-stage-8-vN` (N increments each upload).
+5. Capture `dictionary_id` and `version_id`. Append to
+   `data/_audio_dictionary_meta.tsv`.
 
-1. Read `data/_pronunciation_aliases.tsv` (already deduped by `pt`).
-2. Verify NO entries in `data/_audio_alias_conflicts.tsv` — abort with
-   loud error if any conflict survives.
-3. Smoke-test ONE rule via a 1-rule sandbox dictionary first
-   (`name="anki-bp-stage-8-smoke-vN"`) to confirm `case_sensitive` and
-   `word_boundaries` fields are accepted by the SDK as documented. Cost:
-   ~$0.001.
-4. Build full alias-typed rules array: `{"string_to_replace": pt,
-   "case_sensitive": true, "word_boundaries": true, "type": "alias",
-   "alias": pt_respelling}`.
-5. POST `/v1/pronunciation-dictionaries/add-from-rules` with
-   `name="anki-bp-stage-8-vN"` (N increments per upload).
-6. Capture `dictionary_id` and `version_id` from the response.
-7. Append a row to `data/_audio_dictionary_meta.tsv`:
+**Cost**: ~$0.001. **Wall clock**: ~30 sec.
 
-```tsv
-dictionary_id  version_id  rule_count  created_at  source_aliases_md5  notes
-```
+##### 08_5 — Re-render + verify ([build/08_5_rerender_verify.py](build/08_5_rerender_verify.py))
 
-Latest row = active dictionary; re-renders read it.
+Modifies [build/lib/elevenlabs_client.py](build/lib/elevenlabs_client.py)
+to accept `pronunciation_dict_locators: list[dict] | None = None` in
+`__init__` and pass it as `pronunciation_dictionary_locators=...` in
+`_call_once()` when non-None.
 
-**Cost**: ~$0.001 for the smoke-test dict; the main upload is free.
-**Wall clock**: ~30 sec.
+Re-render scope: every word clip whose `pt` has a confirmed alias, plus
+every other word clip in the manifest sharing that exact `pt`.
 
-#### Phase E — Re-render flagged clips ([build/08e_rerender_flagged.py](build/08e_rerender_flagged.py))
-
-Modifies [build/lib/elevenlabs_client.py](build/lib/elevenlabs_client.py):
-
-- `__init__` accepts new optional `pronunciation_dict_locators: list[dict] | None = None`.
-- `_call_once()` includes `pronunciation_dictionary_locators=self.pronunciation_dict_locators`
-  in the `text_to_speech.convert(...)` kwargs when non-None.
-
-Per-row workflow for each `_audio_mispronunciation_confirmed.tsv` entry:
+Per-clip workflow:
 
 1. Load active dictionary from `_audio_dictionary_meta.tsv` (latest row).
-2. Look up the manifest row (`sense_id`, `clip_type="word"`, current
-   version=N). Capture original `voice_id` (preserved verbatim — same
-   speaker guarantee).
-3. Bump version: N → N+1. New filename `{sense_id}-word-v{N+1}.mp3`.
-4. Call ElevenLabs with `text=text_input_canonical` (i.e., the canonical BP
-   orthography — the dictionary applies the alias server-side; we do NOT
-   pre-respell the text in our request body unless we explicitly bypass
-   the dict, in which case `text_sent_to_tts != text_input_canonical`).
-5. Apply closed-loop loudness normalization via existing
+2. Bump manifest version: N → N+1. Filename `{sense_id}-word-v{N+1}.mp3`.
+3. Same `voice_id` as the original Stage 6/7 rendering (preserved via
+   manifest `voice_id` column).
+4. Call ElevenLabs with `text=text_input_canonical` (the canonical BP
+   orthography); the dict applies the alias server-side. We do NOT
+   pre-respell the text in our request body. The new manifest fields
+   `text_sent_to_tts` will equal `text_input_canonical`,
+   `alias_applied=true`, `alias_id=<id>`, `alias_respelling=<respelling>`.
+5. Apply closed-loop loudness via existing
    [build/lib/loudness.py::normalize_pcm_to_mp3_verified](build/lib/loudness.py).
 6. Upload to R2 with `Cache-Control: public, max-age=31536000, immutable`.
-7. **Triple-verify**:
-   - Biased ASR (`language=pt`, parity with Stage 6/7 audit history).
-   - Unbiased ASR (no language hint).
-   - Audio LLM judge (re-run on the new clip).
-8. Decision: if all three indicate BP-leaning → `final_status=fixed_via_alias`.
-   Otherwise → `final_status=respelling_failed`, route to
+7. **Verify** (priorities reflect what each signal actually measures):
+   - **Primary**: audio LLM judge re-run on the new clip. Must return
+     `pronunciation_verdict == "bp_ok"` AND `confidence != "low"`.
+   - **Sanity**: biased ASR (`language=pt`) still returns the canonical
+     `pt` (Levenshtein ≥ 0.95). If audio is somehow wrong-word, this
+     catches it.
+   - **Sanity**: closed-loop loudness lands within ±1 LU of -16 LUFS
+     (existing constraint).
+   - **Diagnostic only** (NOT a gate): unbiased ASR transcript and
+     phonetic distance, recorded for audit but never used to fail a clip
+     — the original failure mode is specifically a same-spelling
+     pronunciation problem ASR cannot see.
+8. If primary + sanity all pass → `final_status = fixed_via_alias`. If
+   not → `final_status = respelling_failed`, route to
    `data/_audio_manual_respelling_review.tsv`.
-9. Append lifecycle event to `audit/08e_rerender.jsonl`.
-10. Update manifest with new fields:
-    - `version`: N+1
-    - `url`, `md5`: refreshed
-    - `text_input_canonical`: unchanged (canonical BP orthography)
-    - `text_sent_to_tts`: equals canonical (dict applies server-side)
-    - `alias_applied`: `true`
-    - `alias_id`: foreign key to `_pronunciation_aliases.tsv`
-    - `alias_respelling`: copied from the dict for human readability
-    - `pronunciation_dict_locator_id`: dictionary_id
-    - `pronunciation_dict_version_id`: version_id
-    - `asr_*`: refreshed
-    - Legacy `text_input` column: kept as alias of `text_input_canonical`
+9. Append lifecycle event to `audit/08_5_rerender.jsonl`.
+10. Update manifest with refreshed `version`, `url`, `md5`, `asr_*`,
+    `audio_judge_*`, and the new alias-tracking columns.
 
-**Pre-bulk smoke test (mandatory)**: render exactly one flagged clip (e.g.,
-`0317.00.01 animal`) via `--smoke-test` mode, listen, confirm BP
-pronunciation. Only then proceed to bulk re-render. Catches a fundamentally
-broken alias dictionary (e.g., aliases applying to wrong tokens, dictionary
-not being attached) before paying for the full batch.
+**Pre-bulk smoke test (mandatory)**: render exactly one flagged clip
+(e.g., `0317.00.01 animal`) via `--smoke-test` mode, listen to confirm BP
+pronunciation, before any bulk re-render. Catches a fundamentally broken
+alias dictionary before paying for the full batch.
 
 **Cost** (assuming ~10% of word clips flagged ≈ 625 re-renders):
 - ElevenLabs: ~6,250 credits (negligible against Pro tier headroom).
-- Re-ASR (biased + unbiased): ~$0.50.
-- Audio judge re-verification: ~$3 (~625 × $0.005).
-- R2 storage: +625 × ~12 KB ≈ negligible.
+- Audio judge re-verify: ~625 × $0.005 ≈ $3.
+- Biased ASR sanity: ~$0.30.
+- R2 storage: negligible.
 
-**Wall clock**: ~15 min at concurrency 4 (matches Stage 6/7 known-safe rate).
+**Wall clock**: ~15 min at concurrency 4.
 
-#### Phase F — EP-leftover audit ([build/08f_audit_ep_leftovers.py](build/08f_audit_ep_leftovers.py))
+##### 08_6 — After-fix listening + finalize ([build/08_6_after_fix_and_finalize.py](build/08_6_after_fix_and_finalize.py))
 
-Generates `audit/08_ep_leftover_check.html`: 5 clickable clips for
-`camisola`, `fazenda`, `marcha`, `troço`, `vosso` (sense_ids resolved from
-the manifest). Each card: `<audio>` element + expected BP form + 3-button
-radio (`SOUNDS BP / SOUNDS EP / UNCLEAR`). User listens (~5 min), pastes
-form output into `data/_audio_ep_leftover_review.tsv`. Any `SOUNDS EP`
-flags are appended to `_audio_mispronunciation_confirmed.tsv` and run
-through Phase C → D (new dict version) → E in a second pass.
+Combines the after-fix listening checklist, the summary report, and the
+final-TSV rebuild into one finalize step.
 
-**Cost**: $0. **Wall clock**: ~5 min user.
+**Step 6.1 — After-fix HTML.** Generate `audit/08_6_after_fix.html` with
+before/after listening pairs (~30–40 clips):
 
-#### Phase F.5 — After-fix listening QA ([build/08f5_after_fix_qa.py](build/08f5_after_fix_qa.py))
+- All user-reported repaired clips
+- All high-severity repaired clips (where Phase 1 judge returned
+  `severity=high`)
+- 10–20 random repaired clips
+- ≥1 repaired clip per alias family (-al, -el, -il, -ol, -de, -te, ...)
+- ≥1 repaired clip per voice (8 voices)
+- All `respelling_failed` clips for visibility
 
-Generates `audit/08_after_fix.html` — a before/after listening report. For
-each row, two `<audio>` elements (v1 from R2-archived URL, v2 from current
-R2 URL) plus the alias used and a 3-button radio (`BETTER / SAME / WORSE`).
-Sample composition (~30 clips):
+Each row: two `<audio>` elements (v1 archived URL + v2 current URL),
+alias used, 3-button radio (`BETTER / SAME / WORSE`). User listens
+(~20 min) and pastes form output into
+`data/_audio_after_fix_labels.tsv`.
 
-- All user-reported failures (currently 1: `animal`)
-- All changed `final_l_cognate` family rows (probably ~10)
-- 10 random fixed clips from other families
-- All `respelling_failed` clips (ideally 0)
+`WORSE` rows trigger a manual respelling review (route to
+`_audio_manual_respelling_review.tsv` for a Phase 3 → 4 → 5 second pass).
+`SAME` rows indicate an insufficient fix (alias didn't change the
+pronunciation enough; consider stronger respelling). `BETTER` rows
+confirm the fix held.
 
-User listens (~20 min). Any `WORSE` rows trigger a manual respelling
-review and a re-run of Phase C → D → E for those specific words. `BETTER`
-rows confirm the fix held. `SAME` rows are a sign of insufficient fix
-strength — the alias didn't change the pronunciation enough.
-
-**Cost**: $0. **Wall clock**: ~20 min user.
-
-#### Phase G — Final report ([build/08_summary.py](build/08_summary.py))
-
-Emits `audit/08_summary.txt`:
+**Step 6.2 — Summary report.** Emit `audit/08_summary.txt`:
 
 ```
 Stage 8 pronunciation correction summary
 ─────────────────────────────────────────
-Word clips inspected:          6,250
-Risk-pre-classifier flagged:   X,XXX  (deterministic patterns)
-Audio-judge flagged (risky):     XXX
-ASR-flagged-only (recovered):     XX
-Phase B calibration sample:       75
-Calibrated thresholds:        audio_judge_conf=Z, asr_suspicion=Y
-User-confirmed mispronounced:    XXX
-Family templates locked:           N (-al, -de, -te, ...)
-Respellings generated:           XXX  (deduped by pt: ZZ unique)
-Conflicts blocking upload:         0
-Dictionary uploaded:             dictionary_id <pd_...>  v<...>
-Clips re-rendered:               XXX
-Triple-verification fixed:       XXX  (YY.Y%)
-Triple-verification failed:        ZZ  → _audio_manual_respelling_review.tsv
-EP-leftover audit:                 5 / 5 user-confirmed BP / X re-rendered
-After-fix QA verdict:           BETTER ZZZ / SAME ZZ / WORSE Z
+Word clips inspected:           6,250
+Risk-classifier counts:         P0:XX P1:XXX P2:XXX P3:XXX
+Audio judge verdicts:           bp_ok:X non_bp:X unclear:X
+Calibration sample size:           XX
+User-confirmed mispronounced:     XXX
+Family templates locked:            N
+Aliases generated (unique pt):    XXX
+Conflicts blocking upload:          0
+Dictionary uploaded:              dictionary_id <pd_...>
+Clips re-rendered:                XXX
+Verified fixed:                   XXX  (YY.Y%)
+Verification failed:               ZZ  → _audio_manual_respelling_review.tsv
+After-fix listening verdict:      BETTER ZZZ / SAME ZZ / WORSE Z
 
-Final manifest state:
-  Word clips at v1 (untouched):  W
-  Word clips at v2 (re-rendered): X
-  Word clips at v3+ (manual fix): Y
+Manifest state:
+  Word clips at v1 (untouched):     W
+  Word clips at v2 (re-rendered):   X
+  Word clips at v3+ (manual fix):   Y
 
-Cost actuals:
-  ASR (detection):              $X.XX
-  Audio judge (Phase A.5):      $X.XX
-  Respelling LLM:               $X.XX
-  ElevenLabs re-render:         $X.XX
-  ASR + audio-judge verify:     $X.XX
-  Total:                        $X.XX
-
-Wall clock: XX min compute + XX min user
+Cost actuals: $X.XX
+Wall clock:   XX min compute + XX min user
 ```
 
-#### Phase H — Final TSV rebuild ([build/derive_final.py](build/derive_final.py) + [build/verify_all.py](build/verify_all.py))
-
-Stage 8 changes manifest URLs and md5s for ~10% of word clips. The final
-TSV (`data/06-final.tsv`) is derived from the manifest, so it MUST be
-re-derived after the manifest update or the deck will reference stale URLs.
+**Step 6.3 — Final TSV rebuild.** Stage 8 changes manifest URLs and md5s.
+The final TSV (`data/06-final.tsv`) is derived from the manifest and MUST
+be re-derived after the manifest update:
 
 ```bash
 .venv/bin/python build/derive_final.py
 .venv/bin/python build/verify_all.py
 ```
 
-`verify_all.py` asserts:
-- Every row in `06-final.tsv` has 4 audio URLs (derived from manifest).
-- HEAD requests 200 OK on a random 5% sample, including a forced sample of
-  10 known-Stage-8-changed `sense_id`s.
-- md5 matches between local cache, manifest, and R2-downloaded clip.
-- Every Stage 8 re-rendered manifest row has `alias_applied=true` AND
+`verify_all.py` asserts (in addition to the existing Stage 6/7 invariants):
+- Every Stage-8-changed manifest row has `alias_applied=true` AND
   non-null `alias_id` AND non-null `pronunciation_dict_locator_id`.
 - Every `alias_id` in the manifest resolves in `_pronunciation_aliases.tsv`.
+- HEAD requests 200 OK on a forced sample of ≥10 known-Stage-8-changed
+  `sense_id`s.
 
-#### Reused existing utilities (no re-implementation)
+#### Manifest schema additions
 
-- [build/lib/asr.py::phonetic_distance](build/lib/asr.py) — eSpeak IPA
-  roundtrip + Levenshtein distance.
-- [build/lib/loudness.py::normalize_pcm_to_mp3_verified](build/lib/loudness.py)
-  — closed-loop loudness normalization on re-renders (target -16 LUFS).
-- [build/lib/audio_manifest.py](build/lib/audio_manifest.py) — manifest
-  read/write/update plus the new columns.
-- [build/lib/r2_client.py](build/lib/r2_client.py) — versioned-filename
-  uploads to R2.
-- [build/lib/llm.py::call_with_retry](build/lib/llm.py) — Sonnet calls with
-  prompt caching on the system prompt; extended with audio-input support
-  for the audio judge.
-- [build/lib/progress.py](build/lib/progress.py) — progress tracker for the
-  detection sweep, audio-judge, and re-render loops.
-- [build/audio_status.py](build/audio_status.py) — works for Stage 8 runs
-  unchanged because Phase A and Phase E both write `run_started` markers.
-- [build/derive_final.py](build/derive_final.py) — manifest → final TSV
-  derivation; rerun in Phase H.
+Additive columns introduced by Stage 8 (existing columns unchanged):
+
+| Column | Notes |
+|---|---|
+| `text_input_canonical` | The canonical BP orthography. Mirrors the `pt` field; what's shown on the Anki card. |
+| `text_sent_to_tts` | The string actually placed in the ElevenLabs API request body. Equals `text_input_canonical` when alias dict is attached server-side. Differs only if we ever bypass the dict and respell directly in the request body (escape hatch). |
+| `alias_applied` | Boolean. `true` if a Stage 8 alias was active at render time. |
+| `alias_id` | Foreign key into `_pronunciation_aliases.tsv`. |
+| `alias_respelling` | The substituted string (copied for human readability). |
+| `pronunciation_dict_locator_id` | ElevenLabs `dictionary_id`. |
+| `pronunciation_dict_version_id` | ElevenLabs `version_id`. |
+| `audio_judge_verdict` | Latest audio-judge result for this clip (`bp_ok`/`non_bp`/`unclear`). |
+| `audio_judge_confidence` | Latest audio-judge confidence (`low`/`medium`/`high`). |
+
+Legacy `text_input` column is kept and mirrors `text_input_canonical` for
+back-compat with Stage 6/7 readers that haven't been updated yet.
 
 #### Critical assumptions to verify before execution
 
-1. **`gpt-4o-transcribe` JSON mode does NOT need a returned `language`
-   field.** v2's detection does not depend on it. We record `language` if
-   it appears as diagnostic data, but no decision rule reads it.
-2. **`gpt-4o-audio-preview` (or successor) accepts MP3 input and produces
-   structured Tool-Use output.** Verify with a 3-clip smoke run BEFORE the
-   bulk Phase A.5 sweep.
-3. **Alias rules apply on `eleven_multilingual_v2`.** Per ElevenLabs docs,
-   yes — but Phase D step 3 includes a 1-rule sandbox-dict smoke test
-   confirming the `case_sensitive` and `word_boundaries` fields are
-   accepted as documented. Cost: ~$0.001.
+1. **`gpt-4o-audio-preview` (or successor) accepts MP3 input and returns
+   structured Tool-Use output.** Verify with a 3-clip smoke run before the
+   bulk Phase 1 sweep.
+2. **Alias rules apply on `eleven_multilingual_v2`** with both
+   `case_sensitive` and `word_boundaries` fields honored. Verified via the
+   1-rule sandbox-dict smoke test in Phase 4 step 3 (~$0.001).
+3. **`pronunciation_dictionary_locators` accepts our id+version_id format
+   on `eleven_multilingual_v2` text-to-speech.** Verified via Phase 5
+   pre-bulk smoke test before the full re-render.
 4. **R2 caches do not surface stale audio after filename bump.** Already
-   verified across Stages 6 + 7 — version-in-filename is unambiguous.
-5. **`pronunciation_dictionary_locators` accepts our id+version_id format
-   on `eleven_multilingual_v2` text-to-speech.** Verified via Phase E
-   smoke test before bulk re-render.
-6. **No example clip needs the dictionary.** Scope locked to word clips.
+   verified across Stages 6 + 7.
+5. **No example clip needs the dictionary.** Scope locked to word clips.
    The dictionary, once uploaded, would harmlessly apply to example clips
-   if attached at TTS time; Stage 8 does not attach it on examples. Future
-   `regenerate_flagged.py` runs may want to attach it always — separate
-   decision.
+   if attached at TTS time; Stage 8 does not attach it on examples.
+   Future `regenerate_flagged.py` runs may want to attach it always —
+   separate decision.
 
 #### Verification runbook
 
 ```bash
 # Pre-flight: confirm Stage 7 is complete and the manifest is stable.
 .venv/bin/python build/audio_status.py
-# Expect: 100% done, 0 in-flight, 0 stuck.
 
-# Phase 0: risk pre-classifier (deterministic).
+# 08_0 — Risk classifier (deterministic).
 .venv/bin/python build/08_0_classify_risk.py
 
-# Phase A: ASR sweep.
-.venv/bin/python build/08a_detect_mispronunciation.py --confirm
+# 08_1 — Audio judge (risky bucket).
+.venv/bin/python build/08_1_audio_judge.py --confirm
+# Or, for full corpus:
+# .venv/bin/python build/08_1_audio_judge.py --confirm --full-corpus
 
-# Phase A.5: audio LLM judge (risky bucket).
-.venv/bin/python build/08a5_audio_judge.py --confirm
-# Or, for full-corpus:
-# .venv/bin/python build/08a5_audio_judge.py --confirm --full-corpus
+# 08_2 — Calibration HTML.
+.venv/bin/python build/08_2_calibration.py
+open audit/08_2_calibration.html
+.venv/bin/python build/08_2_calibration.py --apply-calibration
 
-# Phase B: stratified calibration HTML.
-.venv/bin/python build/08b_build_calibration_html.py
-open audit/08_calibration.html
-# User listens, exports labels.
-.venv/bin/python build/08b_build_calibration_html.py --apply-calibration
+# 08_3 — Alias generation (sentinel smoke first, then bulk).
+.venv/bin/python build/08_3_generate_aliases.py --sentinel-smoke
+open audit/08_3_sentinel_smoke.html
+.venv/bin/python build/08_3_generate_aliases.py --apply-templates
+.venv/bin/python build/08_3_generate_aliases.py --fill-individuals --confirm
 
-# Phase C: respelling generation (family templates first, then fill).
-.venv/bin/python build/08c_generate_respellings.py --family-smoke-test
-open audit/08c_family_smoke.html
-# User picks winning template per family.
-.venv/bin/python build/08c_generate_respellings.py --apply-templates
-.venv/bin/python build/08c_generate_respellings.py --fill-individuals --confirm
+# 08_4 — Dictionary upload (incl. 1-rule sandbox smoke).
+.venv/bin/python build/08_4_upload_dictionary.py --smoke-test
+.venv/bin/python build/08_4_upload_dictionary.py --confirm
 
-# Phase D: dictionary upload (incl. 1-rule sandbox smoke test).
-.venv/bin/python build/08d_upload_pronunciation_dict.py --smoke-test
-.venv/bin/python build/08d_upload_pronunciation_dict.py --confirm
+# 08_5 — Pre-bulk smoke + bulk re-render with verify.
+.venv/bin/python build/08_5_rerender_verify.py --smoke-test --sense-id 0317.00.01
+.venv/bin/python build/08_5_rerender_verify.py --confirm --concurrency 4
 
-# Phase E: pre-bulk smoke-test ONE flagged clip.
-.venv/bin/python build/08e_rerender_flagged.py --smoke-test --sense-id 0317.00.01
-
-# Phase E: bulk re-render with triple-verification.
-.venv/bin/python build/08e_rerender_flagged.py --confirm --concurrency 4
-
-# Phase F: EP-leftover audit.
-.venv/bin/python build/08f_audit_ep_leftovers.py
-open audit/08_ep_leftover_check.html
-.venv/bin/python build/08f_audit_ep_leftovers.py --apply
-
-# Phase F.5: after-fix listening QA.
-.venv/bin/python build/08f5_after_fix_qa.py
-open audit/08_after_fix.html
-.venv/bin/python build/08f5_after_fix_qa.py --apply
-
-# Phase G: summary.
-.venv/bin/python build/08_summary.py > audit/08_summary.txt
-
-# Phase H: rebuild final TSV + verify.
-.venv/bin/python build/derive_final.py
-.venv/bin/python build/verify_all.py
+# 08_6 — After-fix listening + finalize.
+.venv/bin/python build/08_6_after_fix_and_finalize.py --build-html
+open audit/08_6_after_fix.html
+.venv/bin/python build/08_6_after_fix_and_finalize.py --apply-and-rebuild
 
 # Tests.
 pytest tests/test_stage_8.py
@@ -2295,19 +2191,16 @@ pytest tests/test_stage_8.py
 
 #### Cost / wall-clock totals
 
-| Phase | Cost (default: risky-bucket judge) | Cost (full-corpus judge variant) | Wall clock |
+| Step | Cost (default risky-bucket) | Cost (--full-corpus variant) | Wall clock |
 |---|---|---|---|
-| Phase 0 (risk pre-classifier) | $0 | $0 | ~5 min |
-| Phase A (ASR sweep) | ~$2.00 | ~$2.00 | ~25 min |
-| Phase A.5 (audio judge) | ~$3 | ~$31 | ~30–60 min |
-| Phase B (calibration) | $0 | $0 | ~40 min user |
-| Phase C (respelling) | ~$0.50 | ~$0.50 | ~15 min |
-| Phase D (dict upload) | ~$0.001 | ~$0.001 | ~30 sec |
-| Phase E (re-render + triple-verify) | ~$3.50 (incl. audio judge re-verify) | ~$3.50 | ~15 min |
-| Phase F (EP audit) | $0 | $0 | ~5 min user |
-| Phase F.5 (after-fix QA) | $0 | $0 | ~20 min user |
-| Phase G + H (report + rebuild + verify) | $0 | $0 | ~5 min |
-| **Total** | **~$9** | **~$37** | **~95 min compute + ~65 min user** |
+| 08_0 risk classifier | $0 | $0 | ~5 min |
+| 08_1 audio judge | ~$3 | ~$31 | ~30 / ~60 min |
+| 08_2 calibration | $0 | $0 | ~40 min user |
+| 08_3 aliases (incl. sentinel smoke) | ~$0.65 | ~$0.65 | ~10 min |
+| 08_4 dictionary upload | ~$0.001 | ~$0.001 | ~30 sec |
+| 08_5 re-render + verify | ~$3.30 | ~$3.30 | ~15 min |
+| 08_6 after-fix + finalize | $0 | $0 | ~20 min user + ~5 min compute |
+| **Total** | **~$6** | **~$32** | **~50 min compute + ~60 min user** |
 
 #### What this stage deliberately does NOT do
 
@@ -2315,14 +2208,18 @@ pytest tests/test_stage_8.py
 - No phoneme rules (multilingual_v2 ignores them; flash_v2 unsuitable).
 - No model swap (still `eleven_multilingual_v2`; still `gpt-4o-transcribe`;
   audio judge is `gpt-4o-audio-preview` — additive, not replacing).
-- No automated full-corpus EP re-audit beyond what Phase 0's
-  `de_te_palatalization` and other EP-discriminator patterns catch
-  deterministically. The 5 already-flagged words are the named manual gate.
-- No bulk regeneration of cognates that pass Phase 0 + A + A.5. The
-  pipeline is detection-driven, not "regenerate everything cognate."
+- No full-corpus ASR sweep. ASR is diagnostic only at re-render time, not
+  a primary detection signal — same-orthography drift is exactly what ASR
+  cannot see.
+- No F1 threshold-fitting. Calibration verifies the audio judge is
+  catching real failures; the auto-confirm rule is a direct combination
+  of judge verdict + risk priority + human label, not a learned threshold.
+- No N-best across many families. Sentinel smoke test on six
+  representative words; mechanical family templates after.
+- No automated bulk regeneration of cognates that pass audio-judge clean.
 - No changes to Anki card display. The `pt` field stays canonical
   orthography (`text_input_canonical`); only the alias dictionary
-  intercepts the string before TTS.
+  intercepts the string before TTS at render time.
 - No phoneme-level audio editing. Aliases respell the input text;
   ElevenLabs renders end-to-end as normal.
 
