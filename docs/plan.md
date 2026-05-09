@@ -1336,7 +1336,36 @@ Verified against ElevenLabs Python SDK `/elevenlabs/elevenlabs-python` and Eleve
 ElevenLabs does NOT normalize loudness across voices — every voice has a different perceived volume out of the API. Untreated, the deck would have noticeably louder and quieter cards depending on which voice was assigned. Fix: post-hoc EBU R128 loudness normalization via ffmpeg, gain-only, no other DSP.
 
 - **Target**: integrated loudness `I = -16 LUFS`, true peak `TP = -1.5 dB`, loudness range `LRA = 11`. Industry standard for spoken-word content (Apple Podcasts / Spotify intake levels). Conservative on TP to avoid inter-sample peaks on lossy mobile playback.
-- **Algorithm**: ffmpeg `loudnorm` filter, two-pass mode. Pass 1 measures the clip's `input_i / input_lra / input_tp / input_thresh / target_offset` JSON. Pass 2 applies the calculated gain in linear mode (`linear=true`) — single multiplicative gain, audibly indistinguishable from raw at the gain factors we'll see, no dynamic range compression and no transient smearing.
+- **Algorithm (LOCKED 2026-05 — closed-loop after pilot evidence)**: gain-only, with **post-encode verification and corrective re-encode**.
+
+  Initial design used `loudnorm linear=true` end-to-end, but the pilot's
+  empirical loudness check found only **49.6%** of clips landed within ±1 LU
+  of -16 LUFS post-encode (mean -17.5 LUFS, 7.16 LU range across the deck).
+  Root cause: the MP3 lossy encoder shifts integrated loudness by 0.5–2 LU
+  in ways `loudnorm`'s pre-encode prediction can't account for; AND
+  `linear=true` clamps gain to preserve TP, which on quieter source clips
+  silently caps below target.
+
+  Replaced with a closed-loop pipeline:
+  1. Pass 1 — measure source PCM via `loudnorm` (JSON output: input_i,
+     input_tp, input_lra).
+  2. Compute desired gain = target_i − input_i, clamped by TP headroom
+     (target_tp − input_tp).
+  3. Apply that gain via the simple `volume={gain}dB` filter and encode
+     to MP3. (Skips `loudnorm` pass 2 — explicit gain only, no DRC.)
+  4. Measure the encoded MP3.
+  5. If outside ±1 LU AND TP ceiling has headroom: compute correction
+     delta and re-encode the source PCM with cumulative gain. Up to 2
+     correction iterations.
+  6. Stop early if TP ceiling reached (record `tp_limited=true` for the
+     handful of inherently-quiet clips that can't reach target without
+     distortion).
+
+  Implementation: `build/lib/loudness.py::normalize_pcm_to_mp3_verified()`
+  returns `VerifiedNormalizationResult` with `applied_gain_db`,
+  `final_mp3_lufs`, `final_mp3_tp`, `correction_iterations`,
+  `within_tolerance`, `tp_limited`. All fields propagate into the manifest
+  for diagnostics and Stage 7 cached-baseline computation.
 - **Per-voice baseline shortcut**: ElevenLabs voice timbre is highly consistent within a voice. During the pilot, measure 30 random clips per voice (11 × 30 = 330 measurements), compute median gain per voice, cache to `data/_voice_loudness_baselines.tsv`:
   ```tsv
   voice_id	median_gain_db	measured_n	measured_at	notes

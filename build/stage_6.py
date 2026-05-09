@@ -56,8 +56,10 @@ from build.lib.audio_manifest import (  # noqa: E402
 from build.lib.elevenlabs_client import ElevenLabsClient  # noqa: E402
 from build.lib.loudness import (  # noqa: E402
     LoudnessMeasurement,
+    VerifiedNormalizationResult,
     encode_mp3_with_volume_gain,
-    normalize_pcm_to_mp3,
+    measure_mp3_loudness,
+    normalize_pcm_to_mp3_verified,
     verify_target,
     voice_baseline_from_offsets,
 )
@@ -234,7 +236,12 @@ class ClipResult:
     similarity: float | None
     transcript: str
     cost_asr_usd: float
-    voice_baseline_offset_db: float | None  # pass-1 target_offset, for baseline
+    voice_baseline_offset_db: float | None  # FINAL applied gain (post-correction)
+    final_lufs: float | None = None
+    final_tp: float | None = None
+    within_tolerance: bool = False
+    tp_limited: bool = False
+    correction_iterations: int = 0
     error_type: str = ""
     error_msg: str = ""
 
@@ -244,15 +251,19 @@ def _normalize_pcm(
     *,
     voice_id: str,
     baselines: dict[str, float],
-) -> tuple[bytes, LoudnessMeasurement | None]:
-    """Choose two-pass (pilot / unknown voice) vs single-pass volume gain.
+) -> tuple[bytes, VerifiedNormalizationResult | None]:
+    """Choose closed-loop verified normalization (pilot / unknown voice) vs
+    single-pass volume gain (Stage 7 with cached baseline).
 
-    Returns (mp3_bytes, pass1_measurement_or_None).
+    Returns (mp3_bytes, verified_result_or_None_if_baseline_path).
+    Baseline-path callers receive None and must measure post-encode separately
+    if they want to verify against tolerance.
     """
     if voice_id in baselines:
         gain = baselines[voice_id]
         return encode_mp3_with_volume_gain(pcm_bytes, gain_db=gain), None
-    return normalize_pcm_to_mp3(pcm_bytes)
+    r = normalize_pcm_to_mp3_verified(pcm_bytes)
+    return r.mp3_bytes, r
 
 
 def _process_one_clip(
@@ -279,6 +290,11 @@ def _process_one_clip(
     cache_dir.mkdir(parents=True, exist_ok=True)
     last_outcome: AsrOutcome | None = None
     pass1_offset: float | None = None
+    final_lufs: float | None = None
+    final_tp: float | None = None
+    within_tolerance: bool = False
+    tp_limited: bool = False
+    correction_iterations: int = 0
     asr_cost_total = 0.0
 
     for attempt in range(1, max_attempts + 1):
@@ -322,15 +338,30 @@ def _process_one_clip(
                 )
             continue
 
-        # 2. Loudness norm + MP3 encode
+        # 2. Loudness norm + MP3 encode (closed-loop verified)
         try:
-            mp3_bytes, m1 = _normalize_pcm(
+            mp3_bytes, vres = _normalize_pcm(
                 tts.audio_pcm,
                 voice_id=voice_id,
                 baselines=baselines,
             )
-            if m1 is not None and pass1_offset is None:
-                pass1_offset = m1.target_offset
+            if vres is not None:
+                # First-time normalization (no cached baseline yet) — record
+                # the FINAL applied gain so the voice baseline reflects what
+                # actually landed at -16 LUFS, not just the loudnorm prediction.
+                pass1_offset = vres.applied_gain_db
+                final_lufs = vres.final_mp3_lufs
+                final_tp = vres.final_mp3_tp
+                within_tolerance = vres.within_tolerance
+                tp_limited = vres.tp_limited
+                correction_iterations = vres.correction_iterations
+            else:
+                # Stage 7 fast path with cached baseline — measure post-encode
+                # for diagnostic / spot-check.
+                m_enc = measure_mp3_loudness(mp3_bytes)
+                final_lufs = round(m_enc.input_i, 3)
+                final_tp = round(m_enc.input_tp, 3)
+                within_tolerance = abs(final_lufs - (-16.0)) <= 1.0
         except Exception as exc:
             logger.errored(sid, ctype, voice_id, attempt, type(exc).__name__, str(exc), stage="loudnorm")
             tracker.errored(
@@ -482,6 +513,15 @@ def _process_one_clip(
                 manifest_row["asr_transcript"] = ar.transcript
                 manifest_row["asr_similarity"] = str(ar.text_similarity)
                 manifest_row["asr_decision"] = ar.decision  # 'pass' or 'regen' (the failed one)
+                # Loudness diagnostics
+                if pass1_offset is not None:
+                    manifest_row["applied_gain_db"] = f"{pass1_offset:.3f}"
+                if final_lufs is not None:
+                    manifest_row["final_lufs"] = f"{final_lufs:.3f}"
+                if final_tp is not None:
+                    manifest_row["final_tp"] = f"{final_tp:.3f}"
+                manifest_row["loudness_within_tolerance"] = "true" if within_tolerance else "false"
+                manifest_row["tp_limited"] = "true" if tp_limited else "false"
                 manifest_row["status"] = STATUS_UPLOADED
                 manifest_row["generated_at"] = _now_iso()
                 if decision_tag == HUMAN:
@@ -504,6 +544,11 @@ def _process_one_clip(
                 transcript=ar.transcript,
                 cost_asr_usd=asr_cost_total,
                 voice_baseline_offset_db=pass1_offset,
+                final_lufs=final_lufs,
+                final_tp=final_tp,
+                within_tolerance=within_tolerance,
+                tp_limited=tp_limited,
+                correction_iterations=correction_iterations,
             )
 
         # REGEN with retries remaining: bump version, loop again
@@ -531,6 +576,11 @@ def _process_one_clip(
         transcript=last_outcome.asr_transcript if last_outcome else "",
         cost_asr_usd=asr_cost_total,
         voice_baseline_offset_db=pass1_offset,
+        final_lufs=final_lufs,
+        final_tp=final_tp,
+        within_tolerance=within_tolerance,
+        tp_limited=tp_limited,
+        correction_iterations=correction_iterations,
     )
 
 
