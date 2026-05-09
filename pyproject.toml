@@ -12,9 +12,11 @@ dependencies = [
     "pydantic>=2.9.0",
     "python-dotenv>=1.0.0",
     "httpx>=0.27.0",
-    # Future stages will add: google-cloud-texttospeech, google-genai,
-    # elevenlabs, openai-whisper, boto3 (for R2), beautifulsoup4 (Wiktionary),
-    # eng-to-ipa, espeakng-loader, pyyaml, tqdm
+    # Stage 6/7 audio: ElevenLabs TTS, R2 upload, ASR roundtrip,
+    # Levenshtein similarity for ASR comparisons.
+    "elevenlabs>=1.5.0",
+    "boto3>=1.34.0",
+    "rapidfuzz>=3.10.0",
 ]
 
 [dependency-groups]

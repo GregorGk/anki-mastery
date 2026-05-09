@@ -1443,6 +1443,65 @@ Every clip is validated automatically via Whisper-based ASR roundtrip (§ Review
 
 The single human gate before Stage 7 is **voice quality**, not pronunciation accuracy: the user listens to ~10 random pilot clips that **already passed ASR roundtrip** to confirm the chosen male and female voices sound right. ~15 minutes. If voices are wrong, swap voice IDs and regenerate (config change + ~30 min compute). Pronunciation accuracy is ASR's job, not the human's.
 
+#### Live progress logging (LOCKED 2026-05)
+
+User wants a growing, tail-able transcript so they can watch ASR decisions in real time, plus a periodic snapshot showing % done / ETA / cost. Reuses the `build/lib/progress.py::ProgressTracker` pattern proven in Stage 5.5 with extensions for "last N clips" and decision-distribution counters.
+
+**Three artifacts written in parallel during the run:**
+
+1. **`audit/06_audio.jsonl`** (machine-readable, append-only) — one line per lifecycle event per clip:
+   ```json
+   {"event":"started","sense_id":"0042.00.01","clip_type":"word","voice_id":"MZL...","input_text":"casa","attempt":1,"started_at":"2026-05-09T14:23:11.123Z"}
+   {"event":"asr_completed","sense_id":"0042.00.01","clip_type":"word","voice_id":"MZL...","input_text":"casa","asr_transcript":"casa","levenshtein_similarity":1.0,"phonetic_distance":0.0,"decision":"pass","attempt":1,"latency_ms":2333,"cost_usd":0.0006,"completed_at":"..."}
+   {"event":"regenerated","sense_id":"0043.00.02",...}
+   {"event":"errored","sense_id":"...","error_type":"APITimeoutError","error_msg":"..."}
+   ```
+
+2. **`audit/06_audio_transcript.log`** (human-readable, append-only, tail-friendly) — one line per ASR decision, fixed-width columns for visual scanning. Tail with `tail -f audit/06_audio_transcript.log`:
+   ```
+   2026-05-09 14:23:11  PASS    0042.00.01 word    casa                              -> casa                              sim=1.00  voice=MZL...  attempt=1  [1.4s]
+   2026-05-09 14:23:13  PASS    0042.00.01 ex      A casa é grande.                  -> A casa é grande.                  sim=1.00  voice=MZL...  attempt=1  [1.7s]
+   2026-05-09 14:23:16  REGEN   0043.00.02 word    boa                               -> bola                              sim=0.67  voice=4za...  attempt=1
+   2026-05-09 14:23:17  PASS    0043.00.02 word    boa                               -> boa                               sim=1.00  voice=4za...  attempt=2  [1.5s]
+   2026-05-09 14:23:19  HUMAN   0144.00.01 ex      Estou curioso para ver.           -> Estoy curioso para ver.           sim=0.91  voice=ny3...  attempt=2  (twice-failed -> _audio_human_review.tsv)
+   ```
+   Decision tags: `PASS` (similarity ≥ threshold, accepted), `REGEN` (below threshold, retry queued), `HUMAN` (failed twice, routed to human queue), `ERR` (TTS or ASR API error). The transcript line is written **only** when ASR completes, so a tail-watcher sees one line per clip-decision (not per lifecycle event).
+
+3. **`audit/06_audio_progress.jsonl`** (in-flight tracking + stuck detection, same shape as Stage 5.5's progress JSONL — decoupled from the human-readable transcript so the tail-friendly file stays clean).
+
+**Stdout snapshot (printed every 30 seconds by the main loop):**
+
+```
+[Stage 6  3,217 / 12,000 clips (26.8%) | 14 in-flight | 1 stuck (>120s) | started 14:08 | elapsed 24m | avg 1.4s/clip | ETA 18m | spent $4.20]
+  Last 3 clips:
+  PASS   0042.00.01 word    casa             -> casa            sim=1.00  [1.4s]
+  PASS   0042.00.01 ex      A casa é grande. -> A casa é grande. sim=1.00  [1.7s]
+  REGEN  0043.00.02 word    boa              -> bola            sim=0.67  -> retry attempt 2
+
+  Decision distribution so far:
+    PASS first attempt:    3,068  (95.4%)
+    PASS after regen:        135  (4.2%)
+    Human review queue:       14  (0.4%)
+    Errored:                   0
+```
+
+The "Last 3 clips" block is rendered from the in-memory ring buffer that the `ProgressTracker` already maintains. The decision-distribution block is recomputed from a small in-memory tally each tick.
+
+**Standalone snapshot tool — `build/audio_status.py`:**
+
+Same pattern as `build/audit_status.py` (Stage 5.5). Reads `audit/06_audio.jsonl`, prints the snapshot above plus a one-line summary. Can be run any time during or after the run; idempotent. Useful when running Stage 6/7 in a background terminal — open a second terminal and snapshot on demand.
+
+**Resume / idempotency:**
+
+Stage 6/7 reads `_audio_manifest.tsv` at startup and skips any (sense_id, clip_type) row already at `status=uploaded`. Both JSONL files are append-only and never truncated, so resume preserves the full audit history. Killing and re-running burns no extra ElevenLabs credits and no extra ASR cost.
+
+**Implementation surface:**
+
+- [build/lib/progress.py](build/lib/progress.py) — already exists from Stage 5.5; extend with `ring_buffer(N)` and `decision_counts` accessors.
+- [build/lib/asr.py](build/lib/asr.py) — Whisper API caller, normalized Levenshtein + eSpeak-IPA distance, returns `(transcript, lev_sim, phonetic_dist, decision)`.
+- [build/lib/audio_logger.py](build/lib/audio_logger.py) — writes JSONL + transcript.log atomically (single lock; appends both files in one critical section per clip).
+- [build/audio_status.py](build/audio_status.py) — standalone snapshot tool.
+
 ### Stage 7 — Audio full ([build/07_audio_full.py](build/07_audio_full.py))
 
 **In**: `05-ipa.tsv` (rows 501+) + manifest → **Out**: `06-final.tsv`, manifest fully populated
