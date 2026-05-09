@@ -411,6 +411,51 @@ def test_decide_phonetic_only_regen_when_ipa_far():
     assert r.phonetic_distance > SHORT_INPUT_PHONETIC_PASS_DISTANCE
 
 
+def test_default_asr_model_is_gpt4o_transcribe():
+    """Locked: default model is gpt-4o-transcribe (vs the older whisper-1)
+    per A/B in audit/ab_asr_summary.tsv (99.0% vs 95.5% pass rate)."""
+    from build.lib.asr import DEFAULT_ASR_MODEL, DEFAULT_WHISPER_MODEL
+
+    assert DEFAULT_ASR_MODEL == "gpt-4o-transcribe"
+    # Backwards-compat alias points at the same value.
+    assert DEFAULT_WHISPER_MODEL == DEFAULT_ASR_MODEL
+
+
+def test_response_format_per_model():
+    """gpt-4o-transcribe / gpt-4o-mini-transcribe accept ONLY json;
+    whisper-1 accepts text. Mis-routing yields a 400 from the API."""
+    from build.lib.asr import _response_format_for
+
+    assert _response_format_for("whisper-1") == "text"
+    assert _response_format_for("gpt-4o-transcribe") == "json"
+    assert _response_format_for("gpt-4o-mini-transcribe") == "json"
+    assert _response_format_for("gpt-4o-transcribe-diarize") == "json"
+
+
+def test_extract_text_handles_both_response_shapes():
+    """whisper-1 returns plain str; gpt-4o-* returns object with .text."""
+    from build.lib.asr import _extract_text
+
+    # whisper-1 plain string
+    assert _extract_text("whisper-1", "hello") == "hello"
+
+    # gpt-4o-* returns an object with .text
+    class FakeTranscription:
+        text = "olá mundo"
+
+    assert _extract_text("gpt-4o-transcribe", FakeTranscription()) == "olá mundo"
+    # dict-shaped fallback
+    assert _extract_text("gpt-4o-mini-transcribe", {"text": "casa"}) == "casa"
+
+
+def test_asr_pricing_table_has_default_model():
+    """Default model must have a published per-minute price for cost reporting."""
+    from build.lib.asr import ASR_PRICE_PER_MINUTE, DEFAULT_ASR_MODEL
+
+    assert DEFAULT_ASR_MODEL in ASR_PRICE_PER_MINUTE
+    assert ASR_PRICE_PER_MINUTE[DEFAULT_ASR_MODEL] > 0
+
+
 # --------------------------------------------------------------------------- #
 # loudness — real ffmpeg, fast (~0.5s)
 # --------------------------------------------------------------------------- #

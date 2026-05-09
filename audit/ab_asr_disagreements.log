@@ -1,0 +1,179 @@
+=== 0001.00.01 word  'o'  (rank=1, voice=m151rj…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  O
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  O
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  o
+   scribe_v2                    regen sim=0.50 pdist=0.50  ->  Oh!
+
+=== 0003.00.01 word  'em'  (rank=3, voice=ny3E2D…)
+   whisper-1                    pass  sim=0.50 pdist=0.25  ->  Ei!
+   gpt-4o-mini-transcribe       pass  sim=0.50 pdist=0.25  ->  Ei...
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  em
+   scribe_v2                    regen sim=0.25 pdist=0.67  ->  Eeei
+
+=== 0003.00.02 word  'em'  (rank=3, voice=m151rj…)
+   whisper-1                    regen sim=0.17 pdist=0.86  ->  inglês.
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  em
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  em
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Em
+
+=== 0005.00.03 example  'Que horas são?'  (rank=5, voice=wxoDdf…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Que horas são?
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Que horas são?
+   gpt-4o-transcribe            regen sim=0.38 pdist=0.50  ->  Coração.
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Que horas são?
+
+=== 0005.00.03 word  'que'  (rank=5, voice=wxoDdf…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  que
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Que?
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  que
+   scribe_v2                    regen sim=0.60 pdist=0.60  ->  O quê?
+
+=== 0007.00.02 word  'um'  (rank=7, voice=MZLCpl…)
+   whisper-1                    regen sim=0.50 pdist=0.75  ->  M
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  um
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  um
+   scribe_v2                    regen sim=0.00 pdist=0.75  ->  É
+
+=== 0009.00.01 example  'Vou para a escola de manhã.'  (rank=9, voice=Rw38T6…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Vou para a escola de manhã.
+   gpt-4o-mini-transcribe       regen sim=0.87 pdist=0.14  ->  Vou para a tua escola de manhã.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Vou para a escola de manhã.
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Vou para a escola de manhã
+
+=== 0010.00.02 example  'Eu estudo na escola às oito horas.'  (rank=10, voice=qPfM2l…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Eu estudo na escola às oito horas.
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Eu estudo na escola às oito horas.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Eu estudo na escola às oito horas.
+   scribe_v2                    regen sim=0.88 pdist=0.03  ->  Eu estudo na escola às 8 horas
+
+=== 0012.00.01 word  'com'  (rank=12, voice=Rw38T6…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  com
+   gpt-4o-mini-transcribe       regen sim=0.00 pdist=0.69  ->  콩
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  com
+   scribe_v2                    pass  sim=0.25 pdist=0.20  ->  Kong.
+
+=== 0014.00.03 word  'se'  (rank=14, voice=uju3wx…)
+   whisper-1                    pass  sim=0.67 pdist=0.25  ->  SES
+   gpt-4o-mini-transcribe       pass  sim=0.67 pdist=0.25  ->  Ses.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  se
+   scribe_v2                    regen sim=0.25 pdist=0.60  ->  Says
+
+=== 0017.00.01 word  'estar'  (rank=17, voice=MZLCpl…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  estar
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Estar
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Estar
+   scribe_v2                    regen sim=0.80 pdist=0.17  ->  Está
+
+=== 0018.00.01 word  'mais'  (rank=18, voice=qPfM2l…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  mais
+   gpt-4o-mini-transcribe       regen sim=0.75 pdist=0.20  ->  Mas
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  mais
+   scribe_v2                    regen sim=0.75 pdist=0.20  ->  Mas
+
+=== 0021.00.01 example  'Posso ajudar você com isso?'  (rank=21, voice=MZLCpl…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Posso ajudar você com isso?
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Posso ajudar você com isso?
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Posso ajudar você com isso?
+   scribe_v2                    regen sim=0.00 pdist=  -    ->  
+
+=== 0023.00.01 word  'ou'  (rank=23, voice=Rw38T6…)
+   whisper-1                    regen sim=0.50 pdist=0.67  ->  O
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  ou
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  ou
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Ou
+
+=== 0025.00.01 word  'esse'  (rank=25, voice=m151rj…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  esse
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Esse
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Esse
+   scribe_v2                    regen sim=0.75 pdist=0.80  ->  E se
+
+=== 0029.00.01 word  'ir'  (rank=29, voice=m151rj…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  ir
+   gpt-4o-mini-transcribe       regen sim=0.00 pdist=0.67  ->  E...
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  ir
+   scribe_v2                    regen sim=0.00 pdist=0.67  ->  E
+
+=== 0030.00.01 word  'todo'  (rank=30, voice=wxoDdf…)
+   whisper-1                    regen sim=0.75 pdist=0.20  ->  tudo
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Todo
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Todo
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Todo
+
+=== 0034.00.01 word  'ano'  (rank=34, voice=qPfM2l…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Ano
+   gpt-4o-mini-transcribe       regen sim=0.00 pdist=0.96  ->  あの
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  ano
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Ano
+
+=== 0034.00.01 example  'O ano tem doze meses.'  (rank=34, voice=qPfM2l…)
+   whisper-1                    regen sim=0.80 pdist=0.00  ->  O ano tem 12 meses.
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  O ano tem doze meses.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  O ano tem doze meses.
+   scribe_v2                    regen sim=0.80 pdist=0.00  ->  O ano tem 12 meses
+
+=== 0035.00.01 word  'dar'  (rank=35, voice=GOkMqf…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  dar
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  dar
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Dar
+   scribe_v2                    regen sim=0.60 pdist=0.71  ->  Darum
+
+=== 0040.00.01 example  'Vou trabalhar até as cinco horas.'  (rank=40, voice=qPfM2l…)
+   whisper-1                    regen sim=0.84 pdist=0.03  ->  Vou trabalhar até às 5 horas.
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.03  ->  Vou trabalhar até às cinco horas.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.03  ->  Vou trabalhar até às cinco horas.
+   scribe_v2                    pass  sim=1.00 pdist=0.03  ->  Vou trabalhar até às cinco horas
+
+=== 0044.00.01 word  'grande'  (rank=44, voice=xNGAXa…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  grande
+   gpt-4o-mini-transcribe       regen sim=0.50 pdist=0.44  ->  Gandhi
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  grande
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Grande
+
+=== 0051.00.01 example  'Eu tenho só dez reais na carteira.'  (rank=51, voice=MZLCpl…)
+   whisper-1                    regen sim=0.76 pdist=0.47  ->  Eu tenho só R$10,00 na carteira.
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Eu tenho só dez reais na carteira.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Eu tenho só dez reais na carteira.
+   scribe_v2                    regen sim=0.76 pdist=0.29  ->  Eu tenho só R$ 10 na carteira
+
+=== 0056.00.02 word  'dever'  (rank=56, voice=Rw38T6…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  dever
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Dever
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Dever
+   scribe_v2                    regen sim=0.71 pdist=0.33  ->  Dev ver
+
+=== 0056.00.02 example  'Devo dez reais ao meu amigo.'  (rank=56, voice=Rw38T6…)
+   whisper-1                    regen sim=0.70 pdist=0.34  ->  Devo R$10 ao meu amigo.
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Devo dez reais ao meu amigo.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Devo dez reais ao meu amigo.
+   scribe_v2                    regen sim=0.70 pdist=0.34  ->  Devo R$ 10 ao meu amigo
+
+=== 0058.00.01 example  'Eu sei onde fica a estação de trem.'  (rank=58, voice=xNGAXa…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Eu sei onde fica a estação de trem.
+   gpt-4o-mini-transcribe       regen sim=0.81 pdist=0.16  ->  Você sabe onde fica a estação de trem?
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Eu sei onde fica a estação de trem.
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Eu sei onde fica a estação de trem
+
+=== 0060.00.01 word  'querer'  (rank=60, voice=ny3E2D…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  QUERER
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  Querer...
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  querer
+   scribe_v2                    regen sim=0.62 pdist=0.38  ->  Queriiir
+
+=== 0061.00.01 word  'onde'  (rank=61, voice=Rw38T6…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  onde
+   gpt-4o-mini-transcribe       pass  sim=1.00 pdist=0.00  ->  onde
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Onde
+   scribe_v2                    regen sim=0.50 pdist=0.67  ->  Onji
+
+=== 0064.00.01 example  'Minha irmã vem me visitar no sábado.'  (rank=64, voice=wxoDdf…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  Minha irmã vem me visitar no sábado.
+   gpt-4o-mini-transcribe       regen sim=0.94 pdist=0.02  ->  Minha irmã veio me visitar no sábado.
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Minha irmã vem me visitar no sábado.
+   scribe_v2                    pass  sim=1.00 pdist=0.00  ->  Minha irmã vem me visitar no sábado
+
+=== 0067.00.01 word  'porque'  (rank=67, voice=m151rj…)
+   whisper-1                    pass  sim=1.00 pdist=0.00  ->  porque
+   gpt-4o-mini-transcribe       regen sim=0.86 pdist=0.71  ->  Por quê?
+   gpt-4o-transcribe            pass  sim=1.00 pdist=0.00  ->  Porque
+   scribe_v2                    regen sim=0.86 pdist=0.71  ->  Por quê?

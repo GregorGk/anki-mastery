@@ -1,9 +1,13 @@
-"""ASR roundtrip — Whisper transcription + Levenshtein + IPA distance.
+"""ASR roundtrip — OpenAI gpt-4o-transcribe + Levenshtein + IPA distance.
 
 Per docs/plan.md § Tier 3 — Audio ASR roundtrip:
 
-- Pre-process clip for Whisper (word clips < 1 sec hallucinate badly).
-  Pad 0.5s silence at start AND end before sending.
+- Default model: `gpt-4o-transcribe` (LOCKED 2026-05 after A/B vs whisper-1,
+  gpt-4o-mini-transcribe, and elevenlabs/scribe_v2 on 200 cached clips —
+  see audit/ab_asr_summary.tsv). 99.0% pass-rate vs 95.5% for whisper-1
+  at the same per-minute price.
+- Pre-process clip (word clips < 1 sec hallucinate badly): pad 0.5s
+  silence at start AND end before sending.
 - Use `prompt = "Palavra em português brasileiro: {input}"` for word clips
   as a soft bias against English / YouTube garbage prior. No prompt on
   example clips (long enough that bias is unnecessary).
@@ -11,9 +15,12 @@ Per docs/plan.md § Tier 3 — Audio ASR roundtrip:
 - Cross-check: if the biased pass returns input verbatim, run a second
   unbiased pass and verify — guards against prompt-trick false positives.
 
-Decision:
-- Levenshtein similarity ≥ threshold (top-1000 ≥ 0.95, long-tail ≥ 0.92) → PASS.
-- Lower → REGEN (retry queued). After 2 retries → HUMAN.
+Length-aware decision policy:
+- Inputs ≤ 3 chars normalized (function words like `o`, `de`, `em`):
+  judge purely on phonetic distance (eSpeak IPA Levenshtein), threshold
+  SHORT_INPUT_PHONETIC_PASS_DISTANCE = 0.40.
+- Longer inputs: text Levenshtein with threshold 0.95 (top-1000) or 0.92
+  (long-tail). Lower → REGEN (retry queued). After 2 retries → HUMAN.
 """
 from __future__ import annotations
 
@@ -34,7 +41,18 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from build.lib.ipa import transcribe_word as ipa_transcribe  # noqa: E402
 
-DEFAULT_WHISPER_MODEL = "whisper-1"  # OpenAI hosted Whisper-large-v3 family
+# Default ASR model — locked to gpt-4o-transcribe per A/B on 200 cached clips
+# (see audit/ab_asr_summary.tsv and audit/ab_asr_disagreements.log):
+#   - gpt-4o-transcribe       99.0% pass-rate (winner)
+#   - whisper-1               95.5%
+#   - gpt-4o-mini-transcribe  95.0% (occasional cross-language hallucinations
+#                                    on isolated phonemes — Korean, Japanese)
+#   - elevenlabs/scribe_v2    90.0%
+# Same per-minute price as whisper-1 ($0.006/min); ~7× fewer false REGENs on
+# short Portuguese function words.
+DEFAULT_ASR_MODEL = "gpt-4o-transcribe"
+# Backwards-compat alias for code that still imports the old name.
+DEFAULT_WHISPER_MODEL = DEFAULT_ASR_MODEL
 DEFAULT_LANGUAGE = "pt"
 DEFAULT_TEMPERATURE = 0.0
 
@@ -57,9 +75,40 @@ SHORT_INPUT_MAX_CHARS = 3
 # threshold because eSpeak-IPA representation has its own noise.
 SHORT_INPUT_PHONETIC_PASS_DISTANCE = 0.40
 
-# Whisper API pricing (USD / minute) — used to log per-clip cost.
-# As of 2026-05 OpenAI lists $0.006/min for whisper-1.
-WHISPER_PRICE_PER_MINUTE = 0.006
+# ASR API pricing (USD / minute audio) — used to log per-clip cost.
+# As of 2026-05 OpenAI lists $0.006/min for whisper-1 and gpt-4o-transcribe,
+# $0.003/min for gpt-4o-mini-transcribe.
+ASR_PRICE_PER_MINUTE: dict[str, float] = {
+    "whisper-1": 0.006,
+    "gpt-4o-transcribe": 0.006,
+    "gpt-4o-mini-transcribe": 0.003,
+    "gpt-4o-transcribe-diarize": 0.006,
+}
+# Backwards-compat scalar for legacy callers; equals whisper-1's rate.
+WHISPER_PRICE_PER_MINUTE = ASR_PRICE_PER_MINUTE["whisper-1"]
+
+
+def _response_format_for(model: str) -> str:
+    """gpt-4o-transcribe / gpt-4o-mini-transcribe accept ONLY `json`;
+    whisper-1 accepts `text`/`json`/`verbose_json`/`srt`/`vtt`.
+
+    We use `text` for whisper-1 (plain string return — easier) and `json`
+    for the gpt-4o family (returns Transcription object with `.text` attr).
+    """
+    if model == "whisper-1":
+        return "text"
+    return "json"
+
+
+def _extract_text(model: str, resp) -> str:
+    """Pull the transcribed text out of whatever shape the SDK returned."""
+    if model == "whisper-1":
+        return resp if isinstance(resp, str) else getattr(resp, "text", str(resp))
+    if hasattr(resp, "text"):
+        return resp.text
+    if isinstance(resp, dict):
+        return resp.get("text", "")
+    return str(resp)
 
 # Padding applied before sending to Whisper.
 SILENCE_PAD_START_S = 0.5
@@ -201,13 +250,14 @@ def _audio_duration_seconds(mp3_bytes: bytes) -> float:
 
 
 class AsrClient:
-    """OpenAI Whisper client with retry, biased-prompt option, padding."""
+    """OpenAI ASR client (default `gpt-4o-transcribe`) with retry,
+    biased-prompt option, silence-padding, and per-model response format."""
 
     def __init__(
         self,
         *,
         api_key: str | None = None,
-        model: str = DEFAULT_WHISPER_MODEL,
+        model: str = DEFAULT_ASR_MODEL,
         language: str = DEFAULT_LANGUAGE,
         max_attempts: int = DEFAULT_MAX_ATTEMPTS,
     ) -> None:
@@ -226,24 +276,28 @@ class AsrClient:
         prompt: str | None = None,
         filename: str = "clip.mp3",
     ) -> tuple[str, float]:
-        """Transcribe MP3 bytes; return (transcript, cost_usd_for_this_call)."""
+        """Transcribe MP3 bytes; return (transcript, cost_usd_for_this_call).
+
+        Picks `response_format` per model: `text` for whisper-1, `json` for
+        the gpt-4o-transcribe family (the new models reject `text`).
+        """
         kwargs: dict = {
             "model": self.model,
             "language": self.language,
             "temperature": DEFAULT_TEMPERATURE,
-            "response_format": "text",
+            "response_format": _response_format_for(self.model),
             "file": (filename, mp3_bytes, "audio/mpeg"),
         }
         if prompt:
-            kwargs["prompt"] = prompt[:240]  # Whisper truncates around 224 tokens
+            kwargs["prompt"] = prompt[:240]  # truncated around 224 tokens
         last_exc: Exception | None = None
+        price_per_min = ASR_PRICE_PER_MINUTE.get(self.model, WHISPER_PRICE_PER_MINUTE)
         for attempt in range(1, self.max_attempts + 1):
             try:
                 resp = self._client.audio.transcriptions.create(**kwargs)
-                # response_format=text returns a plain string
-                text = resp if isinstance(resp, str) else getattr(resp, "text", str(resp))
+                text = _extract_text(self.model, resp)
                 duration = _audio_duration_seconds(mp3_bytes)
-                cost = (duration / 60.0) * WHISPER_PRICE_PER_MINUTE
+                cost = (duration / 60.0) * price_per_min
                 return text.strip(), round(cost, 5)
             except APIStatusError as exc:
                 if exc.status_code in RETRYABLE_STATUS and attempt < self.max_attempts:

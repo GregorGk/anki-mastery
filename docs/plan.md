@@ -1502,6 +1502,48 @@ Stage 6/7 reads `_audio_manifest.tsv` at startup and skips any (sense_id, clip_t
 - [build/lib/audio_logger.py](build/lib/audio_logger.py) — writes JSONL + transcript.log atomically (single lock; appends both files in one critical section per clip).
 - [build/audio_status.py](build/audio_status.py) — standalone snapshot tool.
 
+#### ASR model selection (LOCKED 2026-05)
+
+After the 100-sense smoke run, ran a 4-model A/B comparison on the same 200
+cached MP3s — same audio, same loudness-normalized output, only the ASR
+model varies. Script: [build/ab_asr_models.py](build/ab_asr_models.py) +
+[build/ab_asr_analyze.py](build/ab_asr_analyze.py). Total spend ~$0.22.
+
+| Model | Provider | Pass% | Short-input pass% | Long-input pass% | Per-min |
+|---|---|---|---|---|---|
+| **gpt-4o-transcribe** | OpenAI | **99.0%** | **98.0%** | **99.3%** | $0.006 |
+| whisper-1 | OpenAI | 95.5% | 92.0% | 96.7% | $0.006 |
+| gpt-4o-mini-transcribe | OpenAI | 95.0% | 92.0% | 96.0% | $0.003 |
+| scribe_v2 | ElevenLabs | 90.0% | 84.0% | 92.0% | ~$0.007 |
+
+Decision: **`gpt-4o-transcribe` is the locked default.** Same per-minute
+price as whisper-1; pass-rate jumps 95.5% → 99.0%, which on the full
+~12,000-clip corpus drops the human-review queue from ~540 → ~120 clips.
+Particularly fixes the Whisper-1 hallucination problem on isolated function
+words: where whisper-1 transcribed `o → "O" / em → "inglês." / um → "M" /
+ou → "O"`, gpt-4o-transcribe returns the input verbatim.
+
+**Why not the cheaper gpt-4o-mini-transcribe (~$0.003/min, half the cost)?**
+Empirically it has occasional cross-language hallucinations on isolated
+phonemes — `com → 콩` (Korean), `ano → あの` (Japanese), `ir → "E..."`. At
+the corpus's scale the savings are ~$1.50; not worth the false-regen risk.
+
+**Why not scribe_v2?** Worst pass rate of the four, frequently adds
+emotional punctuation (`Oh!`, `Eeei`), splits short forms (`esse → "E se"`),
+or returns English (`se → "Says"`). ElevenLabs Scribe is excellent on long
+narration but struggles on our short pedagogical clips.
+
+**Implementation:** [build/lib/asr.py](build/lib/asr.py) `DEFAULT_ASR_MODEL`
+= `"gpt-4o-transcribe"`. The gpt-4o family requires `response_format=json`
+(rejects `text`); the `_response_format_for()` helper picks per-model and
+`_extract_text()` handles both shapes. The biased-prompt feature works
+identically. Length-aware phonetic-only policy for inputs ≤ 3 chars stays
+in place — it's a robust safety net regardless of ASR model.
+
+A/B raw evidence committed: `audit/ab_asr_summary.tsv` (per-model pass
+rates) and `audit/ab_asr_disagreements.log` (30 clips where models split
+on the verdict — useful when re-evaluating model choice in future).
+
 ### Stage 7 — Audio full ([build/07_audio_full.py](build/07_audio_full.py))
 
 **In**: `05-ipa.tsv` (rows 501+) + manifest → **Out**: `06-final.tsv`, manifest fully populated

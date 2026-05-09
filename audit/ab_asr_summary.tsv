@@ -1,0 +1,5 @@
+model	total	pass	regen	pass_rate	short_clips	short_pass	short_pass_rate	long_clips	long_pass	long_pass_rate	cost_usd	price_per_min
+whisper-1	200	191	9	0.9550	50	46	0.9200	150	145	0.9667	0.0000	0.0060
+gpt-4o-mini-transcribe	200	190	10	0.9500	50	46	0.9200	150	144	0.9600	0.0000	0.0030
+gpt-4o-transcribe	200	198	2	0.9900	50	49	0.9800	150	149	0.9933	0.0000	0.0060
+scribe_v2	200	180	20	0.9000	50	42	0.8400	150	138	0.9200	0.0000	0.0067
