@@ -349,6 +349,68 @@ def test_phonetic_distance_returns_a_number_or_none():
     assert d2 is not None and d2 > 0.0
 
 
+def test_is_short_input_classifier():
+    from build.lib.asr import is_short_input
+
+    # Function words ≤ 3 chars after normalization
+    assert is_short_input("o")
+    assert is_short_input("de")
+    assert is_short_input("em")
+    assert is_short_input("não")  # diacritics stripped: "nao"
+    # Boundary
+    assert is_short_input("são")  # "sao"
+    # Words longer than 3 chars
+    assert not is_short_input("casa")
+    assert not is_short_input("obrigado")
+    assert not is_short_input("A casa é grande.")
+
+
+def test_decide_phonetic_only_pass_when_ipa_close():
+    """For short inputs, decision should be PASS when phonetic distance
+    is below the SHORT_INPUT_PHONETIC_PASS_DISTANCE threshold (0.40)."""
+    from build.lib.asr import (
+        SHORT_INPUT_PHONETIC_PASS_DISTANCE,
+        _decide_phonetic_only,
+    )
+
+    # IPA(o) vs IPA(O) — both eSpeak-BR map to similar mid-back vowel
+    # (eSpeak normalizes case). Distance should be ~0.
+    r = _decide_phonetic_only(
+        transcript="O",
+        biased_transcript="O",
+        input_text="o",
+        threshold_dist=SHORT_INPUT_PHONETIC_PASS_DISTANCE,
+        cost_total=0.001,
+        attempts=1,
+    )
+    if r.phonetic_distance is None:
+        pytest.skip("eSpeak not installed")
+    # Both texts normalize to "o" → IPA identical → distance 0 → PASS
+    assert r.decision == "pass"
+    assert "short-input" in r.notes
+
+
+def test_decide_phonetic_only_regen_when_ipa_far():
+    """`em` vs `PING` should be phonetically far apart and regen."""
+    from build.lib.asr import (
+        SHORT_INPUT_PHONETIC_PASS_DISTANCE,
+        _decide_phonetic_only,
+    )
+
+    r = _decide_phonetic_only(
+        transcript="PING!",
+        biased_transcript="PING!",
+        input_text="em",
+        threshold_dist=SHORT_INPUT_PHONETIC_PASS_DISTANCE,
+        cost_total=0.001,
+        attempts=1,
+    )
+    if r.phonetic_distance is None:
+        pytest.skip("eSpeak not installed")
+    assert r.decision == "regen"
+    assert r.phonetic_distance > SHORT_INPUT_PHONETIC_PASS_DISTANCE
+
+
 # --------------------------------------------------------------------------- #
 # loudness — real ffmpeg, fast (~0.5s)
 # --------------------------------------------------------------------------- #

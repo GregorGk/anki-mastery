@@ -47,6 +47,16 @@ THRESHOLD_LONGTAIL = 0.92
 # something the ASR also mishears consistently is rare and caught at study).
 PHONETIC_WARNING_DISTANCE = 0.30  # 1 - normalized_similarity
 
+# Short-input policy: function words like `o`, `de`, `em` are too short for
+# Whisper to transcribe reliably even with silence-padding + biased prompt
+# (Whisper hallucinates "OU", "G", "PING" etc.). For inputs of ≤ this many
+# normalized characters, judge purely on phonetic distance — a far more
+# robust signal for isolated phonemes.
+SHORT_INPUT_MAX_CHARS = 3
+# Max acceptable phonetic distance for short-input PASS. Looser than text
+# threshold because eSpeak-IPA representation has its own noise.
+SHORT_INPUT_PHONETIC_PASS_DISTANCE = 0.40
+
 # Whisper API pricing (USD / minute) — used to log per-clip cost.
 # As of 2026-05 OpenAI lists $0.006/min for whisper-1.
 WHISPER_PRICE_PER_MINUTE = 0.006
@@ -259,6 +269,67 @@ def _word_prompt(input_text: str) -> str:
     return f"Palavra em português brasileiro: {input_text}"
 
 
+def is_short_input(input_text: str, *, max_chars: int = SHORT_INPUT_MAX_CHARS) -> bool:
+    """Whether to use the phonetic-only ASR path.
+
+    Function words like `o`, `de`, `em` are too short for Whisper to transcribe
+    reliably even with silence-padding + biased prompt; phonetic comparison
+    against eSpeak IPA is far more robust for these cases.
+    """
+    return len(normalize_text(input_text)) <= max_chars
+
+
+def _decide_phonetic_only(
+    *,
+    transcript: str,
+    biased_transcript: str | None,
+    input_text: str,
+    threshold_dist: float,
+    cost_total: float,
+    attempts: int,
+    extra_note: str = "",
+) -> AsrResult:
+    """Build an AsrResult judging on phonetic distance only.
+
+    Falls back to text similarity if eSpeak can't produce IPA for either side
+    (graceful — phonetic check is preferred but text is the safety net).
+    """
+    pdist = phonetic_distance(input_text, transcript)
+    sim = text_similarity(transcript, input_text)
+    if pdist is None:
+        # eSpeak failed — fall back to text-based decision with a soft bound,
+        # because for ≤3 chars text similarity is unreliable, so we use
+        # PHONETIC_WARNING_DISTANCE (0.30) as a soft cutoff rather than the
+        # tight text threshold.
+        decision = "pass" if sim >= 0.99 else "regen"
+        return AsrResult(
+            transcript=transcript,
+            biased_transcript=biased_transcript,
+            text_similarity=round(sim, 4),
+            phonetic_distance=None,
+            decision=decision,
+            threshold_used=0.99,  # nominal
+            cost_usd=round(cost_total, 5),
+            attempts=attempts,
+            notes=("short-input fallback: eSpeak unavailable; " + extra_note).strip("; "),
+        )
+    decision = "pass" if pdist <= threshold_dist else "regen"
+    note = f"short-input phonetic check (dist={pdist:.2f}, thresh={threshold_dist:.2f})"
+    if extra_note:
+        note = f"{note}; {extra_note}"
+    return AsrResult(
+        transcript=transcript,
+        biased_transcript=biased_transcript,
+        text_similarity=round(sim, 4),
+        phonetic_distance=pdist,
+        decision=decision,
+        threshold_used=threshold_dist,
+        cost_usd=round(cost_total, 5),
+        attempts=attempts,
+        notes=note,
+    )
+
+
 def asr_roundtrip(
     *,
     asr: AsrClient,
@@ -270,9 +341,15 @@ def asr_roundtrip(
 ) -> AsrResult:
     """Run ASR, compare to input_text, return a decision.
 
-    For word clips, applies silence padding and a biased prompt; if the biased
-    transcript matches input_text exactly, runs a second unbiased pass to
-    confirm the bias didn't fabricate the answer.
+    For word clips, applies silence padding and a biased prompt. Two policy
+    branches by input length:
+
+    - **Short inputs (≤ SHORT_INPUT_MAX_CHARS chars after normalization)**:
+      judge purely on phonetic distance (eSpeak-IPA Levenshtein), because
+      Whisper hallucinates badly on isolated phonemes. Threshold:
+      SHORT_INPUT_PHONETIC_PASS_DISTANCE.
+    - **Longer inputs**: text Levenshtein with the standard threshold; if
+      biased transcript matches input verbatim, cross-check unbiased.
     """
     threshold = THRESHOLD_TOP1000 if is_top_1000 else THRESHOLD_LONGTAIL
     cost_total = 0.0
@@ -288,6 +365,17 @@ def asr_roundtrip(
         biased_text, c1 = asr.transcribe(send_bytes, prompt=prompt, filename=f"{sense_id}-word.mp3")
         cost_total += c1
         attempts += 1
+
+        # Length-aware policy: short inputs go through phonetic-only path.
+        if is_short_input(input_text):
+            return _decide_phonetic_only(
+                transcript=biased_text,
+                biased_transcript=biased_text,
+                input_text=input_text,
+                threshold_dist=SHORT_INPUT_PHONETIC_PASS_DISTANCE,
+                cost_total=cost_total,
+                attempts=attempts,
+            )
 
         biased_sim = text_similarity(biased_text, input_text)
 
