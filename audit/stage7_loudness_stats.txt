@@ -1,0 +1,7 @@
+Stage 7 final loudness stats (over 11450 uploaded clips with final_lufs):
+  mean LUFS:                -17.46  (target -16.00)
+  range:                    -25.07 to 0.00  (25.07 LU)
+  within ±1 LU of target:   5692  (49.7%)
+  within ±2 LU of target:   8147  (71.2%)
+  loudness_within_tolerance flag = True: 0  (0.0%)
+  tp_limited (true-peak ceiling engaged): 0  (0.0%)
