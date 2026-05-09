@@ -1366,11 +1366,15 @@ ElevenLabs does NOT normalize loudness across voices — every voice has a diffe
   `final_mp3_lufs`, `final_mp3_tp`, `correction_iterations`,
   `within_tolerance`, `tp_limited`. All fields propagate into the manifest
   for diagnostics and Stage 7 cached-baseline computation.
-- **Per-voice baseline shortcut**: ElevenLabs voice timbre is highly consistent within a voice. During the pilot, measure 30 random clips per voice (11 × 30 = 330 measurements), compute median gain per voice, cache to `data/_voice_loudness_baselines.tsv`:
-  ```tsv
-  voice_id	median_gain_db	measured_n	measured_at	notes
-  ```
-  For full-corpus generation, apply the cached per-voice gain in single-pass mode to every clip of that voice. Skips 19,000+ duplicate measurements; spot-check 10 random clips per voice post-encode to confirm `|measured_LUFS − target| < 1 LU`. Voices that deviate more than 1 LU on spot-check fall back to per-clip two-pass mode (slow path).
+- ~~**Per-voice baseline shortcut**~~ **REVERSED 2026-05 post-pilot evidence**:
+  the original plan called for a cached per-voice median gain (single-pass
+  volume filter for Stage 7's full corpus). Empirical pilot data falsified
+  the underlying assumption: per-clip RMS varies by ~7 LU even within the
+  SAME voice, so a single median gain produces a 22 LU range across the
+  deck. The 50 ms/clip saved by skipping pass 1 is not worth the loudness
+  drift. **Closed-loop verification is now used for every clip, always.**
+  Baselines are still cached at `data/_voice_loudness_baselines.tsv` for
+  diagnostic logging only — they're not used for gain selection.
 - **Hard rule — gain only**: no dynamic range compression, no EQ, no limiter beyond loudnorm's `-1.5 dB` true-peak ceiling, no de-esser, no noise gate, no reverb, no any-other-DSP. Voice character must survive the chain unchanged. The user explicitly asked for no distortion; gain in a clean digital chain is mathematically lossless within headroom.
 - **Encode chain (single-encode)**: ElevenLabs PCM 44.1 kHz mono → ffmpeg `loudnorm` (linear gain, two-pass measured or per-voice baseline) → libmp3lame `mp3_44100_192` → R2 upload. The WAV/PCM intermediate is cached at `build/audio_cache/{sense_id}-{word|ex}-v{N}.wav` until R2 upload confirms; can be re-encoded later (e.g., to a higher bitrate) without another ElevenLabs call.
 - **Implementation surface**:

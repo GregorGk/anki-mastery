@@ -57,8 +57,6 @@ from build.lib.elevenlabs_client import ElevenLabsClient  # noqa: E402
 from build.lib.loudness import (  # noqa: E402
     LoudnessMeasurement,
     VerifiedNormalizationResult,
-    encode_mp3_with_volume_gain,
-    measure_mp3_loudness,
     normalize_pcm_to_mp3_verified,
     verify_target,
     voice_baseline_from_offsets,
@@ -251,17 +249,19 @@ def _normalize_pcm(
     *,
     voice_id: str,
     baselines: dict[str, float],
-) -> tuple[bytes, VerifiedNormalizationResult | None]:
-    """Choose closed-loop verified normalization (pilot / unknown voice) vs
-    single-pass volume gain (Stage 7 with cached baseline).
+) -> tuple[bytes, VerifiedNormalizationResult]:
+    """Always use closed-loop verified normalization.
 
-    Returns (mp3_bytes, verified_result_or_None_if_baseline_path).
-    Baseline-path callers receive None and must measure post-encode separately
-    if they want to verify against tolerance.
+    The earlier "cached-baseline fast path" (single-pass volume gain using
+    a per-voice median) turned out to give terrible per-clip loudness:
+    per-clip RMS varies by ~7 LU even within the same voice, so a single
+    median gain produced a 22 LU range across the deck. The closed-loop
+    pass 1 measurement is cheap (~50 ms/clip); use it always.
+
+    The `baselines` argument is kept for backwards-compat but ignored for
+    gain selection; the surgical_recovery / Stage 6 record voice baselines
+    for diagnostic logging only.
     """
-    if voice_id in baselines:
-        gain = baselines[voice_id]
-        return encode_mp3_with_volume_gain(pcm_bytes, gain_db=gain), None
     r = normalize_pcm_to_mp3_verified(pcm_bytes)
     return r.mp3_bytes, r
 
@@ -345,23 +345,13 @@ def _process_one_clip(
                 voice_id=voice_id,
                 baselines=baselines,
             )
-            if vres is not None:
-                # First-time normalization (no cached baseline yet) — record
-                # the FINAL applied gain so the voice baseline reflects what
-                # actually landed at -16 LUFS, not just the loudnorm prediction.
-                pass1_offset = vres.applied_gain_db
-                final_lufs = vres.final_mp3_lufs
-                final_tp = vres.final_mp3_tp
-                within_tolerance = vres.within_tolerance
-                tp_limited = vres.tp_limited
-                correction_iterations = vres.correction_iterations
-            else:
-                # Stage 7 fast path with cached baseline — measure post-encode
-                # for diagnostic / spot-check.
-                m_enc = measure_mp3_loudness(mp3_bytes)
-                final_lufs = round(m_enc.input_i, 3)
-                final_tp = round(m_enc.input_tp, 3)
-                within_tolerance = abs(final_lufs - (-16.0)) <= 1.0
+            # Closed-loop normalization is always used now. vres is always present.
+            pass1_offset = vres.applied_gain_db
+            final_lufs = vres.final_mp3_lufs
+            final_tp = vres.final_mp3_tp
+            within_tolerance = vres.within_tolerance
+            tp_limited = vres.tp_limited
+            correction_iterations = vres.correction_iterations
         except Exception as exc:
             logger.errored(sid, ctype, voice_id, attempt, type(exc).__name__, str(exc), stage="loudnorm")
             tracker.errored(
