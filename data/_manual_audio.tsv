@@ -1,0 +1,6 @@
+sense_id	clip_type	decision_override	reason	set_at
+0067.00.01	word	pass	Whisper drift; "porque" -> "Por quê?" — both are valid orthographic forms of the BP interrogative; audio confirmed correct by user 2026-05-09	2026-05-09T20:30:00+00:00
+0258.00.01	word	pass	Whisper drift; "definir" -> "Defini." — Whisper truncated the final -r; audio is correct	2026-05-09T20:30:00+00:00
+0265.00.01	example	pass	Whisper transcribed numeric "2.000" as written-out "dois mil metros"; audio is correct	2026-05-09T20:30:00+00:00
+0363.00.01	example	pass	Whisper drift; "Dou" -> "Dê" close phonemes; audio is correct	2026-05-09T20:30:00+00:00
+0382.00.01	word	pass	Whisper drift; "área" -> "Aria?" close phonetics with stripped accent; audio is correct	2026-05-09T20:30:00+00:00
