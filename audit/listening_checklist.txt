@@ -1,0 +1,309 @@
+====================================================================================================
+COMPREHENSIVE LISTENING CHECKLIST
+Stage 6 pilot — 500 senses / 1,000 clips total
+====================================================================================================
+
+How to use:
+  - Open URLs in browser (each one plays directly).
+  - For voice quality: confirm each voice sounds right.
+  - For HUMAN review: PASS = audio is fine, REGEN = audio is wrong.
+  - For TP-limited / loudness outliers: confirm volume is acceptable
+    (these are the clips loudness norm couldn't pull all the way to target).
+
+====================================================================================================
+§1.  VOICE QUALITY SAMPLES — 3 clips per voice (= 33 URLs)
+     Pick: 1 word + 2 examples per voice. Confirm tone / accent / gender match.
+====================================================================================================
+
+--- FEMALE #1: MZLCplaCGYxFwJ9LXmx1
+    baseline gain: +1.54 dB | n=110 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0045.00.02-word-v1.mp3
+           expected: "vez"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0135.00.01-ex-v1.mp3
+           expected: "Coloca o livro aí na mesa, por favor."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0253.00.01-ex-v1.mp3
+           expected: "Sim, eu quero café."
+
+--- FEMALE #2: Rw38T6bn0lTNOb1aUevR
+    baseline gain: +1.66 dB | n=110 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0235.00.01-word-v1.mp3
+           expected: "escola"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0315.00.01-ex-v1.mp3
+           expected: "Vamos ao teatro hoje à noite."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0056.00.02-ex-v1.mp3
+           expected: "Devo dez reais ao meu amigo."
+
+--- FEMALE #3: GOkMqfyKMLVUcYfO2WbB
+    baseline gain: +4.04 dB | n=132 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0209.00.01-word-v1.mp3
+           expected: "claro"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0314.01.01-ex-v1.mp3
+           expected: "À medida que ele cresce, fica mais alto."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0377.00.01-ex-v1.mp3
+           expected: "O livro está em cima da mesa."
+
+--- FEMALE #4: m151rjrbWXbBqyq56tly
+    baseline gain: +4.43 dB | n=138 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0361.00.01-word-v1.mp3
+           expected: "principal"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0225.00.01-ex-v1.mp3
+           expected: "A seleção nacional ganhou o jogo ontem."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0001.00.01-ex-v1.mp3
+           expected: "O livro está na mesa."
+
+--- MALE #1: wxoDdfPKBuna5KnUEotz
+    baseline gain: +1.82 dB | n=68 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0064.00.01-word-v1.mp3
+           expected: "vir"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0073.00.01-ex-v1.mp3
+           expected: "Eu sempre tomo café da manhã às sete horas."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0254.00.02-ex-v1.mp3
+           expected: "Espero que você passe no exame."
+
+--- MALE #2: qPfM2laM0pRL4rrZtBGl
+    baseline gain: +8.49 dB | n=80 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0034.00.01-word-v1.mp3
+           expected: "ano"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0282.00.01-ex-v1.mp3
+           expected: "A imagem na tela está muito clara."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0010.00.01-ex-v1.mp3
+           expected: "Vou à escola de manhã."
+
+--- MALE #3: ny3E2DZImeZm00WLGZi9
+    baseline gain: +11.87 dB | n=94 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0375.00.01-word-v1.mp3
+           expected: "respeito"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0223.00.01-ex-v1.mp3
+           expected: "A criança brinca no parque todos os dias."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0375.00.01-ex-v1.mp3
+           expected: "Todos merecem respeito no trabalho."
+
+--- MALE #4: 4za2kOXGgUd57HRSQ1fn
+    baseline gain: -0.03 dB | n=70 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0280.00.01-word-v1.mp3
+           expected: "modo"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0184.00.01-ex-v1.mp3
+           expected: "A força do vento quebrou a árvore."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0313.00.01-ex-v1.mp3
+           expected: "A linha do ônibus passa na frente da minha casa."
+
+--- MALE #5: xNGAXaCH8MaasNuo7Hr7
+    baseline gain: +8.53 dB | n=68 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0112.00.01-word-v1.mp3
+           expected: "partir"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0205.00.01-ex-v1.mp3
+           expected: "Este documento é muito importante para mim."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0215.00.02-ex-v1.mp3
+           expected: "A questão do trânsito é um problema sério na cidade."
+
+--- MALE #6: uju3wxzG5OhpWcoi3SMy
+    baseline gain: +5.91 dB | n=86 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0274.00.03-word-v1.mp3
+           expected: "antigo"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0396.00.01-ex-v1.mp3
+           expected: "O sistema de transporte público precisa melhorar."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0014.00.03-ex-v1.mp3
+           expected: "Se chover amanhã, não vamos à praia."
+
+--- MALE #7: sKbNSlHXq99bttvf8rRF
+    baseline gain: +4.37 dB | n=44 measurements
+  WORD     https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0187.00.02-word-v1.mp3
+           expected: "tipo"
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0080.00.01-ex-v1.mp3
+           expected: "Ela comprou tudo para a festa."
+  EXAMPLE  https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0293.00.01-ex-v1.mp3
+           expected: "Existem várias espécies de pássaros no parque."
+
+====================================================================================================
+§2.  HUMAN REVIEW QUEUE — 8 clips (failed ASR after 3 attempts)
+     For each, decide PASS (audio is correct, ASR was wrong) or REGEN (audio is wrong).
+====================================================================================================
+
+[ 1/8]  0067.00.01  word     voice=FEMALE #4 (m151rjrb…)
+         expected:       "porque"
+         Whisper heard:  "Por quê?"  (sim=0.8571)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0067.00.01-word-v3.mp3
+
+[ 2/8]  0153.00.01  word     voice=MALE #7 (sKbNSlHX…)
+         expected:       "hora"
+         Whisper heard:  "Ora."  (sim=0.75)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0153.00.01-word-v3.mp3
+
+[ 3/8]  0258.00.01  word     voice=FEMALE #4 (m151rjrb…)
+         expected:       "definir"
+         Whisper heard:  "Defini."  (sim=0.8571)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0258.00.01-word-v3.mp3
+
+[ 4/8]  0265.00.01  example  voice=FEMALE #3 (GOkMqfyK…)
+         expected:       "A altura da montanha é de 2.000 metros."
+         Whisper heard:  "A altura da montanha é de dois mil metros."  (sim=0.8293)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0265.00.01-ex-v3.mp3
+
+[ 5/8]  0310.00.01  example  voice=FEMALE #3 (GOkMqfyK…)
+         expected:       "No dia seguinte, vou viajar para o Rio."
+         Whisper heard:  "No dia seguinte, vou viajar pro Rio."  (sim=0.9189)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0310.00.01-ex-v3.mp3
+
+[ 6/8]  0363.00.01  example  voice=FEMALE #1 (MZLCplaC…)
+         expected:       "Dou um passo de cada vez na escada."
+         Whisper heard:  "Dê um passo de cada vez na escada."  (sim=0.9412)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0363.00.01-ex-v3.mp3
+
+[ 7/8]  0377.00.01  word     voice=FEMALE #3 (GOkMqfyK…)
+         expected:       "cima"
+         Whisper heard:  "Chima"  (sim=0.8)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0377.00.01-word-v3.mp3
+
+[ 8/8]  0382.00.01  word     voice=MALE #1 (wxoDdfPK…)
+         expected:       "área"
+         Whisper heard:  "Aria?"  (sim=0.75)
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0382.00.01-word-v3.mp3
+
+====================================================================================================
+§3.  TP-LIMITED CLIPS — 701 clips
+     These are clips where the ElevenLabs source PCM had a high crest factor
+     (peaks too close to 0 dB), so gain-only normalization couldn't push them
+     to -16 LUFS without exceeding the -1.5 dB true-peak ceiling. They're
+     usable but quieter than other clips. Listen to a sample to confirm
+     audibility — if too quiet, we can add a true-peak limiter (industry
+     standard for podcasts) which pushes ~95% of clips into ±1 LU at the
+     cost of clipping rare peaks (inaudible on speech).
+====================================================================================================
+
+     Showing 25 worst (quietest) of 701 TP-limited clips:
+
+[ 1/25]  0381.00.03  example  voice=MALE #7
+         final loudness: -22.980 LUFS  (target -16, applied gain 0.870 dB)
+         expected:       "Vamos assistir a uma peça de teatro hoje à noite."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0381.00.03-ex-v1.mp3
+
+[ 2/25]  0036.00.01  example  voice=FEMALE #4
+         final loudness: -22.740 LUFS  (target -16, applied gain 1.930 dB)
+         expected:       "Eu gosto de café e também de chá."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0036.00.01-ex-v1.mp3
+
+[ 3/25]  0004.00.01  example  voice=FEMALE #4
+         final loudness: -22.690 LUFS  (target -16, applied gain 1.710 dB)
+         expected:       "Eu gosto de café e pão no café da manhã."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0004.00.01-ex-v1.mp3
+
+[ 4/25]  0033.00.01  example  voice=MALE #7
+         final loudness: -22.360 LUFS  (target -16, applied gain 2.950 dB)
+         expected:       "Ela sempre diz a verdade."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0033.00.01-ex-v1.mp3
+
+[ 5/25]  0112.00.01  word     voice=MALE #5
+         final loudness: -22.210 LUFS  (target -16, applied gain 11.130 dB)
+         expected:       "partir"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0112.00.01-word-v1.mp3
+
+[ 6/25]  0185.00.01  example  voice=MALE #3
+         final loudness: -22.120 LUFS  (target -16, applied gain 7.110 dB)
+         expected:       "O que aconteceu ontem na escola?"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0185.00.01-ex-v1.mp3
+
+[ 7/25]  0316.00.01  example  voice=MALE #6
+         final loudness: -22.100 LUFS  (target -16, applied gain 4.900 dB)
+         expected:       "Não há espaço suficiente na mala para todas as roupas."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0316.00.01-ex-v1.mp3
+
+[ 8/25]  0114.00.02  word     voice=MALE #7
+         final loudness: -21.990 LUFS  (target -16, applied gain 0.920 dB)
+         expected:       "tanto"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0114.00.02-word-v1.mp3
+
+[ 9/25]  0259.00.01  word     voice=MALE #7
+         final loudness: -21.820 LUFS  (target -16, applied gain 1.400 dB)
+         expected:       "tarde"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0259.00.01-word-v1.mp3
+
+[10/25]  0279.00.01  word     voice=MALE #7
+         final loudness: -21.790 LUFS  (target -16, applied gain 8.430 dB)
+         expected:       "Deus"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0279.00.01-word-v1.mp3
+
+[11/25]  0341.00.01  example  voice=MALE #3
+         final loudness: -21.710 LUFS  (target -16, applied gain 9.720 dB)
+         expected:       "Este advogado representa minha família no tribunal."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0341.00.01-ex-v1.mp3
+
+[12/25]  0016.00.03  example  voice=MALE #7
+         final loudness: -21.650 LUFS  (target -16, applied gain 0.420 dB)
+         expected:       "Ele trabalha como professor na escola."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0016.00.03-ex-v1.mp3
+
+[13/25]  0081.00.01  example  voice=MALE #7
+         final loudness: -21.600 LUFS  (target -16, applied gain 1.200 dB)
+         expected:       "Minha casa é perto da praia."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0081.00.01-ex-v1.mp3
+
+[14/25]  0178.00.01  example  voice=MALE #3
+         final loudness: -21.570 LUFS  (target -16, applied gain 7.150 dB)
+         expected:       "Este lugar é muito bonito e tranquilo."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0178.00.01-ex-v1.mp3
+
+[15/25]  0254.00.03  example  voice=MALE #7
+         final loudness: -21.530 LUFS  (target -16, applied gain 2.500 dB)
+         expected:       "Espero receber uma resposta amanhã."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0254.00.03-ex-v1.mp3
+
+[16/25]  0265.00.01  word     voice=FEMALE #3
+         final loudness: -21.460 LUFS  (target -16, applied gain 4.840 dB)
+         expected:       "altura"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0265.00.01-word-v1.mp3
+
+[17/25]  0272.00.01  example  voice=FEMALE #4
+         final loudness: -21.310 LUFS  (target -16, applied gain 4.310 dB)
+         expected:       "Preciso pagar a conta de luz amanhã."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0272.00.01-ex-v1.mp3
+
+[18/25]  0114.00.02  example  voice=MALE #7
+         final loudness: -21.300 LUFS  (target -16, applied gain 3.860 dB)
+         expected:       "Comi tanto que não consigo comer mais."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0114.00.02-ex-v1.mp3
+
+[19/25]  0232.00.02  example  voice=MALE #3
+         final loudness: -21.280 LUFS  (target -16, applied gain 6.800 dB)
+         expected:       "O garçom trouxe a conta depois do jantar."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0232.00.02-ex-v1.mp3
+
+[20/25]  0081.00.01  word     voice=MALE #7
+         final loudness: -21.270 LUFS  (target -16, applied gain 0.110 dB)
+         expected:       "casa"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0081.00.01-word-v1.mp3
+
+[21/25]  0091.00.01  example  voice=MALE #3
+         final loudness: -21.260 LUFS  (target -16, applied gain 10.570 dB)
+         expected:       "Ela tem o próprio apartamento no centro da cidade."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0091.00.01-ex-v1.mp3
+
+[22/25]  0199.00.02  word     voice=MALE #4
+         final loudness: -21.190 LUFS  (target -16, applied gain -0.060 dB)
+         expected:       "contar"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0199.00.02-word-v1.mp3
+
+[23/25]  0224.00.02  example  voice=MALE #7
+         final loudness: -21.190 LUFS  (target -16, applied gain 0.970 dB)
+         expected:       "O banco fica próximo ao mercado."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0224.00.02-ex-v1.mp3
+
+[24/25]  0251.00.01  word     voice=FEMALE #1
+         final loudness: -21.110 LUFS  (target -16, applied gain 0.220 dB)
+         expected:       "arte"
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0251.00.01-word-v1.mp3
+
+[25/25]  0284.00.01  example  voice=MALE #6
+         final loudness: -21.020 LUFS  (target -16, applied gain 3.340 dB)
+         expected:       "Eu gosto de caminhar à noite na praia."
+         URL:            https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0284.00.01-ex-v1.mp3
+
+====================================================================================================
+§4.  NON-TP-LIMITED LOUDNESS OUTLIERS — 0 clips
+     Clips off-target by >2 LU NOT due to TP ceiling — these are unexpected.
+====================================================================================================
+
+  (none — all non-TP-limited clips are within ±2 LU.)
+
+====================================================================================================
+END OF CHECKLIST
+====================================================================================================
