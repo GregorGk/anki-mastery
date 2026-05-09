@@ -1331,6 +1331,37 @@ Verified against ElevenLabs Python SDK `/elevenlabs/elevenlabs-python` and Eleve
 - **`apply_text_normalization = "auto"`** — default; lets ElevenLabs handle numbers, dates, abbreviations sensibly. Lock to `"on"` if BP-specific number-reading misbehavior surfaces in pilot.
 - **No `previous_text` / `next_text`** — word and example clips are independent (Anki plays them separately), so connected-speech continuity hints are not useful here.
 
+#### Accent-related parameter audit (LOCKED 2026-05)
+
+User asked whether we're using all relevant accent-controlling parameters
+before Stage 7 launches. Full sweep of `text_to_speech.convert()` arguments:
+
+- `language_code = "pt"` — ISO 639-1 only accepts 2-letter codes; there is
+  no `pt-BR` / `pt-PT` distinction at this parameter (BCP-47 not accepted).
+  Set to `"pt"` to prevent the model from drifting into Spanish or English.
+- `apply_language_text_normalization` — explicitly **Japanese-only** per
+  ElevenLabs docs. Cannot use for Portuguese.
+- `pronunciation_dictionary_locators` — **NOT used**, opt-in only. Useful
+  to override systematic mispronunciations via custom IPA / alphabet
+  dictionaries (up to 3 locators per request). Pilot listening surfaced
+  zero systematic per-word mispronunciation patterns in the surviving
+  8-voice pool, so building a dictionary would be busy-work today.
+  Reserved as a remediation lever if Stage 7's full corpus exposes any
+  recurring failure pattern.
+- `optimize_streaming_latency` — not used (default 0 = max quality, no
+  latency tradeoff). Locked.
+- `use_pvc_as_ivc` — not used. Forcing IVC drops voice quality on
+  professionally-cloned voices.
+- `previous_request_ids` / `next_request_ids` — not used. Word and
+  example clips are independent in Anki playback; request-stitching
+  continuity hints would be unused.
+
+The accent enforcement is achieved by (1) BP-native voice selection in
+`config/voices.tsv`, (2) `language_code="pt"` to lock language, and
+(3) the BP-spelling cues already encoded in the example sentences from
+Stage 4. ElevenLabs has no separate `accent="brazilian"` knob beyond
+these three levers. No further tuning available pre-Stage-7.
+
 #### Loudness normalization (LOCKED 2026-05)
 
 ElevenLabs does NOT normalize loudness across voices — every voice has a different perceived volume out of the API. Untreated, the deck would have noticeably louder and quieter cards depending on which voice was assigned. Fix: post-hoc EBU R128 loudness normalization via ffmpeg, gain-only, no other DSP.

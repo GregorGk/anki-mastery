@@ -40,12 +40,18 @@ CONFIG_DIR = REPO_ROOT / "config"
 
 
 class TestVoicePool:
+    """Voice pool counts are 2F + 6M = 8 voices after the 2026-05 voice swap
+    remediation (3 voices flagged for replacement during pilot review were
+    dropped without replacements; their senses redistributed within gender
+    pool via surgical reassignment). See docs/plan.md § Stage 6 pilot
+    remediation."""
+
     def test_committed_pool_has_correct_counts(self):
         voices = load_voices(CONFIG_DIR / "voices.tsv")
         females = [v for v in voices if v.gender == "female"]
         males = [v for v in voices if v.gender == "male"]
-        assert len(females) == 4, f"expected 4 female voices, got {len(females)}"
-        assert len(males) == 7, f"expected 7 male voices, got {len(males)}"
+        assert len(females) == 2, f"expected 2 female voices, got {len(females)}"
+        assert len(males) == 6, f"expected 6 male voices, got {len(males)}"
 
     def test_pool_indices_are_unique_within_gender(self):
         voices = load_voices(CONFIG_DIR / "voices.tsv")
@@ -58,10 +64,10 @@ class TestVoicePool:
     def test_split_by_gender(self):
         voices = load_voices(CONFIG_DIR / "voices.tsv")
         female_voices, male_voices = split_by_gender(voices)
-        assert len(female_voices) == 4
-        assert len(male_voices) == 7
+        assert len(female_voices) == 2
+        assert len(male_voices) == 6
         # All voice_ids unique
-        assert len(set(female_voices + male_voices)) == 11
+        assert len(set(female_voices + male_voices)) == 8
 
 
 # --- Phase 2a: resolve_neutrals ---------------------------------------------

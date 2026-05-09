@@ -644,6 +644,21 @@ def run(
         print(f"[stage_6] manifest complete; {summarize(manifest_rows).fmt()}", file=sys.stderr)
         return {"senses": len(senses), "pending": 0}
 
+    # Write a run_started marker into the audit JSONL so audio_status.py can
+    # cleanly distinguish this run from any prior runs in the same log.
+    AUDIO_JSONL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    run_started_at = _now_iso()
+    with AUDIO_JSONL_PATH.open("a", encoding="utf-8") as _rf:
+        import json as _json
+        _rf.write(_json.dumps({
+            "event": "run_started",
+            "stage": f"Stage_{'6' if pilot_size else '7'}",
+            "pilot_size": pilot_size,
+            "concurrency": concurrency,
+            "pending_total": len(pending),
+            "started_at": run_started_at,
+        }, ensure_ascii=False) + "\n")
+
     print(f"[stage_6] manifest: {summarize(manifest_rows).fmt()}", file=sys.stderr)
     print(f"[stage_6] pending clips: {len(pending):,}", file=sys.stderr)
 
