@@ -1320,6 +1320,42 @@ Pricing comparison (locked: only ElevenLabs is used; alternatives kept for refer
 
 `config/models.yaml` carries the active TTS provider as a role-key. Voice IDs are pinned at `config/voices.tsv` (4 female + 7 male, user-selected, committed); per-sense voice assignment happens at Stage 4.5 via seeded round-robin within each gender pool. ASR roundtrip and filename versioning (`-v{N}.mp3`) are unchanged.
 
+#### Audio quality settings (LOCKED 2026-05)
+
+Verified against ElevenLabs Python SDK `/elevenlabs/elevenlabs-python` and ElevenLabs API docs (Context7). Highest quality possible without distortion is the explicit goal.
+
+- **`model_id = "eleven_multilingual_v2"`** — plan-locked. The newer `eleven_v3` is now the SDK's default sample but uses different credit accounting and is unverified against the 11 user-committed voice IDs. v3 is reserved as a future swap behind the `tts_model` role-key in `config/models.yaml`.
+- **`output_format = "pcm_44100"`** — uncompressed 44.1 kHz PCM. Pro-tier exclusive. No MP3 artifacts on the API side; lossless input to the loudness-norm + encode chain. Falls back to `mp3_44100_192` if Pro tier is downgraded mid-project (Creator+ requirement).
+- **`voice_settings = VoiceSettings(stability=0.65, similarity_boost=0.80, style=0.0, use_speaker_boost=True)`** — locked across all 11 voices. Rationale: vocabulary learning rewards consistency over expressiveness; `stability=0.65` (above the 0.5 default) reduces prosody variance between identical re-generations of the same word; `similarity_boost=0.80` (above the 0.75 default) keeps each voice on-character; `style=0.0` keeps delivery neutral and pedagogical; `use_speaker_boost=True` is essential for short word-only clips where clarity dominates.
+- **`seed = stable_hash(sense_id + clip_type + version) % 4_294_967_295`** — best-effort determinism per ElevenLabs docs ("repeated requests with the same seed and parameters should return the same result. Determinism is not guaranteed"). Cheap to set; helps when regen at the same version should reproduce identical audio (rare, but free insurance).
+- **`apply_text_normalization = "auto"`** — default; lets ElevenLabs handle numbers, dates, abbreviations sensibly. Lock to `"on"` if BP-specific number-reading misbehavior surfaces in pilot.
+- **No `previous_text` / `next_text`** — word and example clips are independent (Anki plays them separately), so connected-speech continuity hints are not useful here.
+
+#### Loudness normalization (LOCKED 2026-05)
+
+ElevenLabs does NOT normalize loudness across voices — every voice has a different perceived volume out of the API. Untreated, the deck would have noticeably louder and quieter cards depending on which voice was assigned. Fix: post-hoc EBU R128 loudness normalization via ffmpeg, gain-only, no other DSP.
+
+- **Target**: integrated loudness `I = -16 LUFS`, true peak `TP = -1.5 dB`, loudness range `LRA = 11`. Industry standard for spoken-word content (Apple Podcasts / Spotify intake levels). Conservative on TP to avoid inter-sample peaks on lossy mobile playback.
+- **Algorithm**: ffmpeg `loudnorm` filter, two-pass mode. Pass 1 measures the clip's `input_i / input_lra / input_tp / input_thresh / target_offset` JSON. Pass 2 applies the calculated gain in linear mode (`linear=true`) — single multiplicative gain, audibly indistinguishable from raw at the gain factors we'll see, no dynamic range compression and no transient smearing.
+- **Per-voice baseline shortcut**: ElevenLabs voice timbre is highly consistent within a voice. During the pilot, measure 30 random clips per voice (11 × 30 = 330 measurements), compute median gain per voice, cache to `data/_voice_loudness_baselines.tsv`:
+  ```tsv
+  voice_id	median_gain_db	measured_n	measured_at	notes
+  ```
+  For full-corpus generation, apply the cached per-voice gain in single-pass mode to every clip of that voice. Skips 19,000+ duplicate measurements; spot-check 10 random clips per voice post-encode to confirm `|measured_LUFS − target| < 1 LU`. Voices that deviate more than 1 LU on spot-check fall back to per-clip two-pass mode (slow path).
+- **Hard rule — gain only**: no dynamic range compression, no EQ, no limiter beyond loudnorm's `-1.5 dB` true-peak ceiling, no de-esser, no noise gate, no reverb, no any-other-DSP. Voice character must survive the chain unchanged. The user explicitly asked for no distortion; gain in a clean digital chain is mathematically lossless within headroom.
+- **Encode chain (single-encode)**: ElevenLabs PCM 44.1 kHz mono → ffmpeg `loudnorm` (linear gain, two-pass measured or per-voice baseline) → libmp3lame `mp3_44100_192` → R2 upload. The WAV/PCM intermediate is cached at `build/audio_cache/{sense_id}-{word|ex}-v{N}.wav` until R2 upload confirms; can be re-encoded later (e.g., to a higher bitrate) without another ElevenLabs call.
+- **Implementation surface**:
+  - `build/lib/loudness.py::measure_voice_baseline(voice_id, sample_clips) -> float` (median dB gain)
+  - `build/lib/loudness.py::normalize_clip(input_pcm, gain_db_or_None) -> mp3_bytes` (calls ffmpeg via subprocess)
+  - `build/lib/loudness.py::verify_target(mp3_bytes, target_lufs=-16, tolerance_lu=1) -> bool` (post-encode spot-check)
+  - ffmpeg ≥ 4.2 required (loudnorm `linear=true` mode introduced in 4.2). Check at script startup; fail loudly if missing.
+
+#### Cost & character impact
+
+The PCM-then-loudnorm-then-MP3 chain adds zero ElevenLabs charges (everything is local CPU). Loudness normalization itself is fast: ~50 ms/clip on a modern Mac. Total wall-clock add for ~12,000 clips: ~10 min serial, ~2 min at concurrency 4. Storage: PCM cache is ~10× MP3 size (~14 GB local) — kept on local SSD; can be deleted after R2 upload completes.
+
+ElevenLabs character billing is unchanged (PCM and MP3 cost the same per character). Pro tier 600k cap still has 233k headroom against the 367k projected character budget.
+
 ### Stage 6 — Audio pilot ([build/06_audio_pilot.py](build/06_audio_pilot.py))
 
 **In**: `05-ipa.tsv` (first 500 rows) + `_manual_audio.tsv` → **Out**: `_pilot_500.tsv`, `_audio_manifest.tsv` (initial), audio assets on R2
@@ -1845,9 +1881,9 @@ Most of this runs unattended. Human touchpoints are explicitly tagged ⚑.
 11. `python build/055_audit.py` → auditor pass; failures auto-regenerate; borderlines into `_jury_disagreements.tsv`.
 12. ⚑ **Pre-audio cost report**: review character count and confirm spend (~5 min). Confirm ElevenLabs Pro subscription is active and `ELEVENLABS_API_KEY` in `.env`.
 13. ⚑ **Configure R2 public custom domain** (~10 min). (Voice IDs already committed at `config/voices.tsv` — no longer a per-run human step.)
-14. `python build/06_audio_pilot.py` → ASR-validated; `_pilot_500.tsv`.
-15. ⚑ **Voice quality check**: listen to ~10 random ASR-passed pilot clips (~15 min). If voices are wrong, swap and rerun pilot.
-16. `python build/07_audio_full.py` → ASR-validated; `06-final.tsv` produced; `_audio_human_review.tsv` for the rare twice-failed clips.
+14. `python build/06_audio_pilot.py` → ElevenLabs PCM generation, ffmpeg loudness measurement (per-voice baselines cached to `data/_voice_loudness_baselines.tsv`), normalized MP3 encode, R2 upload, ASR roundtrip. Produces `_pilot_500.tsv`.
+15. ⚑ **Voice quality + loudness check** (~15 min): (a) listen to ~10 random ASR-passed pilot clips per voice to confirm tone is right; (b) glance at the loudness verification report — the script asserts every encoded clip lands within ±1 LU of the -16 LUFS target. Anything outside that band is logged loudly, not silently. If voice tone is wrong, swap voice IDs in `config/voices.tsv` and rerun pilot for that voice's slice only.
+16. `python build/07_audio_full.py` → uses cached per-voice loudness baselines (no re-measurement), generates remaining ~5,200 senses, ASR-validated; `06-final.tsv` produced; `_audio_human_review.tsv` for the rare twice-failed clips.
 17. ⚑ **Disagreement queue review** (~30–60 min): walk through `_jury_disagreements.tsv` and `_audio_human_review.tsv`. Most rows are 5-second decisions.
 18. ⚑ **Final 50-row sanity scroll on `06-final.tsv`** (~30 min): catches systemic errors.
 19. `python build/verify_all.py` passes; `pytest tests/test_invariants.py` passes.
