@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 8 — After-fix listening QA</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 920px; margin: 2em auto; padding: 0 1em; line-height: 1.5; }
+h1 { border-bottom: 2px solid #888; padding-bottom: 0.3em; }
+.guide { background: #f5f8fb; border: 1px solid #cdd; border-radius: 6px;
+  padding: 1em 1.5em; margin-bottom: 2em; font-size: 0.95em; }
+.md-table { border-collapse: collapse; margin: 0.6em 0; font-size: 0.92em; }
+.md-table th, .md-table td { border: 1px solid #aaa; padding: 0.3em 0.7em; vertical-align: top; }
+.md-table th { background: #e6ecf2; }
+code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; }
+.row { border-left: 4px solid #4a8; padding: 0.6em 1em; margin: 1em 0; background: #fafafa; }
+.row header { font-weight: bold; }
+.before, .after { margin: 0.4em 0; }
+audio { width: 100%; margin: 0.2em 0; }
+.radio-row { display: flex; gap: 1em; margin-top: 0.4em; }
+.export { position: sticky; top: 0; background: #ffd; padding: 1em; border: 2px solid #ba0;
+  border-radius: 4px; margin: 1em 0; z-index: 10; }
+button { font-size: 1em; padding: 0.5em 1em; cursor: pointer; }
+#export-output { width: 100%; height: 200px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<h1>Stage 8 — After-fix listening QA</h1>
+
+<p>27 clips. For each, listen to BEFORE (v1) and AFTER (v2) and decide:
+<strong>BETTER</strong> (v2 sounds more BP), <strong>SAME</strong>
+(no audible difference), <strong>WORSE</strong> (v2 regressed). The
+hard gate blocks the final TSV rebuild if there's any WORSE or
+&gt;10% SAME in any family.</p>
+
+<div class="export">
+  <button onclick="exportLabels()">Export labels (copy TSV)</button>
+  <span id="export-status" style="margin-left: 1em; color: #060;"></span>
+  <details style="margin-top: 0.6em;">
+    <summary>Show raw TSV</summary>
+    <textarea id="export-output" readonly></textarea>
+  </details>
+</div>
+
+<div class="guide">
+<h1>Reviewer guide — listening to BP audio clips</h1>
+<p>This guide is for the human judge reviewing audio clips in the listening-checklist HTMLs (Stage 6/7 listening_checklist, Stage 8 calibration, Stage 8 after-fix QA).</p>
+<h2>Your profile</h2>
+<p>You are an <strong>A1 Brazilian Portuguese learner</strong>, native <strong>Polish</strong> speaker, fluent in <strong>English</strong> and <strong>German</strong>. The tips below lean on Polish, EN, and DE parallels where they&#x27;re useful — you don&#x27;t need any prior BP training to make these judgments.</p>
+<h2>What you&#x27;re judging</h2>
+<p>You&#x27;re judging whether the audio sounds like <strong>standard Brazilian Portuguese</strong> or like some other accent (English-leaning, European Portuguese, Spanish, French, etc.). You are <strong>not</strong> judging whether the voice timbre is pleasant, whether the recording is high-fidelity, or whether the speaker matches some idealized BP. The deck only needs each clip to clearly cue the BP pronunciation of the displayed word.</p>
+<p>If a clip sounds clearly BP → <strong>OK</strong>. If it sounds clearly off (English / EP / Spanish / weird) → <strong>MISPRONOUNCED</strong>. If you can&#x27;t tell, or it&#x27;s borderline → <strong>UNCLEAR</strong>.</p>
+<h2>Six BP-specific phonetic features to listen for</h2>
+<p>These are the features that distinguish BP from English, EP, Spanish, and French in our voice catalog. Each one is a useful test.</p>
+<h3>1. Final <code>-l</code> vocalization (BP <code>[w]</code>, not English <code>[l]</code>)</h3>
+<p>BP turns syllable-final <code>l</code> into a <strong><code>u</code>-like glide</strong> — similar to the Polish <code>ł</code> in <code>łapa</code> (which sounds like English &quot;w&quot;). English keeps a clear <code>l</code>. EP keeps a velarized but consonantal <code>l</code>.</p>
+<table class="md-table">
+<thead><tr><th>Word</th><th>BP target</th><th>English drift</th><th>EP drift</th></tr></thead>
+<tbody>
+<tr><td><code>animal</code></td><td><code>[a-ni-MAU]</code> (last syllable rhymes with English &quot;wow&quot;)</td><td><code>[ANN-ih-mul]</code> (stress on first, clear <code>l</code> at end)</td><td><code>[a-ni-MAL]</code> (clear consonantal <code>l</code>)</td></tr>
+<tr><td><code>hospital</code></td><td><code>[os-pi-TAU]</code></td><td><code>[HOSS-pih-tul]</code></td><td><code>[osh-pi-TAL]</code></td></tr>
+<tr><td><code>papel</code></td><td><code>[pa-PEU]</code></td><td><code>[pah-PEL]</code></td><td><code>[pa-PEL]</code></td></tr>
+<tr><td><code>civil</code></td><td><code>[si-VIU]</code></td><td><code>[SIV-ill]</code></td><td><code>[si-VIL]</code></td></tr>
+</tbody></table>
+<p><strong>Polish ear test</strong>: does the final sound rhyme with <code>łapa</code>&#x27;s ł or with English <code>bell</code>&#x27;s l? It should rhyme with <code>łapa</code>.</p>
+<h3>2. <code>-de</code> and <code>-te</code> palatalization (BP <code>[dʒi] / [tʃi]</code>, not EP <code>[d] / [t]</code>)</h3>
+<p>In BP, final <code>-de</code> and <code>-te</code> palatalize: <code>de</code> becomes the sound of Polish <code>dżi</code> (English &quot;j&quot; + &quot;ee&quot;), and <code>te</code> becomes Polish <code>czi</code> (English &quot;ch&quot; + &quot;ee&quot;). EP keeps a hard <code>d</code> or <code>t</code>, often with the final vowel almost silent.</p>
+<table class="md-table">
+<thead><tr><th>Word</th><th>BP target</th><th>EP drift</th></tr></thead>
+<tbody>
+<tr><td><code>cidade</code></td><td><code>[si-DA-dʒi]</code> (Polish: &quot;si-DA-dżi&quot;)</td><td><code>[si-DAD]</code> (final almost silent)</td></tr>
+<tr><td><code>gente</code></td><td><code>[ZHEN-tʃi]</code> (Polish: &quot;żen-czi&quot;)</td><td><code>[ZHEN-t]</code></td></tr>
+<tr><td><code>dente</code></td><td><code>[DEN-tʃi]</code></td><td><code>[DEN-t]</code></td></tr>
+<tr><td><code>ponte</code></td><td><code>[PON-tʃi]</code></td><td><code>[PON-t]</code></td></tr>
+</tbody></table>
+<p><strong>Polish ear test</strong>: does <code>cidade</code> end with the same sound as Polish <code>dżin</code>? That&#x27;s BP. If it ends with a hard <code>d</code> or trails off silently, that&#x27;s EP.</p>
+<h3>3. Initial <code>r</code> and double <code>rr</code> (BP <code>[h]</code>, not EP <code>[ʁ]</code>)</h3>
+<p>BP initial <code>r</code> and double <code>rr</code> sound like the <strong>English <code>h</code> in &quot;hello&quot;</strong> or the <strong>German <code>ch</code> in &quot;Bach&quot;</strong> (a back fricative). EP and French use a uvular <code>[ʁ]</code> (the throaty French <code>r</code>), which is qualitatively different.</p>
+<table class="md-table">
+<thead><tr><th>Word</th><th>BP target</th><th>EP / French drift</th></tr></thead>
+<tbody>
+<tr><td><code>rua</code></td><td><code>[HU-a]</code> (English &quot;hoo-ah&quot;) or <code>[CHU-a]</code> (German &quot;Bach&quot;-style)</td><td><code>[ʁU-a]</code> (French throaty r)</td></tr>
+<tr><td><code>carro</code></td><td><code>[CA-hu]</code></td><td><code>[CA-ʁu]</code></td></tr>
+<tr><td><code>terra</code></td><td><code>[TE-ha]</code></td><td><code>[TE-ʁa]</code></td></tr>
+<tr><td><code>real</code></td><td><code>[he-AU]</code></td><td><code>[ʁe-AL]</code></td></tr>
+</tbody></table>
+<p><strong>German ear test</strong>: does the initial <code>r</code> sound like German <code>Bach</code>&#x27;s <code>ch</code>, or like French <code>Paris</code>&#x27;s <code>r</code>? BP wants the German-style sound.</p>
+<h3>4. Coda <code>s</code> (BP <code>[s] / [z]</code>, not EP <code>[ʃ] / [ʒ]</code>)</h3>
+<p>When <code>s</code> ends a syllable in BP, it stays as English <code>[s]</code> or <code>[z]</code>. In EP, it becomes Polish <code>sz</code> or English <code>sh</code>.</p>
+<table class="md-table">
+<thead><tr><th>Word</th><th>BP target</th><th>EP drift</th></tr></thead>
+<tbody>
+<tr><td><code>festa</code></td><td><code>[FES-ta]</code> (clear &quot;s&quot;)</td><td><code>[FESH-ta]</code> (Polish &quot;sz&quot;)</td></tr>
+<tr><td><code>escola</code></td><td><code>[es-KO-la]</code></td><td><code>[esh-KO-la]</code></td></tr>
+<tr><td><code>três</code></td><td><code>[TRES]</code></td><td><code>[TRESH]</code></td></tr>
+<tr><td><code>isto</code></td><td><code>[IS-tu]</code></td><td><code>[ISH-tu]</code></td></tr>
+</tbody></table>
+<p><strong>Polish ear test</strong>: does the coda <code>s</code> sound like Polish <code>s</code> (in <code>samolot</code>), or like Polish <code>sz</code> (in <code>szafa</code>)? BP wants the plain <code>s</code>.</p>
+<h3>5. Final unstressed <code>-e</code> (BP <code>[i]</code>, not EP silent)</h3>
+<p>BP renders unstressed final <code>-e</code> as a clear <code>[i]</code> (Polish <code>i</code>). EP often reduces it to a centralized <code>[ɨ]</code> (closer to Polish <code>y</code>) or drops it entirely.</p>
+<table class="md-table">
+<thead><tr><th>Word</th><th>BP target</th><th>EP drift</th></tr></thead>
+<tbody>
+<tr><td><code>nome</code></td><td><code>[NO-mi]</code> (Polish &quot;no-mi&quot;)</td><td><code>[NOM]</code> or <code>[NO-mə]</code> (silent / muffled)</td></tr>
+<tr><td><code>fome</code></td><td><code>[FO-mi]</code></td><td><code>[FOM]</code></td></tr>
+<tr><td><code>sete</code></td><td><code>[SE-tʃi]</code> (combines with #2)</td><td><code>[SET]</code></td></tr>
+</tbody></table>
+<p><strong>Polish ear test</strong>: does the word end on a clear <code>i</code> sound? BP yes; EP no.</p>
+<h3>6. Stress placement on cognates (BP often final, English often first)</h3>
+<p>Same-spelled cognates almost always have <strong>different stress</strong> in BP vs English.</p>
+<table class="md-table">
+<thead><tr><th>Word</th><th>BP stress</th><th>English stress</th></tr></thead>
+<tbody>
+<tr><td><code>animal</code></td><td>a-ni-<strong>MAU</strong> (final)</td><td><strong>AN</strong>-ih-mul (initial)</td></tr>
+<tr><td><code>hospital</code></td><td>os-pi-<strong>TAU</strong> (final)</td><td><strong>HOS</strong>-pih-tul (initial)</td></tr>
+<tr><td><code>social</code></td><td>so-si-<strong>AU</strong> (final)</td><td><strong>SO</strong>-shul (initial)</td></tr>
+<tr><td><code>total</code></td><td>to-<strong>TAU</strong> (final)</td><td><strong>TO</strong>-tul (initial)</td></tr>
+</tbody></table>
+<p><strong>Quick test</strong>: if the heaviest syllable is the FIRST one and the word is spelled the same in English, suspect English drift.</p>
+<h2>Special signals you may notice</h2>
+<ul><li><strong><code>h-</code> initial words</strong>: BP keeps <code>h</code> silent (<code>hora</code> = <code>[O-ra]</code>, <code>hotel</code></li></ul>
+<p>  = <code>[o-TEU]</code>). English aspirates it. If you hear a clear English <code>h-</code>,   it&#x27;s EN drift.</p>
+<ul><li><strong>English aspiration on initial stops</strong>: <code>t-</code>, <code>p-</code>, <code>k-</code> in English</li></ul>
+<p>  carry a puff of air. BP doesn&#x27;t. Subtle, but if a word feels &quot;explosive&quot;   on the initial consonant, that&#x27;s EN.</p>
+<ul><li><strong>Voice consistency</strong>: in calibration, ≥1 clip per voice should be</li></ul>
+<p>  represented. If a voice systematically lands MISPRONOUNCED across many   unrelated words, that&#x27;s a voice-level problem (high-risk voice),   not a per-word problem. Mark them all and the gate logic handles it.</p>
+<h2>How to use the radio buttons</h2>
+<h3>Stage 8 calibration (08_2): <code>OK / MISPRONOUNCED / UNCLEAR</code></h3>
+<ul><li><strong>OK</strong> — sounds clearly like Brazilian Portuguese. None of the six</li></ul>
+<p>  features above are noticeably off. Doesn&#x27;t have to be perfect, just   clearly BP and not another language.</p>
+<ul><li><strong>MISPRONOUNCED</strong> — clearly off. Final <code>l</code> sounds English. <code>-de</code> is</li></ul>
+<p>  silent (EP). Initial <code>r</code> is French-throaty. Stress is on the wrong   syllable. Anything that an ear-test above lights up.</p>
+<ul><li><strong>UNCLEAR</strong> — borderline; you can&#x27;t decide; it sounds weird but you</li></ul>
+<p>  can&#x27;t pinpoint why. Use this freely — <code>unclear</code> rows route to a small   manual queue, they don&#x27;t break the pipeline.</p>
+<h3>Stage 8 after-fix (08_6): <code>BETTER / SAME / WORSE</code></h3>
+<p>You&#x27;ll hear two clips per row: the original (v1) and the fixed (v2). Both are the same word, same voice. The alias-respelling pipeline tried to fix the v1 mispronunciation.</p>
+<ul><li><strong>BETTER</strong> — v2 sounds clearly more BP than v1. The fix worked.</li><li><strong>SAME</strong> — v2 sounds the same as v1. The alias didn&#x27;t actually change</li></ul>
+<p>  anything audible. This blocks the rebuild and triggers a stronger   respelling.</p>
+<ul><li><strong>WORSE</strong> — v2 sounds worse than v1 (alias introduced a new artifact —</li></ul>
+<p>  e.g., a weird hiatus, a wrong vowel). Hard-stop signal.</p>
+<h2>Pacing tips</h2>
+<ul><li>Don&#x27;t agonize. ~30–40 minutes for the full calibration sample is</li></ul>
+<p>  about right. Spend ~20 seconds per clip on average.</p>
+<ul><li>Trust your first impression. If a clip sounds wrong on first listen,</li></ul>
+<p>  it&#x27;s MISPRONOUNCED.</p>
+<ul><li>If you replay a clip more than three times trying to decide, it&#x27;s</li></ul>
+<p>  UNCLEAR.</p>
+<ul><li>Calibration is sampling, not exhaustive judgment. The pipeline expands</li></ul>
+<p>  the sample automatically if a family shows &gt;10% MISPRONOUNCED.</p>
+<h2>EP red-flag words you may notice</h2>
+<p>These are known EP-leaning entries from earlier audits — if you hear them rendered EP, that&#x27;s a true positive:</p>
+<p><code>camisola</code>, <code>troço</code>, <code>vosso</code>, <code>comboio</code>, <code>equipa</code>, <code>registo</code>, <code>utilizador</code>, <code>paragem</code>, <code>desporto</code>, <code>golo</code>, <code>aquando</code>, <code>decerto</code>, <code>susceptível</code> (BP would normally be <code>suscetível</code>), <code>assente</code>, <code>proveniente</code>.</p>
+<h2>Voice-level red flags</h2>
+<p>The two voices flagged as high-risk in Stage 8:</p>
+<ul><li><code>Michael C. Vincent</code> (MALE #6 in our pool) — natively English.</li></ul>
+<p>  Expect English-leaning drift on cognates. <strong>CRITICAL</strong> voice.</p>
+<ul><li><code>Lendário</code> (MALE #4) — native pt-BR but verified across 17 languages</li></ul>
+<p>  with a &quot;hyped&quot; social-media style. Drift is more subtle. <strong>ELEVATED</strong>.</p>
+<p>If you hear a clip from one of these voices and you&#x27;re 50/50, lean toward MISPRONOUNCED — these voices are more likely to drift than the rest of the pool.</p>
+</div>
+
+<h2>Clips (27)</h2>
+
+<section class="row">
+  <header><code>1125.00.01</code> — <em>policial</em> &nbsp; <small>family=final_l_-al, alias='polisiau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1125.00.01-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1125.00.01-word-v4.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_0" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_0" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_0" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>1125.00.02</code> — <em>policial</em> &nbsp; <small>family=final_l_-al, alias='polisiau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1125.00.02-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1125.00.02-word-v5.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_1" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_1" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_1" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3611.00.01</code> — <em>sindical</em> &nbsp; <small>family=final_l_-al, alias='sindicau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3611.00.01-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3611.00.01-word-v4.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_2" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_2" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_2" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3704.00.01</code> — <em>fatal</em> &nbsp; <small>family=final_l_-al, alias='fatau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3704.00.01-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3704.00.01-word-v5.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_3" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_3" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_3" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>1309.00.01</code> — <em>inicial</em> &nbsp; <small>family=final_l_-al, alias='inisiau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1309.00.01-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1309.00.01-word-v3.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_4" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_4" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_4" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0408.00.01</code> — <em>capital</em> &nbsp; <small>family=final_l_-al, alias='capitau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0408.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_5" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_5" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_5" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0408.00.02</code> — <em>capital</em> &nbsp; <small>family=final_l_-al, alias='capitau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0408.00.02-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_6" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_6" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_6" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>2490.00.01</code> — <em>presidencial</em> &nbsp; <small>family=final_l_-al, alias='presidensiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/2490.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_7" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_7" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_7" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3785.00.01</code> — <em>superficial</em> &nbsp; <small>family=final_l_-al, alias='superfisiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3785.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_8" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_8" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_8" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>1324.00.01</code> — <em>industrial</em> &nbsp; <small>family=final_l_-al, alias='industriau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1324.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_9" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_9" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_9" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3266.00.01</code> — <em>tropical</em> &nbsp; <small>family=final_l_-al, alias='tropicau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3266.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_10" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_10" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_10" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>1078.00.01</code> — <em>general</em> &nbsp; <small>family=final_l_-al, alias='generau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1078.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_11" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_11" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_11" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3331.00.01</code> — <em>parcial</em> &nbsp; <small>family=final_l_-al, alias='parsiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3331.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_12" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_12" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_12" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0656.00.01</code> — <em>oficial</em> &nbsp; <small>family=final_l_-al, alias='ofisiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0656.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_13" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_13" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_13" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>2171.00.01</code> — <em>potencial</em> &nbsp; <small>family=final_l_-al, alias='potensiau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/2171.00.01-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/2171.00.01-word-v2.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_14" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_14" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_14" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3499.00.01</code> — <em>espacial</em> &nbsp; <small>family=final_l_-al, alias='espasiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3499.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_15" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_15" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_15" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0200.00.01</code> — <em>real</em> &nbsp; <small>family=final_l_-al, alias='reau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0200.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_16" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_16" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_16" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>3814.00.01</code> — <em>verbal</em> &nbsp; <small>family=final_l_-al, alias='verbau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/3814.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_17" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_17" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_17" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>2784.00.01</code> — <em>judicial</em> &nbsp; <small>family=final_l_-al, alias='judisiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/2784.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_18" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_18" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_18" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0431.00.01</code> — <em>especial</em> &nbsp; <small>family=final_l_-al, alias='espesiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0431.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_19" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_19" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_19" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>2832.00.01</code> — <em>artificial</em> &nbsp; <small>family=final_l_-al, alias='artifisiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/2832.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_20" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_20" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_20" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0822.00.01</code> — <em>comercial</em> &nbsp; <small>family=final_l_-al, alias='comersiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0822.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_21" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_21" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_21" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>0207.00.01</code> — <em>social</em> &nbsp; <small>family=final_l_-al, alias='sosiau'</small></header>
+  <div class="before"><strong>BEFORE (v1):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0207.00.01-word-v1.mp3"></audio></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0207.00.01-word-v3.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_22" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_22" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_22" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>1269.00.01</code> — <em>essencial</em> &nbsp; <small>family=final_l_-al, alias='essensiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/1269.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_23" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_23" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_23" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>2215.00.01</code> — <em>habitual</em> &nbsp; <small>family=final_l_-al, alias='habituau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/2215.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_24" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_24" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_24" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>4784.00.01</code> — <em>substancial</em> &nbsp; <small>family=final_l_-al, alias='substansiau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/4784.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_25" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_25" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_25" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<section class="row">
+  <header><code>4676.00.01</code> — <em>postal</em> &nbsp; <small>family=final_l_-al, alias='postau'</small></header>
+  <div class="before"><em>BEFORE not archived (v1 R2 object overwritten by Stage 6 resume); judge AFTER alone for now.</em></div>
+  <div class="after"><strong>AFTER (v2 with alias):</strong> <audio controls preload="none" src="https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/4676.00.01-word-v1.mp3"></audio></div>
+  <div class="radio-row">
+    <label><input type="radio" name="label_26" value="BETTER"> BETTER (v2 sounds more BP)</label>
+    <label><input type="radio" name="label_26" value="SAME"> SAME (no audible difference)</label>
+    <label><input type="radio" name="label_26" value="WORSE"> WORSE (alias regressed quality)</label>
+  </div>
+</section>
+
+
+<script>
+function exportLabels() {
+  const rows = ["sense_id\tpt\tvoice_id\talias_respelling\tapplied_family\tlabel"];
+  document.querySelectorAll('section.row').forEach((s, idx) => {
+    const sid = s.querySelector('code').textContent;
+    const pt = s.querySelector('em').textContent;
+    const headerSmall = s.querySelector('small')?.textContent || '';
+    const fam = (headerSmall.match(/family=([^,]+)/)?.[1] || '').trim();
+    const respell = (headerSmall.match(/alias='([^']+)'/)?.[1] || '').trim();
+    const sel = s.querySelector('input[type=radio]:checked');
+    const label = sel ? sel.value : "UNANSWERED";
+    rows.push([sid, pt, '', respell, fam, label].join('\t'));
+  });
+  const tsv = rows.join('\n');
+  document.getElementById('export-output').value = tsv;
+  navigator.clipboard.writeText(tsv).then(() => {
+    document.getElementById('export-status').textContent = '✓ Copied.';
+  }, () => {
+    document.getElementById('export-status').textContent = 'Copy failed — copy manually.';
+  });
+}
+</script>
+
+</body>
+</html>

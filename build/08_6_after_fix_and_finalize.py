@@ -27,6 +27,7 @@ import argparse
 import csv
 import html
 import random
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -87,12 +88,17 @@ def _build_after_fix_sample(rng: random.Random) -> list[dict]:
             continue
         alias_id = app.get("alias_id", "")
         a = aliases.get(alias_id, {})
+        url_after = m.get("url", "")
+        # Derive v1 URL by replacing trailing -vN.mp3 with -v1.mp3.
+        # Stage 6 leaves old versioned R2 objects in place (versioning is
+        # additive), so v1 is always reachable at the same path.
+        url_before = re.sub(r"-v\d+\.mp3$", "-v1.mp3", url_after)
         items.append({
             "sense_id": sid,
             "pt": m.get("text_input") or a.get("pt", ""),
             "voice_id": m.get("voice_id", ""),
-            "url_after": m.get("url", ""),
-            "url_before": "",  # We don't archive v1 URLs separately yet — TODO
+            "url_after": url_after,
+            "url_before": url_before if url_before != url_after else "",
             "alias_id": alias_id,
             "alias_respelling": a.get("pt_respelling", ""),
             "applied_family": a.get("applied_family", ""),
