@@ -138,12 +138,7 @@ def cmd_smoke(sense_id: str) -> int:
         clip_type="word",
         version=int(target.get("version") or "1") + 1,
     )
-    norm = normalize_pcm_to_mp3_verified(
-        pcm_bytes=res.audio_pcm,
-        sample_rate=res.sample_rate,
-        sample_width=res.sample_width,
-        channels=res.channels,
-    )
+    norm = normalize_pcm_to_mp3_verified(res.audio_pcm)
     smoke_path = AUDIT_DIR / f"08_5_smoke_{sense_id}.mp3"
     smoke_path.parent.mkdir(parents=True, exist_ok=True)
     smoke_path.write_bytes(norm.mp3_bytes)
