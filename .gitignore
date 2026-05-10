@@ -17,8 +17,10 @@ venv/
 
 # Build artifacts (regenerable from manifest + ledger + source)
 build/audio_cache/
+build/audio_cache_archive_regen/
 build/cache/
 audit/*.jsonl
+audit/*.mp3
 !audit/.gitkeep
 
 # OS junk
