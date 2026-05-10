@@ -2338,6 +2338,63 @@ open audit/08_6_after_fix.html
 pytest tests/test_stage_8.py
 ```
 
+#### Phase 7 — Post-08_5 example-clip audio judge sweep (LOCKED 2026-05-10)
+
+After 08_5 word-only re-render completes, run a comprehensive
+example-clip audio-judge sweep to verify example clips weren't
+silently mispronouncing the same cognates that the word clips did
+(sentence prosody usually saves them, but this is empirical
+verification rather than assumption).
+
+**Scope**: every example clip whose sense has `pt_type=single_word`
+in `data/05-ipa.tsv` — approximately **5,688 example clips**.
+Multi-word and idiom-expansion senses (~37) are out of scope
+(different phonetic context; Stage 8 word-level patterns don't apply).
+
+**Exclusions** ("unless already included/flagged/planned for replacement"):
+- Example clips already judged in any prior pass (none yet, but a
+  re-run safety net).
+- Senses already in `data/_audio_human_review.tsv` (handled separately).
+- Senses already in `data/_audio_manual_respelling_review.tsv` (failed
+  08_5 verification — examples follow whatever decision the user makes
+  on the word).
+
+**Flow**:
+1. After 08_5 completes (or in parallel, since it operates on different
+   clip_type), run a variant of `build/08_1_audio_judge.py` filtered to
+   `clip_type=example` and the inclusion/exclusion above.
+2. Verdicts append to `data/_audio_judge_verdicts.tsv` (the existing
+   verdicts file, schema reused — `clip_type` field distinguishes
+   word vs example).
+3. Any example clip returning `non_bp` at `confidence=high` (or
+   `non_bp confidence=medium AND priority∈{P0,P1}` per the same
+   auto-confirm rule from 08_2) becomes a candidate for a SECOND
+   alias re-render pass — this time with `--include-examples` (a
+   future flag on 08_5 that includes the example clip_type for
+   confirmed sense_ids).
+
+**Cost**: ~5,438 example clips × $0.007/clip ≈ **$38** (examples are
+~5× longer than word clips, so audio token cost is higher).
+
+**Wall clock**: ~30–45 min at concurrency 4.
+
+**Why post-08_5 and not pre-calibration**: word-clip audio judge is
+the primary signal for alias generation. Doing example judging FIRST
+would extend 08_2's calibration sample and inflate user listening
+time. Doing it AFTER 08_5 means we already know which words got
+aliased — example drift on those specific words is the highest-prior
+target. The "all single-word examples" scope ensures we don't miss
+example-only drift that the word judge couldn't predict.
+
+**Decision rule on findings**:
+- ≤10 example-only non_bp clips: probably user-spot-check + manual
+  override via `_manual_audio.tsv`.
+- 10–50: spin up 08_5 with `--include-examples` for those specific
+  sense_ids using the existing alias dict.
+- 50+: investigate why examples are drifting more than word judge
+  predicted; possibly add new alias rules; possibly accept residual
+  via study-time loop.
+
 #### Cost / wall-clock totals
 
 **Default scope LOCKED 2026-05-10**: full-corpus audio judge (user opted
@@ -2346,19 +2403,24 @@ in for max coverage rather than the cheaper risky-bucket).
 | Step | Cost (LOCKED default: full-corpus) | Cost (risky-bucket alt) | Wall clock |
 |---|---|---|---|
 | 08_0 risk classifier | $0 | $0 | ~5 min |
-| 08_1 audio judge (~6,250 clips full / ~1,200–1,800 risky) | ~$31 | ~$6–9 | ~60 / ~40 min |
-| 08_2 calibration (~100 clips) | $0 | $0 | ~45 min user |
-| 08_3 aliases (sentinel seeds locked, no LLM proposal) | ~$0.50 | ~$0.50 | ~10 min |
+| 08_1 audio judge — words full-corpus | ~$20 (actual) | ~$6–9 | ~70 min (actual) |
+| 08_2 calibration (185 clips) | $0 | $0 | ~60–90 min user |
+| 08_3 aliases (sentinel seeds locked) | ~$0.50 | ~$0.50 | ~10 min |
 | 08_4 dictionary upload | ~$0.001 | ~$0.001 | ~30 sec |
-| 08_5 re-render + verify | ~$3.30 | ~$3.30 | ~15 min |
+| 08_5 re-render words only (~250 clips) | ~$1.50 | ~$1.50 | ~10 min |
+| Phase 7 — post-08_5 example judge sweep | **~$38** | **~$38** | ~30–45 min |
 | 08_6 after-fix + finalize | $0 | $0 | ~20 min user + ~5 min compute |
-| **Total** | **~$35** | **~$13** | **~75 min compute + ~70 min user** |
+| **Total** | **~$60** | **~$48** | **~135 min compute + ~150 min user** |
 
 Voice-swap pre-Stage-8 (already executed 2026-05-10): +~$1.58 (1,920
 clips re-rendered with new BP-only voices). Sentinel-seeds lock saves
-~$0.05 vs LLM-proposed candidates. The full-corpus audio judge is the
-biggest cost line and the user's locked choice for max-coverage
-detection (eliminates the "we missed a pattern" risk).
+~$0.05 vs LLM-proposed candidates.
+
+Cost increase from $35 → $60 reflects two locked decisions: (1) full-
+corpus word-clip audio judge as default detection, (2) post-08_5
+example-clip safety-net sweep on all single-word senses. Both are
+explicit user choices; both are within the project's acceptable
+budget envelope (total project spend ~$340 incl. earlier stages).
 
 #### What this stage deliberately does NOT do
 
