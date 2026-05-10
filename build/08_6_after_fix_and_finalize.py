@@ -29,6 +29,7 @@ import html
 import random
 import re
 import sys
+import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
@@ -53,6 +54,84 @@ REVIEWER_GUIDE_PATH = DOCS_DIR / "reviewer_guide.md"
 
 AFTER_FIX_SEED = 42
 AFTER_FIX_TARGET_SIZE = 30
+
+
+AUDIO_CACHE_DIR = REPO_ROOT / "build" / "audio_cache"
+
+
+def _local_cache_url(sense_id: str, clip_type: str, version: int) -> str:
+    """Return file:// URL for a cached audio clip, or '' if not present.
+
+    The HTML is opened from a local file:// path, so file:// references
+    in <audio src=...> resolve correctly. Local cache is the source of
+    truth for BEFORE (original Stage 7 audio) since R2 may have lost
+    intermediate versions during surgical re-render iterations.
+    """
+    cache_path = AUDIO_CACHE_DIR / f"{sense_id}-{clip_type}-v{version}.mp3"
+    if cache_path.exists():
+        return f"file://{cache_path}"
+    return ""
+
+
+def _resolve_before_url(sense_id: str, clip_type: str, url_after: str) -> str:
+    """Find the BEFORE audio URL: prefer local v1, fall back to highest
+    existing local version below current, then R2.
+
+    Strategy:
+      1. Local cache v1 — the Stage 7 original, pre-alias.
+      2. If that's missing, try local cache v(current-1), v(current-2)...
+      3. Last resort: R2 v(current-1) if reachable.
+      4. Return "" if nothing usable.
+    """
+    if not url_after:
+        return ""
+    m = re.search(r"-v(\d+)\.mp3$", url_after)
+    if not m:
+        return ""
+    current_v = int(m.group(1))
+    if current_v <= 1:
+        return ""
+
+    # 1. Local v1 — always the most desirable BEFORE
+    cache_v1 = _local_cache_url(sense_id, clip_type, 1)
+    if cache_v1:
+        return cache_v1
+
+    # 2. Local v(current-1) descending
+    for v in range(current_v - 1, 0, -1):
+        cache = _local_cache_url(sense_id, clip_type, v)
+        if cache:
+            return cache
+
+    # 3. R2 fallback (HEAD probe)
+    for v in range(current_v - 1, 0, -1):
+        candidate = re.sub(r"-v\d+\.mp3$", f"-v{v}.mp3", url_after)
+        try:
+            req = urllib.request.Request(candidate, method="HEAD")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                if resp.status == 200:
+                    return candidate
+        except Exception:  # noqa: BLE001
+            continue
+    return ""
+
+
+def _resolve_after_url(sense_id: str, clip_type: str, url_after: str) -> str:
+    """Resolve AFTER URL — prefer local cache (the latest version we
+    actually rendered) over the manifest URL field, which can be stale
+    when a surgical re-render didn't complete the manifest write.
+
+    Strategy:
+      1. Walk down from highest plausible local version (try v10..v1)
+         and pick the first existing cache file. That's what was actually
+         rendered last.
+      2. Fall back to manifest URL field.
+    """
+    for v in range(10, 0, -1):
+        cache = _local_cache_url(sense_id, clip_type, v)
+        if cache:
+            return cache
+    return url_after
 
 
 def _build_after_fix_sample(rng: random.Random) -> list[dict]:
@@ -88,17 +167,17 @@ def _build_after_fix_sample(rng: random.Random) -> list[dict]:
             continue
         alias_id = app.get("alias_id", "")
         a = aliases.get(alias_id, {})
-        url_after = m.get("url", "")
-        # Derive v1 URL by replacing trailing -vN.mp3 with -v1.mp3.
-        # Stage 6 leaves old versioned R2 objects in place (versioning is
-        # additive), so v1 is always reachable at the same path.
-        url_before = re.sub(r"-v\d+\.mp3$", "-v1.mp3", url_after)
+        url_after_raw = m.get("url", "")
+        # Resolve via local cache when available (most reliable); fall back
+        # to R2 only as a last resort. Local cache preserves every version.
+        url_after = _resolve_after_url(sid, "word", url_after_raw)
+        url_before = _resolve_before_url(sid, "word", url_after_raw)
         items.append({
             "sense_id": sid,
             "pt": m.get("text_input") or a.get("pt", ""),
             "voice_id": m.get("voice_id", ""),
             "url_after": url_after,
-            "url_before": url_before if url_before != url_after else "",
+            "url_before": url_before,
             "alias_id": alias_id,
             "alias_respelling": a.get("pt_respelling", ""),
             "applied_family": a.get("applied_family", ""),
