@@ -79,12 +79,7 @@ def _render_sentinel(client: ElevenLabsClient, text: str, voice_id: str, sentine
         clip_type="word",
         version=1,
     )
-    norm = normalize_pcm_to_mp3_verified(
-        pcm_bytes=res.audio_pcm,
-        sample_rate=res.sample_rate,
-        sample_width=res.sample_width,
-        channels=res.channels,
-    )
+    norm = normalize_pcm_to_mp3_verified(res.audio_pcm)
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     cache_path.write_bytes(norm.mp3_bytes)
     return norm.mp3_bytes
@@ -142,12 +137,6 @@ def cmd_sentinel_smoke() -> int:
     for r in rendered:
         by_family.setdefault(r["family_id"], []).append(r)
 
-    # Reviewer guide
-    if REVIEWER_GUIDE_PATH.exists():
-        from build.import_helper import import_module  # type: ignore
-    # Reuse 08_2's md→html
-    sys.path.insert(0, str(REPO_ROOT / "build"))
-    from build_08_2_md import md_to_html  # noqa
     return _build_smoke_html(by_family)
 
 
