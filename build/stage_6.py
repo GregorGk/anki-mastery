@@ -586,6 +586,7 @@ def run(
     confirm: bool = False,
     sense_id_filter: set[str] | None = None,
     cache_dir: Path = AUDIO_CACHE_DIR,
+    pronunciation_dict_locators: list[dict] | None = None,
 ) -> dict:
     """Run Stage 6 (pilot, default pilot_size=500) or Stage 7 (pilot_size=None).
 
@@ -666,7 +667,7 @@ def run(
     rank_by_sid = {s["sense_id"]: int(s["rank"]) for s in senses if s.get("rank", "").strip().isdigit()}
 
     # Clients
-    el = ElevenLabsClient()
+    el = ElevenLabsClient(pronunciation_dict_locators=pronunciation_dict_locators)
     asr = AsrClient()
     logger = AudioLogger(AUDIO_JSONL_PATH, AUDIO_TRANSCRIPT_PATH)
     tracker = ProgressTracker(

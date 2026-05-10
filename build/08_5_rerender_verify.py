@@ -152,6 +152,67 @@ def cmd_smoke(sense_id: str) -> int:
     return 0
 
 
+def _mark_affected_pending() -> int:
+    """Mark affected manifest rows as pending; clear audio + ASR fields.
+
+    Returns count of rows touched. Idempotent.
+    """
+    keys = _affected_keys()
+    if not keys:
+        return 0
+
+    aliases = _load_alias_lookup()
+    apps = read_tsv(APPLICATIONS_PATH) if APPLICATIONS_PATH.exists() else []
+    sid_to_alias = {a["sense_id"]: a for a in apps}
+    locator = _latest_dictionary_locator()
+
+    manifest_rows = read_tsv(MANIFEST_PATH)
+    fns = list(manifest_rows[0].keys()) if manifest_rows else []
+    # Add missing alias columns to the schema if needed
+    for col in ("alias_applied", "alias_id", "alias_respelling",
+                "pronunciation_dict_locator_id", "pronunciation_dict_version_id",
+                "audio_judge_verdict", "audio_judge_confidence"):
+        if col not in fns:
+            fns.append(col)
+
+    n_touched = 0
+    for r in manifest_rows:
+        key = (r.get("sense_id", ""), r.get("clip_type", ""))
+        if key not in keys:
+            continue
+        # Bump version
+        try:
+            old_v = int(r.get("version") or "1")
+        except ValueError:
+            old_v = 1
+        r["version"] = str(old_v + 1)
+        # Clear audio + ASR fields
+        for f in ("md5", "url", "asr_transcript", "asr_similarity", "asr_decision",
+                  "applied_gain_db", "final_lufs", "final_tp",
+                  "loudness_within_tolerance", "tp_limited",
+                  "audio_judge_verdict", "audio_judge_confidence"):
+            if f in r:
+                r[f] = ""
+        r["status"] = "pending"
+        # Tag the alias intent (filled in fully after re-render)
+        sid = r.get("sense_id", "")
+        if sid in sid_to_alias:
+            alias_id = sid_to_alias[sid].get("alias_id", "")
+            r["alias_applied"] = "true"
+            r["alias_id"] = alias_id
+            alias = aliases.get(alias_id, {})
+            r["alias_respelling"] = alias.get("pt_respelling", "")
+        if locator:
+            r["pronunciation_dict_locator_id"] = locator["pronunciation_dictionary_id"]
+            r["pronunciation_dict_version_id"] = locator["version_id"]
+        r["notes"] = (r.get("notes", "") + " | stage_8_alias_pending").strip(" |")
+        n_touched += 1
+
+    if n_touched:
+        write_tsv(MANIFEST_PATH, manifest_rows, fieldnames=fns)
+    return n_touched
+
+
 def cmd_bulk(*, confirm: bool, concurrency: int) -> int:
     if not confirm:
         print("ERROR: bulk re-render requires --confirm.", file=sys.stderr)
@@ -169,15 +230,42 @@ def cmd_bulk(*, confirm: bool, concurrency: int) -> int:
         print("Nothing to re-render (empty alias applications). Exiting.")
         return 0
 
-    print(f"Stage 8 re-render: {len(keys)} clips queued, dict={locator['pronunciation_dictionary_id']}.")
-    print(f"  audit log:  {AUDIT_JSONL}")
-    print(f"  concurrency: {concurrency}")
+    n_marked = _mark_affected_pending()
+    print(f"Marked {n_marked} manifest rows as pending (status cleared, version bumped).")
+    print(f"Dict attached: id={locator['pronunciation_dictionary_id']} v{locator['version_id']}")
+    print(f"Concurrency: {concurrency}")
     print()
-    print("⚠ This script's bulk path (with full triple-verification + R2 upload + manifest update")
-    print("  is NOT yet implemented in v1; we render + cache locally only.")
-    print("  Use --smoke-test --sense-id SID to verify the dict produces correct BP audio first.")
-    print("  Bulk integration with the Stage 6 orchestrator pipeline pending.")
-    return 2
+    print("Delegating to stage_6.run() in resume mode with dict locators attached...")
+
+    # Reuse the proven Stage 6 orchestrator: it handles render → loudness →
+    # R2 upload → ASR roundtrip → manifest update. Resume mode skips
+    # status=uploaded rows automatically. We pass the dict locator so every
+    # render in this pass has aliases applied server-side.
+    from build.stage_6 import run as stage_6_run
+
+    affected_sense_ids = {sid for sid, _ in keys}
+    result = stage_6_run(
+        pilot_size=None,
+        concurrency=concurrency,
+        confirm=True,
+        sense_id_filter=affected_sense_ids,
+        pronunciation_dict_locators=[locator],
+    )
+    print()
+    print(f"=== Stage 8 re-render summary ===")
+    print(f"  senses (filter):       {result.get('senses', 0)}")
+    print(f"  pending at start:      {result.get('pending_at_start', 0)}")
+    print(f"  results:               {result.get('results', 0)}")
+    print(f"  passed:                {result.get('passed', 0)}")
+    print(f"  human:                 {result.get('human', 0)}")
+    print(f"  errored:               {result.get('errored', 0)}")
+    print(f"  asr cost:              ${result.get('asr_cost_usd', 0):.4f}")
+    print()
+    print("Note: this v1 path uses Stage 6's biased ASR + closed-loop loudness as the")
+    print("verification gate. The full triple-verify (adding audio judge re-call) is")
+    print("a follow-up — for now, run 08_1 again on the re-rendered clips post-pass to")
+    print("verify the audio judge agrees they're now bp_ok.")
+    return 0
 
 
 def main() -> int:
