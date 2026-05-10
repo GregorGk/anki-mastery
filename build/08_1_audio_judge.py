@@ -65,14 +65,32 @@ VERDICT_COLUMNS = [
 
 
 def _fetch_audio_bytes(sense_id: str, version: str, clip_type: str, url: str) -> bytes:
-    """Read MP3 bytes for a clip. Local cache first, R2 URL fallback."""
-    cache_path = AUDIO_CACHE / f"{sense_id}-{clip_type}-v{version}.mp3"
+    """Read MP3 bytes for a clip. Local cache first, R2 URL fallback.
+
+    Cache filename is derived from the manifest URL (the trailing path
+    segment) so it stays consistent with whatever object_key the
+    pipeline writes — legacy `{sid}-{clip}-v{N}.mp3` AND Stage-9
+    `{sid}-{clip}-eleven_flash_v2_5-v{N}.mp3` both work.
+    """
+    # Primary cache lookup: derive from URL
+    if url:
+        filename = url.rsplit("/", 1)[-1]
+        cache_path = AUDIO_CACHE / filename
+    else:
+        # Fallback for unit tests / no-URL paths
+        short = "word" if clip_type == "word" else "ex"
+        cache_path = AUDIO_CACHE / f"{sense_id}-{short}-v{version}.mp3"
     if cache_path.exists():
         return cache_path.read_bytes()
     if not url:
         raise RuntimeError(f"no cached audio AND no url for {sense_id}/{clip_type}")
-    # Fetch from R2 (read-only HTTP GET)
-    req = urllib.request.Request(url)
+    # Fetch from R2 — use a browser-ish User-Agent because the default
+    # Python-urllib/3.x agent gets 403'd by Cloudflare bot rules on R2.
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                               "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"},
+    )
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = resp.read()
     # Cache for next call

@@ -29,13 +29,22 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 from elevenlabs.core.api_error import ApiError as ElevenLabsApiError
 
-DEFAULT_MODEL_ID = "eleven_multilingual_v2"
+DEFAULT_MODEL_ID = "eleven_flash_v2_5"  # Stage 9 migration: was eleven_multilingual_v2
 DEFAULT_OUTPUT_FORMAT = "pcm_44100"
 DEFAULT_LANGUAGE_CODE = "pt"
 DEFAULT_TIMEOUT_S = 120.0
 DEFAULT_MAX_ATTEMPTS = 6
 DEFAULT_BACKOFF_BASE_S = 1.0
 DEFAULT_BACKOFF_CAP_S = 60.0
+
+
+class RateLimitExceeded(RuntimeError):
+    """Raised when ElevenLabs returns 429 and `fail_fast_on_429` is set.
+
+    Used to abort batch jobs (e.g. Stage 9 migration) immediately when
+    the concurrent-request ceiling is hit — gives operator visibility
+    instead of invisible retries and backoffs.
+    """
 
 # Locked voice settings.
 LOCKED_VOICE_SETTINGS = VoiceSettings(
@@ -88,6 +97,7 @@ class ElevenLabsClient:
         voice_settings: VoiceSettings = LOCKED_VOICE_SETTINGS,
         rng: random.Random | None = None,
         pronunciation_dict_locators: list[dict] | None = None,
+        fail_fast_on_429: bool = False,
     ) -> None:
         """Construct an ElevenLabs TTS client.
 
@@ -107,6 +117,7 @@ class ElevenLabsClient:
         self.max_attempts = max_attempts
         self.voice_settings = voice_settings
         self.pronunciation_dict_locators = pronunciation_dict_locators
+        self.fail_fast_on_429 = fail_fast_on_429
         self._client = ElevenLabs(api_key=api_key, timeout=timeout_s)
         self._rng = rng or random.Random()
         # PCM constants for pcm_44100 (16-bit signed LE, mono).
@@ -176,6 +187,15 @@ class ElevenLabsClient:
         return b"".join(chunks)
 
     def _is_retryable(self, exc: Exception) -> bool:
+        # Fail-fast on 429 if requested — re-raises as RateLimitExceeded
+        # so the caller (e.g. Stage 9 migration) can abort cleanly.
+        if isinstance(exc, ElevenLabsApiError):
+            status = getattr(exc, "status_code", None)
+            if status == 429 and self.fail_fast_on_429:
+                raise RateLimitExceeded(
+                    f"429 from ElevenLabs; fail_fast_on_429 set. "
+                    f"Headers: {getattr(exc, 'headers', None)}"
+                ) from exc
         # Network / timeout flavors
         if isinstance(exc, (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError, httpx.ReadError, httpx.WriteError)):
             return True

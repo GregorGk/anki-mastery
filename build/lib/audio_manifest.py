@@ -99,16 +99,25 @@ def text_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
-def object_key_for(sense_id: str, clip_type: str, version: int) -> str:
+def object_key_for(sense_id: str, clip_type: str, version: int, model_id: str = "") -> str:
     """Stable filename pattern. Version baked into the filename — Anki strips
-    URL query strings, so `?v=N` would silently drop on mobile."""
+    URL query strings, so `?v=N` would silently drop on mobile.
+
+    `model_id` (optional) bakes the TTS model into the filename for
+    provenance. When empty (backward-compatible default) the legacy format
+    `{sid}-{clip}-v{N}.mp3` is used. When set, the format becomes
+    `{sid}-{clip}-{model_id}-v{N}.mp3` — used during the Stage 9 Flash
+    migration so Flash v2.5 renders are distinguishable from legacy
+    Multilingual v2 files at a glance.
+    """
     short = "word" if clip_type == "word" else "ex"
-    return f"audio/{sense_id}-{short}-v{version}.mp3"
+    model_seg = f"-{model_id}" if model_id else ""
+    return f"audio/{sense_id}-{short}{model_seg}-v{version}.mp3"
 
 
-def url_for(public_base: str, sense_id: str, clip_type: str, version: int) -> str:
+def url_for(public_base: str, sense_id: str, clip_type: str, version: int, model_id: str = "") -> str:
     base = public_base.rstrip("/")
-    return f"{base}/{object_key_for(sense_id, clip_type, version)}"
+    return f"{base}/{object_key_for(sense_id, clip_type, version, model_id)}"
 
 
 def _normalize_row(row: dict) -> dict:
@@ -190,13 +199,18 @@ def update_row(
     return row
 
 
-def bump_version(row: dict, public_base: str) -> dict:
-    """Increment `version`, recompute object_key + url, reset status to pending."""
+def bump_version(row: dict, public_base: str, model_id: str = "") -> dict:
+    """Increment `version`, recompute object_key + url, reset status to pending.
+
+    `model_id` (optional) is baked into the new object_key/url. Legacy
+    bumps without `model_id` preserve the old filename format. Used by
+    Stage 9 to migrate to Flash v2.5 with provenance baked into filenames.
+    """
     cur = int(row.get("version", "1") or "1")
     new_v = cur + 1
     row["version"] = str(new_v)
-    row["object_key"] = object_key_for(row["sense_id"], row["clip_type"], new_v)
-    row["url"] = url_for(public_base, row["sense_id"], row["clip_type"], new_v)
+    row["object_key"] = object_key_for(row["sense_id"], row["clip_type"], new_v, model_id)
+    row["url"] = url_for(public_base, row["sense_id"], row["clip_type"], new_v, model_id)
     row["md5"] = ""
     row["asr_transcript"] = ""
     row["asr_similarity"] = ""

@@ -53,7 +53,7 @@ from build.lib.audio_manifest import (  # noqa: E402
     summarize,
     write_manifest,
 )
-from build.lib.elevenlabs_client import ElevenLabsClient  # noqa: E402
+from build.lib.elevenlabs_client import ElevenLabsClient, RateLimitExceeded  # noqa: E402
 from build.lib.loudness import (  # noqa: E402
     LoudnessMeasurement,
     VerifiedNormalizationResult,
@@ -280,6 +280,7 @@ def _process_one_clip(
     is_top_1000: bool,
     max_attempts: int,
     cache_dir: Path,
+    filename_model_id: str = "",
 ) -> ClipResult:
     sid = manifest_row["sense_id"]
     ctype = manifest_row["clip_type"]
@@ -379,8 +380,12 @@ def _process_one_clip(
                 )
             continue
 
-        # Cache MP3 locally for inspection / re-encode
-        cache_path = cache_dir / f"{sid}-{ctype}-v{version}.mp3"
+        # Cache MP3 locally for inspection / re-encode. Filename mirrors
+        # the manifest object_key (minus the leading "audio/"), so a
+        # local cache file lines up 1:1 with the deployed R2 key.
+        short = "word" if ctype == "word" else "ex"
+        model_seg = f"-{filename_model_id}" if filename_model_id else ""
+        cache_path = cache_dir / f"{sid}-{short}{model_seg}-v{version}.mp3"
         try:
             cache_path.write_bytes(mp3_bytes)
         except OSError:
@@ -543,7 +548,7 @@ def _process_one_clip(
 
         # REGEN with retries remaining: bump version, loop again
         with manifest_lock:
-            bump_version(manifest_row, public_base=r2.config.public_base)
+            bump_version(manifest_row, public_base=r2.config.public_base, model_id=filename_model_id)
         logger.regenerated(sid, ctype, voice_id, attempt + 1, ar.transcript)
 
     # If we fall through (all attempts exhausted as REGEN, no PASS/HUMAN
@@ -587,6 +592,8 @@ def run(
     sense_id_filter: set[str] | None = None,
     cache_dir: Path = AUDIO_CACHE_DIR,
     pronunciation_dict_locators: list[dict] | None = None,
+    model_id: str | None = None,
+    fail_fast_on_429: bool = False,
 ) -> dict:
     """Run Stage 6 (pilot, default pilot_size=500) or Stage 7 (pilot_size=None).
 
@@ -667,7 +674,14 @@ def run(
     rank_by_sid = {s["sense_id"]: int(s["rank"]) for s in senses if s.get("rank", "").strip().isdigit()}
 
     # Clients
-    el = ElevenLabsClient(pronunciation_dict_locators=pronunciation_dict_locators)
+    el_kwargs: dict = {"pronunciation_dict_locators": pronunciation_dict_locators,
+                       "fail_fast_on_429": fail_fast_on_429}
+    if model_id:
+        el_kwargs["model_id"] = model_id
+    el = ElevenLabsClient(**el_kwargs)
+    # The model_id segment baked into filenames — only set when caller
+    # explicitly wants provenance in the path (Stage 9 migration).
+    filename_model_id = model_id if model_id else ""
     asr = AsrClient()
     logger = AudioLogger(AUDIO_JSONL_PATH, AUDIO_TRANSCRIPT_PATH)
     tracker = ProgressTracker(
@@ -714,6 +728,7 @@ def run(
             is_top_1000=is_top,
             max_attempts=max_attempts_per_clip,
             cache_dir=cache_dir,
+            filename_model_id=filename_model_id,
         )
         if result.voice_baseline_offset_db is not None:
             with voice_offsets_lock:
@@ -723,12 +738,27 @@ def run(
         return result
 
     results: list[ClipResult] = []
+    rate_limit_hit = False
     try:
         with ThreadPoolExecutor(max_workers=concurrency) as pool:
             futures = [pool.submit(_worker, row) for row in pending]
             for fut in as_completed(futures):
                 try:
                     results.append(fut.result())
+                except RateLimitExceeded as exc:
+                    # Fail-fast on 429: cancel pending tasks, abort the run.
+                    if not rate_limit_hit:
+                        rate_limit_hit = True
+                        print(
+                            f"\n\n[stage_6] ABORT: rate limit (429) at concurrency={concurrency}. "
+                            f"{len(results)} clips already done before stop. "
+                            f"Lower --concurrency and rerun; resume-mode skips completed clips.\n"
+                            f"  details: {exc}\n",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                    for f in futures:
+                        f.cancel()
                 except Exception as exc:  # noqa: BLE001 — capture for summary
                     print(f"[stage_6] worker raised: {type(exc).__name__}: {exc}", file=sys.stderr)
     finally:
