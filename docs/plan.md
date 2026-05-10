@@ -1902,6 +1902,18 @@ Each card: `<audio>` + expected `pt` + audio-judge verdict + 3-button
 radio (`OK / MISPRONOUNCED / UNCLEAR`). Form output pasted into
 `data/_audio_calibration_labels.tsv`.
 
+**Reviewer guidance (LOCKED)**: the HTML page MUST embed the contents of
+[docs/reviewer_guide.md](docs/reviewer_guide.md) at the top, before the
+clip cards. The guide is tailored to the project's human judge — an A1
+Brazilian Portuguese learner, native Polish speaker, fluent in English
+and German — and explains the six BP-specific phonetic features to listen
+for (final-l vocalization, -de/-te palatalization, initial r/rr, coda s,
+final unstressed e, cognate stress placement) with Polish/EN/DE parallels
+and a concrete OK/MISPRONOUNCED/UNCLEAR decision rubric. Render via
+markdown-to-HTML inline at HTML build time (e.g. `python -m markdown` or
+similar); do not link out — the reviewer should not have to switch
+contexts mid-listen.
+
 After listening (~40 min), `--apply-calibration`:
 
 1. Computes `confirmed_for_alias` per the auto-confirm rule (intersection
@@ -2110,6 +2122,14 @@ Each row: two `<audio>` elements (v1 archived URL + v2 current URL),
 alias used, 3-button radio (`BETTER / SAME / WORSE`). User listens
 (~20 min) and pastes form output into
 `data/_audio_after_fix_labels.tsv`.
+
+**Reviewer guidance (LOCKED)**: the HTML embeds
+[docs/reviewer_guide.md](docs/reviewer_guide.md) at the top — same
+content as 08_2's calibration HTML — plus a short additional
+BETTER/SAME/WORSE-specific rubric (also in the reviewer guide). The
+reviewer's profile (A1 BP learner, Polish native, EN/DE fluent) shapes
+the phonetic explanations; they should not have to look up unfamiliar
+terms during a listening session.
 
 **Hard gate before 06-final.tsv rebuild (LOCKED)**: after user labels
 are imported, the script computes per-family `WORSE` and `SAME` rates
