@@ -1,0 +1,85 @@
+sense_id	pt	v4_flag	drift	is_alias	decision
+0200.00.01ALIAS	real	FLAG		true	FLASH_BETTER
+0408.00.01ALIAS	capital	OK		true	SAME
+0408.00.02ALIAS	capital	OK	EN	true	FLASH_BETTER
+0431.00.01ALIAS	especial	OK		true	FLASH_BETTER
+0656.00.01ALIAS	oficial	OK		true	SAME
+0822.00.01ALIAS	comercial	OK		true	SAME
+1078.00.01ALIAS	general	OK		true	SAME
+1125.00.01ALIAS	policial	OK		true	SAME
+1125.00.02ALIAS	policial	OK		true	SAME
+1269.00.01ALIAS	essencial	OK		true	SAME
+1324.00.01ALIAS	industrial	FLAG		true	FLASH_BETTER
+2171.00.01ALIAS	potencial	FLAG	ES	true	FLASH_BETTER
+2490.00.01ALIAS	presidencial	OK		true	SAME
+2784.00.01ALIAS	judicial	OK		true	FLASH_BETTER
+2832.00.01ALIAS	artificial	OK	EN	true	SAME
+3266.00.01ALIAS	tropical	OK		true	FLASH_BETTER
+3331.00.01ALIAS	parcial	OK		true	SAME
+3704.00.01ALIAS	fatal	OK		true	SAME
+3785.00.01ALIAS	superficial	OK	EP	true	SAME
+3814.00.01ALIAS	verbal	OK	EN	true	MULTILINGUAL_BETTER
+4676.00.01ALIAS	postal	OK		true	FLASH_BETTER
+4784.00.01ALIAS	substancial	OK		true	SAME
+0003.00.02	em	FLAG	ES	false	FLASH_BETTER
+0008.00.01	por	FLAG	EP	false	FLASH_BETTER
+0039.00.01	ver	FLAG	EP	false	FLASH_BETTER
+0041.00.01	dois	OK		false	SAME
+0210.00.01	mão	FLAG	ES	false	FLASH_BETTER
+0266.00.02	volta	FLAG	EP	false	FLASH_BETTER
+0335.00.01	jogo	OK	ES	false	SAME
+0369.00.01	dez	OK	ES	false	SAME
+0396.00.01	sistema	OK	EN	false	SAME
+0422.00.01	superior	FLAG	EP	false	FLASH_BETTER
+0435.00.01	cor	FLAG	EP	false	FLASH_BETTER
+0438.00.01	ar	FLAG	EN	false	FLASH_BETTER
+0534.00.01	verde	OK	EP	false	FLASH_BETTER
+0573.00.01	morto	OK	ES	false	SAME
+0604.00.03	central	FLAG	EN	false	FLASH_BETTER
+0612.00.02	metro	OK	ES	false	FLASH_BETTER
+0732.00.01	grave		EN	false	FLASH_BETTER
+0771.00.02	margem		EP	false	FLASH_BETTER
+0890.00.01	costumar		EP	false	SAME
+0928.00.01	padre		ES	false	FLASH_BETTER
+1006.00.01	baixar		EP	false	SAME
+1021.00.01	bola		EN	false	SAME
+1071.00.01	finalmente		EN	false	FLASH_BETTER
+1076.00.01	quantidade		ES	false	SAME
+1087.00.01	independente		ES	false	SAME
+1094.00.01	descer		EP	false	SAME
+1167.00.01	sozinho		EP	false	FLASH_BETTER
+1189.00.01	musical			false	FLASH_BETTER
+1209.00.01	exame		EP	false	FLASH_BETTER
+1220.00.01	fator		EP	false	FLASH_BETTER
+1442.00.01	infantil		EP	false	FLASH_BETTER
+1457.00.01	relativamente		EP	false	SAME
+1470.00.01	resolução		ES	false	SAME
+1507.00.01	beber		EP	false	SAME
+1526.00.01	distinguir		ES	false	FLASH_BETTER
+1547.00.01	medir		EP	false	SAME
+1564.00.01	individual		EN	false	FLASH_BETTER
+1605.00.01	rever			false	FLASH_BETTER
+1612.00.01	orçamento		EP	false	SAME
+1614.00.01	debate		EN	false	FLASH_BETTER
+1625.00.01	dona		EP	false	FLASH_BETTER
+1651.00.01	féria		ES	false	SAME
+1674.00.01	seguida		ES	false	SAME
+1684.00.01	interpretação		EP	false	SAME
+1758.00.01	globo		EN	false	FLASH_BETTER
+1788.00.01	restante		EP	false	FLASH_BETTER
+1810.00.01	nomeadamente		EP	false	FLASH_BETTER
+1831.00.01	fechado		ES	false	SAME
+1866.00.01	judeu		ES	false	FLASH_BETTER
+2042.01.01	em vigor		EP	false	SAME
+2075.00.01	ruim		ES	false	FLASH_BETTER
+2082.00.01	converter		ES	false	SAME
+2124.00.02	rapariga		EP	false	FLASH_BETTER
+2183.00.01	formal		EN	false	FLASH_BETTER
+2189.00.01	situar		ES	false	SAME
+2211.00.01	apertar		ES	false	SAME
+2217.00.01	levantamento		ES	false	FLASH_BETTER
+2246.00.01	zero		EN	false	FLASH_BETTER
+2309.00.01	matemática		EP	false	FLASH_BETTER
+2341.00.01	festival		EN	false	FLASH_BETTER
+2391.00.01	pormenor		EP	false	SAME
+2405.00.01	bolso		ES	false	FLASH_BETTER

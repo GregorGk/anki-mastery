@@ -1,0 +1,100 @@
+sense_id	clip_type	pt	current_voice_id	asr_transcript	similarity	decision	new_voice_id	alias_respelling
+2043.00.01word		arco		Érku.	0.25	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+2331.00.01word		rock		Hawk.	0.25	LEAVE		
+0715.00.01word		civil		Se viu.	0.3333	LEAVE		
+2228.00.02word		humor		O mar.	0.4	LEAVE		
+3825.00.01word		gene		Jenny.	0.4	TAG_ALIAS		jêni
+1938.00.01word		render		Heinbir.	0.4286	LEAVE		
+2747.00.01word		chance		Chelsea.	0.4286	LEAVE		
+0102.00.01word		meio		Meu	0.5	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+3952.00.01word		narrar		Na há.	0.5	LEAVE		
+3675.00.01word		conversão		Congração.	0.5556	LEAVE		
+4969.00.01word		despir		Despe-o.	0.5714	LEAVE		
+1233.00.02word		golpe		Volpi.	0.6	LEAVE		
+1243.00.02word		senão		Simão.	0.6	LEAVE		
+1723.00.01word		teto		Certo.	0.6	LEAVE		
+2821.00.01word		poço		Posso.	0.6	LEAVE		
+3077.00.01word		time		Chime.	0.6	LEAVE		
+3517.00.01word		pulso		Pus.	0.6	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+3742.00.01word		reger		Regia.	0.6	LEAVE		
+4283.00.01word		cesto		Sexto.	0.6	LEAVE		
+4695.00.01example		A higiene corporal é importante para a saúde.		A higiene adequada do osso é. Higiene corporal é importante para uma saúde.	0.6027	REGEN_VOICE_SWAP	Rw38T6bn0lTNOb1aUevR	
+4753.00.01example		O trabalho está incompleto, falta uma página.		O trabalho está incompleto.	0.6047	REGEN_VOICE_SWAP	Rw38T6bn0lTNOb1aUevR	
+2453.00.01word		exprimir		Espremer.	0.625	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+2627.00.01word		sobrinho		Sobriu.	0.625	LEAVE		
+4464.00.01word		difundir		De fundi	0.625	LEAVE		
+4464.00.02word		difundir		De fundi	0.625	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+2241.00.03word		erguer		Ergir.	0.6667	LEAVE		
+2506.00.01word		pátria		Pátio.	0.6667	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+3634.00.01word		filmar		Fumar.	0.6667	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+4549.00.01example		A loja oferece desconto de 20% hoje.		A loja oferece desconto de vinte por cento hoje.	0.6809	LEAVE		
+2271.00.01word		nomeado		nomear	0.7143	REGEN_VOICE_SWAP	Rw38T6bn0lTNOb1aUevR	
+2794.00.01word		crença		Criança.	0.7143	LEAVE		
+4505.00.01word		incerto		Certo?	0.7143	LEAVE		
+4726.00.01example		O preço do pão está acrescido de dez por cento.		O preço do pão está acrescido de 10%.	0.7174	LEAVE		
+0153.00.01word		hora		Ora	0.75	LEAVE		
+0374.00.01word		olho		Óleo.	0.75	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+1732.00.01word		rumo		Romo	0.75	REGEN_VOICE_SWAP	Rw38T6bn0lTNOb1aUevR	
+3015.00.02word		auto		Alto.	0.75	LEAVE		
+3015.00.01word		auto		Alto.	0.75	LEAVE		
+3213.00.01word		guerrilheiro		Guerreiro.	0.75	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+3304.00.01word		credor		Corredor.	0.75	LEAVE		
+3818.00.01word		táxi		Tax.	0.75	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+4075.00.01word		auge		Alge	0.75	LEAVE		
+4783.00.01word		marxista		Maicista?	0.75	LEAVE		
+4899.00.01word		povoar		Por voar.	0.75	LEAVE		
+4910.00.01word		roer		Ror.	0.75	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+0382.00.01word		área		Aria.	0.75	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+0717.00.01word		resultar		Resultado.	0.7778	LEAVE		
+3644.00.01word		dispersar		Desperçar.	0.7778	LEAVE		
+3813.00.01word		acarretar		Acarettar.	0.7778	LEAVE		
+0659.00.01word		cento		Sento.	0.8	LEAVE		
+0780.00.02word		monte		Monge.	0.8	LEAVE		
+1320.00.01word		expor		Espor.	0.8	LEAVE		
+1887.00.01word		febre		Febe.	0.8	LEAVE		
+2077.00.03word		pasta		Basta.	0.8	LEAVE		
+2983.00.01word		cauda		Calda.	0.8	LEAVE		
+3298.00.01word		quotidiano		Cotidiano	0.8	LEAVE		
+3353.00.01word		roubo		Robo.	0.8	LEAVE		
+3378.00.01word		invés		Invez.	0.8	LEAVE		
+3421.00.01word		mútuo		Muto	0.8	LEAVE		
+4366.00.02word		ronda		Honda.	0.8	LEAVE		
+4366.00.01word		ronda		Honda.	0.8	LEAVE		
+4393.00.02word		troço		Traço.	0.8	LEAVE		
+4518.00.01word		precedente		Presidente.	0.8	LEAVE		
+4565.00.01word		mercê		Merci.	0.8	LEAVE		
+4701.00.01word		fação		Façã.	0.8	LEAVE		
+3344.00.03word		afastamento		Apartamento.	0.8182	LEAVE		
+0265.00.01example		A altura da montanha é de 2.000 metros.		A altura da montanha é de dois mil metros.	0.8293	LEAVE		
+0564.00.02word		marcar		Mascar.	0.8333	LEAVE		
+0665.00.01word		supor		Suport.	0.8333	LEAVE		
+0732.00.01word		grave		Graves.	0.8333	LEAVE		
+1368.00.01word		deter		De ter.	0.8333	LEAVE		
+1406.00.01word		deitar		Deita.	0.8333	LEAVE		
+1764.00.01word		marcha		Márcia.	0.8333	LEAVE		
+1764.00.03word		marcha		Marsha	0.8333	LEAVE		
+2241.00.02word		erguer		Ergue.	0.8333	LEAVE		
+2464.00.01word		aderir		Aderia.	0.8333	LEAVE		
+3194.00.01word		reitor		Heitor.	0.8333	LEAVE		
+3435.00.01word		piorar		Piora.	0.8333	LEAVE		
+4111.00.01word		beijar		Beija.	0.8333	LEAVE		
+4568.00.01word		tremer		Tremor	0.8333	LEAVE		
+4613.00.01word		hostil		Postil.	0.8333	LEAVE		
+0067.00.01word		porque		Por quê?	0.8571	LEAVE		
+0402.00.01word		aspecto		Aspeto.	0.8571	LEAVE		
+1175.00.01word		agente		A gente	0.8571	LEAVE		
+2036.00.01word		alcance		Alance	0.8571	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+2568.00.01word		resíduo		Resido.	0.8571	LEAVE		
+2961.00.01word		exceto		Excerto.	0.8571	LEAVE		
+3234.00.02word		bilhete		Bilete.	0.8571	LEAVE		
+4538.00.01word		furioso		Curioso.	0.8571	LEAVE		
+4188.00.01example		Meu amigo cubano mora em Havana.		Meu amigo cubano dele mora em Havana.	0.8611	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+3962.00.01example		Meu irmão estuda contabilidade na universidade.		Eu e meu estudo contabilidade na universidade.	0.8696	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+2254.00.01example		Meu avô guardava moedas de cruzado da década de 80.		Meu avô guardava moedas de cruzado da década de oitenta.	0.8727	LEAVE		
+3604.00.01word		proferir		Proferi.	0.875	LEAVE		
+3441.00.02example		Ele está mole e cansado depois do treino.		Ele parecia mole e cansado depois do treino.	0.8837	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+3908.00.01word		alastrar		A lastrar.	0.8889	LEAVE		
+1290.00.01word		permanente		Permamente.	0.9	LEAVE		
+1598.00.01word		prosseguir		Prosseguia.	0.9	LEAVE		
+2934.00.02example		Não seja burro, estude para a prova!		Não seja burro, estude pra prova.	0.9118	REGEN_VOICE_SWAP	qPfM2laM0pRL4rrZtBGl	
+0363.00.01example		Dou um passo de cada vez na escada.		Dê um passo de cada vez na escada.	0.9412	LEAVE		

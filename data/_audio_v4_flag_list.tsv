@@ -1,0 +1,51 @@
+sense_id	pt	alias_respelling	drift	flag
+0200.00.01	real	Hê-aú		FLAG
+0207.00.01	social	sosiau		OK
+0408.00.01	capital	capitau		OK
+0408.00.02	capital	capitau	EN	OK
+0431.00.01	especial	espesiau		OK
+0656.00.01	oficial	ofisiau		OK
+0822.00.01	comercial	comerssiáu		OK
+1078.00.01	general	Zhe-ne-ráu		OK
+1125.00.01	policial	polisiau		OK
+1125.00.02	policial	polisiau		OK
+1269.00.01	essencial	essensiau		OK
+1309.00.01	inicial	inisiau		OK
+1324.00.01	industrial	In-dús-tri-áu		FLAG
+2171.00.01	potencial	potensiáu	ES	FLAG
+2215.00.01	habitual	abituáu		FLAG
+2490.00.01	presidencial	presidensiau		OK
+2784.00.01	judicial	Zhudjissiaou		OK
+2832.00.01	artificial	artchifissiau	EN	OK
+3266.00.01	tropical	tropicau		OK
+3331.00.01	parcial	parsiau		OK
+3499.00.01	espacial	espasiau		OK
+3611.00.01	sindical	sindjicau	EN	OK
+3704.00.01	fatal	fatau		OK
+3785.00.01	superficial	superfisiau	EP	OK
+3814.00.01	verbal	verbau	EN	OK
+4676.00.01	postal	posstáu		OK
+4784.00.01	substancial	substansiau		OK
+0003.00.02	em		ES	FLAG
+0008.00.01	por		EP	FLAG
+0039.00.01	ver		EP	FLAG
+0041.00.01	dois			OK
+0210.00.01	mão		ES	FLAG
+0229.00.01	aparecer		ES	OK
+0263.00.02	forte		EP	FLAG
+0266.00.02	volta		EP	FLAG
+0325.00.01	falta		ES	FLAG
+0335.00.01	jogo		ES	OK
+0369.00.01	dez		ES	OK
+0396.00.01	sistema		EN	OK
+0416.00.01	população		EP	OK
+0422.00.01	superior		EP	FLAG
+0435.00.01	cor		EP	FLAG
+0438.00.01	ar		EN	FLAG
+0534.00.01	verde		EP	OK
+0573.00.01	morto		ES	OK
+0604.00.03	central		EN	FLAG
+0612.00.01	metro		EP	FLAG
+0612.00.02	metro		ES	OK
+0640.00.01	produção		EP	OK
+0647.00.01	popular		ES	FLAG
