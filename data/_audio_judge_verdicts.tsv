@@ -1,0 +1,4 @@
+sense_id	pt	voice_id	pronunciation_verdict	drift	severity	confidence	evidence	model	latency_ms	cost_usd	judged_at
+0001.00.01	o	m151rjrbWXbBqyq56tly	bp_ok	none	low	high	The vowel sound was a clear 'u', matching the expected Brazilian Portuguese pronunciation.	gpt-4o-audio-preview	2794	0.00276	2026-05-10T09:28:56+00:00
+0074.00.01	qual	m151rjrbWXbBqyq56tly	bp_ok	none	low	high	The final 'l' is vocalized to a [w] sound, which is characteristic of standard Brazilian Portuguese.	gpt-4o-audio-preview	2060	0.003338	2026-05-10T09:28:58+00:00
+0265.00.01	altura	m151rjrbWXbBqyq56tly	bp_ok	none	low	high	The final 'r' sound is pronounced as a tap [ɾ], typical of Brazilian Portuguese, and the vowels have the appropriate quality.	gpt-4o-audio-preview	1199	0.0035	2026-05-10T09:28:59+00:00
