@@ -49,6 +49,7 @@ AUDIT_JSONL = AUDIT_DIR / "08_1_audio_judge.jsonl"
 
 VERDICT_COLUMNS = [
     "sense_id",
+    "clip_type",
     "pt",
     "voice_id",
     "pronunciation_verdict",
@@ -80,12 +81,18 @@ def _fetch_audio_bytes(sense_id: str, version: str, clip_type: str, url: str) ->
     return data
 
 
-def _load_existing_verdicts() -> set[str]:
-    """Return set of sense_ids already judged (for idempotent resume)."""
+def _load_existing_verdicts(*, clip_type: str = "word") -> set[str]:
+    """Return set of sense_ids already judged for this clip_type."""
     if not VERDICTS_PATH.exists():
         return set()
     rows = read_tsv(VERDICTS_PATH)
-    return {r["sense_id"] for r in rows if r.get("sense_id")}
+    # Schema may not yet have clip_type — back-compat: rows without
+    # clip_type are assumed to be word clips (the original Phase 1 default).
+    return {
+        r["sense_id"] for r in rows
+        if r.get("sense_id")
+        and (r.get("clip_type") or "word") == clip_type
+    }
 
 
 def _append_verdict_row(row: dict, lock: Lock) -> None:
@@ -103,12 +110,18 @@ def _append_verdict_row(row: dict, lock: Lock) -> None:
 
 
 def _build_work_queue(
-    *, bucket: str, smoke_test: bool, smoke_n: int, rejudge: bool
+    *, bucket: str, smoke_test: bool, smoke_n: int, rejudge: bool,
+    clip_type: str = "word",
 ) -> list[dict]:
-    """Build the list of word-clip rows to judge.
+    """Build the list of clip rows to judge for the requested clip_type.
 
     Returns list of dicts with: sense_id, pt, voice_id, ipa_word_final,
-    version, url, clip_type='word', priority.
+    version, url, clip_type, priority.
+
+    For clip_type='example' (Phase 7 sweep), excludes senses that are
+    already in the human-review or manual-respelling-review queues
+    (per the user's locked exclusion clauses), and excludes non-single-
+    word senses (idioms, multi-word headwords).
     """
     risk_rows = read_tsv(RISK_CLASSIFICATION_PATH) if RISK_CLASSIFICATION_PATH.exists() else []
     manifest_rows = read_tsv(MANIFEST_PATH)
@@ -116,10 +129,32 @@ def _build_work_queue(
 
     risk_by_sid = {r["sense_id"]: r for r in risk_rows}
     ipa_by_sid = {r["sense_id"]: r for r in ipa_rows}
+
+    # For example-clip Phase 7: filter out senses in review queues
+    excluded_sids: set[str] = set()
+    if clip_type == "example":
+        for queue_path in (
+            DATA_DIR / "_audio_human_review.tsv",
+            DATA_DIR / "_audio_manual_respelling_review.tsv",
+        ):
+            if queue_path.exists():
+                for row in read_tsv(queue_path):
+                    if row.get("sense_id"):
+                        excluded_sids.add(row["sense_id"])
+
+    # Filter manifest to clip_type and uploaded status
     manifest_word = [
         r for r in manifest_rows
-        if r.get("clip_type") == "word" and r.get("status") == "uploaded"
+        if r.get("clip_type") == clip_type
+        and r.get("status") == "uploaded"
+        and r.get("sense_id") not in excluded_sids
     ]
+    if clip_type == "example":
+        # Restrict to single-word senses only (skip idioms, multi-word)
+        single_word_sids = {
+            r["sense_id"] for r in ipa_rows if r.get("pt_type") == "single_word"
+        }
+        manifest_word = [r for r in manifest_word if r["sense_id"] in single_word_sids]
 
     # Build per-clip work items
     items: list[dict] = []
@@ -127,14 +162,17 @@ def _build_work_queue(
         sid = r["sense_id"]
         risk = risk_by_sid.get(sid, {})
         ipa = ipa_by_sid.get(sid, {})
+        # For example clips, IPA is the example IPA; for word, the word IPA.
+        ipa_ref = (ipa.get("ipa_example_final") if clip_type == "example"
+                   else ipa.get("ipa_word_final", ""))
         items.append({
             "sense_id": sid,
             "pt": r.get("text_input") or risk.get("pt", ""),
             "voice_id": r.get("voice_id", ""),
-            "ipa_word_final": ipa.get("ipa_word_final", ""),
+            "ipa_word_final": ipa_ref or "",
             "version": r.get("version", "1"),
             "url": r.get("url", ""),
-            "clip_type": "word",
+            "clip_type": clip_type,
             "priority": risk.get("priority", "—"),
             "risk_patterns": risk.get("risk_patterns", "none"),
         })
@@ -144,9 +182,9 @@ def _build_work_queue(
         items = [i for i in items if i["priority"] in ("P0", "P1", "P2", "P3")]
     # bucket == "full" or "all": no filter
 
-    # Filter out already-judged
+    # Filter out already-judged for THIS clip_type
     if not rejudge:
-        existing = _load_existing_verdicts()
+        existing = _load_existing_verdicts(clip_type=clip_type)
         items = [i for i in items if i["sense_id"] not in existing]
 
     if smoke_test:
@@ -185,6 +223,7 @@ def _judge_one(client: AudioJudgeClient, item: dict, write_lock: Lock) -> tuple[
         # Append to verdicts TSV
         verdict_row = {
             "sense_id": sense_id,
+            "clip_type": item["clip_type"],
             "pt": item["pt"],
             "voice_id": item["voice_id"],
             "pronunciation_verdict": result.pronunciation_verdict,
@@ -209,7 +248,13 @@ def main() -> int:
         "--bucket",
         choices=("full", "risky"),
         default="full",
-        help="Default 'full' = all word clips (~6,250). 'risky' = P0+P1+P2+P3 (~2,088).",
+        help="Default 'full' = all clips of clip_type. 'risky' = P0+P1+P2+P3 only.",
+    )
+    parser.add_argument(
+        "--clip-type",
+        choices=("word", "example"),
+        default="word",
+        help="Which clip type to judge. Phase 7 uses 'example' for the post-08_5 sweep.",
     )
     parser.add_argument("--smoke-test", action="store_true", help="Pick 3 representative clips, run, exit.")
     parser.add_argument("--n", type=int, default=3, help="Number of smoke-test clips.")
@@ -237,6 +282,7 @@ def main() -> int:
         smoke_test=args.smoke_test,
         smoke_n=args.n,
         rejudge=args.rejudge,
+        clip_type=args.clip_type,
     )
     if args.limit > 0:
         items = items[: args.limit]
