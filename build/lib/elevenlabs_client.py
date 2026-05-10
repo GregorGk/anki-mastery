@@ -87,7 +87,17 @@ class ElevenLabsClient:
         max_attempts: int = DEFAULT_MAX_ATTEMPTS,
         voice_settings: VoiceSettings = LOCKED_VOICE_SETTINGS,
         rng: random.Random | None = None,
+        pronunciation_dict_locators: list[dict] | None = None,
     ) -> None:
+        """Construct an ElevenLabs TTS client.
+
+        pronunciation_dict_locators: optional list of dicts with shape
+            [{"pronunciation_dictionary_id": "...", "version_id": "..."}, ...]
+            Up to 3 per ElevenLabs API. When set, every TTS call attaches
+            these locators so server-side alias rules apply before
+            synthesis. Used in Stage 8 (alias dictionaries) and any
+            future regen-flagged passes that should respell at TTS time.
+        """
         api_key = api_key or os.environ.get("ELEVENLABS_API_KEY")
         if not api_key:
             raise RuntimeError("ELEVENLABS_API_KEY not set in environment")
@@ -96,6 +106,7 @@ class ElevenLabsClient:
         self.language_code = language_code
         self.max_attempts = max_attempts
         self.voice_settings = voice_settings
+        self.pronunciation_dict_locators = pronunciation_dict_locators
         self._client = ElevenLabs(api_key=api_key, timeout=timeout_s)
         self._rng = rng or random.Random()
         # PCM constants for pcm_44100 (16-bit signed LE, mono).
@@ -148,7 +159,7 @@ class ElevenLabsClient:
     # --- Internals --------------------------------------------------------- #
 
     def _call_once(self, *, text: str, voice_id: str, seed: int) -> bytes:
-        chunks = self._client.text_to_speech.convert(
+        kwargs = dict(
             voice_id=voice_id,
             text=text,
             model_id=self.model_id,
@@ -158,6 +169,9 @@ class ElevenLabsClient:
             seed=seed,
             apply_text_normalization="auto",
         )
+        if self.pronunciation_dict_locators:
+            kwargs["pronunciation_dictionary_locators"] = self.pronunciation_dict_locators
+        chunks = self._client.text_to_speech.convert(**kwargs)
         # convert() returns Iterator[bytes]; concatenate.
         return b"".join(chunks)
 
