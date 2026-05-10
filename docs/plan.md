@@ -1875,10 +1875,20 @@ After listening (~40 min), `--apply-calibration`:
    ```
 2. Routes `unclear` rows to `data/_audio_calibration_unclear.tsv` for a
    small manual queue.
-3. Writes `data/_audio_mispronunciation_confirmed.tsv` for downstream
+3. **Adaptive-expansion gate (LOCKED)**: for each risk family in the
+   calibration sample, computes MISPRONOUNCED rate = MISPRONOUNCED count /
+   listened count. If **any family > 10% MISPRONOUNCED**, emits
+   `audit/08_2_calibration_expansion_v{N}.html` with **+25 additional
+   clips drawn from that family** and pauses for user listening before
+   continuing. The expansion is appended to
+   `data/_audio_calibration_labels.tsv`. Loop until no family exceeds
+   10% (or N=3 expansion rounds, whichever comes first; the cap prevents
+   pathological loops on a fundamentally noisy family).
+4. Writes `data/_audio_mispronunciation_confirmed.tsv` for downstream
    alias generation.
 
-**Cost**: $0. **Wall clock**: ~40 min user listening.
+**Cost**: $0. **Wall clock**: ~40 min user listening (initial sample);
++~10 min per expansion round if triggered.
 
 ##### 08_3 — Alias generation ([build/08_3_generate_aliases.py](build/08_3_generate_aliases.py))
 
@@ -2059,11 +2069,28 @@ alias used, 3-button radio (`BETTER / SAME / WORSE`). User listens
 (~20 min) and pastes form output into
 `data/_audio_after_fix_labels.tsv`.
 
-`WORSE` rows trigger a manual respelling review (route to
-`_audio_manual_respelling_review.tsv` for a Phase 3 → 4 → 5 second pass).
-`SAME` rows indicate an insufficient fix (alias didn't change the
-pronunciation enough; consider stronger respelling). `BETTER` rows
-confirm the fix held.
+**Hard gate before 06-final.tsv rebuild (LOCKED)**: after user labels
+are imported, the script computes per-family `WORSE` and `SAME` rates
+across the after-fix sample. The rebuild step (6.3) is **blocked** if
+either of these holds:
+
+- **Any `WORSE` row in any family** (regression introduced by the alias).
+- **`SAME` rate > 10% in any family** (alias didn't change the
+  pronunciation enough — too many "no improvement" clips).
+
+When the gate blocks, the script:
+1. Identifies the offending families (those with `WORSE` rows or
+   `SAME > 10%`).
+2. Routes the affected `pt`s to `data/_audio_alias_rerun_queue.tsv`.
+3. Reruns Phase 08_3 → 08_4 → 08_5 limited to those families
+   (new family-template smoke test, new alias dictionary version, new
+   re-render).
+4. Re-emits the after-fix HTML for the rerun clips.
+5. Loops until no family triggers the gate (or N=2 rerun rounds, with
+   the residual then surfaced loudly for manual review).
+
+`BETTER` rows confirm the fix held. `WORSE` and `SAME>10%` rows are
+hard-stop signals, not soft warnings.
 
 **Step 6.2 — Summary report.** Emit `audit/08_summary.txt`:
 
