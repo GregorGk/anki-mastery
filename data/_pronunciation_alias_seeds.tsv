@@ -1,0 +1,27 @@
+family_id	family_name	representative_pt	candidate_n	pt_respelling	pronunciation_guide	rationale	confidence	is_recommended	is_anti_example	notes
+1	final_l_-al	animal	1	animau	"ah-nee-MAU" — last syllable rhymes with English "wow"; Polish ł in łapa	Final -l vocalized to [w]; matches actual BP pronunciation	high	true	false	Primary -al template candidate
+1	final_l_-al	animal	2	animáu	"ah-nee-MAOO" — same as #1 but explicit acute on final	Acute + vowel ending; redundant stress cue	medium	false	false	Backup if #1 produces wrong stress
+1	final_l_-al	animal	3	animál	"ah-nee-MAL" — hard l like English "mall"	Acute attempts stress shift but keeps consonantal l — wrong target	low	false	true	Anti-example: should sound clearly EP/EN
+2	final_l_-el	hotel	1	otéu	"oh-TEH-oo" — drops silent h; rhymes with English "tay-oo"	BP final -el: silent h + l→[w]; targets [oˈtew]	high	true	false	Primary -el template
+2	final_l_-el	hotel	2	hotéu	"oh-TEH-oo" but written h may aspirate	Same target but English h-aspirate risk	medium	false	false	Backup if #1 weird
+2	final_l_-el	hotel	3	hotél	"hoh-TELL" — English-style with hard l	Wrong target	low	false	true	Anti-example
+3	final_l_-il	civil	1	civiu	"see-VEE-oo" — final -l → -u	Final -l vocalized	high	true	false	Primary -il template
+3	final_l_-il	civil	2	civíu	"see-VEE-oo" with explicit acute on í	Same target with stress cue	medium	false	false	Backup
+3	final_l_-il	civil	3	civíl	"see-VEEL" with hard l	Wrong target	low	false	true	Anti-example
+4	final_l_-ol	futebol	1	futebóu	"foo-teh-BOH-oo" — acute on stressed ó + u ending	BP [futeˈbɔw]	high	true	false	Primary -ol template
+4	final_l_-ol	futebol	2	futeból	"foo-teh-BOLL" with acute + hard l	Stress correct but l wrong	low	false	true	Anti-example
+5	de_te_palatalization_-de	cidade	1	cidadji	"see-DAH-djee" — Polish "dżi" sound at the end	Explicit dj phoneme cue + final -i	high	true	false	Primary -de template; uses dj as palatalization hint
+5	de_te_palatalization_-de	cidade	2	cidadi	"see-DAH-dee" — TTS may palatalize -di to [dʒi]	Relies on TTS knowing BP final-di rule	medium	false	false	Backup if #1 produces literal "dj" hard cluster
+5	de_te_palatalization_-de	cidade	3	cidade	"see-DAHD" or "see-DAHD-eh" with silent or whispery final	Original; EP-leaning	low	false	true	Anti-example: silent / hard final
+6	de_te_palatalization_-te	gente	1	gentchi	"ZHEN-chee" — Polish "żen-czi"	Explicit tch phoneme cue + final -i	high	true	false	Primary -te template
+6	de_te_palatalization_-te	gente	2	genti	"ZHEN-tee" — TTS may palatalize -ti to [tʃi]	Relies on TTS	medium	false	false	Backup
+6	de_te_palatalization_-te	gente	3	gente	"ZHENT" — silent or hard final	EP-leaning	low	false	true	Anti-example
+7	h_initial_+_final_l	hospital	1	ospitau	"oss-pee-TAU" — drops silent h + final l vocalized	Compound fix: h-drop + l→[w]	high	true	false	Primary h_initial+final-l template
+7	h_initial_+_final_l	hospital	2	hospitau	"oss-pee-TAU" but written h carries English-aspirate risk	Same target with h-aspirate risk	medium	false	false	Backup
+7	h_initial_+_final_l	hospital	3	hospitál	"hoss-pee-TAL" with English h + hard l	Wrong target both ways	low	false	true	Anti-example: pure EN drift
+8	english_loanword_per_word	internet	1	internétchi	"een-ter-NET-chee" — palatalize final -et + stress cue	Apply -te palatalization template to loanword	medium	true	false	Loanwords don't share a family template; per-word respelling
+8	english_loanword_per_word	internet	2	internét	"een-ter-NET" with hard final t	Stress correct but no palatalization (sounds EP/English)	low	false	true	Anti-example
+9	english_loanword_per_word	software	1	softuei	"sof-too-EH-ee" — phonetic respelling for native BP TTS	BP-style folk respelling of "software"	medium	true	false	Per-word; loanwords vary
+9	english_loanword_per_word	software	2	sóftuér	"SOF-tway-er" with acutes	Stress hints + vowel substitution	low	false	false	Alternative
+10	ep_leftover_named	susceptível	1	suscetível	"soo-seh-CHEE-veh-oo" — drops the EP -pt- cluster	Standard BP spelling without the -p-; the orthographically correct BP form	high	true	false	BP form already exists; treat as orthographic correction not respelling
+10	ep_leftover_named	susceptível	2	susetível	"soo-seh-TEE-veh-oo" — alt c-drop	Alternative reduction	low	false	false	Less standard

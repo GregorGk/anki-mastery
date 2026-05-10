@@ -1630,8 +1630,47 @@ N-best across many families, triple-verification, and a separate EP audit
 phase. **v3 (this section) keeps v2's correctness fixes — risk classifier,
 audio LLM judge, by-`pt` aliases with conflict detection, after-fix
 listening — but cuts the rest as overengineering for the actual failure
-mode. The pipeline is 7 scripts, not 11. Cost ~$6 default / ~$32 with
-full-corpus audio judge.**
+mode. The pipeline is 7 scripts, not 11.**
+
+#### Pre-Stage-8 deltas (LOCKED 2026-05-10)
+
+Before Stage 8 implementation begins, three user-locked decisions are
+already in effect:
+
+1. **Audio-judge scope: full-corpus by default** (~$32, all 6,250 word
+   clips). The user opted to spend the extra $23 over the risky-bucket
+   default to eliminate the "we may have missed a pattern" risk.
+2. **MALE #4 + MALE #6 swapped pre-emptively** for monolingual BP
+   replacements. The two voices that previously contributed 23.3% of
+   still-HUMAN failures from only 16.8% of word clips are gone. New
+   voices:
+   - Pool index 4: `4za2kOXGgUd57HRSQ1fn` (Lendário, native pt + 17
+     verified langs) → **`AaeZyyi87RCxtFnHPS3e`** ("Prof. Campanholi" —
+     BP-only, professorial, 0 verified secondary languages).
+   - Pool index 6: `uju3wxzG5OhpWcoi3SMy` (Michael C. Vincent, native EN
+     + 13 verified langs) → **`4r3G9XKliGgVZLKMgjik`** ("Lair" — BP-only,
+     calm narrator, 0 verified secondary languages).
+
+   The swap re-rendered 1,920 manifest rows (480 word + 480 example × 2
+   voices) using the surgical
+   [build/swap_voices_surgical.py](build/swap_voices_surgical.py) which
+   touches only the affected senses (no shuffle, no neutral-demotion).
+   Cost ~$1.58. The voice-level risk patterns are now empty (preserved
+   in the seed file as a future hook).
+3. **Sentinel respellings locked with pronunciation guides** at
+   [data/_pronunciation_alias_seeds.tsv](data/_pronunciation_alias_seeds.tsv).
+   ~25 candidates across 10 risk-family templates (-al, -el, -il, -ol
+   final-l vocalization; -de and -te palatalization; h_initial+final-l
+   compound; English loanwords per-word; EP leftover named). Each
+   candidate has a phonetic guide tailored to the reviewer's profile
+   (Polish native, EN/DE fluent), a recommended pick, an anti-example,
+   and a confidence rating. 08_3 reads this file directly and skips the
+   LLM family-template proposal step (saving $0.05 + a few minutes;
+   bulk-generation per-word for non-template cognates still uses Sonnet
+   4.5).
+
+**Updated cost projection**: ~$32 default (full-corpus audio judge).
+Wall: ~70 min compute + ~70 min user listening.
 
 #### Why this stage exists (LOCKED 2026-05-10)
 
@@ -1699,8 +1738,8 @@ matched patterns.
 
 | Pattern | Priority | Trigger | Drift direction |
 |---|---|---|---|
-| `voice_high_risk_critical` | **P0** | `voice_id ∈` rows in `data/_risk_seeds_high_risk_voices.tsv` with `risk_tier=CRITICAL`. Currently: `uju3wxzG5OhpWcoi3SMy` (Michael C. Vincent — natively English; 13 verified languages; 5.4% empirical still-HUMAN rate). | EN (structural — native EN voice rendering BP) |
-| `voice_high_risk_elevated` | **P1** | `voice_id ∈` rows in `data/_risk_seeds_high_risk_voices.tsv` with `risk_tier=ELEVATED`. Currently: `4za2kOXGgUd57HRSQ1fn` (Lendário — natively pt-BR but verified across 17 languages; "hyped" social-media style; 1.7% empirical rate). | mixed (multilingual fan-out) |
+| `voice_high_risk_critical` | **P0** | `voice_id ∈` rows in `data/_risk_seeds_high_risk_voices.tsv` with `risk_tier=CRITICAL`. **Currently EMPTY** (the previously-flagged voice `uju3wxzG5OhpWcoi3SMy` was swapped pre-Stage-8 for a BP-only replacement — see § Pre-Stage-8 deltas above). Pattern is preserved as a future hook. | EN (structural — would re-fire if a future native-EN voice is added) |
+| `voice_high_risk_elevated` | **P1** | `voice_id ∈` rows in `data/_risk_seeds_high_risk_voices.tsv` with `risk_tier=ELEVATED`. **Currently EMPTY** (previously-flagged `4za2kOXGgUd57HRSQ1fn` swapped pre-Stage-8). Pattern preserved. | mixed (would re-fire on heavily-multilingual voices) |
 | `user_reported` | **P0** | `pt` appears in `data/_audio_user_reported_failures.tsv` | mixed |
 | `ep_leftover_named` | **P0** | `pt ∈ {camisola, fazenda, marcha, troço, vosso, comboio, equipa, registo, utilizador, paragem, desporto, golo}` (Stage-1 EP audit seed list) | EP |
 | `same_spelling_en_pt` | **P1** | `pt` exists as a common English word with same letters | EN |
@@ -1806,10 +1845,16 @@ Output schema:
 ```tsv
 sense_id     pt          voice_id              risk_patterns                                                              priority  ipa_word_final  rank
 0317.00.01   animal      qPfM2laM0pRL4rrZtBGl  user_reported,same_spelling_en_pt,final_l_vocalization                     P0       ˌaniˈmaw       317
-0858.00.01   data        uju3wxzG5OhpWcoi3SMy  voice_high_risk_critical,user_reported,same_spelling_en_pt                 P0       ˈdadʒɐ          858
+0858.00.01   data        4r3G9XKliGgVZLKMgjik  user_reported,same_spelling_en_pt                                          P0       ˈdadʒɐ          858
 0042.00.01   cidade      Rw38T6bn0lTNOb1aUevR  de_te_palatalization,final_unstressed_e                                    P2        siˈdadʒi       42
 0001.00.01   o           wxoDdfPKBuna5KnUEotz  none                                                                       —         u              1
 ```
+
+Note: post-swap example shows voice `4r3G9XKliGgVZLKMgjik` (Lair, the
+new pool-index-6 BP-only voice). The `voice_high_risk_critical` pattern
+no longer fires for this clip because the voice is monolingual BP. If
+future voices are flagged in `_risk_seeds_high_risk_voices.tsv`, the
+pattern will appear here automatically.
 
 **Cost**: $0. **Wall clock**: ~5 min.
 
@@ -1888,8 +1933,8 @@ Stratification (~100 clips):
 | Bucket | Count | Source |
 |---|---|---|
 | All user-reported failures | all (≥1) | `_audio_user_reported_failures.tsv` |
-| `voice_high_risk_critical` non-BP | 10 | Audio-judge `non_bp` verdicts from MALE #6 (`uju3wxzG5OhpWcoi3SMy`); represents at least ~10% of his audio-judge flags |
-| `voice_high_risk_elevated` non-BP | 5 | Audio-judge `non_bp` verdicts from MALE #4 (`4za2kOXGgUd57HRSQ1fn`) |
+| `voice_high_risk_critical` non-BP | 0–10 | **Currently 0** (no CRITICAL voices in pool post-swap). If future voices are added back, audio-judge non_bp verdicts from those voices fill this bucket. |
+| `voice_high_risk_elevated` non-BP | 0–5 | **Currently 0** (no ELEVATED voices in pool post-swap). Same future hook. |
 | `final_l_vocalization` family | 20 | Stratified by frequency tier across -al/-el/-il/-ol |
 | `de_te_palatalization` family | 15 | Stratified by frequency tier |
 | `initial_r_or_rr` | 10 | Random sample |
@@ -1949,36 +1994,37 @@ After listening (~40 min), `--apply-calibration`:
 Two phases: sentinel-word smoke test FIRST, then bulk family + individual
 generation.
 
-**Step 3.1 — Sentinel smoke test.** Pick six representative words covering
-the main risk families: `animal` (final_l -al), `hospital` (final_l -al,
-also h_initial), `hotel` (final_l -el, also h_initial), `cidade`
-(de_te -de), `gente` (de_te -te), `rua` or `carro` (initial_r/rr).
+**Step 3.1 — Sentinel smoke test (LOCKED).** Candidates are pre-locked
+in [data/_pronunciation_alias_seeds.tsv](data/_pronunciation_alias_seeds.tsv)
+(committed pre-Stage-8). The script reads this file and renders each
+candidate; **no LLM proposal step** for the family templates (saves $0.05
++ wall time vs LLM-proposed). 08_3 still uses Sonnet 4.5 for non-template
+per-word fill in Step 3.2.
 
-For each sentinel, ask Sonnet 4.5 for 1–3 candidate respellings (Tool
-Use). Suggested initial candidates (reviewed and overridable in
-`data/_pronunciation_alias_seeds.tsv`):
+The seed file covers 10 risk-family templates with ~25 candidate
+respellings:
 
-```
-final_l_vocalization:
-  animal    → animau
-  social    → sociau
-  material  → materiaw / materiáu        (smoke-test 2)
-  hospital  → ospitau / hospitau         (smoke-test 2)
-  hotel     → otéu / hotéu               (smoke-test 2)
+- **final_l_-al** (animal: `animau` / `animáu` / anti-example `animál`)
+- **final_l_-el** (hotel: `otéu` / `hotéu` / anti-example `hotél`)
+- **final_l_-il** (civil: `civiu` / `civíu` / anti-example `civíl`)
+- **final_l_-ol** (futebol: `futebóu` / anti-example `futeból`)
+- **de_te_palatalization_-de** (cidade: `cidadji` / `cidadi` / anti-example `cidade`)
+- **de_te_palatalization_-te** (gente: `gentchi` / `genti` / anti-example `gente`)
+- **h_initial_+_final_l** (hospital: `ospitau` / `hospitau` / anti-example `hospitál`)
+- **english_loanword_per_word** (internet: `internétchi`; software: `softuei` / `sóftuér`)
+- **ep_leftover_named** (susceptível: `suscetível` — orthographic correction)
 
-de_te_palatalization:
-  cidade    → cidadji / cidadi           (smoke-test 2)
-  verdade   → verdadji / verdadi         (smoke-test 2)
-  gente     → gentchi / genti            (smoke-test 2)
-  dente     → dentchi / denti            (smoke-test 2)
+Each candidate row in the seed file carries a **pronunciation guide**
+tailored to the project's reviewer profile (Polish native, EN/DE
+fluent) — e.g., `animau` is documented as *"ah-nee-MAU" — last syllable
+rhymes with English "wow"; Polish `ł` in `łapa`*. Each row also carries
+`is_recommended` + `is_anti_example` + `confidence` flags so the smoke-test
+HTML can color-code candidates and the user knows which one to pick if
+the rendering matches the guide.
 
-english_loanword:   per-word only — no broad template (loanwords are too
-                    heterogeneous to share a respelling shape)
-
-initial_r_or_rr / coda_s_ep_risk:
-  do NOT auto-template at this stage. Only alias if the audio judge AND
-  human calibration both confirm a real failure on a specific clip.
-```
+`initial_r_or_rr` and `coda_s_ep_risk` are deferred per the v3 plan —
+not auto-templated; only aliased per-word if the audio judge AND human
+calibration both confirm a failure.
 
 Each sentinel candidate is rendered once via 08_5's `--smoke` mode
 (~$0.01 per candidate, ~$0.12 total). User listens to the 12-clip HTML
@@ -2155,15 +2201,18 @@ When the gate blocks, the script:
 hard-stop signals, not soft warnings.
 
 **CRITICAL-voice escalation (NEW)**: if after-fix QA shows ANY clip from
-a `voice_high_risk_critical` voice (currently MALE #6, `uju3wxzG5OhpWcoi3SMy`)
-still labeled `WORSE` or `SAME` after the N=2 rerun rounds, the script
-emits a separate `data/_audio_critical_voice_review.tsv` and surfaces a
-loud manual decision: **(a) keep the voice with stronger respellings**,
-which means iterating Phase 08_3 with manual respelling overrides for
-the affected `pt`s; or **(b) swap the voice entirely**, which is the
-escape hatch documented in the v3 plan footer (cost ~$1 ElevenLabs +
-~$0.30 ASR; wall ~10 min). The user makes this call manually; the
-pipeline does not auto-swap.
+a `voice_high_risk_critical` voice still labeled `WORSE` or `SAME` after
+the N=2 rerun rounds, the script emits a separate
+`data/_audio_critical_voice_review.tsv` and surfaces a loud manual
+decision: **(a) keep the voice with stronger respellings**, which means
+iterating Phase 08_3 with manual respelling overrides for the affected
+`pt`s; or **(b) swap the voice entirely** via the surgical
+[build/swap_voices_surgical.py](build/swap_voices_surgical.py) (cost ~$1
+ElevenLabs + ~$0.30 ASR; wall ~10 min for 1,920 clips per swap, since
+each affected voice carries ~480 word + ~480 example clips). Currently
+no voices in this tier (both originally-flagged voices were swapped
+pre-Stage-8); this clause is preserved for future voice flags. The user
+makes this call manually; the pipeline does not auto-swap.
 
 **Step 6.2 — Summary report.** Emit `audit/08_summary.txt`:
 
@@ -2291,21 +2340,25 @@ pytest tests/test_stage_8.py
 
 #### Cost / wall-clock totals
 
-| Step | Cost (default risky-bucket + voice-level) | Cost (--full-corpus variant) | Wall clock |
+**Default scope LOCKED 2026-05-10**: full-corpus audio judge (user opted
+in for max coverage rather than the cheaper risky-bucket).
+
+| Step | Cost (LOCKED default: full-corpus) | Cost (risky-bucket alt) | Wall clock |
 |---|---|---|---|
 | 08_0 risk classifier | $0 | $0 | ~5 min |
-| 08_1 audio judge (~1,200–1,800 clips) | ~$6–9 | ~$31 | ~40 / ~60 min |
+| 08_1 audio judge (~6,250 clips full / ~1,200–1,800 risky) | ~$31 | ~$6–9 | ~60 / ~40 min |
 | 08_2 calibration (~100 clips) | $0 | $0 | ~45 min user |
-| 08_3 aliases (incl. sentinel smoke) | ~$0.65 | ~$0.65 | ~10 min |
+| 08_3 aliases (sentinel seeds locked, no LLM proposal) | ~$0.50 | ~$0.50 | ~10 min |
 | 08_4 dictionary upload | ~$0.001 | ~$0.001 | ~30 sec |
 | 08_5 re-render + verify | ~$3.30 | ~$3.30 | ~15 min |
 | 08_6 after-fix + finalize | $0 | $0 | ~20 min user + ~5 min compute |
-| **Total** | **~$9** | **~$32** | **~55 min compute + ~70 min user** |
+| **Total** | **~$35** | **~$13** | **~75 min compute + ~70 min user** |
 
-Voice-level addition vs prior v3 baseline: +$3 audio-judge cost (covers
-the ~600 net new clips from the two high-risk voices that wouldn't trip
-a word-level pattern alone) + ~10 min user listening (calibration grew
-75→100 clips). Net upgrade for the worst empirical failure dimension.
+Voice-swap pre-Stage-8 (already executed 2026-05-10): +~$1.58 (1,920
+clips re-rendered with new BP-only voices). Sentinel-seeds lock saves
+~$0.05 vs LLM-proposed candidates. The full-corpus audio judge is the
+biggest cost line and the user's locked choice for max-coverage
+detection (eliminates the "we missed a pattern" risk).
 
 #### What this stage deliberately does NOT do
 
