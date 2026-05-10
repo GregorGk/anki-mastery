@@ -26,8 +26,12 @@ design decisions.
   Apply overrides before the LLM is invoked for a row, not after.
 - `sense_id` format is `{RRRR.EE.SS}` — three zero-padded fields
   (rank.expansion_index.sense_index). Stable forever once assigned.
-- Audio filenames bake the version in: `{sense_id}-{word|ex}-{m|f}-v{N}.mp3`.
-  Anki strips URL query strings on download, so `?v=N` would silently fail.
+- Audio filenames bake version + model_id in:
+  `{sense_id}-{word|ex}-{model_id}-v{N}.mp3` (e.g.
+  `0001.00.01-word-eleven_flash_v2_5-v2.mp3`). Anki strips URL query
+  strings on download, so `?v=N` would silently fail. Legacy
+  Multilingual v2 files (pre-Stage 9) use the older
+  `{sense_id}-{word|ex}-v{N}.mp3` pattern (no model_id segment).
 - Never run `git commit` or `git push` unless the user explicitly asks.
 
 ## Code conventions
