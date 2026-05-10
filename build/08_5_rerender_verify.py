@@ -84,10 +84,12 @@ def _load_alias_lookup() -> dict[str, dict]:
 def _affected_keys() -> set[tuple[str, str]]:
     """Set of (sense_id, clip_type) keys to re-render.
 
-    Includes:
-      - All rows in _pronunciation_alias_applications.tsv (word clips per design)
-      - PLUS the corresponding example clip for each affected sense (user's
-        locked decision: re-render examples too).
+    **Word clips only** — examples are out of scope per docs/plan.md
+    Stage 8 settled decisions. Sentence-level prosody usually carries
+    example clips correctly; the alias dictionary targets the
+    isolated-word failure mode. If post-render audio judging on the
+    affected example clips reveals drift there too, run a targeted
+    second pass with --include-examples (not yet implemented).
     """
     if not APPLICATIONS_PATH.exists():
         return set()
@@ -98,7 +100,6 @@ def _affected_keys() -> set[tuple[str, str]]:
         if not sid:
             continue
         keys.add((sid, "word"))
-        keys.add((sid, "example"))
     return keys
 
 
