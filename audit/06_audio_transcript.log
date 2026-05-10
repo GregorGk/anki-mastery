@@ -16471,3 +16471,6 @@
 2026-05-10 13:08:50  PASS    3704.00.01  word  fatal                                 ->  Fatal.                                sim=1.00  voice=4r3G9X…  attempt=1  [0.0s]  (biased+unbiased agreed)
 2026-05-10 13:08:51  PASS    3814.00.01  word  verbal                                ->  Verbal                                sim=1.00  voice=m151rj…  attempt=1  [0.0s]  (biased+unbiased agreed)
 2026-05-10 13:08:51  PASS    4676.00.01  word  postal                                ->  Postal                                sim=1.00  voice=m151rj…  attempt=1  [0.0s]  (biased+unbiased agreed)
+2026-05-10 13:43:30  PASS    1125.00.02  word  policial                              ->  Policial                              sim=1.00  voice=4r3G9X…  attempt=1  [0.0s]  (biased+unbiased agreed)
+2026-05-10 13:43:30  PASS    0207.00.01  word  social                                ->  Social.                               sim=1.00  voice=Rw38T6…  attempt=1  [0.0s]  (biased+unbiased agreed)
+2026-05-10 13:43:31  PASS    1125.00.01  word  policial                              ->  Policial.                             sim=1.00  voice=m151rj…  attempt=1  [0.0s]  (biased+unbiased agreed)
