@@ -1,0 +1,16 @@
+=== stage 9 migration started 2026-05-10T22:12:14 ===
+[09_0] GO received. Marking all 11450 manifest rows pending...
+[09_0] Marked 11450 rows pending (version bumped, status cleared).
+[09_0] Sample new object_key: audio/0001.00.01-word-eleven_flash_v2_5-v2.mp3
+[09_0] Sample new url: https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/0001.00.01-word-eleven_flash_v2_5-v2.mp3
+[09_0] Delegating to stage_6.run() with concurrency=20, model=eleven_flash_v2_5, fail_fast_on_429=True, dict=Ht0OpvDQAJQkJMHRv7Rs...
+
+
+=== Stage 9 migration summary ===
+  senses: 5725
+  pending_at_start: 11450
+  results: 11450
+  passed: 11308
+  human: 141
+  errored: 1
+  asr_cost_usd: 0.0

@@ -1,0 +1,16 @@
+derive_final: joined 5725 senses
+  enriched (03) rows: 5725
+  ipa (05) rows:      5725
+  manifest rows:      11450
+  overrides:          71
+
+Gap stats:
+  missing_audio_word: 0
+  missing_audio_example: 0
+  missing_voice_id: 0
+  missing_md5_word: 0
+  missing_md5_example: 0
+  voice_mismatch: 0
+  asr_override_applied: 71
+  family_root_blank: 5725
+  source_line_blank: 0
