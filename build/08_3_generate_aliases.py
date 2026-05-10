@@ -313,18 +313,25 @@ def cmd_apply_templates() -> int:
         return 1
     rows = read_tsv(WINNERS_PATH)
     seeds = read_tsv(SEEDS_PATH)
-    seeds_by_id = {(s["family_id"], s["pt_respelling"]): s for s in seeds}
+    # Key by family_name (which matches what the HTML exports as family_id)
+    seeds_by_name = {(s["family_name"], s["pt_respelling"]): s for s in seeds}
 
     locked: list[dict] = []
+    skipped_reasons: dict[str, int] = {}
     for r in rows:
         fid = r.get("family_id", "").strip()
         winner = r.get("winning_respelling", "").strip()
-        family_name = r.get("family_name", "").strip()
+        family_name = r.get("family_name", "").strip() or fid
         rep = r.get("representative_pt", "").strip()
         if winner in ("", "UNANSWERED", "REJECT_FAMILY"):
+            skipped_reasons[winner or "EMPTY"] = skipped_reasons.get(winner or "EMPTY", 0) + 1
             continue
-        # Look up the seed for rationale + guide
-        s = seeds_by_id.get((fid, winner), {})
+        if winner == rep:
+            # User picked the original — equivalent to rejecting the family
+            # (no template would do anything useful)
+            skipped_reasons["WINNER_EQUALS_REP"] = skipped_reasons.get("WINNER_EQUALS_REP", 0) + 1
+            continue
+        s = seeds_by_name.get((family_name, winner), {})
         locked.append({
             "family_id": fid,
             "family_name": family_name,
@@ -342,36 +349,56 @@ def cmd_apply_templates() -> int:
     ]
     write_tsv(LOCKED_TEMPLATES_PATH, locked, fieldnames=fns)
     print(f"Wrote {len(locked)} locked family templates to {LOCKED_TEMPLATES_PATH}")
+    for reason, n in sorted(skipped_reasons.items()):
+        print(f"  skipped {reason}: {n}")
     if not locked:
-        print("(no winners — sentinel smoke test produced no actionable templates)")
+        print("(no actionable templates — bulk fill-individuals will only handle per-word LLM cases)")
+    else:
+        print()
+        print("Locked templates:")
+        for t in locked:
+            print(f"  {t['family_name']:<36}  {t['representative_pt']:<14} → {t['winning_respelling']}")
     return 0
 
 
 # ---------------------------------------------------------------------------
 # Bulk fill: per-pt aliases (template OR Sonnet 4.5 per-word)
 # ---------------------------------------------------------------------------
-def _apply_template(pt: str, family_name: str, locked_templates: list[dict]) -> str | None:
-    """Apply a family template mechanically, if one matches.
+PER_WORD_FAMILIES = {"english_loanword_per_word", "ep_leftover_named"}
 
-    For final_l_*: replace final 'al'/'el'/'il'/'ol' with the template suffix
-    pattern derived from the winner. The winner is e.g., 'animau' for the -al
-    family with rep 'animal'; we extract the suffix substitution 'al'→'au'
-    and apply mechanically.
+
+def _apply_template(pt: str, locked_templates: list[dict]) -> tuple[str, str] | None:
+    """Try every locked template; return (respelling, family_name) for the first match.
+
+    - For per-word families (english_loanword_per_word, ep_leftover_named):
+      apply only when pt exactly equals the representative.
+    - For template families (final_l_-al, final_l_-el, etc.): derive the
+      suffix substitution from rep→winner (e.g., animal→animau gives 'al'→'au')
+      and apply mechanically to any pt with the same suffix.
+
+    Returns None if no template matches pt.
     """
     for t in locked_templates:
-        if t["family_name"] != family_name:
-            continue
         rep = t["representative_pt"]
         winner = t["winning_respelling"]
-        # Find the divergence point (longest common prefix)
+        family_name = t.get("family_name", "")
+        if not rep or not winner or winner == rep:
+            continue
+        # Per-word: exact-pt match only
+        if family_name in PER_WORD_FAMILIES:
+            if pt == rep:
+                return (winner, family_name)
+            continue
+        # Suffix-template: longest common prefix → suffix substitution
         i = 0
         while i < min(len(rep), len(winner)) and rep[i] == winner[i]:
             i += 1
         old_suffix = rep[i:]
         new_suffix = winner[i:]
-        # Apply mechanically
+        if not old_suffix:
+            continue
         if pt.endswith(old_suffix):
-            return pt[: -len(old_suffix)] + new_suffix
+            return (pt[: -len(old_suffix)] + new_suffix, family_name)
     return None
 
 
@@ -397,32 +424,22 @@ def cmd_fill_individuals(*, confirmed: bool) -> int:
     conflicts: list[dict] = []
 
     next_alias_id = 1
+    skipped_no_template = 0
 
     for row in confirmed_rows:
         sid = row.get("sense_id", "")
         pt = row.get("pt", "").strip()
         if not pt:
             continue
-        risk = risk_by_sid.get(sid, {})
-        patterns = risk.get("risk_patterns", "").split(",")
 
-        # Try each pattern's template
-        respelling = None
-        applied_family = None
-        for p in patterns:
-            p = p.strip()
-            if not p:
-                continue
-            cand = _apply_template(pt, p, locked)
-            if cand and cand != pt:
-                respelling = cand
-                applied_family = p
-                break
-
-        # If no template matched, this would be a Sonnet per-word call.
-        # For now, leave for manual fill (Sonnet integration pending).
-        if respelling is None:
-            # Skip silently — these will need a per-word LLM pass
+        cand = _apply_template(pt, locked)
+        if cand is None:
+            # No template matched — would be a Sonnet per-word call (deferred).
+            skipped_no_template += 1
+            continue
+        respelling, applied_family = cand
+        if respelling == pt:
+            skipped_no_template += 1
             continue
 
         # Conflict detection
@@ -474,6 +491,7 @@ def cmd_fill_individuals(*, confirmed: bool) -> int:
 
     print(f"Wrote {len(aliases_list)} aliases (deduped by pt) → {ALIASES_PATH}")
     print(f"Wrote {len(applications)} applications → {APPLICATIONS_PATH}")
+    print(f"Skipped (no template matched): {skipped_no_template}  (deferred to per-word LLM pass — not yet implemented)")
     print(f"Conflicts: {len(conflicts)}  → {CONFLICTS_PATH}")
     if conflicts:
         print("⚠ Conflicts present; 08_4 upload will be blocked until resolved.")

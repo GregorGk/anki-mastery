@@ -1,0 +1,8 @@
+family_id	family_name	representative_pt	winning_respelling	pronunciation_guide	rationale	confidence	locked_at
+final_l_-al	final_l_-al	animal	animau	"ah-nee-MAU — last syllable rhymes with English ""wow""; Polish ł in łapa"	Final -l vocalized to [w]; matches actual BP pronunciation	high	2026-05-10T11:03:08+00:00
+final_l_-el	final_l_-el	hotel	otéu	"oh-TEH-oo — drops silent h; rhymes with English ""tay-oo"""	BP final -el: silent h + l→[w]; targets [oˈtew]	high	2026-05-10T11:03:08+00:00
+final_l_-ol	final_l_-ol	futebol	futebóu	foo-teh-BOH-oo — acute on stressed ó + u ending	BP [futeˈbɔw]	high	2026-05-10T11:03:08+00:00
+h_initial_+_final_l	h_initial_+_final_l	hospital	ospitau	oss-pee-TAU — drops silent h + final l vocalized	Compound fix: h-drop + l→[w]	high	2026-05-10T11:03:08+00:00
+english_loanword_per_word	english_loanword_per_word	internet	internétchi	een-ter-NET-chee — palatalize final -et + stress cue	Apply -te palatalization template to loanword	medium	2026-05-10T11:03:08+00:00
+english_loanword_per_word	english_loanword_per_word	software	softuei	sof-too-EH-ee — phonetic respelling for native BP TTS	"BP-style folk respelling of ""software"""	medium	2026-05-10T11:03:08+00:00
+ep_leftover_named	ep_leftover_named	susceptível	suscetível	soo-seh-CHEE-veh-oo — drops the EP -pt- cluster	Standard BP spelling without the -p-; the orthographically correct BP form	high	2026-05-10T11:03:08+00:00
