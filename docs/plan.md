@@ -1691,8 +1691,16 @@ plus hand-curated seed lists. One row per word-clip `sense_id`,
 multi-valued `risk_patterns`, single `priority` derived as the highest
 priority across the row's patterns.
 
+Patterns split between **word-level** (12 orthographic-pattern triggers
+keyed on `pt`) and **voice-level** (2 voice-id triggers from the
+`data/_risk_seeds_high_risk_voices.tsv` seed file). A clip can carry
+both word-level AND voice-level patterns; priority = min across all
+matched patterns.
+
 | Pattern | Priority | Trigger | Drift direction |
 |---|---|---|---|
+| `voice_high_risk_critical` | **P0** | `voice_id ∈` rows in `data/_risk_seeds_high_risk_voices.tsv` with `risk_tier=CRITICAL`. Currently: `uju3wxzG5OhpWcoi3SMy` (Michael C. Vincent — natively English; 13 verified languages; 5.4% empirical still-HUMAN rate). | EN (structural — native EN voice rendering BP) |
+| `voice_high_risk_elevated` | **P1** | `voice_id ∈` rows in `data/_risk_seeds_high_risk_voices.tsv` with `risk_tier=ELEVATED`. Currently: `4za2kOXGgUd57HRSQ1fn` (Lendário — natively pt-BR but verified across 17 languages; "hyped" social-media style; 1.7% empirical rate). | mixed (multilingual fan-out) |
 | `user_reported` | **P0** | `pt` appears in `data/_audio_user_reported_failures.tsv` | mixed |
 | `ep_leftover_named` | **P0** | `pt ∈ {camisola, fazenda, marcha, troço, vosso, comboio, equipa, registo, utilizador, paragem, desporto, golo}` (Stage-1 EP audit seed list) | EP |
 | `same_spelling_en_pt` | **P1** | `pt` exists as a common English word with same letters | EN |
@@ -1742,6 +1750,25 @@ vídeo, site, festival, hotel, piano, deficit, terror, horror, time.
 equipa, registo, utilizador, paragem, desporto, golo. (Plus `fazenda` and
 `marcha` from the 5 originally-named EP markers, retained from Stage 1.)
 
+**High-risk voices (CRITICAL P0 / ELEVATED P1)** — voice-level dimension
+keyed on `voice_id`, source-of-truth at `data/_risk_seeds_high_risk_voices.tsv`:
+
+| voice_id | name | tier | native | verified-langs | empirical |
+|---|---|---|---|---|---|
+| `uju3wxzG5OhpWcoi3SMy` | Michael C. Vincent | **CRITICAL** | en | 13 | 5.4% still-HUMAN |
+| `4za2kOXGgUd57HRSQ1fn` | Lendário | ELEVATED | pt | 17 | 1.7% still-HUMAN |
+
+ElevenLabs API metadata (`/v1/voices/{id}`, `verified_languages` array)
+documents both voices as fine-tuned across 13–17 languages spanning
+multiple model tiers. MALE #6 is **natively English** with BP only as a
+verified secondary — structural EN-drift risk on isolated BP cognates.
+MALE #4 is natively pt-BR but stretched across 17 languages with a
+"hyped" social-media delivery, both of which loosen per-language
+phonetic anchoring on isolated short words. Combined empirical: these
+2 voices account for 23.3% of still-HUMAN failures from only 16.8% of
+word clips. Adding/removing voices from the seed file is the user-facing
+knob for the voice-level dimension.
+
 These are CANDIDATES for detection, not a declaration that they are
 wrong. Phase 1 (audio judge) decides per-clip; Phase 2 (calibration)
 validates Phase 1's threshold against ground truth.
@@ -1764,20 +1791,24 @@ build/08_0_classify_risk.py
 
 ##### 08_0 — Risk classifier ([build/08_0_classify_risk.py](build/08_0_classify_risk.py))
 
-Pure Python, no API calls. Walks `data/05-ipa.tsv` and emits
-`data/_audio_risk_classification.tsv` (one row per word `sense_id`).
-Reads three seed files (`_risk_seeds_en_loanwords.tsv`,
-`_risk_seeds_es_collisions.tsv`, `_risk_seeds_fr_loanwords.tsv`) for
-membership checks and `_audio_user_reported_failures.tsv` for P0 entries.
-Logs counts per pattern at end of run.
+Pure Python, no API calls. Walks `data/05-ipa.tsv` joined to
+`data/_audio_manifest.tsv` (for the per-clip `voice_id` needed by the
+voice-level patterns) and emits `data/_audio_risk_classification.tsv`
+(one row per word `sense_id`). Reads four seed files for membership
+checks: `_risk_seeds_en_loanwords.tsv`, `_risk_seeds_es_collisions.tsv`,
+`_risk_seeds_fr_loanwords.tsv`, and `_risk_seeds_high_risk_voices.tsv`
+(the new voice-level seed). Plus `_audio_user_reported_failures.tsv`
+for P0 user-reported entries. Logs counts per pattern at end of run,
+including word-level vs voice-level breakdown.
 
 Output schema:
 
 ```tsv
-sense_id     pt          risk_patterns                                       priority  ipa_word_final  rank
-0317.00.01   animal      user_reported,same_spelling_en_pt,final_l_vocalization  P0       ˌaniˈmaw       317
-0042.00.01   cidade      de_te_palatalization,final_unstressed_e             P2        siˈdadʒi       42
-0001.00.01   o           none                                                —         u              1
+sense_id     pt          voice_id              risk_patterns                                                              priority  ipa_word_final  rank
+0317.00.01   animal      qPfM2laM0pRL4rrZtBGl  user_reported,same_spelling_en_pt,final_l_vocalization                     P0       ˌaniˈmaw       317
+0858.00.01   data        uju3wxzG5OhpWcoi3SMy  voice_high_risk_critical,user_reported,same_spelling_en_pt                 P0       ˈdadʒɐ          858
+0042.00.01   cidade      Rw38T6bn0lTNOb1aUevR  de_te_palatalization,final_unstressed_e                                    P2        siˈdadʒi       42
+0001.00.01   o           wxoDdfPKBuna5KnUEotz  none                                                                       —         u              1
 ```
 
 **Cost**: $0. **Wall clock**: ~5 min.
@@ -1787,6 +1818,15 @@ sense_id     pt          risk_patterns                                       pri
 Runs the audio judge on the **risky bucket** by default (priority ∈ {P0,
 P1, P2} ∪ ASR-human/regenerated leftovers from Stage 6/7). `--full-corpus`
 flag promotes scope to all 6,250 word clips (~$31 instead of ~$3–6).
+
+The risky bucket includes both word-level patterns (12 orthographic
+triggers) and voice-level patterns (`voice_high_risk_critical` P0 →
+all 480 clips from MALE #6; `voice_high_risk_elevated` P1 → all 480
+clips from MALE #4) by virtue of the `priority ∈ {P0, P1, P2}` default
+rule. Net audio-judge bucket size: ~1,200–1,800 clips (~$6–9), up from
+~600–1,200 before voice-level was added. The +600 clips are primarily
+the two high-risk voices' worth of word clips that wouldn't otherwise
+trip a word-level pattern.
 
 Per-clip call to `gpt-4o-audio-preview`:
 
@@ -1843,11 +1883,13 @@ No threshold-fitting / F1 optimization — calibration's job is to verify
 the audio judge is catching real failures without too many false
 positives, AND to surface borderline cases the judge marked `unclear`.
 
-Stratification (~85 clips):
+Stratification (~100 clips):
 
 | Bucket | Count | Source |
 |---|---|---|
 | All user-reported failures | all (≥1) | `_audio_user_reported_failures.tsv` |
+| `voice_high_risk_critical` non-BP | 10 | Audio-judge `non_bp` verdicts from MALE #6 (`uju3wxzG5OhpWcoi3SMy`); represents at least ~10% of his audio-judge flags |
+| `voice_high_risk_elevated` non-BP | 5 | Audio-judge `non_bp` verdicts from MALE #4 (`4za2kOXGgUd57HRSQ1fn`) |
 | `final_l_vocalization` family | 20 | Stratified by frequency tier across -al/-el/-il/-ol |
 | `de_te_palatalization` family | 15 | Stratified by frequency tier |
 | `initial_r_or_rr` | 10 | Random sample |
@@ -2092,6 +2134,17 @@ When the gate blocks, the script:
 `BETTER` rows confirm the fix held. `WORSE` and `SAME>10%` rows are
 hard-stop signals, not soft warnings.
 
+**CRITICAL-voice escalation (NEW)**: if after-fix QA shows ANY clip from
+a `voice_high_risk_critical` voice (currently MALE #6, `uju3wxzG5OhpWcoi3SMy`)
+still labeled `WORSE` or `SAME` after the N=2 rerun rounds, the script
+emits a separate `data/_audio_critical_voice_review.tsv` and surfaces a
+loud manual decision: **(a) keep the voice with stronger respellings**,
+which means iterating Phase 08_3 with manual respelling overrides for
+the affected `pt`s; or **(b) swap the voice entirely**, which is the
+escape hatch documented in the v3 plan footer (cost ~$1 ElevenLabs +
+~$0.30 ASR; wall ~10 min). The user makes this call manually; the
+pipeline does not auto-swap.
+
 **Step 6.2 — Summary report.** Emit `audit/08_summary.txt`:
 
 ```
@@ -2218,16 +2271,21 @@ pytest tests/test_stage_8.py
 
 #### Cost / wall-clock totals
 
-| Step | Cost (default risky-bucket) | Cost (--full-corpus variant) | Wall clock |
+| Step | Cost (default risky-bucket + voice-level) | Cost (--full-corpus variant) | Wall clock |
 |---|---|---|---|
 | 08_0 risk classifier | $0 | $0 | ~5 min |
-| 08_1 audio judge | ~$3 | ~$31 | ~30 / ~60 min |
-| 08_2 calibration | $0 | $0 | ~40 min user |
+| 08_1 audio judge (~1,200–1,800 clips) | ~$6–9 | ~$31 | ~40 / ~60 min |
+| 08_2 calibration (~100 clips) | $0 | $0 | ~45 min user |
 | 08_3 aliases (incl. sentinel smoke) | ~$0.65 | ~$0.65 | ~10 min |
 | 08_4 dictionary upload | ~$0.001 | ~$0.001 | ~30 sec |
 | 08_5 re-render + verify | ~$3.30 | ~$3.30 | ~15 min |
 | 08_6 after-fix + finalize | $0 | $0 | ~20 min user + ~5 min compute |
-| **Total** | **~$6** | **~$32** | **~50 min compute + ~60 min user** |
+| **Total** | **~$9** | **~$32** | **~55 min compute + ~70 min user** |
+
+Voice-level addition vs prior v3 baseline: +$3 audio-judge cost (covers
+the ~600 net new clips from the two high-risk voices that wouldn't trip
+a word-level pattern alone) + ~10 min user listening (calibration grew
+75→100 clips). Net upgrade for the worst empirical failure dimension.
 
 #### What this stage deliberately does NOT do
 
