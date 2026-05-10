@@ -16454,3 +16454,5 @@
 2026-05-10 11:11:47  HUMAN   4172.00.01  word  signo                                 ->  Sim, senhor.                          sim=0.40  voice=AaeZyy…  attempt=99  [0.0s]  (regen-human-queue v5)
 2026-05-10 11:11:47  PASS    4635.00.02  word  nordestino                            ->  Nordestino.                           sim=1.00  voice=AaeZyy…  attempt=99  [0.0s]  (regen-human-queue v3)
 2026-05-10 11:11:50  HUMAN   4709.00.02  word  arraial                               ->  Areal?                                sim=0.57  voice=AaeZyy…  attempt=99  [0.0s]  (regen-human-queue v4)
+2026-05-10 11:18:19  PASS    3056.00.01  example  A prevenção do suicídio é important…  ->  A prevenção do suicídio é important…  sim=1.00  voice=4r3G9X…  attempt=1  [0.0s]
+2026-05-10 11:18:19  PASS    3056.00.01  word  suicídio                              ->  Suicídio.                             sim=1.00  voice=4r3G9X…  attempt=1  [0.0s]  (biased+unbiased agreed)
