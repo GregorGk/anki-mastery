@@ -1,0 +1,6 @@
+Post-swap loudness over 11448 uploaded clips:
+  mean LUFS:                -17.27  (target -16.00)
+  range:                    -25.07 to 0.00  (25.07 LU)
+  within 1 LU of target:    6469  (56.5%)
+  within 2 LU of target:    8829  (77.1%)
+  tp_limited:               0  (0.0%)
