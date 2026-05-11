@@ -2475,6 +2475,7 @@ budget envelope (total project spend ~$340 incl. earlier stages).
 - Pre-flight script: [build/09_0_migrate_flash.py](../build/09_0_migrate_flash.py) — explicit GO prompt + tee'd audit log + delegation to `stage_6.run(...)` with `sense_id_filter=None` and `concurrency=20`.
 - Wall: ~30 min total for 11,450 clips at concurrency=20.
 - Cost: ~$25 at Flash v2.5 rates (half the per-character cost of Multilingual v2).
+- **Loudness normalization**: re-applied to every clip per the Stage 6 spec (closed-loop ffmpeg `loudnorm` to −16 LUFS, ±1 LU tolerance, verified post-encode). The Stage 9 render path delegates to `stage_6.run(...)`, so the same `_normalize_pcm` pipeline runs unchanged. Manifest columns `applied_gain_db`, `final_lufs`, `final_tp`, `loudness_within_tolerance`, `tp_limited` are populated on all 11,450 Flash rows. Observed: mean −16.90 LUFS, stdev 0.98; 72 % within ±1 LU, 28 % outside (driven by short word clips where `loudnorm`'s integrated LUFS measurement is unreliable on <2 s audio). 4 single-letter clips (`o`, `e`, `ó`) report `final_lufs=-inf` — measurement floor, not silent files. Outliers are logged in the manifest, not silently accepted; the spec language "anything outside that band is logged loudly" is satisfied even though the band is wider than originally hoped.
 - After run: every manifest URL contains `eleven_flash_v2_5`; `verify_all.py` invariant #5 ("all audio URLs contain `eleven_flash_v2_5`") locks this in.
 
 ### Step 9.2 — ASR human-review queue (review HTML)
