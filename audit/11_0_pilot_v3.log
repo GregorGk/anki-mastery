@@ -1,0 +1,218 @@
+
+=== stage 11.0 pilot started 2026-05-11T21:51:26.397843+00:00 | n=100 ===
+[  1/200] OK  0001.00.01 word    voice=m151rjrb.. lufs=-15.81 asr=pass sim=1.00
+[  2/200] OK  0002.00.02 example voice=xNGAXaCH.. lufs=-16.26 asr=pass sim=1.00
+[  3/200] OK  0002.00.02 word    voice=xNGAXaCH.. lufs=-16.82 asr=pass sim=1.00
+[  4/200] OK  0001.00.02 example voice=m151rjrb.. lufs=-16.19 asr=regen sim=0.91
+[  5/200] OK  0002.00.01 word    voice=m151rjrb.. lufs=-16.09 asr=pass sim=1.00
+[  6/200] OK  0003.00.01 example voice=ny3E2DZI.. lufs=-16.92 asr=pass sim=1.00
+[  7/200] OK  0001.00.01 example voice=m151rjrb.. lufs=-16.43 asr=pass sim=1.00
+[  8/200] OK  0001.00.02 word    voice=m151rjrb.. lufs=-15.62 asr=pass sim=1.00
+[  9/200] OK  0002.00.01 example voice=m151rjrb.. lufs=-16.26 asr=pass sim=1.00
+[ 10/200] OK  0003.00.01 word    voice=ny3E2DZI.. lufs=-15.90 asr=pass sim=1.00
+[ 11/200] OK  0004.00.01 word    voice=m151rjrb.. lufs=-15.94 asr=pass sim=1.00
+[ 12/200] OK  0003.00.02 word    voice=m151rjrb.. lufs=-15.82 asr=pass sim=1.00
+[ 13/200] OK  0003.00.02 example voice=m151rjrb.. lufs=-16.24 asr=pass sim=1.00
+[ 14/200] OK  0005.00.02 word    voice=Rw38T6bn.. lufs=-17.07 asr=pass sim=1.00
+[ 15/200] OK  0005.00.01 word    voice=m151rjrb.. lufs=-18.73 asr=pass sim=1.00
+[ 16/200] OK  0005.00.01 example voice=m151rjrb.. lufs=-16.25 asr=pass sim=1.00
+[ 17/200] OK  0004.00.01 example voice=m151rjrb.. lufs=-16.26 asr=pass sim=1.00
+[ 18/200] OK  0005.00.02 example voice=Rw38T6bn.. lufs=-16.23 asr=pass sim=1.00
+[ 19/200] OK  0005.00.03 word    voice=wxoDdfPK.. lufs=-17.18 asr=pass sim=1.00
+[ 20/200] OK  0006.00.01 word    voice=m151rjrb.. lufs=-16.93 asr=pass sim=1.00
+[ 21/200] OK  0006.00.01 example voice=m151rjrb.. lufs=-16.21 asr=pass sim=1.00
+[ 22/200] OK  0007.00.02 word    voice=m151rjrb.. lufs=-15.96 asr=pass sim=1.00
+[ 23/200] OK  0007.00.01 word    voice=4r3G9XKl.. lufs=-17.53 asr=pass sim=1.00
+[ 24/200] OK  0007.00.01 example voice=4r3G9XKl.. lufs=-17.22 asr=pass sim=1.00
+[ 25/200] OK  0008.00.02 word    voice=4r3G9XKl.. lufs=-17.00 asr=pass sim=1.00
+[ 26/200] OK  0008.00.01 example voice=4r3G9XKl.. lufs=-16.26 asr=pass sim=1.00
+[ 27/200] OK  0008.00.01 word    voice=4r3G9XKl.. lufs=-17.26 asr=pass sim=1.00
+[ 28/200] OK  0007.00.02 example voice=m151rjrb.. lufs=-16.80 asr=pass sim=1.00
+[ 29/200] OK  0008.00.02 example voice=4r3G9XKl.. lufs=-16.40 asr=pass sim=1.00
+[ 30/200] OK  0008.00.03 word    voice=ny3E2DZI.. lufs=-16.35 asr=pass sim=1.00
+[ 31/200] OK  0008.00.03 example voice=ny3E2DZI.. lufs=-17.08 asr=pass sim=1.00
+[ 32/200] OK  0009.00.01 example voice=Rw38T6bn.. lufs=-16.21 asr=pass sim=1.00
+[ 33/200] OK  0009.00.01 word    voice=Rw38T6bn.. lufs=-18.71 asr=pass sim=1.00
+[ 34/200] OK  0009.00.02 example voice=4r3G9XKl.. lufs=-16.28 asr=pass sim=1.00
+[ 35/200] OK  0005.00.03 example voice=wxoDdfPK.. lufs=-16.04 asr=pass sim=1.00
+[ 36/200] OK  0009.00.03 example voice=AaeZyyi8.. lufs=-16.26 asr=pass sim=1.00
+[ 37/200] OK  0010.00.02 word    voice=qPfM2laM.. lufs=-16.10 asr=pass sim=1.00
+[ 38/200] OK  0010.00.01 word    voice=qPfM2laM.. lufs=-16.58 asr=pass sim=1.00
+[ 39/200] OK  0010.00.01 example voice=qPfM2laM.. lufs=-16.88 asr=pass sim=1.00
+[ 40/200] OK  0009.00.02 word    voice=4r3G9XKl.. lufs=-22.02 asr=pass sim=1.00
+[ 41/200] OK  0009.00.03 word    voice=AaeZyyi8.. lufs=-17.47 asr=pass sim=1.00
+[ 42/200] OK  0011.00.01 example voice=qPfM2laM.. lufs=-16.39 asr=pass sim=1.00
+[ 43/200] OK  0012.00.01 word    voice=Rw38T6bn.. lufs=-16.75 asr=pass sim=1.00
+[ 44/200] OK  0010.00.02 example voice=qPfM2laM.. lufs=-17.42 asr=pass sim=1.00
+[ 45/200] OK  0011.00.01 word    voice=qPfM2laM.. lufs=-19.04 asr=pass sim=1.00
+[ 46/200] OK  0012.00.01 example voice=Rw38T6bn.. lufs=-16.23 asr=pass sim=1.00
+[ 47/200] OK  0013.00.01 word    voice=xNGAXaCH.. lufs=-16.84 asr=pass sim=1.00
+[ 48/200] OK  0013.00.01 example voice=xNGAXaCH.. lufs=-16.28 asr=pass sim=1.00
+[ 49/200] OK  0014.00.01 word    voice=ny3E2DZI.. lufs=-19.99 asr=pass sim=1.00
+[ 50/200] OK  0014.00.01 example voice=ny3E2DZI.. lufs=-16.26 asr=pass sim=1.00
+[ 51/200] OK  0014.00.02 word    voice=ny3E2DZI.. lufs=-20.92 asr=pass sim=1.00
+[ 52/200] OK  0015.00.01 word    voice=xNGAXaCH.. lufs=-16.93 asr=pass sim=1.00
+[ 53/200] OK  0014.00.03 word    voice=4r3G9XKl.. lufs=-16.67 asr=pass sim=1.00
+[ 54/200] OK  0014.00.03 example voice=4r3G9XKl.. lufs=-16.27 asr=pass sim=1.00
+[ 55/200] OK  0015.00.01 example voice=xNGAXaCH.. lufs=-16.46 asr=pass sim=1.00
+[ 56/200] OK  0016.00.01 example voice=xNGAXaCH.. lufs=-16.20 asr=pass sim=1.00
+[ 57/200] OK  0016.00.02 example voice=wxoDdfPK.. lufs=-16.17 asr=pass sim=1.00
+[ 58/200] OK  0016.00.01 word    voice=xNGAXaCH.. lufs=-16.07 asr=pass sim=1.00
+[ 59/200] OK  0016.00.02 word    voice=wxoDdfPK.. lufs=-18.49 asr=pass sim=1.00
+[ 60/200] OK  0016.00.03 example voice=4r3G9XKl.. lufs=-16.49 asr=pass sim=1.00
+[ 61/200] OK  0016.00.03 word    voice=4r3G9XKl.. lufs=-21.37 asr=pass sim=1.00
+[ 62/200] OK  0014.00.02 example voice=ny3E2DZI.. lufs=-17.52 asr=pass sim=1.00
+[ 63/200] OK  0017.00.01 example voice=m151rjrb.. lufs=-16.31 asr=pass sim=1.00
+[ 64/200] OK  0018.00.01 example voice=qPfM2laM.. lufs=-16.91 asr=pass sim=1.00
+[ 65/200] OK  0017.00.01 word    voice=m151rjrb.. lufs=-16.84 asr=pass sim=1.00
+[ 66/200] OK  0018.00.01 word    voice=qPfM2laM.. lufs=-21.51 asr=pass sim=1.00
+[ 67/200] OK  0019.00.01 word    voice=m151rjrb.. lufs=-16.97 asr=pass sim=1.00
+[ 68/200] OK  0019.00.01 example voice=m151rjrb.. lufs=-16.26 asr=pass sim=1.00
+[ 69/200] OK  0020.00.01 word    voice=qPfM2laM.. lufs=-18.91 asr=pass sim=1.00
+[ 70/200] OK  0021.00.01 example voice=Rw38T6bn.. lufs=-16.25 asr=pass sim=1.00
+[ 71/200] OK  0020.00.01 example voice=qPfM2laM.. lufs=-16.86 asr=pass sim=1.00
+[ 72/200] OK  0023.00.01 word    voice=Rw38T6bn.. lufs=-16.42 asr=pass sim=1.00
+[ 73/200] OK  0021.00.01 word    voice=Rw38T6bn.. lufs=-17.53 asr=pass sim=1.00
+[ 74/200] OK  0022.00.01 example voice=xNGAXaCH.. lufs=-16.26 asr=pass sim=1.00
+[ 75/200] OK  0023.00.01 example voice=Rw38T6bn.. lufs=-16.27 asr=pass sim=1.00
+[ 76/200] OK  0022.00.01 word    voice=xNGAXaCH.. lufs=-16.80 asr=pass sim=1.00
+[ 77/200] OK  0024.00.01 word    voice=wxoDdfPK.. lufs=-20.32 asr=pass sim=1.00
+[ 78/200] OK  0024.00.02 word    voice=ny3E2DZI.. lufs=-21.92 asr=pass sim=1.00
+[ 79/200] OK  0024.00.01 example voice=wxoDdfPK.. lufs=-16.17 asr=pass sim=1.00
+[ 80/200] OK  0025.00.01 example voice=m151rjrb.. lufs=-16.27 asr=pass sim=1.00
+[ 81/200] OK  0024.00.02 example voice=ny3E2DZI.. lufs=-16.24 asr=pass sim=1.00
+[ 82/200] OK  0026.00.01 example voice=qPfM2laM.. lufs=-16.30 asr=pass sim=1.00
+[ 83/200] OK  0027.00.01 example voice=m151rjrb.. lufs=-16.49 asr=pass sim=1.00
+[ 84/200] OK  0026.00.01 word    voice=qPfM2laM.. lufs=-15.69 asr=pass sim=1.00
+[ 85/200] OK  0025.00.01 word    voice=m151rjrb.. lufs=-18.12 asr=pass sim=1.00
+[ 86/200] OK  0028.00.01 example voice=Rw38T6bn.. lufs=-16.24 asr=pass sim=1.00
+[ 87/200] OK  0029.00.01 word    voice=m151rjrb.. lufs=-16.01 asr=pass sim=1.00
+[ 88/200] OK  0028.00.01 word    voice=Rw38T6bn.. lufs=-16.36 asr=regen sim=0.80
+[ 89/200] OK  0027.00.01 word    voice=m151rjrb.. lufs=-17.02 asr=pass sim=1.00
+[ 90/200] OK  0029.00.01 example voice=m151rjrb.. lufs=-16.15 asr=pass sim=1.00
+[ 91/200] OK  0030.00.01 example voice=wxoDdfPK.. lufs=-16.37 asr=pass sim=1.00
+[ 92/200] OK  0032.00.01 word    voice=AaeZyyi8.. lufs=-18.31 asr=pass sim=1.00
+[ 93/200] OK  0032.00.01 example voice=AaeZyyi8.. lufs=-16.23 asr=pass sim=1.00
+[ 94/200] OK  0030.00.01 word    voice=wxoDdfPK.. lufs=-18.12 asr=pass sim=1.00
+[ 95/200] OK  0033.00.01 example voice=4r3G9XKl.. lufs=-17.57 asr=pass sim=1.00
+[ 96/200] OK  0034.00.01 example voice=qPfM2laM.. lufs=-16.20 asr=pass sim=1.00
+[ 97/200] OK  0034.00.01 word    voice=qPfM2laM.. lufs=-16.99 asr=pass sim=1.00
+[ 98/200] OK  0035.00.01 example voice=Rw38T6bn.. lufs=-16.23 asr=pass sim=1.00
+[ 99/200] OK  0035.00.01 word    voice=Rw38T6bn.. lufs=-16.85 asr=pass sim=1.00
+[100/200] OK  0033.00.01 word    voice=4r3G9XKl.. lufs=-18.30 asr=pass sim=1.00
+[101/200] OK  0038.00.01 example voice=qPfM2laM.. lufs=-16.21 asr=pass sim=1.00
+[102/200] OK  0040.00.01 word    voice=qPfM2laM.. lufs=-20.63 asr=pass sim=1.00
+[103/200] OK  0038.00.01 word    voice=qPfM2laM.. lufs=-19.85 asr=pass sim=1.00
+[104/200] OK  0040.00.01 example voice=qPfM2laM.. lufs=-16.26 asr=pass sim=1.00
+[105/200] OK  0040.00.02 word    voice=Rw38T6bn.. lufs=-18.86 asr=pass sim=1.00
+[106/200] OK  0040.00.02 example voice=Rw38T6bn.. lufs=-16.27 asr=pass sim=1.00
+[107/200] OK  0042.00.01 example voice=qPfM2laM.. lufs=-16.85 asr=pass sim=1.00
+[108/200] OK  0043.00.01 word    voice=qPfM2laM.. lufs=-15.99 asr=pass sim=1.00
+[109/200] OK  0042.00.01 word    voice=qPfM2laM.. lufs=-21.36 asr=pass sim=1.00
+[110/200] OK  0043.00.01 example voice=qPfM2laM.. lufs=-19.41 asr=pass sim=1.00
+[111/200] OK  0044.00.01 example voice=xNGAXaCH.. lufs=-16.23 asr=pass sim=1.00
+[112/200] OK  0044.00.01 word    voice=xNGAXaCH.. lufs=-16.81 asr=pass sim=1.00
+[113/200] OK  0045.00.01 example voice=xNGAXaCH.. lufs=-16.38 asr=pass sim=1.00
+[114/200] OK  0045.00.01 word    voice=xNGAXaCH.. lufs=-16.85 asr=regen sim=0.62
+[115/200] OK  0047.00.01 example voice=AaeZyyi8.. lufs=-16.27 asr=pass sim=1.00
+[116/200] OK  0047.00.01 word    voice=AaeZyyi8.. lufs=-17.54 asr=pass sim=1.00
+[117/200] OK  0048.00.01 example voice=4r3G9XKl.. lufs=-17.14 asr=pass sim=1.00
+[118/200] OK  0050.00.01 example voice=Rw38T6bn.. lufs=-16.22 asr=pass sim=1.00
+[119/200] OK  0051.00.02 word    voice=Rw38T6bn.. lufs=-16.45 asr=pass sim=1.00
+[120/200] OK  0050.00.01 word    voice=Rw38T6bn.. lufs=-16.09 asr=pass sim=1.00
+[121/200] OK  0051.00.02 example voice=Rw38T6bn.. lufs=-16.34 asr=pass sim=1.00
+[122/200] OK  0049.00.01 word    voice=ny3E2DZI.. lufs=-20.95 asr=pass sim=1.00
+[123/200] OK  0049.00.01 example voice=ny3E2DZI.. lufs=-19.74 asr=pass sim=1.00
+[124/200] OK  0048.00.01 word    voice=4r3G9XKl.. lufs=-19.91 asr=pass sim=1.00
+[125/200] OK  0052.00.01 word    voice=4r3G9XKl.. lufs=-21.32 asr=pass sim=1.00
+[126/200] OK  0053.00.01 word    voice=Rw38T6bn.. lufs=-15.91 asr=pass sim=1.00
+[127/200] OK  0053.00.01 example voice=Rw38T6bn.. lufs=-16.31 asr=pass sim=1.00
+[128/200] OK  0054.00.01 example voice=Rw38T6bn.. lufs=-16.39 asr=pass sim=1.00
+[129/200] OK  0054.00.01 word    voice=Rw38T6bn.. lufs=-15.96 asr=pass sim=1.00
+[130/200] OK  0052.00.01 example voice=4r3G9XKl.. lufs=-16.35 asr=pass sim=1.00
+[131/200] OK  0055.00.02 example voice=Rw38T6bn.. lufs=-16.25 asr=pass sim=1.00
+[132/200] OK  0055.00.01 word    voice=4r3G9XKl.. lufs=-20.30 asr=pass sim=1.00
+[133/200] OK  0055.00.01 example voice=4r3G9XKl.. lufs=-17.42 asr=pass sim=1.00
+[134/200] OK  0055.00.02 word    voice=Rw38T6bn.. lufs=-17.33 asr=pass sim=1.00
+[135/200] OK  0058.00.01 word    voice=xNGAXaCH.. lufs=-16.02 asr=pass sim=1.00
+[136/200] OK  0058.00.01 example voice=xNGAXaCH.. lufs=-16.25 asr=pass sim=1.00
+[137/200] OK  0059.00.01 word    voice=wxoDdfPK.. lufs=-17.31 asr=pass sim=1.00
+[138/200] OK  0060.00.01 example voice=ny3E2DZI.. lufs=-16.25 asr=pass sim=1.00
+[139/200] OK  0063.00.01 word    voice=ny3E2DZI.. lufs=-17.91 asr=pass sim=1.00
+[140/200] OK  0060.00.01 word    voice=ny3E2DZI.. lufs=-17.10 asr=pass sim=1.00
+[141/200] OK  0062.00.01 example voice=ny3E2DZI.. lufs=-17.59 asr=pass sim=1.00
+[142/200] OK  0059.00.01 example voice=wxoDdfPK.. lufs=-17.82 asr=pass sim=1.00
+[143/200] OK  0064.00.01 example voice=wxoDdfPK.. lufs=-16.32 asr=regen sim=0.94
+[144/200] OK  0064.00.01 word    voice=wxoDdfPK.. lufs=-16.95 asr=pass sim=1.00
+[145/200] OK  0062.00.01 word    voice=ny3E2DZI.. lufs=-18.44 asr=pass sim=1.00
+[146/200] OK  0063.00.01 example voice=ny3E2DZI.. lufs=-17.18 asr=pass sim=1.00
+[147/200] OK  0065.00.01 example voice=AaeZyyi8.. lufs=-16.27 asr=pass sim=1.00
+[148/200] OK  0065.00.02 example voice=4r3G9XKl.. lufs=-16.22 asr=pass sim=1.00
+[149/200] OK  0066.00.01 example voice=xNGAXaCH.. lufs=-16.30 asr=pass sim=1.00
+[150/200] OK  0066.00.01 word    voice=xNGAXaCH.. lufs=-15.98 asr=pass sim=1.00
+[151/200] OK  0071.00.01 example voice=4r3G9XKl.. lufs=-16.24 asr=pass sim=1.00
+[152/200] OK  0065.00.01 word    voice=AaeZyyi8.. lufs=-18.39 asr=pass sim=1.00
+[153/200] OK  0070.00.01 example voice=ny3E2DZI.. lufs=-16.96 asr=pass sim=1.00
+[154/200] OK  0071.00.01 word    voice=4r3G9XKl.. lufs=-15.98 asr=pass sim=1.00
+[155/200] OK  0065.00.02 word    voice=4r3G9XKl.. lufs=-17.63 asr=pass sim=1.00
+[156/200] OK  0072.00.01 example voice=wxoDdfPK.. lufs=-16.22 asr=pass sim=1.00
+[157/200] OK  0070.00.01 word    voice=ny3E2DZI.. lufs=-21.39 asr=pass sim=1.00
+[158/200] OK  0072.00.01 word    voice=wxoDdfPK.. lufs=-19.62 asr=pass sim=1.00
+[159/200] OK  0073.00.01 example voice=wxoDdfPK.. lufs=-17.17 asr=pass sim=1.00
+[160/200] OK  0075.00.01 example voice=xNGAXaCH.. lufs=-16.23 asr=pass sim=1.00
+[161/200] OK  0073.00.01 word    voice=wxoDdfPK.. lufs=-19.12 asr=pass sim=1.00
+[162/200] OK  0075.00.01 word    voice=xNGAXaCH.. lufs=-16.98 asr=regen sim=0.83
+[163/200] OK  0078.00.01 example voice=wxoDdfPK.. lufs=-16.21 asr=pass sim=1.00
+[164/200] OK  0076.00.01 word    voice=ny3E2DZI.. lufs=-24.97 asr=pass sim=1.00
+[165/200] OK  0076.00.01 example voice=ny3E2DZI.. lufs=-16.74 asr=pass sim=1.00
+[166/200] OK  0080.00.01 word    voice=AaeZyyi8.. lufs=-15.99 asr=pass sim=1.00
+[167/200] OK  0078.00.01 word    voice=wxoDdfPK.. lufs=-17.79 asr=regen sim=0.71
+[168/200] OK  0080.00.01 example voice=AaeZyyi8.. lufs=-16.23 asr=pass sim=1.00
+[169/200] OK  0081.00.01 example voice=AaeZyyi8.. lufs=-16.22 asr=pass sim=1.00
+[170/200] OK  0081.00.01 word    voice=AaeZyyi8.. lufs=-20.18 asr=pass sim=1.00
+[171/200] OK  0085.00.01 example voice=ny3E2DZI.. lufs=-18.53 asr=pass sim=1.00
+[172/200] OK  0088.00.02 example voice=xNGAXaCH.. lufs=-16.22 asr=pass sim=1.00
+[173/200] OK  0089.00.01 word    voice=ny3E2DZI.. lufs=-21.46 asr=pass sim=1.00
+[174/200] OK  0085.00.01 word    voice=ny3E2DZI.. lufs=-17.21 asr=regen sim=0.60
+[175/200] OK  0088.00.02 word    voice=xNGAXaCH.. lufs=-16.14 asr=pass sim=1.00
+[176/200] OK  0089.00.01 example voice=ny3E2DZI.. lufs=-16.66 asr=pass sim=1.00
+[177/200] OK  0090.00.01 example voice=AaeZyyi8.. lufs=-16.20 asr=pass sim=1.00
+[178/200] OK  0090.00.01 word    voice=AaeZyyi8.. lufs=-16.08 asr=pass sim=1.00
+[179/200] OK  0094.00.01 example voice=xNGAXaCH.. lufs=-16.25 asr=pass sim=1.00
+[180/200] OK  0099.00.01 word    voice=xNGAXaCH.. lufs=-16.96 asr=pass sim=1.00
+[181/200] OK  0096.00.01 example voice=wxoDdfPK.. lufs=-16.56 asr=pass sim=1.00
+[182/200] OK  0096.00.01 word    voice=wxoDdfPK.. lufs=-18.82 asr=pass sim=1.00
+[183/200] OK  0099.00.01 example voice=xNGAXaCH.. lufs=-16.28 asr=pass sim=1.00
+[184/200] OK  0094.00.01 word    voice=xNGAXaCH.. lufs=-16.09 asr=regen sim=0.80
+[185/200] OK  0102.00.01 word    voice=qPfM2laM.. lufs=-18.07 asr=pass sim=1.00
+[186/200] OK  0102.00.03 word    voice=AaeZyyi8.. lufs=-16.07 asr=pass sim=1.00
+[187/200] OK  0102.00.01 example voice=qPfM2laM.. lufs=-16.92 asr=pass sim=1.00
+[188/200] OK  0102.00.03 example voice=AaeZyyi8.. lufs=-16.18 asr=regen sim=0.87
+[189/200] OK  0114.00.02 word    voice=AaeZyyi8.. lufs=-16.20 asr=pass sim=1.00
+[190/200] OK  0116.00.01 example voice=wxoDdfPK.. lufs=-16.42 asr=pass sim=1.00
+[191/200] OK  0114.00.02 example voice=AaeZyyi8.. lufs=-16.44 asr=pass sim=1.00
+[192/200] OK  0117.00.01 example voice=AaeZyyi8.. lufs=-16.26 asr=pass sim=1.00
+[193/200] OK  0117.00.01 word    voice=AaeZyyi8.. lufs=-16.08 asr=pass sim=1.00
+[194/200] OK  0116.00.01 word    voice=wxoDdfPK.. lufs=-18.05 asr=pass sim=1.00
+[195/200] OK  0119.00.01 example voice=AaeZyyi8.. lufs=-16.23 asr=pass sim=1.00
+[196/200] OK  0119.00.01 word    voice=AaeZyyi8.. lufs=-15.75 asr=pass sim=1.00
+[197/200] OK  0134.00.01 example voice=AaeZyyi8.. lufs=-16.28 asr=pass sim=1.00
+[198/200] OK  0146.00.01 example voice=wxoDdfPK.. lufs=-16.39 asr=pass sim=1.00
+[199/200] OK  0134.00.01 word    voice=AaeZyyi8.. lufs=-17.82 asr=pass sim=1.00
+[200/200] OK  0146.00.01 word    voice=wxoDdfPK.. lufs=-17.25 asr=pass sim=1.00
+
+Wrote /Users/grzegorzgorkiewicz/Projects/anki-mastery/data/_audio_manifest_v3_pilot.tsv  (200 rows)
+Wrote /Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/11_0_pilot_v3.html
+
+=== Stage 11.0 pilot summary ===
+  Total:        200 clips
+  Uploaded:     200
+  Failed:       0
+  ASR pass:     191/200 (96%)
+  ASR regen:    9
+  Loudness ok:  134/200 (67%)
+  TP-limited:   100
+  ASR cost:     $0.0000
+  Wall:         91.1s (0.46s/clip)
+
+Open /Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/11_0_pilot_v3.html in a browser to listen + decide GO/HOLD for 11.1.
