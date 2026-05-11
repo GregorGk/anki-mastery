@@ -1,0 +1,530 @@
+
+=== stage 10 EN render started 2026-05-11T20:36:33.504829+00:00 | n_senses=20 | pilot=20 ===
+[   1/20] 0008.00.03 voice=8IbUB2Li.. uploaded chars=25 lufs=-18.49 tol=NO
+[   2/20] 0005.00.03 voice=UzWuLKD4.. uploaded chars=16 lufs=-16.13 tol=ok
+[   3/20] 0032.00.01 voice=XjLkpWUl.. uploaded chars=31 lufs=-17.31 tol=NO
+[   4/20] 0016.00.02 voice=UzWuLKD4.. uploaded chars=22 lufs=-16.18 tol=ok
+[   5/20] 0007.00.01 voice=uju3wxzG.. uploaded chars=19 lufs=-20.41 tol=NO
+[   6/20] 0014.00.01 voice=8IbUB2Li.. uploaded chars=51 lufs=-17.75 tol=NO
+[   7/20] 0008.00.01 voice=uju3wxzG.. uploaded chars=43 lufs=-17.61 tol=NO
+[   8/20] 0003.00.01 voice=8IbUB2Li.. uploaded chars=35 lufs=-17.81 tol=NO
+[   9/20] 0002.00.02 voice=bP8FJDHm.. uploaded chars=20 lufs=-16.17 tol=ok
+[  10/20] 0005.00.02 voice=5jVVMAv2.. uploaded chars=29 lufs=-16.14 tol=ok
+[  11/20] 0009.00.03 voice=XjLkpWUl.. uploaded chars=48 lufs=-17.98 tol=NO
+[  12/20] 0012.00.01 voice=5jVVMAv2.. uploaded chars=46 lufs=-16.15 tol=ok
+[  13/20] 0013.00.01 voice=bP8FJDHm.. uploaded chars=35 lufs=-16.32 tol=ok
+[  14/20] 0002.00.01 voice=UPh4KsZt.. uploaded chars=29 lufs=-17.25 tol=NO
+[  15/20] 0010.00.02 voice=VU16byTy.. uploaded chars=35 lufs=-17.89 tol=NO
+[  16/20] 0001.00.02 voice=UPh4KsZt.. uploaded chars=30 lufs=-20.0 tol=NO
+[  17/20] 0010.00.01 voice=VU16byTy.. uploaded chars=30 lufs=-17.47 tol=NO
+[  18/20] 0001.00.01 voice=UPh4KsZt.. uploaded chars=25 lufs=-18.67 tol=NO
+[  19/20] 0015.00.01 voice=bP8FJDHm.. uploaded chars=26 lufs=-16.04 tol=ok
+[  20/20] 0009.00.01 voice=5jVVMAv2.. uploaded chars=30 lufs=-16.14 tol=ok
+
+=== stage 10 EN render started 2026-05-11T20:49:52.030119+00:00 | n_senses=5705 | pilot=None ===
+[Stage 10  78/5,705 (1.4%) | 20 in-flight | 0 stuck (>120s) | elapsed 0m | avg 6.5s | ETA 36m | spent $0.00]
+  decisions: uploaded=78 failed=0 errored=0
+  Last events:
+    22:50:19  OK   0065.00.01  XjLkpWUl.. lufs=-17.24 tp_lim
+    22:50:20  OK   0068.00.01  5jVVMAv2.. lufs=-16.63 ok
+    22:50:20  OK   0072.00.01  UzWuLKD4.. lufs=-16.22 ok
+    22:50:21  OK   0073.00.01  UzWuLKD4.. lufs=-16.12 ok
+    22:50:22  OK   0075.00.01  bP8FJDHm.. lufs=-16.09 ok
+[Stage 10  147/5,705 (2.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 1m | avg 7.8s | ETA 37m | spent $0.00]
+  decisions: uploaded=147 failed=0 errored=0
+  Last events:
+    22:50:50  OK   0128.00.01  VU16byTy.. lufs=-18.23 tp_lim
+    22:50:50  OK   0132.00.01  uju3wxzG.. lufs=-16.93 ok
+    22:50:51  OK   0127.00.01  UPh4KsZt.. lufs=-18.59 tp_lim
+    22:50:51  OK   0129.00.01  bP8FJDHm.. lufs=-17.24 tp_lim
+    22:50:51  OK   0130.00.01  UPh4KsZt.. lufs=-22.57 tp_lim
+[Stage 10  185/5,705 (3.2%) | 19 in-flight | 0 stuck (>120s) | elapsed 1m | avg 8.8s | ETA 44m | spent $0.00]
+  decisions: uploaded=185 failed=0 errored=0
+  Last events:
+    22:51:20  OK   0160.00.01  uju3wxzG.. lufs=-17.08 tp_lim
+    22:51:20  OK   0161.00.02  5jVVMAv2.. lufs=-17.20 tp_lim
+    22:51:20  OK   0157.00.01  UPh4KsZt.. lufs=-18.65 tp_lim
+    22:51:21  OK   0167.00.01  5jVVMAv2.. lufs=-16.22 ok
+    22:51:22  OK   0163.00.01  XjLkpWUl.. lufs=-17.85 tp_lim
+[Stage 10  217/5,705 (3.8%) | 20 in-flight | 0 stuck (>120s) | elapsed 2m | avg 9.8s | ETA 50m | spent $0.00]
+  decisions: uploaded=217 failed=0 errored=0
+  Last events:
+    22:51:45  OK   0188.00.01  UPh4KsZt.. lufs=-21.29 tp_lim
+    22:51:49  OK   0193.00.01  5jVVMAv2.. lufs=-16.24 ok
+    22:51:50  OK   0196.00.01  uju3wxzG.. lufs=-16.30 ok
+    22:51:51  OK   0189.00.01  UPh4KsZt.. lufs=-17.51 tp_lim
+    22:51:51  OK   0191.00.01  bP8FJDHm.. lufs=-16.79 ok
+[Stage 10  304/5,705 (5.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 2m | avg 9.6s | ETA 44m | spent $0.00]
+  decisions: uploaded=304 failed=0 errored=0
+  Last events:
+    22:52:19  OK   0259.00.01  bP8FJDHm.. lufs=-16.94 ok
+    22:52:20  OK   0263.00.02  5jVVMAv2.. lufs=-16.88 ok
+    22:52:21  OK   0266.00.01  uju3wxzG.. lufs=-16.55 ok
+    22:52:22  OK   0260.00.01  UPh4KsZt.. lufs=-22.97 tp_lim
+    22:52:22  OK   0263.00.01  VU16byTy.. lufs=-18.38 tp_lim
+[Stage 10  433/5,705 (7.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 3m | avg 8.1s | ETA 36m | spent $0.00]
+  decisions: uploaded=433 failed=0 errored=0
+  Last events:
+    22:52:51  OK   0369.00.01  XjLkpWUl.. lufs=-16.89 ok
+    22:52:51  OK   0361.00.01  UPh4KsZt.. lufs=-18.83 tp_lim
+    22:52:51  OK   0367.00.01  bP8FJDHm.. lufs=-17.00 ok
+    22:52:52  OK   0362.00.01  5jVVMAv2.. lufs=-18.73 tp_lim
+    22:52:52  OK   0374.00.01  VU16byTy.. lufs=-16.75 ok
+[Stage 10  540/5,705 (9.5%) | 20 in-flight | 0 stuck (>120s) | elapsed 3m | avg 7.6s | ETA 33m | spent $0.00]
+  decisions: uploaded=540 failed=0 errored=0
+  Last events:
+    22:53:19  OK   0452.00.01  UPh4KsZt.. lufs=-20.00 tp_lim
+    22:53:21  OK   0445.00.01  UPh4KsZt.. lufs=-19.83 tp_lim
+    22:53:21  OK   0456.00.01  bP8FJDHm.. lufs=-16.38 ok
+    22:53:21  OK   0458.00.01  VU16byTy.. lufs=-16.88 ok
+    22:53:21  OK   0457.00.01  UzWuLKD4.. lufs=-16.40 ok
+[Stage 10  646/5,705 (11.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 4m | avg 7.3s | ETA 31m | spent $0.00]
+  decisions: uploaded=646 failed=0 errored=0
+  Last events:
+    22:53:50  OK   0541.00.01  8IbUB2Li.. lufs=-18.48 tp_lim
+    22:53:50  OK   0542.00.01  VU16byTy.. lufs=-18.99 tp_lim
+    22:53:51  OK   0549.00.01  uju3wxzG.. lufs=-16.40 ok
+    22:53:51  OK   0548.00.01  UzWuLKD4.. lufs=-16.17 ok
+    22:53:52  OK   0544.00.01  UzWuLKD4.. lufs=-17.33 tp_lim
+[Stage 10  731/5,705 (12.8%) | 20 in-flight | 0 stuck (>120s) | elapsed 4m | avg 7.3s | ETA 30m | spent $0.00]
+  decisions: uploaded=731 failed=0 errored=0
+  Last events:
+    22:54:21  OK   0607.00.01  VU16byTy.. lufs=-17.21 tp_lim
+    22:54:21  OK   0606.00.03  UPh4KsZt.. lufs=-19.25 tp_lim
+    22:54:22  OK   0612.00.02  8IbUB2Li.. lufs=-17.07 tp_lim
+    22:54:22  OK   0613.00.01  5jVVMAv2.. lufs=-16.85 ok
+    22:54:22  OK   0615.00.01  XjLkpWUl.. lufs=-17.63 tp_lim
+[Stage 10  831/5,705 (14.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 5m | avg 7.1s | ETA 29m | spent $0.00]
+  decisions: uploaded=831 failed=0 errored=0
+  Last events:
+    22:54:51  OK   0700.00.01  UzWuLKD4.. lufs=-16.20 ok
+    22:54:51  OK   0696.00.01  XjLkpWUl.. lufs=-17.03 tp_lim
+    22:54:51  OK   0695.00.01  uju3wxzG.. lufs=-18.40 tp_lim
+    22:54:51  OK   0691.00.01  uju3wxzG.. lufs=-20.74 tp_lim
+    22:54:52  OK   0694.00.02  UPh4KsZt.. lufs=-20.83 tp_lim
+[Stage 10  936/5,705 (16.4%) | 20 in-flight | 0 stuck (>120s) | elapsed 5m | avg 7.0s | ETA 28m | spent $0.00]
+  decisions: uploaded=936 failed=0 errored=0
+  Last events:
+    22:55:21  OK   0792.00.01  8IbUB2Li.. lufs=-17.00 ok
+    22:55:21  OK   0786.00.01  5jVVMAv2.. lufs=-19.01 tp_lim
+    22:55:21  OK   0794.00.01  bP8FJDHm.. lufs=-16.43 ok
+    22:55:21  OK   0793.00.01  UzWuLKD4.. lufs=-16.47 ok
+    22:55:22  OK   0788.00.01  UPh4KsZt.. lufs=-19.58 tp_lim
+[Stage 10  1,043/5,705 (18.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 6m | avg 6.8s | ETA 26m | spent $0.00]
+  decisions: uploaded=1043 failed=0 errored=0
+  Last events:
+    22:55:49  OK   0878.00.01  UPh4KsZt.. lufs=-19.35 tp_lim
+    22:55:50  OK   0882.00.01  VU16byTy.. lufs=-18.22 tp_lim
+    22:55:50  OK   0879.00.01  5jVVMAv2.. lufs=-17.78 tp_lim
+    22:55:51  OK   0887.00.01  VU16byTy.. lufs=-17.20 tp_lim
+    22:55:51  OK   0881.00.01  UPh4KsZt.. lufs=-20.54 tp_lim
+[Stage 10  1,122/5,705 (19.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 6m | avg 6.8s | ETA 26m | spent $0.00]
+  decisions: uploaded=1122 failed=0 errored=0
+  Last events:
+    22:56:13  OK   0943.00.01  UPh4KsZt.. lufs=-17.28 tp_lim
+    22:56:13  OK   0951.00.01  5jVVMAv2.. lufs=-16.97 ok
+    22:56:14  OK   0946.00.01  UPh4KsZt.. lufs=-18.70 tp_lim
+    22:56:14  OK   0949.00.01  5jVVMAv2.. lufs=-16.14 ok
+    22:56:15  OK   0947.00.02  UPh4KsZt.. lufs=-17.16 tp_lim
+[Stage 10  1,213/5,705 (21.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 7m | avg 6.9s | ETA 26m | spent $0.00]
+  decisions: uploaded=1213 failed=0 errored=0
+  Last events:
+    22:56:55  OK   1026.00.01  UPh4KsZt.. lufs=-20.79 tp_lim
+    22:56:55  OK   1033.00.01  5jVVMAv2.. lufs=-20.71 tp_lim
+    22:56:56  OK   1015.00.01  VU16byTy.. lufs=-17.50 tp_lim
+    22:56:56  OK   1028.00.01  XjLkpWUl.. lufs=-17.40 tp_lim
+    22:56:57  OK   1027.00.01  uju3wxzG.. lufs=-17.57 tp_lim
+[Stage 10  1,292/5,705 (22.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 7m | avg 7.0s | ETA 25m | spent $0.00]
+  decisions: uploaded=1292 failed=0 errored=0
+  Last events:
+    22:57:26  OK   1092.00.02  5jVVMAv2.. lufs=-18.06 tp_lim
+    22:57:26  OK   1095.00.01  uju3wxzG.. lufs=-17.45 tp_lim
+    22:57:27  OK   1100.00.01  VU16byTy.. lufs=-16.76 ok
+    22:57:27  OK   1098.00.01  5jVVMAv2.. lufs=-19.35 tp_lim
+    22:57:27  OK   1104.00.01  UzWuLKD4.. lufs=-16.17 ok
+[Stage 10  1,353/5,705 (23.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 8m | avg 7.1s | ETA 26m | spent $0.00]
+  decisions: uploaded=1353 failed=0 errored=0
+  Last events:
+    22:57:56  OK   1153.00.01  VU16byTy.. lufs=-16.26 ok
+    22:57:57  OK   1150.00.01  UPh4KsZt.. lufs=-18.76 tp_lim
+    22:57:57  OK   1149.00.01  8IbUB2Li.. lufs=-17.45 tp_lim
+    22:57:57  OK   1155.00.01  UPh4KsZt.. lufs=-18.94 tp_lim
+    22:57:57  OK   1160.00.01  uju3wxzG.. lufs=-16.82 ok
+[Stage 10  1,460/5,705 (25.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 8m | avg 7.0s | ETA 24m | spent $0.00]
+  decisions: uploaded=1460 failed=0 errored=0
+  Last events:
+    22:58:26  OK   1248.00.01  VU16byTy.. lufs=-17.75 tp_lim
+    22:58:27  OK   1245.00.01  8IbUB2Li.. lufs=-17.30 tp_lim
+    22:58:27  OK   1249.00.01  UPh4KsZt.. lufs=-17.94 tp_lim
+    22:58:27  OK   1243.00.02  UPh4KsZt.. lufs=-21.87 tp_lim
+    22:58:27  OK   1254.00.01  UzWuLKD4.. lufs=-16.18 ok
+[Stage 10  1,594/5,705 (27.9%) | 20 in-flight | 0 stuck (>120s) | elapsed 9m | avg 6.8s | ETA 23m | spent $0.00]
+  decisions: uploaded=1594 failed=0 errored=0
+  Last events:
+    22:58:56  OK   1370.00.01  5jVVMAv2.. lufs=-16.31 ok
+    22:58:57  OK   1366.00.01  XjLkpWUl.. lufs=-17.37 tp_lim
+    22:58:57  OK   1373.00.01  5jVVMAv2.. lufs=-16.82 ok
+    22:58:57  OK   1368.00.01  XjLkpWUl.. lufs=-17.89 tp_lim
+    22:58:57  OK   1369.00.01  5jVVMAv2.. lufs=-18.19 tp_lim
+[Stage 10  1,667/5,705 (29.2%) | 20 in-flight | 0 stuck (>120s) | elapsed 9m | avg 6.8s | ETA 23m | spent $0.00]
+  decisions: uploaded=1667 failed=0 errored=0
+  Last events:
+    22:59:26  OK   1430.00.01  UPh4KsZt.. lufs=-19.53 tp_lim
+    22:59:27  OK   1433.00.01  5jVVMAv2.. lufs=-18.20 tp_lim
+    22:59:27  OK   1432.00.01  5jVVMAv2.. lufs=-16.78 ok
+    22:59:27  OK   1436.00.01  VU16byTy.. lufs=-16.52 ok
+    22:59:27  OK   1421.00.02  UPh4KsZt.. lufs=-21.14 tp_lim
+[Stage 10  1,715/5,705 (30.1%) | 20 in-flight | 0 stuck (>120s) | elapsed 10m | avg 7.0s | ETA 23m | spent $0.00]
+  decisions: uploaded=1715 failed=0 errored=0
+  Last events:
+    22:59:56  OK   1467.00.01  UPh4KsZt.. lufs=-19.87 tp_lim
+    22:59:56  OK   1461.00.01  UPh4KsZt.. lufs=-19.62 tp_lim
+    22:59:57  OK   1470.00.01  uju3wxzG.. lufs=-17.12 tp_lim
+    22:59:57  OK   1465.00.01  5jVVMAv2.. lufs=-16.98 ok
+    22:59:58  OK   1471.00.02  UzWuLKD4.. lufs=-17.30 tp_lim
+[Stage 10  1,765/5,705 (30.9%) | 20 in-flight | 0 stuck (>120s) | elapsed 10m | avg 7.1s | ETA 23m | spent $0.00]
+  decisions: uploaded=1765 failed=0 errored=0
+  Last events:
+    23:00:26  OK   1515.00.01  UPh4KsZt.. lufs=-20.29 tp_lim
+    23:00:26  OK   1516.00.01  UPh4KsZt.. lufs=-20.85 tp_lim
+    23:00:26  OK   1510.00.01  UPh4KsZt.. lufs=-21.45 tp_lim
+    23:00:26  OK   1519.00.01  5jVVMAv2.. lufs=-16.21 ok
+    23:00:27  OK   1516.00.02  8IbUB2Li.. lufs=-16.90 ok
+[Stage 10  1,812/5,705 (31.8%) | 20 in-flight | 0 stuck (>120s) | elapsed 11m | avg 7.3s | ETA 23m | spent $0.00]
+  decisions: uploaded=1812 failed=0 errored=0
+  Last events:
+    23:00:57  OK   1559.00.01  5jVVMAv2.. lufs=-16.13 ok
+    23:00:57  OK   1561.00.01  bP8FJDHm.. lufs=-16.16 ok
+    23:00:58  OK   1563.00.01  VU16byTy.. lufs=-16.69 ok
+    23:00:58  OK   1558.00.01  8IbUB2Li.. lufs=-16.96 ok
+    23:00:58  OK   1566.00.01  bP8FJDHm.. lufs=-16.92 ok
+[Stage 10  1,923/5,705 (33.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 11m | avg 7.2s | ETA 22m | spent $0.00]
+  decisions: uploaded=1923 failed=0 errored=0
+  Last events:
+    23:01:27  OK   1654.00.01  UPh4KsZt.. lufs=-19.02 tp_lim
+    23:01:27  OK   1659.00.01  5jVVMAv2.. lufs=-16.72 ok
+    23:01:27  OK   1655.00.01  5jVVMAv2.. lufs=-17.14 tp_lim
+    23:01:27  OK   1653.00.01  XjLkpWUl.. lufs=-18.12 tp_lim
+    23:01:27  OK   1650.00.02  UPh4KsZt.. lufs=-19.40 tp_lim
+[Stage 10  2,062/5,705 (36.1%) | 20 in-flight | 0 stuck (>120s) | elapsed 12m | avg 7.0s | ETA 21m | spent $0.00]
+  decisions: uploaded=2062 failed=0 errored=0
+  Last events:
+    23:01:57  OK   1766.00.02  UPh4KsZt.. lufs=-20.72 tp_lim
+    23:01:57  OK   1778.00.01  5jVVMAv2.. lufs=-16.17 ok
+    23:01:57  OK   1774.00.01  UzWuLKD4.. lufs=-16.65 ok
+    23:01:57  OK   1779.00.02  bP8FJDHm.. lufs=-16.93 ok
+    23:01:58  OK   1775.00.01  VU16byTy.. lufs=-17.87 tp_lim
+[Stage 10  2,152/5,705 (37.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 12m | avg 7.0s | ETA 20m | spent $0.00]
+  decisions: uploaded=2152 failed=0 errored=0
+  Last events:
+    23:02:27  OK   1859.00.01  bP8FJDHm.. lufs=-16.22 ok
+    23:02:27  OK   1855.00.01  5jVVMAv2.. lufs=-16.95 ok
+    23:02:27  OK   1860.00.02  5jVVMAv2.. lufs=-16.29 ok
+    23:02:28  OK   1846.00.02  XjLkpWUl.. lufs=-18.33 tp_lim
+    23:02:28  OK   1856.00.01  UPh4KsZt.. lufs=-20.88 tp_lim
+[Stage 10  2,259/5,705 (39.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 13m | avg 6.9s | ETA 19m | spent $0.00]
+  decisions: uploaded=2259 failed=0 errored=0
+  Last events:
+    23:02:58  OK   1944.00.01  bP8FJDHm.. lufs=-16.18 ok
+    23:02:58  OK   1945.00.01  uju3wxzG.. lufs=-16.28 ok
+    23:02:58  OK   1949.00.01  uju3wxzG.. lufs=-16.12 ok
+    23:02:58  OK   1943.00.01  8IbUB2Li.. lufs=-16.89 ok
+    23:02:58  OK   1937.00.01  UPh4KsZt.. lufs=-19.22 tp_lim
+[Stage 10  2,327/5,705 (40.8%) | 20 in-flight | 0 stuck (>120s) | elapsed 13m | avg 7.0s | ETA 19m | spent $0.00]
+  decisions: uploaded=2327 failed=0 errored=0
+  Last events:
+    23:03:27  OK   2004.00.01  UzWuLKD4.. lufs=-16.40 ok
+    23:03:27  OK   2001.00.01  UPh4KsZt.. lufs=-20.39 tp_lim
+    23:03:27  OK   1994.00.02  UPh4KsZt.. lufs=-20.39 tp_lim
+    23:03:27  OK   2001.00.02  UPh4KsZt.. lufs=-20.51 tp_lim
+    23:03:28  OK   1997.00.01  5jVVMAv2.. lufs=-18.32 tp_lim
+[Stage 10  2,476/5,705 (43.4%) | 20 in-flight | 0 stuck (>120s) | elapsed 14m | avg 6.8s | ETA 18m | spent $0.00]
+  decisions: uploaded=2476 failed=0 errored=0
+  Last events:
+    23:03:57  OK   2115.00.01  UPh4KsZt.. lufs=-18.05 tp_lim
+    23:03:58  OK   2108.00.02  UPh4KsZt.. lufs=-20.48 tp_lim
+    23:03:58  OK   2119.00.03  8IbUB2Li.. lufs=-17.27 tp_lim
+    23:03:58  OK   2118.00.01  XjLkpWUl.. lufs=-17.78 tp_lim
+    23:03:58  OK   2119.00.01  8IbUB2Li.. lufs=-17.44 tp_lim
+[Stage 10  2,627/5,705 (46.0%) | 20 in-flight | 0 stuck (>120s) | elapsed 14m | avg 6.6s | ETA 17m | spent $0.00]
+  decisions: uploaded=2627 failed=0 errored=0
+  Last events:
+    23:04:27  OK   2241.00.03  UzWuLKD4.. lufs=-16.12 ok
+    23:04:27  OK   2234.00.01  VU16byTy.. lufs=-18.47 tp_lim
+    23:04:27  OK   2237.00.01  uju3wxzG.. lufs=-17.25 tp_lim
+    23:04:28  OK   2245.00.01  5jVVMAv2.. lufs=-16.43 ok
+    23:04:28  OK   2235.00.01  XjLkpWUl.. lufs=-18.18 tp_lim
+[Stage 10  2,751/5,705 (48.2%) | 20 in-flight | 0 stuck (>120s) | elapsed 15m | avg 6.6s | ETA 16m | spent $0.00]
+  decisions: uploaded=2751 failed=0 errored=0
+  Last events:
+    23:04:56  OK   2343.00.01  5jVVMAv2.. lufs=-18.33 tp_lim
+    23:04:56  OK   2342.00.01  UPh4KsZt.. lufs=-18.81 tp_lim
+    23:04:56  OK   2346.00.01  XjLkpWUl.. lufs=-17.57 tp_lim
+    23:04:57  OK   2351.00.01  UPh4KsZt.. lufs=-18.15 tp_lim
+    23:04:58  OK   2354.00.01  uju3wxzG.. lufs=-16.24 ok
+[Stage 10  2,820/5,705 (49.4%) | 20 in-flight | 0 stuck (>120s) | elapsed 15m | avg 6.6s | ETA 15m | spent $0.00]
+  decisions: uploaded=2820 failed=0 errored=0
+  Last events:
+    23:05:27  OK   2406.00.01  UPh4KsZt.. lufs=-17.72 tp_lim
+    23:05:28  OK   2412.00.01  XjLkpWUl.. lufs=-16.23 ok
+    23:05:28  OK   2404.00.01  UPh4KsZt.. lufs=-19.92 tp_lim
+    23:05:28  OK   2413.00.01  5jVVMAv2.. lufs=-16.25 ok
+    23:05:28  OK   2408.00.01  UPh4KsZt.. lufs=-17.67 tp_lim
+[Stage 10  2,942/5,705 (51.6%) | 20 in-flight | 0 stuck (>120s) | elapsed 16m | avg 6.5s | ETA 15m | spent $0.00]
+  decisions: uploaded=2942 failed=0 errored=0
+  Last events:
+    23:05:53  OK   2507.00.01  UPh4KsZt.. lufs=-18.78 tp_lim
+    23:05:53  OK   2510.00.01  5jVVMAv2.. lufs=-18.20 tp_lim
+    23:05:54  OK   2519.00.01  VU16byTy.. lufs=-16.23 ok
+    23:05:55  OK   2520.00.01  bP8FJDHm.. lufs=-16.24 ok
+    23:05:55  OK   2521.00.01  5jVVMAv2.. lufs=-16.26 ok
+[Stage 10  2,996/5,705 (52.5%) | 20 in-flight | 0 stuck (>120s) | elapsed 16m | avg 6.6s | ETA 15m | spent $0.00]
+  decisions: uploaded=2996 failed=0 errored=0
+  Last events:
+    23:06:24  OK   2557.00.01  VU16byTy.. lufs=-18.41 tp_lim
+    23:06:27  OK   2565.00.01  XjLkpWUl.. lufs=-16.21 ok
+    23:06:27  OK   2558.00.01  5jVVMAv2.. lufs=-16.82 ok
+    23:06:27  OK   2552.00.01  XjLkpWUl.. lufs=-18.09 tp_lim
+    23:06:27  OK   2561.00.01  uju3wxzG.. lufs=-17.22 tp_lim
+[Stage 10  3,071/5,705 (53.8%) | 20 in-flight | 0 stuck (>120s) | elapsed 17m | avg 6.7s | ETA 14m | spent $0.00]
+  decisions: uploaded=3071 failed=0 errored=0
+  Last events:
+    23:06:58  OK   2624.00.01  XjLkpWUl.. lufs=-17.87 tp_lim
+    23:06:58  OK   2630.00.01  XjLkpWUl.. lufs=-16.22 ok
+    23:06:58  OK   2631.00.01  5jVVMAv2.. lufs=-16.29 ok
+    23:06:59  OK   2628.00.01  5jVVMAv2.. lufs=-18.41 tp_lim
+    23:06:59  OK   2622.00.01  5jVVMAv2.. lufs=-21.46 tp_lim
+[Stage 10  3,119/5,705 (54.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 17m | avg 6.7s | ETA 14m | spent $0.00]
+  decisions: uploaded=3119 failed=0 errored=0
+  Last events:
+    23:07:28  OK   2675.00.03  UzWuLKD4.. lufs=-16.13 ok
+    23:07:28  OK   2669.00.01  XjLkpWUl.. lufs=-18.47 tp_lim
+    23:07:28  OK   2669.00.02  XjLkpWUl.. lufs=-17.17 tp_lim
+    23:07:29  OK   2675.00.01  8IbUB2Li.. lufs=-17.42 tp_lim
+    23:07:29  OK   2680.00.02  UzWuLKD4.. lufs=-16.13 ok
+[Stage 10  3,264/5,705 (57.2%) | 20 in-flight | 0 stuck (>120s) | elapsed 18m | avg 6.6s | ETA 13m | spent $0.00]
+  decisions: uploaded=3264 failed=0 errored=0
+  Last events:
+    23:07:58  OK   2794.00.01  UPh4KsZt.. lufs=-20.72 tp_lim
+    23:07:59  OK   2796.00.01  VU16byTy.. lufs=-19.05 tp_lim
+    23:07:59  OK   2797.00.01  UPh4KsZt.. lufs=-20.29 tp_lim
+    23:07:59  OK   2798.00.01  UPh4KsZt.. lufs=-18.30 tp_lim
+    23:07:59  OK   2802.00.03  XjLkpWUl.. lufs=-16.69 ok
+[Stage 10  3,369/5,705 (59.1%) | 20 in-flight | 0 stuck (>120s) | elapsed 18m | avg 6.6s | ETA 12m | spent $0.00]
+  decisions: uploaded=3369 failed=0 errored=0
+  Last events:
+    23:08:28  OK   2886.00.01  5jVVMAv2.. lufs=-17.14 tp_lim
+    23:08:28  OK   2888.00.01  5jVVMAv2.. lufs=-18.44 tp_lim
+    23:08:28  OK   2897.00.01  5jVVMAv2.. lufs=-16.21 ok
+    23:08:29  OK   2895.00.01  UzWuLKD4.. lufs=-16.13 ok
+    23:08:29  OK   2889.00.01  uju3wxzG.. lufs=-18.03 tp_lim
+[Stage 10  3,504/5,705 (61.4%) | 20 in-flight | 0 stuck (>120s) | elapsed 19m | avg 6.5s | ETA 12m | spent $0.00]
+  decisions: uploaded=3504 failed=0 errored=0
+  Last events:
+    23:08:59  OK   3013.00.01  UPh4KsZt.. lufs=-20.68 tp_lim
+    23:08:59  OK   3014.00.01  5jVVMAv2.. lufs=-19.56 tp_lim
+    23:08:59  OK   3016.00.01  5jVVMAv2.. lufs=-17.95 tp_lim
+    23:08:59  OK   3015.00.02  UPh4KsZt.. lufs=-20.19 tp_lim
+    23:08:59  OK   3022.00.01  bP8FJDHm.. lufs=-16.98 ok
+[Stage 10  3,610/5,705 (63.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 19m | avg 6.5s | ETA 11m | spent $0.00]
+  decisions: uploaded=3610 failed=0 errored=0
+  Last events:
+    23:09:27  OK   3115.00.01  UzWuLKD4.. lufs=-16.05 ok
+    23:09:27  OK   3110.00.01  VU16byTy.. lufs=-17.99 tp_lim
+    23:09:28  OK   3116.00.01  VU16byTy.. lufs=-16.47 ok
+    23:09:29  OK   3106.00.01  5jVVMAv2.. lufs=-17.47 tp_lim
+    23:09:29  OK   3114.00.01  bP8FJDHm.. lufs=-16.93 ok
+[Stage 10  3,632/5,705 (63.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 20m | avg 6.6s | ETA 11m | spent $0.00]
+  decisions: uploaded=3632 failed=0 errored=0
+  Last events:
+    23:09:57  OK   3127.00.01  5jVVMAv2.. lufs=-17.90 tp_lim
+    23:09:57  OK   3126.00.02  UPh4KsZt.. lufs=-19.92 tp_lim
+    23:09:58  OK   3130.00.01  UzWuLKD4.. lufs=-16.80 ok
+    23:09:59  OK   3134.00.01  UPh4KsZt.. lufs=-19.67 tp_lim
+    23:09:59  OK   3132.00.01  UPh4KsZt.. lufs=-19.22 tp_lim
+[Stage 10  3,727/5,705 (65.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 20m | avg 6.6s | ETA 10m | spent $0.00]
+  decisions: uploaded=3727 failed=0 errored=0
+  Last events:
+    23:10:26  OK   3223.00.01  UzWuLKD4.. lufs=-16.19 ok
+    23:10:26  OK   3229.00.01  UzWuLKD4.. lufs=-16.16 ok
+    23:10:27  OK   3220.00.01  8IbUB2Li.. lufs=-18.08 tp_lim
+    23:10:27  OK   3217.00.01  8IbUB2Li.. lufs=-17.08 tp_lim
+    23:10:28  OK   3227.00.01  bP8FJDHm.. lufs=-16.56 ok
+[Stage 10  3,777/5,705 (66.2%) | 19 in-flight | 0 stuck (>120s) | elapsed 21m | avg 6.6s | ETA 10m | spent $0.00]
+  decisions: uploaded=3777 failed=0 errored=0
+  Last events:
+    23:10:42  OK   3263.00.01  UPh4KsZt.. lufs=-21.48 tp_lim
+    23:10:43  OK   3260.00.01  8IbUB2Li.. lufs=-18.81 tp_lim
+    23:10:49  OK   3270.00.01  5jVVMAv2.. lufs=-16.18 ok
+    23:10:53  OK   3265.00.02  uju3wxzG.. lufs=-18.74 tp_lim
+    23:11:00  OK   3265.00.01  UPh4KsZt.. lufs=-18.96 tp_lim
+[Stage 10  3,811/5,705 (66.8%) | 20 in-flight | 0 stuck (>120s) | elapsed 21m | avg 6.8s | ETA 10m | spent $0.00]
+  decisions: uploaded=3811 failed=0 errored=0
+  Last events:
+    23:11:28  OK   3291.00.01  UPh4KsZt.. lufs=-18.34 tp_lim
+    23:11:28  OK   3288.00.01  UPh4KsZt.. lufs=-18.26 tp_lim
+    23:11:28  OK   3295.00.01  XjLkpWUl.. lufs=-18.28 tp_lim
+    23:11:29  OK   3296.00.01  UPh4KsZt.. lufs=-19.31 tp_lim
+    23:11:30  OK   3296.00.02  UPh4KsZt.. lufs=-18.04 tp_lim
+[Stage 10  3,930/5,705 (68.9%) | 20 in-flight | 0 stuck (>120s) | elapsed 22m | avg 6.7s | ETA 9m | spent $0.00]
+  decisions: uploaded=3930 failed=0 errored=0
+  Last events:
+    23:11:59  OK   3397.00.01  bP8FJDHm.. lufs=-16.78 ok
+    23:11:59  OK   3395.00.01  5jVVMAv2.. lufs=-18.51 tp_lim
+    23:12:00  OK   3396.00.01  5jVVMAv2.. lufs=-19.01 tp_lim
+    23:12:00  OK   3401.00.01  XjLkpWUl.. lufs=-16.33 ok
+    23:12:00  OK   3398.00.01  VU16byTy.. lufs=-18.73 tp_lim
+[Stage 10  4,044/5,705 (70.9%) | 19 in-flight | 0 stuck (>120s) | elapsed 22m | avg 6.7s | ETA 9m | spent $0.00]
+  decisions: uploaded=4044 failed=0 errored=0
+  Last events:
+    23:12:27  OK   3501.00.01  5jVVMAv2.. lufs=-16.89 ok
+    23:12:27  OK   3493.00.01  UPh4KsZt.. lufs=-17.86 tp_lim
+    23:12:29  OK   3494.00.01  VU16byTy.. lufs=-17.07 tp_lim
+    23:12:29  OK   3506.00.01  5jVVMAv2.. lufs=-16.99 ok
+    23:12:30  OK   3496.00.01  8IbUB2Li.. lufs=-18.25 tp_lim
+[Stage 10  4,163/5,705 (73.0%) | 20 in-flight | 0 stuck (>120s) | elapsed 23m | avg 6.6s | ETA 8m | spent $0.00]
+  decisions: uploaded=4163 failed=0 errored=0
+  Last events:
+    23:12:58  OK   3611.00.01  UzWuLKD4.. lufs=-16.21 ok
+    23:12:58  OK   3608.00.01  UPh4KsZt.. lufs=-18.75 tp_lim
+    23:12:58  OK   3609.00.01  UPh4KsZt.. lufs=-19.64 tp_lim
+    23:12:59  OK   3613.00.01  UPh4KsZt.. lufs=-20.05 tp_lim
+    23:12:59  OK   3612.00.01  XjLkpWUl.. lufs=-16.96 ok
+[Stage 10  4,283/5,705 (75.1%) | 20 in-flight | 0 stuck (>120s) | elapsed 23m | avg 6.6s | ETA 7m | spent $0.00]
+  decisions: uploaded=4283 failed=0 errored=0
+  Last events:
+    23:13:29  OK   3710.00.01  UPh4KsZt.. lufs=-21.90 tp_lim
+    23:13:29  OK   3718.00.01  5jVVMAv2.. lufs=-16.48 ok
+    23:13:29  OK   3717.00.01  UzWuLKD4.. lufs=-16.52 ok
+    23:13:29  OK   3708.00.01  VU16byTy.. lufs=-17.25 tp_lim
+    23:13:30  OK   3711.00.03  5jVVMAv2.. lufs=-18.44 tp_lim
+[Stage 10  4,405/5,705 (77.2%) | 20 in-flight | 0 stuck (>120s) | elapsed 24m | avg 6.5s | ETA 7m | spent $0.00]
+  decisions: uploaded=4405 failed=0 errored=0
+  Last events:
+    23:14:00  OK   3825.00.01  VU16byTy.. lufs=-16.46 ok
+    23:14:00  OK   3826.00.01  5jVVMAv2.. lufs=-16.83 ok
+    23:14:00  OK   3816.00.01  uju3wxzG.. lufs=-18.00 tp_lim
+    23:14:00  OK   3822.00.01  bP8FJDHm.. lufs=-16.39 ok
+    23:14:00  OK   3820.00.01  5jVVMAv2.. lufs=-16.64 ok
+[Stage 10  4,470/5,705 (78.4%) | 20 in-flight | 0 stuck (>120s) | elapsed 24m | avg 6.5s | ETA 6m | spent $0.00]
+  decisions: uploaded=4470 failed=0 errored=0
+  Last events:
+    23:14:28  OK   3871.00.01  UzWuLKD4.. lufs=-17.04 tp_lim
+    23:14:28  OK   3878.00.02  VU16byTy.. lufs=-16.92 ok
+    23:14:29  OK   3874.00.01  8IbUB2Li.. lufs=-18.59 tp_lim
+    23:14:29  OK   3885.00.01  5jVVMAv2.. lufs=-16.87 ok
+    23:14:29  OK   3881.00.01  UPh4KsZt.. lufs=-17.74 tp_lim
+[Stage 10  4,565/5,705 (80.0%) | 20 in-flight | 0 stuck (>120s) | elapsed 25m | avg 6.6s | ETA 6m | spent $0.00]
+  decisions: uploaded=4565 failed=0 errored=0
+  Last events:
+    23:14:58  OK   3964.00.01  UPh4KsZt.. lufs=-19.38 tp_lim
+    23:14:58  OK   3961.00.01  UPh4KsZt.. lufs=-18.58 tp_lim
+    23:14:59  OK   3963.00.01  UPh4KsZt.. lufs=-19.02 tp_lim
+    23:15:00  OK   3967.00.01  bP8FJDHm.. lufs=-17.67 tp_lim
+    23:15:00  OK   3970.00.01  bP8FJDHm.. lufs=-16.63 ok
+[Stage 10  4,678/5,705 (82.0%) | 20 in-flight | 0 stuck (>120s) | elapsed 25m | avg 6.5s | ETA 5m | spent $0.00]
+  decisions: uploaded=4678 failed=0 errored=0
+  Last events:
+    23:15:28  OK   4060.01.01  UPh4KsZt.. lufs=-19.18 tp_lim
+    23:15:29  OK   4056.00.01  8IbUB2Li.. lufs=-19.71 tp_lim
+    23:15:29  OK   4071.00.01  VU16byTy.. lufs=-16.72 ok
+    23:15:30  OK   4065.00.02  UPh4KsZt.. lufs=-21.30 tp_lim
+    23:15:30  OK   4076.00.01  5jVVMAv2.. lufs=-16.16 ok
+[Stage 10  4,775/5,705 (83.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 26m | avg 6.5s | ETA 5m | spent $0.00]
+  decisions: uploaded=4775 failed=0 errored=0
+  Last events:
+    23:15:59  OK   4150.00.01  UPh4KsZt.. lufs=-18.99 tp_lim
+    23:15:59  OK   4162.00.01  5jVVMAv2.. lufs=-16.50 ok
+    23:16:00  OK   4153.00.01  XjLkpWUl.. lufs=-16.82 ok
+    23:16:00  OK   4158.00.01  8IbUB2Li.. lufs=-17.33 tp_lim
+    23:16:00  OK   4154.00.02  5jVVMAv2.. lufs=-18.68 tp_lim
+[Stage 10  4,883/5,705 (85.6%) | 19 in-flight | 0 stuck (>120s) | elapsed 26m | avg 6.5s | ETA 4m | spent $0.00]
+  decisions: uploaded=4883 failed=0 errored=0
+  Last events:
+    23:16:29  OK   4249.00.01  uju3wxzG.. lufs=-19.40 tp_lim
+    23:16:29  OK   4248.00.01  VU16byTy.. lufs=-17.84 tp_lim
+    23:16:29  OK   4254.00.01  5jVVMAv2.. lufs=-16.34 ok
+    23:16:32  OK   4240.00.01  XjLkpWUl.. lufs=-18.48 tp_lim
+    23:16:32  OK   4246.00.01  uju3wxzG.. lufs=-19.09 tp_lim
+[Stage 10  4,975/5,705 (87.2%) | 20 in-flight | 0 stuck (>120s) | elapsed 27m | avg 6.5s | ETA 3m | spent $0.00]
+  decisions: uploaded=4975 failed=0 errored=0
+  Last events:
+    23:17:02  OK   4331.00.01  8IbUB2Li.. lufs=-20.13 tp_lim
+    23:17:02  OK   4335.00.01  UPh4KsZt.. lufs=-18.68 tp_lim
+    23:17:02  OK   4337.00.01  XjLkpWUl.. lufs=-17.85 tp_lim
+    23:17:02  OK   4336.00.01  UPh4KsZt.. lufs=-22.68 tp_lim
+    23:17:02  OK   4327.00.01  5jVVMAv2.. lufs=-20.23 tp_lim
+[Stage 10  5,130/5,705 (89.9%) | 20 in-flight | 0 stuck (>120s) | elapsed 27m | avg 6.5s | ETA 3m | spent $0.00]
+  decisions: uploaded=5130 failed=0 errored=0
+  Last events:
+    23:17:32  OK   4472.00.01  5jVVMAv2.. lufs=-15.98 ok
+    23:17:32  OK   4462.00.01  5jVVMAv2.. lufs=-19.42 tp_lim
+    23:17:32  OK   4474.00.01  XjLkpWUl.. lufs=-16.48 ok
+    23:17:32  OK   4468.00.01  bP8FJDHm.. lufs=-17.54 tp_lim
+    23:17:32  OK   4471.00.01  XjLkpWUl.. lufs=-17.95 tp_lim
+[Stage 10  5,286/5,705 (92.7%) | 20 in-flight | 0 stuck (>120s) | elapsed 28m | avg 6.4s | ETA 2m | spent $0.00]
+  decisions: uploaded=5286 failed=0 errored=0
+  Last events:
+    23:18:01  OK   4600.00.01  UPh4KsZt.. lufs=-20.69 tp_lim
+    23:18:01  OK   4603.00.01  UPh4KsZt.. lufs=-18.22 tp_lim
+    23:18:02  OK   4602.00.01  XjLkpWUl.. lufs=-17.07 tp_lim
+    23:18:02  OK   4599.00.01  UPh4KsZt.. lufs=-18.47 tp_lim
+    23:18:02  OK   4610.00.01  5jVVMAv2.. lufs=-16.63 ok
+[Stage 10  5,351/5,705 (93.8%) | 19 in-flight | 0 stuck (>120s) | elapsed 28m | avg 6.4s | ETA 1m | spent $0.00]
+  decisions: uploaded=5351 failed=0 errored=0
+  Last events:
+    23:18:24  OK   4661.00.01  XjLkpWUl.. lufs=-16.26 ok
+    23:18:24  OK   4657.00.02  5jVVMAv2.. lufs=-16.97 ok
+    23:18:25  OK   4655.00.02  5jVVMAv2.. lufs=-17.19 tp_lim
+    23:18:25  OK   4649.00.01  8IbUB2Li.. lufs=-19.50 tp_lim
+    23:18:27  OK   4653.00.01  5jVVMAv2.. lufs=-19.20 tp_lim
+[Stage 10  5,391/5,705 (94.5%) | 20 in-flight | 0 stuck (>120s) | elapsed 29m | avg 6.4s | ETA 1m | spent $0.00]
+  decisions: uploaded=5391 failed=0 errored=0
+  Last events:
+    23:18:57  OK   4705.00.01  VU16byTy.. lufs=-16.16 ok
+    23:18:57  OK   4691.00.02  UPh4KsZt.. lufs=-19.55 tp_lim
+    23:18:57  OK   4693.00.01  UPh4KsZt.. lufs=-18.07 tp_lim
+    23:18:57  OK   4694.00.01  5jVVMAv2.. lufs=-18.94 tp_lim
+    23:18:57  OK   4695.00.01  5jVVMAv2.. lufs=-17.81 tp_lim
+[Stage 10  5,471/5,705 (95.9%) | 20 in-flight | 0 stuck (>120s) | elapsed 29m | avg 6.5s | ETA 1m | spent $0.00]
+  decisions: uploaded=5471 failed=0 errored=0
+  Last events:
+    23:19:33  OK   4769.00.01  XjLkpWUl.. lufs=-18.75 tp_lim
+    23:19:33  OK   4777.00.01  UzWuLKD4.. lufs=-16.41 ok
+    23:19:33  OK   4771.00.01  bP8FJDHm.. lufs=-17.09 tp_lim
+    23:19:33  OK   4778.00.01  UzWuLKD4.. lufs=-16.33 ok
+    23:19:33  OK   4781.00.01  5jVVMAv2.. lufs=-16.44 ok
+[Stage 10  5,532/5,705 (97.0%) | 20 in-flight | 0 stuck (>120s) | elapsed 30m | avg 6.5s | ETA 0m | spent $0.00]
+  decisions: uploaded=5532 failed=0 errored=0
+  Last events:
+    23:20:01  OK   4827.00.01  VU16byTy.. lufs=-18.47 tp_lim
+    23:20:02  OK   4826.00.01  VU16byTy.. lufs=-19.09 tp_lim
+    23:20:02  OK   4828.00.01  uju3wxzG.. lufs=-17.56 tp_lim
+    23:20:03  OK   4829.00.01  uju3wxzG.. lufs=-16.97 ok
+    23:20:03  OK   4834.00.01  5jVVMAv2.. lufs=-16.43 ok
+[Stage 10  5,609/5,705 (98.3%) | 20 in-flight | 0 stuck (>120s) | elapsed 30m | avg 6.5s | ETA 0m | spent $0.00]
+  decisions: uploaded=5609 failed=0 errored=0
+  Last events:
+    23:20:31  OK   4896.00.02  uju3wxzG.. lufs=-16.87 ok
+    23:20:31  OK   4897.00.01  UPh4KsZt.. lufs=-18.15 tp_lim
+    23:20:33  OK   4895.00.01  5jVVMAv2.. lufs=-18.69 tp_lim
+    23:20:33  OK   4902.00.01  5jVVMAv2.. lufs=-18.54 tp_lim
+    23:20:33  OK   4897.00.02  UzWuLKD4.. lufs=-16.78 ok
+[Stage 10  5,695/5,705 (99.8%) | 10 in-flight | 0 stuck (>120s) | elapsed 31m | avg 6.5s | ETA 0m | spent $0.00]
+  decisions: uploaded=5695 failed=0 errored=0
+  Last events:
+    23:21:03  OK   4974.00.01  UzWuLKD4.. lufs=-16.38 ok
+    23:21:03  OK   4973.00.01  VU16byTy.. lufs=-17.15 tp_lim
+    23:21:03  OK   4965.00.01  UzWuLKD4.. lufs=-17.91 tp_lim
+    23:21:03  OK   4977.00.01  bP8FJDHm.. lufs=-16.14 ok
+    23:21:03  OK   4976.00.01  VU16byTy.. lufs=-16.88 ok
+[Stage 10  5,705/5,705 (100.0%) | 0 in-flight | 0 stuck (>120s) | elapsed 31m | avg 6.5s | ETA 0m | spent $0.00]
+  decisions: uploaded=5705 failed=0 errored=0
+  Last events:
+    23:21:04  OK   4978.00.01  UPh4KsZt.. lufs=-17.25 tp_lim
+    23:21:04  OK   4980.00.01  UPh4KsZt.. lufs=-19.07 tp_lim
+    23:21:05  OK   4981.00.02  UPh4KsZt.. lufs=-20.24 tp_lim
+    23:21:05  OK   4983.00.01  XjLkpWUl.. lufs=-17.69 tp_lim
+    23:21:05  OK   4979.00.01  UPh4KsZt.. lufs=-17.82 tp_lim
+
+Appended 5705 EN rows to /Users/grzegorzgorkiewicz/Projects/anki-mastery/data/_audio_manifest.tsv

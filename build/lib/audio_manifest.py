@@ -39,7 +39,17 @@ from build.lib.tsv import read_tsv, write_tsv  # noqa: E402
 
 DEFAULT_MANIFEST_PATH = REPO_ROOT / "data" / "_audio_manifest.tsv"
 
-CLIP_TYPES = ("word", "example")
+# clip_type values in the manifest. `en_ex` was added in Stage 10 for English
+# back-of-card example audio (paired 1-to-1 with the BP example).
+CLIP_TYPES = ("word", "example", "en_ex")
+
+# Filename short-token per clip_type. BP example → "ex" for compactness;
+# en_ex stays "en_ex" so EN files do not collide with BP example files in R2.
+SHORT_BY_CLIP_TYPE = {
+    "word": "word",
+    "example": "ex",
+    "en_ex": "en_ex",
+}
 
 # Status enum
 STATUS_PENDING = "pending"
@@ -110,7 +120,11 @@ def object_key_for(sense_id: str, clip_type: str, version: int, model_id: str = 
     migration so Flash v2.5 renders are distinguishable from legacy
     Multilingual v2 files at a glance.
     """
-    short = "word" if clip_type == "word" else "ex"
+    short = SHORT_BY_CLIP_TYPE.get(clip_type)
+    if short is None:
+        raise ValueError(
+            f"unknown clip_type {clip_type!r}; add to SHORT_BY_CLIP_TYPE in audio_manifest.py"
+        )
     model_seg = f"-{model_id}" if model_id else ""
     return f"audio/{sense_id}-{short}{model_seg}-v{version}.mp3"
 
@@ -137,8 +151,15 @@ def init_row(
     tts_provider: str = "elevenlabs",
     tts_model: str = "eleven_multilingual_v2",
     version: int = 1,
+    filename_model_id: str = "",
 ) -> dict:
-    """Build a fresh manifest row in `pending` status."""
+    """Build a fresh manifest row in `pending` status.
+
+    `filename_model_id` (optional): when non-empty, bakes the model id segment
+    into the object_key / url, matching the post-Stage-9 filename convention
+    `{sense_id}-{clip}-{model_id}-v{N}.mp3`. Used by Stage 10 for EN clips so
+    they ship with Flash v2.5 provenance in the filename from v1.
+    """
     return _normalize_row(
         {
             "sense_id": sense_id,
@@ -149,8 +170,8 @@ def init_row(
             "voice_id": voice_id,
             "text_input": text_input,
             "text_hash": text_hash(text_input),
-            "object_key": object_key_for(sense_id, clip_type, version),
-            "url": url_for(public_base, sense_id, clip_type, version),
+            "object_key": object_key_for(sense_id, clip_type, version, filename_model_id),
+            "url": url_for(public_base, sense_id, clip_type, version, filename_model_id),
             "version": str(version),
             "md5": "",
             "asr_transcript": "",
