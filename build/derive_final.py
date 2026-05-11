@@ -9,10 +9,24 @@ Joins:
                                clip_type ∈ {word, example, en_ex})
   - config/voices.tsv         (voice_gender from BP voice_id; en_voice_id pairing)
   - data/_audio_asr_override.tsv (notes flag if sense's audio is ASR-untranscribable-but-bp-ok)
+  - data/_usage_hints.tsv     (Stage 12: usage_hint, usage_hint_priority, risk_note
+                               per sense_id for verb/idiom rows)
 
-Produces 33 columns per the schema in docs/plan.md §"Final TSV schema". Stage 10
-extended the schema with three EN columns (`audio_en_example`,
-`audio_en_example_md5`, `voice_id_en`) placed adjacent to the BP audio block.
+Produces 37 columns per the schema in docs/plan.md §"Final TSV schema". History:
+  v1: 30 cols (Stage 9 baseline)
+  +3 EN audio cols (Stage 10):     audio_en_example, audio_en_example_md5, voice_id_en
+  +1 POS-safe display (Stage 10.5): pt_display_safe (placed after notes)
+  +3 usage-hint cols (Stage 12):   usage_hint, usage_hint_priority, risk_note (appended)
+
+Export filter for Stage 12 columns:
+  usage_hint        = essential always; useful only if rank<=1000 or row has
+                      #reflexive / #false-friend tag or non-empty risk_note
+  usage_hint_priority = same gate as usage_hint; for risk_note-only rows
+                      (gozar), priority stays empty
+  risk_note         = always carried through when sidecar has it
+
+Audit trail of the join (which sidecar row produced which output) is appended
+to audit/12_usage_hints.jsonl as one JSONL record per sense_id with a hint.
 
 Usage:
     .venv/bin/python build/derive_final.py
@@ -21,6 +35,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import sys
 from pathlib import Path
 
@@ -37,10 +52,21 @@ ENRICHED_PATH = DATA_DIR / "03-enriched.tsv"
 IPA_PATH = DATA_DIR / "05-ipa.tsv"
 MANIFEST_PATH = DATA_DIR / "_audio_manifest.tsv"
 OVERRIDE_PATH = DATA_DIR / "_audio_asr_override.tsv"
+USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
 
 FINAL_PATH = DATA_DIR / "06-final.tsv"
 LOG_PATH = AUDIT_DIR / "derive_final.log"
+USAGE_HINT_AUDIT = AUDIT_DIR / "12_usage_hints.jsonl"
+
+# Tags that promote a `useful`-priority hint to be included in the final
+# learner-facing column even when rank > 1000.
+USAGE_HINT_RISK_TAGS = ("#reflexive", "#false-friend")
+USAGE_HINT_USEFUL_RANK_CEILING = 1000
+
+# Hint length budget. Anything longer is allowed (the LLM/post-process
+# already aimed for ≤ 70 chars) but flagged by verify_all.
+USAGE_HINT_MAX_CHARS = 120
 
 FINAL_FIELDS = [
     "sense_id", "rank", "source_pt", "pt", "pt_type", "gender",
@@ -51,7 +77,47 @@ FINAL_FIELDS = [
     "audio_en_example", "audio_en_example_md5",
     "voice_id", "voice_id_en", "voice_gender", "family_root", "tags",
     "source_line", "source_line_number", "notes",
+    "pt_display_safe",
+    "usage_hint", "usage_hint_priority", "risk_note",
 ]
+
+
+# Maps every non-noun POS to the short tag wrapped in parentheses in
+# `pt_display_safe`. Nouns are omitted intentionally — they keep the article-
+# prefixed form unchanged (e.g. "o banco") so the gender is taught directly.
+SHORT_POS_TAG = {
+    "adj":    "adj",
+    "verb":   "v",
+    "adv":    "adv",
+    "prep":   "prep",
+    "conj":   "conj",
+    "num":    "num",
+    "pron":   "pron",
+    "interj": "interj",
+    "idiom":  "idiom",
+    "art":    "art",
+}
+
+# Strip a leading Portuguese definite or indefinite article from a display
+# string. Anchored on `^` + whitespace so internal articles in multi-word
+# entries (e.g. "à medida que" — `à` is not in this set anyway) are left
+# alone. Longer / more specific patterns come first so `o/a banco` strips
+# `o/a `, not `o `.
+_LEADING_ARTICLE_RE = re.compile(r"^(o/a|os|as|um|uma|uns|umas|o|a)\s+")
+
+
+def _pt_display_safe(pt_display: str, pos: str) -> str:
+    """Return a POS-safe display string.
+
+    Nouns: returned unchanged (the article prefix teaches gender).
+    Everything else: leading article stripped, short POS tag prepended in
+    parens. See SHORT_POS_TAG for the abbreviation set.
+    """
+    if pos == "noun":
+        return pt_display
+    bare = _LEADING_ARTICLE_RE.sub("", pt_display, count=1)
+    tag = SHORT_POS_TAG.get(pos, pos)
+    return f"({tag}) {bare}"
 
 
 def _voice_gender_map() -> dict[str, str]:
@@ -63,6 +129,67 @@ def _en_voice_pairing() -> dict[str, str]:
     """BP voice_id → paired EN voice_id from config/voices.tsv."""
     return {r["voice_id"]: r.get("en_voice_id", "")
             for r in read_tsv(VOICES_PATH)}
+
+
+def _load_usage_hints() -> dict[str, dict]:
+    """Read data/_usage_hints.tsv as {sense_id: row}. Empty if file missing."""
+    if not USAGE_HINTS_PATH.exists():
+        return {}
+    return {r["sense_id"]: r for r in read_tsv(USAGE_HINTS_PATH)}
+
+
+def _resolve_usage_hint_fields(
+    *,
+    sense_id: str,
+    rank_str: str,
+    tags: str,
+    sidecar_row: dict | None,
+) -> tuple[str, str, str]:
+    """Apply the Stage-12 export filter and return the three final-TSV fields.
+
+    Returns (usage_hint, usage_hint_priority, risk_note). Defaults: all empty.
+
+    Rules:
+      - risk_note is always carried through if the sidecar has it.
+      - Gozar-style rows (risk_note populated, usage_hint empty) ship with
+        an empty `usage_hint_priority` so the learner-facing card doesn't
+        light up the priority chip — only the risk_note surfaces.
+      - usage_hint priority "essential" always ships.
+      - "useful" ships only if rank <= USAGE_HINT_USEFUL_RANK_CEILING, OR
+        the row carries a risk tag (#reflexive / #false-friend), OR the
+        row has a non-empty risk_note (defensive — risk_note is its own
+        gate but a useful hint paired with one is still worth surfacing).
+      - "omit" never ships a hint.
+    """
+    if sidecar_row is None:
+        return "", "", ""
+    hint = (sidecar_row.get("usage_hint") or "").strip().replace("\n", " ")
+    priority = sidecar_row.get("hint_priority") or "omit"
+    risk = (sidecar_row.get("risk_note") or "").strip().replace("\n", " ")
+
+    # risk_note-only rows: ship risk_note, suppress usage_hint_priority.
+    if not hint and risk:
+        return "", "", risk
+
+    include = False
+    if priority == "essential":
+        include = True
+    elif priority == "useful":
+        try:
+            rank = int(rank_str or "0")
+        except ValueError:
+            rank = 0
+        has_risk_tag = any(t in tags for t in USAGE_HINT_RISK_TAGS)
+        if rank and rank <= USAGE_HINT_USEFUL_RANK_CEILING:
+            include = True
+        elif has_risk_tag:
+            include = True
+        elif risk:
+            include = True
+
+    if not include:
+        return "", "", risk
+    return hint, priority, risk
 
 
 def main() -> int:
@@ -78,6 +205,7 @@ def main() -> int:
 
     voice_gender = _voice_gender_map()
     en_pairing = _en_voice_pairing()
+    usage_hints = _load_usage_hints()
 
     enriched_idx = {r["sense_id"]: r for r in enriched}
     ipa_idx = {r["sense_id"]: r for r in ipa}
@@ -112,6 +240,14 @@ def main() -> int:
         "asr_override_applied": 0,
         "family_root_blank": 0,
         "source_line_blank": 0,
+        # Stage 12 usage hints
+        "usage_hint_essential": 0,
+        "usage_hint_useful_kept": 0,
+        "usage_hint_useful_dropped": 0,
+        "usage_hint_omit": 0,
+        "usage_hint_risk_note_only": 0,
+        "usage_hint_total_shipped": 0,
+        "risk_note_shipped": 0,
     }
 
     for sid in sids:
@@ -167,15 +303,44 @@ def main() -> int:
             gap_stats["asr_override_applied"] += 1
         notes = " | ".join(notes_parts)
 
+        pt_display_val = e.get("pt_display", "") or ip.get("pt_display", "")
+        pos_val = e.get("pos", "") or ip.get("pos", "")
+        rank_val = e.get("rank", "") or ip.get("rank", "")
+        tags_val = e.get("tags", "") or ip.get("tags", "")
+
+        sidecar_row = usage_hints.get(sid)
+        uh_hint, uh_priority, uh_risk = _resolve_usage_hint_fields(
+            sense_id=sid, rank_str=rank_val, tags=tags_val,
+            sidecar_row=sidecar_row,
+        )
+        if sidecar_row is not None:
+            raw_priority = sidecar_row.get("hint_priority") or "omit"
+            raw_hint = (sidecar_row.get("usage_hint") or "").strip()
+            raw_risk = (sidecar_row.get("risk_note") or "").strip()
+            if not raw_hint and raw_risk:
+                gap_stats["usage_hint_risk_note_only"] += 1
+            elif raw_priority == "essential":
+                gap_stats["usage_hint_essential"] += 1
+            elif raw_priority == "useful":
+                if uh_hint:
+                    gap_stats["usage_hint_useful_kept"] += 1
+                else:
+                    gap_stats["usage_hint_useful_dropped"] += 1
+            elif raw_priority == "omit":
+                gap_stats["usage_hint_omit"] += 1
+        if uh_hint:
+            gap_stats["usage_hint_total_shipped"] += 1
+        if uh_risk:
+            gap_stats["risk_note_shipped"] += 1
         rows.append({
             "sense_id": sid,
-            "rank": e.get("rank", "") or ip.get("rank", ""),
+            "rank": rank_val,
             "source_pt": e.get("source_pt", ""),
             "pt": e.get("pt", "") or ip.get("pt", ""),
             "pt_type": e.get("pt_type", "") or ip.get("pt_type", ""),
             "gender": e.get("gender", "") or ip.get("gender", ""),
-            "pt_display": e.get("pt_display", "") or ip.get("pt_display", ""),
-            "pos": e.get("pos", "") or ip.get("pos", ""),
+            "pt_display": pt_display_val,
+            "pos": pos_val,
             "sense_index": e.get("sense_index", "") or ip.get("sense_index", ""),
             "en_primary": e.get("en_primary", "") or ip.get("en_primary", ""),
             "en_all": e.get("en_all", "") or ip.get("en_all", ""),
@@ -197,10 +362,14 @@ def main() -> int:
             "voice_id_en": voice_id_en,
             "voice_gender": vgender_short,
             "family_root": family_root,
-            "tags": e.get("tags", "") or ip.get("tags", ""),
+            "tags": tags_val,
             "source_line": e.get("source_line", ""),
             "source_line_number": e.get("source_line_number", ""),
             "notes": notes,
+            "pt_display_safe": _pt_display_safe(pt_display_val, pos_val),
+            "usage_hint": uh_hint,
+            "usage_hint_priority": uh_priority,
+            "risk_note": uh_risk,
         })
 
     # Write log
@@ -226,6 +395,41 @@ def main() -> int:
 
     write_tsv(FINAL_PATH, rows, fieldnames=FINAL_FIELDS)
     print(f"\nWrote {FINAL_PATH} ({len(rows)} rows + 1 header)")
+
+    # Append a per-row JSONL record for every sense that shipped a hint or
+    # a risk_note. Carries the derive run's timestamp + the sidecar's
+    # original priority + the export decision (kept / dropped) so the
+    # audit trail joins back to the LLM classifier's call log at
+    # audit/12_usage_hints.jsonl (which has prompt_hash / response_hash).
+    import json as _json
+    from datetime import datetime as _dt, timezone as _tz
+    derive_ts = _dt.now(_tz.utc).isoformat()
+    with USAGE_HINT_AUDIT.open("a", encoding="utf-8") as af:
+        for r in rows:
+            sid = r["sense_id"]
+            shipped_hint = r.get("usage_hint", "")
+            shipped_risk = r.get("risk_note", "")
+            if not shipped_hint and not shipped_risk:
+                continue
+            sc = usage_hints.get(sid) or {}
+            af.write(_json.dumps({
+                "event": "derive_final_export",
+                "sense_id": sid,
+                "rank": r.get("rank", ""),
+                "pos": r.get("pos", ""),
+                "pt": r.get("pt", ""),
+                "tags": r.get("tags", ""),
+                "shipped_usage_hint": shipped_hint,
+                "shipped_usage_hint_priority": r.get("usage_hint_priority", ""),
+                "shipped_risk_note": shipped_risk,
+                "sidecar_priority": sc.get("hint_priority", ""),
+                "sidecar_hint": sc.get("usage_hint", ""),
+                "sidecar_confidence": sc.get("confidence", ""),
+                "model_id": sc.get("model_id", ""),
+                "derive_ts": derive_ts,
+            }, ensure_ascii=False) + "\n")
+    print(f"Appended {gap_stats['usage_hint_total_shipped']} hint-export records "
+          f"+ {gap_stats['risk_note_shipped']} risk_note records to {USAGE_HINT_AUDIT}")
     return 0
 
 

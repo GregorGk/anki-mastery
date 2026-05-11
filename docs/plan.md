@@ -2512,10 +2512,10 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 ### Step 9.4 — Final deliverable: `data/06-final.tsv`
 
 - New scripts:
-  - [build/derive_final.py](../build/derive_final.py) — joins `03-enriched.tsv` + `05-ipa.tsv` + `_audio_manifest.tsv` + `_audio_asr_override.tsv` + `config/voices.tsv`. Writes the 30-column TSV. Logs join stats and gap counts to `audit/derive_final.log`.
-  - [build/verify_all.py](../build/verify_all.py) — 8 hard invariants + HTTP-200 sample on 50 random URLs. Exits non-zero on any hard failure. Soft warnings on `family_root` / `source_line` / `example_pt` blanks (optional fields).
-- 30-column schema unchanged from v1 (see § Final TSV schema below); only the audio URL pattern evolved across stages.
-- Verification result on shipped 06-final.tsv: all 8 invariants pass; 50 / 50 sample URLs return HTTP 200; 1 soft warning category (`family_root` blank on rows where the source dictionary did not provide a root).
+  - [build/derive_final.py](../build/derive_final.py) — joins `03-enriched.tsv` + `05-ipa.tsv` + `_audio_manifest.tsv` + `_audio_asr_override.tsv` + `_usage_hints.tsv` + `config/voices.tsv`. Writes the 37-column TSV (Stage 9 baseline was 30; Stage 10 added 3 EN-audio cols; Stage 10.5 added `pt_display_safe`; Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note`). Logs join stats and gap counts to `audit/derive_final.log`.
+  - [build/verify_all.py](../build/verify_all.py) — header / row-count / audio / voice / Stage-12 invariants + HTTP-200 sample (configurable via `--http-sample N`, default 50). Exits non-zero on any hard failure. Soft warnings on `family_root` / `source_line` / `example_pt` blanks (optional fields).
+- Schema growth: Stage 9 shipped 30 cols → Stage 10 added 3 EN-audio cols (33) → Stage 10.5 added `pt_display_safe` (34) → Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note` (**37**). See § Final TSV schema below.
+- Verification result on shipped 06-final.tsv: all hard invariants pass; HTTP-sample passes; soft warnings on `family_root` blank rows where the source dictionary did not provide a root.
 
 ### Step 9.5 — R2 legacy cleanup
 
@@ -2535,7 +2535,7 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 
 | Path | Purpose | Rows |
 |---|---|---|
-| `data/06-final.tsv` | Final deliverable, 30 columns | 5,725 senses |
+| `data/06-final.tsv` | Final deliverable, 37 columns (post-Stage 12) | 5,725 senses |
 | `data/_audio_manifest.tsv` | Authoritative audio state (post-Step-9.6 with corrected `tts_model`) | 11,450 clips |
 | `data/_audio_asr_override.tsv` | BP-verified ASR exceptions | 71 senses |
 | `data/_audio_review_queue_decisions.tsv` | Stage 9.2 review-queue decisions | 99 rows |

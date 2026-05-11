@@ -18,3 +18,10 @@ Gap stats:
   asr_override_applied: 71
   family_root_blank: 5725
   source_line_blank: 0
+  usage_hint_essential: 43
+  usage_hint_useful_kept: 23
+  usage_hint_useful_dropped: 2
+  usage_hint_omit: 15
+  usage_hint_risk_note_only: 1
+  usage_hint_total_shipped: 66
+  risk_note_shipped: 1

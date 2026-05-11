@@ -5,6 +5,7 @@ but don't fail.
 
 Invariants (HARD):
   - row_count == 5,725
+  - column count == 37 and header matches FINAL_FIELDS exactly
   - sense_id is unique
   - sense_id matches the RRRR.EE.SS pattern
   - audio_word + audio_example both non-empty
@@ -12,12 +13,18 @@ Invariants (HARD):
   - voice_id is non-empty and resolves in config/voices.tsv
   - voice_gender ∈ {m, f} and matches the voice_id's gender in config
   - audio_word_md5 + audio_example_md5 populated (≥10 hex chars each)
-  - random sample of 50 audio URLs returns HTTP 200
+  - Stage 12: usage_hint_priority ∈ {essential, useful, ""}; risk-note-only
+    rows ship "" (gozar rule); empty usage_hint ⇒ empty priority
+  - Stage 12: no embedded newline / tab in usage_hint or risk_note
+  - Stage 12: usage_hint length ≤ 120 chars
+  - Stage 12: every shipped usage_hint or risk_note has a sidecar row
+  - random sample of N audio URLs returns HTTP 200 (controlled by --http-sample)
 
 Soft warnings (DON'T fail):
   - family_root blank
   - source_line blank
   - example_pt blank
+  - usage_hint longer than 80 chars (target ceiling, hard fail at 120)
 
 Usage:
     .venv/bin/python build/verify_all.py [--http-sample 50]
@@ -41,11 +48,32 @@ CONFIG_DIR = REPO_ROOT / "config"
 
 FINAL_PATH = DATA_DIR / "06-final.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
+USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
 
 EXPECTED_ROW_COUNT = 5725
 SENSE_ID_PATTERN = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
 MD5_MIN_LEN = 10
 FLASH_MODEL_MARKER = "eleven_flash_v2_5"
+
+# Stage 12 column expectations
+VALID_USAGE_HINT_PRIORITIES = {"essential", "useful", ""}
+USAGE_HINT_SOFT_MAX = 80
+USAGE_HINT_HARD_MAX = 120
+
+# Full expected header (37 cols). Used by _verify_header().
+EXPECTED_HEADER = [
+    "sense_id", "rank", "source_pt", "pt", "pt_type", "gender",
+    "pt_display", "pos", "sense_index", "en_primary", "en_all",
+    "annotation", "bp_status", "normalization_action", "ipa_word",
+    "example_pt", "example_en", "target_word_used", "ipa_example",
+    "audio_word", "audio_example", "audio_word_md5", "audio_example_md5",
+    "audio_en_example", "audio_en_example_md5",
+    "voice_id", "voice_id_en", "voice_gender", "family_root", "tags",
+    "source_line", "source_line_number", "notes",
+    "pt_display_safe",
+    "usage_hint", "usage_hint_priority", "risk_note",
+]
+
 USER_AGENT = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
               "AppleWebKit/537.36 (KHTML, like Gecko) "
               "Chrome/120.0.0.0 Safari/537.36")
@@ -141,6 +169,114 @@ def _verify_rows(rows: list[dict], voice_gender: dict[str, str], v: Verifier) ->
         v.soft_warn(f"example_pt blank on {n_no_example}/{len(rows)} rows")
 
 
+def _verify_header(v: Verifier) -> None:
+    """Read the 06-final.tsv header line and confirm column order + count."""
+    with FINAL_PATH.open(encoding="utf-8") as f:
+        header_line = f.readline().rstrip("\r\n")
+    header = header_line.split("\t")
+    if len(header) != len(EXPECTED_HEADER):
+        v.hard_fail(f"column count {len(header)} != expected {len(EXPECTED_HEADER)}")
+        return
+    if header != EXPECTED_HEADER:
+        diff = [(i, h, e) for i, (h, e) in enumerate(zip(header, EXPECTED_HEADER), 1) if h != e]
+        v.hard_fail(f"header mismatch in {len(diff)} positions; first: "
+                    f"col {diff[0][0]} got {diff[0][1]!r} expected {diff[0][2]!r}")
+        return
+    print(f"  ✓ header has {len(EXPECTED_HEADER)} cols, exact match")
+
+
+def _verify_usage_hints(rows: list[dict], v: Verifier) -> None:
+    """Stage 12: priority enum, length, no-newline, sidecar coverage."""
+    bad_priority: list[tuple[str, str]] = []
+    embedded_ws: list[tuple[str, str]] = []
+    too_long: list[tuple[str, int]] = []
+    soft_long: list[tuple[str, int]] = []
+    risk_only_with_priority: list[str] = []
+    priority_without_hint: list[str] = []
+    hint_without_sidecar: list[str] = []
+
+    sidecar_sids: set[str] = set()
+    if USAGE_HINTS_PATH.exists():
+        sidecar_sids = {r["sense_id"] for r in read_tsv(USAGE_HINTS_PATH)}
+
+    for r in rows:
+        sid = r["sense_id"]
+        hint = r.get("usage_hint", "")
+        priority = r.get("usage_hint_priority", "")
+        risk = r.get("risk_note", "")
+
+        if priority not in VALID_USAGE_HINT_PRIORITIES:
+            bad_priority.append((sid, priority))
+
+        for field_name, value in (("usage_hint", hint), ("risk_note", risk)):
+            if any(ch in value for ch in ("\n", "\r", "\t")):
+                embedded_ws.append((sid, field_name))
+
+        if len(hint) > USAGE_HINT_HARD_MAX:
+            too_long.append((sid, len(hint)))
+        elif len(hint) > USAGE_HINT_SOFT_MAX:
+            soft_long.append((sid, len(hint)))
+
+        # Gozar rule: risk-note-only rows must have empty priority.
+        if risk and not hint and priority:
+            risk_only_with_priority.append(sid)
+
+        # Consistency: empty hint ⇒ empty priority (unless the row has neither).
+        if priority and not hint:
+            priority_without_hint.append(sid)
+
+        # Provenance: every shipped hint or risk_note must have a sidecar entry.
+        if (hint or risk) and sid not in sidecar_sids:
+            hint_without_sidecar.append(sid)
+
+    n_hints = sum(1 for r in rows if r.get("usage_hint", ""))
+    n_risk = sum(1 for r in rows if r.get("risk_note", ""))
+    n_priority = sum(1 for r in rows if r.get("usage_hint_priority", ""))
+    print(f"  Stage 12: {n_hints} usage_hints, {n_risk} risk_notes, "
+          f"{n_priority} priority chips")
+
+    if bad_priority:
+        v.hard_fail(f"{len(bad_priority)} rows have invalid usage_hint_priority "
+                    f"(not in {sorted(VALID_USAGE_HINT_PRIORITIES)}); "
+                    f"e.g., {bad_priority[:3]}")
+    else:
+        print(f"  ✓ usage_hint_priority ∈ {{essential, useful, ''}} on all rows")
+
+    if embedded_ws:
+        v.hard_fail(f"{len(embedded_ws)} usage_hint/risk_note values contain "
+                    f"newline/tab; e.g., {embedded_ws[:3]}")
+    else:
+        print(f"  ✓ no embedded newline/tab in usage_hint or risk_note")
+
+    if too_long:
+        v.hard_fail(f"{len(too_long)} usage_hint values exceed {USAGE_HINT_HARD_MAX} "
+                    f"chars; e.g., {too_long[:3]}")
+    else:
+        print(f"  ✓ usage_hint ≤ {USAGE_HINT_HARD_MAX} chars on all rows")
+
+    if risk_only_with_priority:
+        v.hard_fail(f"{len(risk_only_with_priority)} risk-note-only rows still "
+                    f"carry a usage_hint_priority; e.g., {risk_only_with_priority[:3]}")
+    else:
+        print(f"  ✓ risk-note-only rows ship without usage_hint_priority")
+
+    if priority_without_hint:
+        v.hard_fail(f"{len(priority_without_hint)} rows have priority but empty "
+                    f"usage_hint; e.g., {priority_without_hint[:3]}")
+    else:
+        print(f"  ✓ usage_hint and usage_hint_priority are co-empty")
+
+    if hint_without_sidecar:
+        v.hard_fail(f"{len(hint_without_sidecar)} rows ship a hint/risk_note "
+                    f"with no matching sidecar entry; e.g., {hint_without_sidecar[:3]}")
+    else:
+        print(f"  ✓ every shipped hint/risk_note has a sidecar row")
+
+    if soft_long:
+        v.soft_warn(f"{len(soft_long)} usage_hint values exceed soft target "
+                    f"{USAGE_HINT_SOFT_MAX} chars (still ≤ {USAGE_HINT_HARD_MAX})")
+
+
 def _http_sample(rows: list[dict], n: int, v: Verifier) -> None:
     print(f"\n[HTTP-sample] checking {n} random URLs return 200...")
     rng = random.Random(42)
@@ -185,7 +321,9 @@ def main() -> int:
 
     v = Verifier()
     print("[verify_all] checking invariants on 06-final.tsv...")
+    _verify_header(v)
     _verify_rows(rows, voice_gender, v)
+    _verify_usage_hints(rows, v)
     if args.http_sample > 0:
         _http_sample(rows, args.http_sample, v)
 

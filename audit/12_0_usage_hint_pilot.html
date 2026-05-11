@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 12.0 v2 — usage_hint (84 candidates)</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1750px; margin: 0 auto; padding: 0 1em; line-height: 1.4; color: #222; }
+h1 { border-bottom: 2px solid #888; padding-bottom: 0.3em; }
+.toolbar { position: sticky; top: 0; background: #ffd; padding: 0.7em 1em;
+  border: 2px solid #ba0; border-radius: 4px; margin: 0.5em 0;
+  display: flex; align-items: center; gap: 1.5em; flex-wrap: wrap; z-index: 100;
+  font-size: 0.92em; }
+.metric { display: inline-block; }
+.metric strong { font-size: 1.1em; color: #06598f; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88em; }
+th, td { border: 1px solid #aaa; padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+th { background: #e6ecf2; position: sticky; top: 3em; z-index: 5; }
+code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.92em; }
+.muted { color: #888; }
+.small { font-size: 0.85em; }
+.xs { font-size: 0.75em; }
+em { color: #06598f; font-style: italic; }
+tr.essential .hint-cell { background: #d4edda; }
+tr.useful    .hint-cell { background: #e8f4ff; }
+tr.omit      .hint-cell { background: #fafafa; }
+.badge { display: inline-block; padding: 0.12em 0.5em; border-radius: 3px;
+  font-size: 0.78em; font-weight: bold; white-space: nowrap; }
+.badge.ess { background: #198754; color: #fff; }
+.badge.use { background: #0d6efd; color: #fff; }
+.badge.omt { background: #eee; color: #555; }
+.badge.ok { background: #d4edda; color: #155724; }
+.badge.warn { background: #fff3cd; color: #664d03; }
+.badge.no { background: #fde2e2; color: #842029; }
+.reason { font-size: 0.85em; color: #444; max-width: 280px; }
+.risk { display: inline-block; margin-top: 0.3em; padding: 0.1em 0.4em;
+  border-radius: 3px; background: #fde2e2; color: #842029; font-size: 0.82em; }
+button { font-size: 0.92em; padding: 0.3em 0.7em; cursor: pointer; }
+button.active { background: #06598f; color: white; }
+</style>
+</head>
+<body>
+
+<h1>Stage 12.0 v2 — usage_hint candidates (84 rows, filtered)</h1>
+
+<div class="toolbar">
+  <span class="metric">Candidates: <strong>84</strong></span>
+  <span class="metric"><strong>essential</strong> 43 · <strong>useful</strong> 26 · <strong>omit</strong> 15</span>
+  <span class="metric">non-empty hints: <strong>69</strong> (82%)</span>
+  <span class="metric">risk_note: <strong>1</strong></span>
+  <span class="metric">conf <strong>high</strong> 72 · <strong>med</strong> 12 · <strong>low</strong> 0</span>
+  <span style="margin-left: auto;">filter:</span>
+  <button onclick="filt('all', this)" class="active">all</button>
+  <button onclick="filt('essential', this)">essential</button>
+  <button onclick="filt('useful', this)">useful</button>
+  <button onclick="filt('omit', this)">omit</button>
+  <button onclick="filt('low', this)">low conf</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>sense_id</th>
+      <th>lemma · pos</th>
+      <th>EN gloss</th>
+      <th>example (pt / en)</th>
+      <th>usage_hint</th>
+      <th>priority</th>
+      <th>conf</th>
+      <th>reason</th>
+    </tr>
+  </thead>
+  <tbody>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0017.00.01</code><br>
+              <span class="muted small">rank 17</span></td>
+          <td><strong>estar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to be</span><br>
+              <span class="muted xs">to be (change from norm)</span></td>
+          <td>Ela está cansada depois do trabalho.<br>
+              <em>She is tired after work.</em><br>
+              <span class="muted xs">target: <code>está</code></span></td>
+          <td class="hint-cell"><strong>estar = temporary/changeable state; ser = permanent quality</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">ser/estar is the #1 BP trap for English speakers; example directly shows estar for a temporary state (tired after work).</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0056.00.01</code><br>
+              <span class="muted small">rank 56</span></td>
+          <td><strong>dever</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">must / should</span><br>
+              <span class="muted xs">must / should / to owe</span></td>
+          <td>Você deve estudar para a prova amanhã.<br>
+              <em>You should study for the test tomorrow.</em><br>
+              <span class="muted xs">target: <code>deve</code></span></td>
+          <td class="hint-cell"><strong>dever + infinitive = must/should; dever + a = to owe</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows modal use (dever + infinitive); noting the owe sense prevents confusion with the other meaning in en_all.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0006.00.01</code><br>
+              <span class="muted small">rank 6</span></td>
+          <td><strong>ser</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to be</span><br>
+              <span class="muted xs">to be (norm)</span></td>
+          <td>Ela é professora de inglês.<br>
+              <em>She is an English teacher.</em><br>
+              <span class="muted xs">target: <code>é</code></span></td>
+          <td class="hint-cell"><strong>ser = permanent identity/role; no article before profession</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows ser for profession (permanent identity) AND drops the article &quot;an&quot; that English requires — both are classic BP traps.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0055.00.02</code><br>
+              <span class="muted small">rank 55</span></td>
+          <td><strong>ficar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to be located</span><br>
+              <span class="muted xs">to stay / be located / get ADJ</span></td>
+          <td>A farmácia fica perto do banco.<br>
+              <em>The pharmacy is located near the bank.</em><br>
+              <span class="muted xs">target: <code>fica</code></span></td>
+          <td class="hint-cell"><strong>ficar em/perto de + place = be located</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises this sense of ficar as be-located with perto de; English speakers may default to ser/estar for location.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0055.00.03</code><br>
+              <span class="muted small">rank 55</span></td>
+          <td><strong>ficar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to get</span><br>
+              <span class="muted xs">to stay / be located / get ADJ</span></td>
+          <td>Ele ficou doente depois da viagem.<br>
+              <em>He got sick after the trip.</em><br>
+              <span class="muted xs">target: <code>ficou</code></span></td>
+          <td class="hint-cell"><strong>ficar + adj = get/become</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">This sense of ficar (become/get + adjective) is a key BP pattern; example directly exercises ficar + doente, and the lemma has multiple senses that need differentiation.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0055.00.01</code><br>
+              <span class="muted small">rank 55</span></td>
+          <td><strong>ficar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to stay</span><br>
+              <span class="muted xs">to stay / be located / get ADJ</span></td>
+          <td>Vou ficar em casa hoje porque estou cansado.<br>
+              <em>I&#x27;m going to stay home today because I&#x27;m tired.</em><br>
+              <span class="muted xs">target: <code>ficar</code></span></td>
+          <td class="hint-cell"><strong>ficar em + place = stay</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises the &quot;stay at a place&quot; sense with ficar em; sense-specific given the lemma also means become/be-located.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0028.00.01</code><br>
+              <span class="muted small">rank 28</span></td>
+          <td><strong>haver</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to have</span><br>
+              <span class="muted xs">to have</span></td>
+          <td>Há muitos alunos na sala de aula hoje.<br>
+              <em>There are many students in the classroom today.</em><br>
+              <span class="muted xs">target: <code>há</code></span></td>
+          <td class="hint-cell"><strong>há = there is/are; always singular regardless of noun</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses há with a plural noun (muitos alunos); English speakers expect subject-verb agreement but há never changes form.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0056.00.02</code><br>
+              <span class="muted small">rank 56</span></td>
+          <td><strong>dever</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to owe</span><br>
+              <span class="muted xs">must / should / to owe</span></td>
+          <td>Devo dez reais ao meu amigo.<br>
+              <em>I owe ten reais to my friend.</em><br>
+              <span class="muted xs">target: <code>devo</code></span></td>
+          <td class="hint-cell"><strong>dever + person + amount = owe; dever = must/should in other senses</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Dever has three distinct meanings (owe, must, should); flagging the sense-split helps learners who default to the modal reading.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0057.00.01</code><br>
+              <span class="muted small">rank 57</span></td>
+          <td><strong>passar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to go through</span><br>
+              <span class="muted xs">to go through / spend (time)</span></td>
+          <td>Vou passar pela farmácia antes de ir para casa.<br>
+              <em>I&#x27;m going to go through the pharmacy before going home.</em><br>
+              <span class="muted xs">target: <code>passar</code></span></td>
+          <td class="hint-cell"><strong>passar por + place = stop by/pass through</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses passar por (pela = por + a); English &quot;stop by&quot; differs from &quot;go through&quot; and the required por is a trap.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0057.00.02</code><br>
+              <span class="muted small">rank 57</span></td>
+          <td><strong>passar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to spend (time)</span><br>
+              <span class="muted xs">to go through / spend (time)</span></td>
+          <td>Vou passar o fim de semana na casa da minha avó.<br>
+              <em>I&#x27;m going to spend the weekend at my grandmother&#x27;s house.</em><br>
+              <span class="muted xs">target: <code>passar</code></span></td>
+          <td class="hint-cell"><strong>passar + time + em/na/no + place = spend time somewhere</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">passar here means &quot;spend time,&quot; not its more common sense of &quot;pass/go by&quot;; the collocation with time+place is directly exercised by this example and worth flagging.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0086.00.01</code><br>
+              <span class="muted small">rank 86</span></td>
+          <td><strong>levar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to take</span><br>
+              <span class="muted xs">to carry (away) / take</span></td>
+          <td>Vou levar meu filho à escola de manhã.<br>
+              <em>I&#x27;m going to take my son to school in the morning.</em><br>
+              <span class="muted xs">target: <code>levar</code></span></td>
+          <td class="hint-cell"><strong>levar + person + a + place = take someone to a place</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises levar + person + a + destination; English speakers might use &quot;bring&quot; or omit the preposition.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0090.00.01</code><br>
+              <span class="muted small">rank 90</span></td>
+          <td><strong>começar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to begin</span><br>
+              <span class="muted xs">to begin / start</span></td>
+          <td>A aula começa às nove horas.<br>
+              <em>The class begins at nine o&#x27;clock.</em><br>
+              <span class="muted xs">target: <code>começa</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example is start-at-a-time, not start-doing; começar a + inf would be off-example per Rule 1.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0101.00.01</code><br>
+              <span class="muted small">rank 101</span></td>
+          <td><strong>encontrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to find</span><br>
+              <span class="muted xs">to find / meet</span></td>
+          <td>Não consigo encontrar minhas chaves.<br>
+              <em>I can&#x27;t find my keys.</em><br>
+              <span class="muted xs">target: <code>encontrar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive use of encontrar = find; no preposition trap, no reflexive contrast exercised by this example.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0088.00.01</code><br>
+              <span class="muted small">rank 88</span></td>
+          <td><strong>deixar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to leave</span><br>
+              <span class="muted xs">to leave / allow</span></td>
+          <td>Vou deixar meu casaco na cadeira.<br>
+              <em>I&#x27;m going to leave my coat on the chair.</em><br>
+              <span class="muted xs">target: <code>deixar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive leave + object + location; example is self-explanatory with no preposition trap or reflexive contrast exercised.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0088.00.02</code><br>
+              <span class="muted small">rank 88</span></td>
+          <td><strong>deixar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to allow</span><br>
+              <span class="muted xs">to leave / allow</span></td>
+          <td>Minha mãe não deixa eu sair à noite.<br>
+              <em>My mom doesn&#x27;t allow me to go out at night.</em><br>
+              <span class="muted xs">target: <code>deixa</code></span></td>
+          <td class="hint-cell"><strong>deixar + person + infinitive = allow someone to do</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises the causative/permissive structure deixar + bare infinitive; English uses &quot;allow + to-infinitive&quot; which would mislead learners.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0112.00.01</code><br>
+              <span class="muted small">rank 112</span></td>
+          <td><strong>partir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to leave</span><br>
+              <span class="muted xs">to depart / leave</span></td>
+          <td>O ônibus parte às sete da manhã.<br>
+              <em>The bus leaves at seven in the morning.</em><br>
+              <span class="muted xs">target: <code>parte</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example is plain intransitive (bus leaves at a time); no preposition trap or construction exercised here.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0101.00.02</code><br>
+              <span class="muted small">rank 101</span></td>
+          <td><strong>encontrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to meet</span><br>
+              <span class="muted xs">to find / meet</span></td>
+          <td>Vou encontrar minha amiga no café às três horas.<br>
+              <em>I&#x27;m going to meet my friend at the café at three o&#x27;clock.</em><br>
+              <span class="muted xs">target: <code>encontrar</code></span></td>
+          <td class="hint-cell"><strong>encontrar-se com + person = meet up; encontrar + object = find/encounter</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">The example uses plain encontrar for &quot;meet,&quot; but BP more naturally uses encontrar-se com for a planned meeting; worth flagging the sense split.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0118.00.01</code><br>
+              <span class="muted small">rank 118</span></td>
+          <td><strong>pensar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to think</span><br>
+              <span class="muted xs">to think</span></td>
+          <td>Eu penso que o Brasil é um país lindo.<br>
+              <em>I think that Brazil is a beautiful country.</em><br>
+              <span class="muted xs">target: <code>penso</code></span></td>
+          <td class="hint-cell"><strong>pensar que + clause = think that; pensar em = think about</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">Example shows pensar que + clause, which is the standard construction; the pensar em contrast is off-example so trimming to just what the example shows is safer.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0058.00.01</code><br>
+              <span class="muted small">rank 58</span></td>
+          <td><strong>saber</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to know (something)</span><br>
+              <span class="muted xs">to know (something)</span></td>
+          <td>Eu sei onde fica a estação de trem.<br>
+              <em>I know where the train station is.</em><br>
+              <span class="muted xs">target: <code>sei</code></span></td>
+          <td class="hint-cell"><strong>saber = know facts/info; conhecer = know people/places</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">saber vs conhecer is the #1 trap for English speakers; this row&#x27;s sense is factual knowledge, making the contrast directly relevant.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0123.00.01</code><br>
+              <span class="muted small">rank 123</span></td>
+          <td><strong>conhecer</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to know</span><br>
+              <span class="muted xs">to know (person / place / etc.)</span></td>
+          <td>Eu conheço a cidade de São Paulo muito bem.<br>
+              <em>I know the city of São Paulo very well.</em><br>
+              <span class="muted xs">target: <code>conheço</code></span></td>
+          <td class="hint-cell"><strong>conhecer = know a person/place; saber = know facts/how to</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">conhecer vs. saber is the #1 trap for English speakers; example exercises knowing a place, the canonical conhecer use case.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0142.00.01</code><br>
+              <span class="muted small">rank 142</span></td>
+          <td><strong>tornar-se</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to become</span><br>
+              <span class="muted xs">to become / turn into</span></td>
+          <td>Ele quer tornar-se médico no futuro.<br>
+              <em>He wants to become a doctor in the future.</em><br>
+              <span class="muted xs">target: <code>tornar-se</code></span></td>
+          <td class="hint-cell"><strong>tornar-se + noun/adj = become; reflexive form required</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">English speakers may use tornar without -se; the reflexive is required for this meaning.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0146.00.01</code><br>
+              <span class="muted small">rank 146</span></td>
+          <td><strong>entrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to enter</span><br>
+              <span class="muted xs">to come in / enter</span></td>
+          <td>Posso entrar na sala agora?<br>
+              <em>Can I enter the room now?</em><br>
+              <span class="muted xs">target: <code>entrar</code></span></td>
+          <td class="hint-cell"><strong>entrar em + place</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses &quot;na sala&quot; showing required em; English speakers say &quot;enter the room&quot; with no preposition.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0154.00.01</code><br>
+              <span class="muted small">rank 154</span></td>
+          <td><strong>sair</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to leave</span><br>
+              <span class="muted xs">to leave</span></td>
+          <td>Vou sair de casa às oito horas.<br>
+              <em>I&#x27;m going to leave home at eight o&#x27;clock.</em><br>
+              <span class="muted xs">target: <code>sair</code></span></td>
+          <td class="hint-cell"><strong>sair de + place = leave a place</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses sair de casa; required de is a classic English-speaker trap (English &quot;leave home&quot; takes no preposition).</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0155.00.02</code><br>
+              <span class="muted small">rank 155</span></td>
+          <td><strong>acabar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to end up</span><br>
+              <span class="muted xs">to finish / end up</span></td>
+          <td>Ele acabou comprando o carro mais caro.<br>
+              <em>He ended up buying the most expensive car.</em><br>
+              <span class="muted xs">target: <code>acabou</code></span></td>
+          <td class="hint-cell"><strong>acabar + gerund = end up doing</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses acabar + gerund (comprando); English uses end up + gerund but BP skips a preposition, and the gerund construction is the key pattern here.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0160.00.01</code><br>
+              <span class="muted small">rank 160</span></td>
+          <td><strong>voltar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to return</span><br>
+              <span class="muted xs">to return</span></td>
+          <td>Vou voltar para casa antes das seis.<br>
+              <em>I&#x27;m going to return home before six.</em><br>
+              <span class="muted xs">target: <code>voltar</code></span></td>
+          <td class="hint-cell"><strong>voltar para + place = return to</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example directly shows voltar para casa; English speakers might reach for &quot;voltar a&quot; or &quot;voltar em&quot;.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0161.00.01</code><br>
+              <span class="muted small">rank 161</span></td>
+          <td><strong>tomar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to take</span><br>
+              <span class="muted xs">to take (possession of) / drink</span></td>
+          <td>Vou tomar um café antes do trabalho.<br>
+              <em>I&#x27;m going to have a coffee before work.</em><br>
+              <span class="muted xs">target: <code>tomar</code></span></td>
+          <td class="hint-cell"><strong>tomar café/suco/remédio = have coffee/juice/medicine</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses tomar for drinking/consuming; English translates it as &quot;have&quot;, not &quot;take&quot;, which surprises learners.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0156.00.01</code><br>
+              <span class="muted small">rank 156</span></td>
+          <td><strong>continuar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to continue</span><br>
+              <span class="muted xs">to continue</span></td>
+          <td>Vou continuar estudando português todos os dias.<br>
+              <em>I&#x27;m going to continue studying Portuguese every day.</em><br>
+              <span class="muted xs">target: <code>continuar</code></span></td>
+          <td class="hint-cell"><strong>continuar + gerund (estudando); EN uses continue + gerund or infinitive</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">BP strongly prefers continuar + gerund; example shows it; English speakers might attempt continuar a + infinitive (European Portuguese pattern).</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0161.00.02</code><br>
+              <span class="muted small">rank 161</span></td>
+          <td><strong>tomar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to drink</span><br>
+              <span class="muted xs">to take (possession of) / drink</span></td>
+          <td>Eu tomo café todo dia de manhã.<br>
+              <em>I drink coffee every morning.</em><br>
+              <span class="muted xs">target: <code>tomo</code></span></td>
+          <td class="hint-cell"><strong>tomar = drink (for beverages); beber also works</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">The example shows tomar used for drinking coffee, a collocation English speakers wouldn&#x27;t naturally guess since tomar&#x27;s primary sense is &quot;to take&quot;.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0179.00.01</code><br>
+              <span class="muted small">rank 179</span></td>
+          <td><strong>sentir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to feel</span><br>
+              <span class="muted xs">to feel</span></td>
+          <td>Sinto muito frio no inverno.<br>
+              <em>I feel very cold in the winter.</em><br>
+              <span class="muted xs">target: <code>sinto</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain sentir + sensation; no preposition trap, no reflexive contrast, no false friend exercised by this example.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0155.00.01</code><br>
+              <span class="muted small">rank 155</span></td>
+          <td><strong>acabar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to finish</span><br>
+              <span class="muted xs">to finish / end up</span></td>
+          <td>Vou acabar o trabalho antes do jantar.<br>
+              <em>I&#x27;m going to finish the work before dinner.</em><br>
+              <span class="muted xs">target: <code>acabar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive sentence; acabar + direct object is self-evident from the example.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0190.00.01</code><br>
+              <span class="muted small">rank 190</span></td>
+          <td><strong>tratar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to treat</span><br>
+              <span class="muted xs">to treat / deal with</span></td>
+          <td>O médico trata os pacientes com respeito.<br>
+              <em>The doctor treats the patients with respect.</em><br>
+              <span class="muted xs">target: <code>trata</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example is plain transitive tratar + object with no preposition trap; tratar de would be off-example.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0193.00.01</code><br>
+              <span class="muted small">rank 193</span></td>
+          <td><strong>achar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to find</span><br>
+              <span class="muted xs">to find / think / suppose</span></td>
+          <td>Não consigo achar minhas chaves.<br>
+              <em>I can&#x27;t find my keys.</em><br>
+              <span class="muted xs">target: <code>achar</code></span></td>
+          <td class="hint-cell"><strong>achar = find or think/believe; context determines sense</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">achar has a secondary sense (to think/believe) that English speakers won&#x27;t guess from &quot;find&quot;; worth flagging even though this row only shows the find sense.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0199.00.01</code><br>
+              <span class="muted small">rank 199</span></td>
+          <td><strong>contar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to tell</span><br>
+              <span class="muted xs">to tell / count</span></td>
+          <td>Ela vai contar uma história para as crianças.<br>
+              <em>She is going to tell a story to the children.</em><br>
+              <span class="muted xs">target: <code>contar</code></span></td>
+          <td class="hint-cell"><strong>contar para + person = tell someone</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">Example uses contar para as crianças; English uses &quot;to&quot; but BP uses para here, worth flagging.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0199.00.02</code><br>
+              <span class="muted small">rank 199</span></td>
+          <td><strong>contar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to count</span><br>
+              <span class="muted xs">to tell / count</span></td>
+          <td>A menina está aprendendo a contar de um a dez.<br>
+              <em>The girl is learning to count from one to ten.</em><br>
+              <span class="muted xs">target: <code>contar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain intransitive &quot;count from X to Y&quot; with aprender a + infinitive; no preposition trap specific to contar is exercised here.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0216.00.01</code><br>
+              <span class="muted small">rank 216</span></td>
+          <td><strong>procurar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to look for</span><br>
+              <span class="muted xs">to seek / look for</span></td>
+          <td>Estou procurando minhas chaves.<br>
+              <em>I&#x27;m looking for my keys.</em><br>
+              <span class="muted xs">target: <code>procurando</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive use; no preposition trap in this example — procurar takes a direct object in BP unlike English &quot;look for,&quot; but Rule 2 forbids no-preposition observations, and the example already demonstrates it directly.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0290.00.01</code><br>
+              <span class="muted small">rank 290</span></td>
+          <td><strong>acreditar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to believe</span><br>
+              <span class="muted xs">to believe</span></td>
+          <td>Eu acredito que ele vai chegar cedo hoje.<br>
+              <em>I believe that he will arrive early today.</em><br>
+              <span class="muted xs">target: <code>acredito</code></span></td>
+          <td class="hint-cell"><strong>acreditar em + noun; acreditar que + clause</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain acreditar + que clause; no preposition trap, no false friend, no reflexive contrast — example is self-explanatory.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0193.00.02</code><br>
+              <span class="muted small">rank 193</span></td>
+          <td><strong>achar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to think</span><br>
+              <span class="muted xs">to find / think / suppose</span></td>
+          <td>Eu acho que vai chover amanhã.<br>
+              <em>I think it&#x27;s going to rain tomorrow.</em><br>
+              <span class="muted xs">target: <code>acho</code></span></td>
+          <td class="hint-cell"><strong>achar que = to think/believe that; not a false friend with &quot;to find&quot;</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">achar&#x27;s &quot;to think/suppose&quot; sense can trip up learners who only know it as &quot;to find&quot;; example exercises the opinion sense directly.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0297.00.01</code><br>
+              <span class="muted small">rank 297</span></td>
+          <td><strong>precisar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to need</span><br>
+              <span class="muted xs">to need</span></td>
+          <td>Preciso de água, estou com sede.<br>
+              <em>I need water, I&#x27;m thirsty.</em><br>
+              <span class="muted xs">target: <code>preciso</code></span></td>
+          <td class="hint-cell"><strong>precisar de + noun</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows precisar de + noun; English speakers often drop the de, and the rule differs when followed by infinitive.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="medium">
+          <td><code>0340.00.01</code><br>
+              <span class="muted small">rank 340</span></td>
+          <td><strong>lembrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to remember</span><br>
+              <span class="muted xs">to remember / remind</span></td>
+          <td>Eu não consigo lembrar o nome dela.<br>
+              <em>I can&#x27;t remember her name.</em><br>
+              <span class="muted xs">target: <code>lembrar</code></span></td>
+          <td class="hint-cell"><strong>lembrar de + noun/inf = remember; lembrar + person = remind</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">The example drops &quot;de&quot; (colloquial BP allows it), but the remember/remind split and the optional &quot;de&quot; are both high-frequency traps; however the example doesn&#x27;t exercise &quot;de&quot; or the remind sense, so this is borderline.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0340.00.02</code><br>
+              <span class="muted small">rank 340</span></td>
+          <td><strong>lembrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to remind</span><br>
+              <span class="muted xs">to remember / remind</span></td>
+          <td>Vou lembrar minha mãe sobre a reunião amanhã.<br>
+              <em>I will remind my mom about the meeting tomorrow.</em><br>
+              <span class="muted xs">target: <code>lembrar</code></span></td>
+          <td class="hint-cell"><strong>lembrar + person + de = remind; lembrar-se de = remember</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">lembrar (transitive) = remind vs. lembrar-se de = remember is a critical distinction; this row&#x27;s example exercises the remind sense directly.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0415.00.01</code><br>
+              <span class="muted small">rank 415</span></td>
+          <td><strong>pretender</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to intend</span><br>
+              <span class="muted xs">to plan to / intend</span></td>
+          <td>Pretendo viajar para o Brasil no próximo ano.<br>
+              <em>I intend to travel to Brazil next year.</em><br>
+              <span class="muted xs">target: <code>pretendo</code></span></td>
+          <td class="hint-cell"><strong>pretender = intend, not pretend</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Classic false cognate explicitly flagged in annotation; example exercises the correct meaning directly.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0357.00.01</code><br>
+              <span class="muted small">rank 357</span></td>
+          <td><strong>ajudar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to help</span><br>
+              <span class="muted xs">to help</span></td>
+          <td>Vou ajudar minha mãe na cozinha hoje.<br>
+              <em>I&#x27;m going to help my mom in the kitchen today.</em><br>
+              <span class="muted xs">target: <code>ajudar</code></span></td>
+          <td class="hint-cell"><strong>ajudar + person + a + infinitive</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows plain ajudar + person + preposition phrase; no infinitive complement, no connector trap exercised here.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0421.00.01</code><br>
+              <span class="muted small">rank 421</span></td>
+          <td><strong>gostar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to like</span><br>
+              <span class="muted xs">to like</span></td>
+          <td>Eu gosto de música brasileira.<br>
+              <em>I like Brazilian music.</em><br>
+              <span class="muted xs">target: <code>gosto</code></span></td>
+          <td class="hint-cell"><strong>gostar de + noun/infinitive</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Required de is exercised in the example; classic English-speaker trap (I like music ≠ gosto música).</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>0453.00.01</code><br>
+              <span class="muted small">rank 453</span></td>
+          <td><strong>fechar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to close</span><br>
+              <span class="muted xs">to shut / close</span></td>
+          <td>Vou fechar a janela porque está frio.<br>
+              <em>I&#x27;m going to close the window because it&#x27;s cold.</em><br>
+              <span class="muted xs">target: <code>fechar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive verb with a direct object; no preposition trap, no reflexive contrast, no false friend — example is self-explanatory.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0548.00.01</code><br>
+              <span class="muted small">rank 548</span></td>
+          <td><strong>participar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to participate</span><br>
+              <span class="muted xs">to participate</span></td>
+          <td>Eu vou participar do jogo amanhã.<br>
+              <em>I&#x27;m going to participate in the game tomorrow.</em><br>
+              <span class="muted xs">target: <code>participar</code></span></td>
+          <td class="hint-cell"><strong>participar de + event/group</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses participar do (de + o); English uses &quot;in&quot; but BP requires de — classic preposition trap for English speakers.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0593.00.01</code><br>
+              <span class="muted small">rank 593</span></td>
+          <td><strong>aprender</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to learn</span><br>
+              <span class="muted xs">to learn</span></td>
+          <td>Eu aprendo português todos os dias.<br>
+              <em>I learn Portuguese every day.</em><br>
+              <span class="muted xs">target: <code>aprendo</code></span></td>
+          <td class="hint-cell"><strong>aprender a + infinitive</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive sentence; no preposition trap, no false friend, no reflexive contrast — example is self-explanatory.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0564.00.02</code><br>
+              <span class="muted small">rank 564</span></td>
+          <td><strong>marcar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to set a date</span><br>
+              <span class="muted xs">to mark / set (a date)</span></td>
+          <td>Vou marcar uma reunião para segunda-feira.<br>
+              <em>I&#x27;m going to set a meeting for Monday.</em><br>
+              <span class="muted xs">target: <code>marcar</code></span></td>
+          <td class="hint-cell"><strong>marcar uma reunião/consulta = to schedule/set up a meeting/appointment</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises the common BP collocation marcar + event; English speakers might reach for agendar or similar.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0599.00.01</code><br>
+              <span class="muted small">rank 599</span></td>
+          <td><strong>obrigar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to force</span><br>
+              <span class="muted xs">to force / obligate</span></td>
+          <td>Minha mãe me obriga a estudar todo dia.<br>
+              <em>My mom forces me to study every day.</em><br>
+              <span class="muted xs">target: <code>obriga</code></span></td>
+          <td class="hint-cell"><strong>obrigar + person + a + infinitive</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows the required a before the infinitive; English speakers would naturally omit it after &quot;force someone.&quot;</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0610.00.01</code><br>
+              <span class="muted small">rank 610</span></td>
+          <td><strong>depender</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to depend</span><br>
+              <span class="muted xs">to depend</span></td>
+          <td>O sucesso depende do nosso esforço.<br>
+              <em>Success depends on our effort.</em><br>
+              <span class="muted xs">target: <code>depende</code></span></td>
+          <td class="hint-cell"><strong>depender de + noun/clause</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows depende do (de + o); English uses &quot;on&quot; but BP requires de — classic preposition trap for English speakers.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0611.00.01</code><br>
+              <span class="muted small">rank 611</span></td>
+          <td><strong>parar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to stop</span><br>
+              <span class="muted xs">to stop</span></td>
+          <td>O ônibus para na esquina.<br>
+              <em>The bus stops at the corner.</em><br>
+              <span class="muted xs">target: <code>para</code></span></td>
+          <td class="hint-cell"><strong>parar de + infinitive = stop doing</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain intransitive sentence showing a bus stopping at a location; no preposition trap, no reflexive contrast, no false friend exercised by this example.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0625.00.01</code><br>
+              <span class="muted small">rank 625</span></td>
+          <td><strong>assistir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to watch</span><br>
+              <span class="muted xs">to watch / help / attend</span></td>
+          <td>Gosto de assistir filmes no fim de semana.<br>
+              <em>I like to watch movies on the weekend.</em><br>
+              <span class="muted xs">target: <code>assistir</code></span></td>
+          <td class="hint-cell"><strong>informal BP drops a; formal: assistir a + event</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example shows informal BP usage (no a), but formal requires assistir a; worth flagging the split since the example itself omits a.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0789.00.01</code><br>
+              <span class="muted small">rank 789</span></td>
+          <td><strong>especializar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to specialize in (+se)</span><br>
+              <span class="muted xs">to specialize in (+se)</span></td>
+          <td>Ela vai se especializar em medicina infantil.<br>
+              <em>She is going to specialize in pediatric medicine.</em><br>
+              <span class="muted xs">target: <code>especializar</code></span></td>
+          <td class="hint-cell"><strong>especializar-se em + field = specialize in</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Reflexive se is required in BP; example uses it with em; English speakers may omit both.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0625.00.03</code><br>
+              <span class="muted small">rank 625</span></td>
+          <td><strong>assistir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to attend</span><br>
+              <span class="muted xs">to watch / help / attend</span></td>
+          <td>Vou assistir à aula de português amanhã.<br>
+              <em>I&#x27;m going to attend the Portuguese class tomorrow.</em><br>
+              <span class="muted xs">target: <code>assistir</code></span></td>
+          <td class="hint-cell"><strong>assistir a + event = attend/watch; formal BP uses a</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses assistir à (a + a) confirming required preposition a; classic trap for English speakers who omit it.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0625.00.02</code><br>
+              <span class="muted small">rank 625</span></td>
+          <td><strong>assistir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to help</span><br>
+              <span class="muted xs">to watch / help / attend</span></td>
+          <td>A enfermeira assiste os pacientes no hospital.<br>
+              <em>The nurse helps the patients in the hospital.</em><br>
+              <span class="muted xs">target: <code>assiste</code></span></td>
+          <td class="hint-cell"><strong>assistir + person = help/attend; assistir a + event = watch</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">This row&#x27;s sense is help/attend (direct object), not the more familiar watch sense (assistir a); the meaning split is a high-frequency English-speaker trap.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>0564.00.01</code><br>
+              <span class="muted small">rank 564</span></td>
+          <td><strong>marcar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to mark</span><br>
+              <span class="muted xs">to mark / set (a date)</span></td>
+          <td>Vou marcar a reunião para terça-feira.<br>
+              <em>I&#x27;m going to set the meeting for Tuesday.</em><br>
+              <span class="muted xs">target: <code>marcar</code></span></td>
+          <td class="hint-cell"><strong>marcar = schedule/set a date; not just &quot;mark&quot;</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses marcar in the &quot;schedule/set a date&quot; sense, which a cognate-tagged learner would not guess from &quot;to mark&quot;.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>0807.00.01</code><br>
+              <span class="muted small">rank 807</span></td>
+          <td><strong>atender</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to help</span><br>
+              <span class="muted xs">to help / receive / give attention</span></td>
+          <td>A vendedora atendeu bem os clientes na loja.<br>
+              <em>The saleswoman helped the customers well in the store.</em><br>
+              <span class="muted xs">target: <code>atendeu</code></span></td>
+          <td class="hint-cell"><strong>atender alguém = help/serve/attend to someone</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">atender covers serve/attend-to in service contexts where English uses &quot;help&quot;; the example exercises this directly and the mapping is non-obvious.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0791.00.01</code><br>
+              <span class="muted small">rank 791</span></td>
+          <td><strong>esquecer</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to forget</span><br>
+              <span class="muted xs">to forget</span></td>
+          <td>Sempre esqueço minha senha do celular.<br>
+              <em>I always forget my phone password.</em><br>
+              <span class="muted xs">target: <code>esqueço</code></span></td>
+          <td class="hint-cell"><strong>esquecer + noun; esquecer-se de + noun</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example is plain transitive esquecer + direct object with no preposition trap exercised; the de variant would be off-example.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0837.00.01</code><br>
+              <span class="muted small">rank 837</span></td>
+          <td><strong>cuidar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to take care</span><br>
+              <span class="muted xs">to take care</span></td>
+          <td>Minha avó cuida das plantas todos os dias.<br>
+              <em>My grandmother takes care of the plants every day.</em><br>
+              <span class="muted xs">target: <code>cuida</code></span></td>
+          <td class="hint-cell"><strong>cuidar de + noun = take care of</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Required de; example uses das (de + as); classic English-speaker trap to omit the preposition.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0876.00.01</code><br>
+              <span class="muted small">rank 876</span></td>
+          <td><strong>concordar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to agree</span><br>
+              <span class="muted xs">to agree</span></td>
+          <td>Eu concordo com você sobre o filme.<br>
+              <em>I agree with you about the movie.</em><br>
+              <span class="muted xs">target: <code>concordo</code></span></td>
+          <td class="hint-cell"><strong>concordar com + person/thing = agree with</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Required preposition com; example uses it; English speakers may omit or misuse the preposition.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>1316.00.01</code><br>
+              <span class="muted small">rank 1316</span></td>
+          <td><strong>assinar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to sign</span><br>
+              <span class="muted xs">to sign</span></td>
+          <td>Preciso assinar o contrato antes de amanhã.<br>
+              <em>I need to sign the contract before tomorrow.</em><br>
+              <span class="muted xs">target: <code>assinar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive sentence; no preposition trap, no false friend, no reflexive contrast — example is self-explanatory.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>1636.00.01</code><br>
+              <span class="muted small">rank 1636</span></td>
+          <td><strong>negociar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to negotiate</span><br>
+              <span class="muted xs">to negotiate</span></td>
+          <td>As empresas vão negociar um novo contrato.<br>
+              <em>The companies are going to negotiate a new contract.</em><br>
+              <span class="muted xs">target: <code>negociar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive cognate; example is a straightforward subject + verb + object sentence with no preposition trap or construction trap.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>1590.00.02</code><br>
+              <span class="muted small">rank 1590</span></td>
+          <td><strong>meter</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to get involved</span><br>
+              <span class="muted xs">to put into / get involved (+se)</span></td>
+          <td>Ele se meteu numa confusão ontem à noite.<br>
+              <em>He got involved in a mess last night.</em><br>
+              <span class="muted xs">target: <code>meteu</code></span></td>
+          <td class="hint-cell"><strong>meter-se em + situation = get involved/into</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Reflexive se + required preposition em are both exercised in this example; English speakers would not predict either.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>1490.00.01</code><br>
+              <span class="muted small">rank 1490</span></td>
+          <td><strong>investir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to invest</span><br>
+              <span class="muted xs">to invest</span></td>
+          <td>Vou investir meu dinheiro em ações.<br>
+              <em>I&#x27;m going to invest my money in stocks.</em><br>
+              <span class="muted xs">target: <code>investir</code></span></td>
+          <td class="hint-cell"><strong>investir em + asset/area</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example directly exercises investir em; the required preposition em is the only non-obvious element in this otherwise cognate verb.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>0940.00.01</code><br>
+              <span class="muted small">rank 940</span></td>
+          <td><strong>ensinar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to teach</span><br>
+              <span class="muted xs">to teach</span></td>
+          <td>Minha mãe ensina português na escola.<br>
+              <em>My mother teaches Portuguese at school.</em><br>
+              <span class="muted xs">target: <code>ensina</code></span></td>
+          <td class="hint-cell"><strong>ensinar + person + a + infinitive</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive sentence; no preposition trap, no reflexive contrast, no false friend exercised by this example.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>1590.00.01</code><br>
+              <span class="muted small">rank 1590</span></td>
+          <td><strong>meter</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to put into</span><br>
+              <span class="muted xs">to put into / get involved (+se)</span></td>
+          <td>Vou meter as compras na geladeira.<br>
+              <em>I&#x27;m going to put the groceries in the fridge.</em><br>
+              <span class="muted xs">target: <code>meter</code></span></td>
+          <td class="hint-cell"><strong>meter-se em = get involved in; meter = put into</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">The reflexive sense flip is worth flagging since tags mark it, but this row&#x27;s example only shows plain transitive meter + location, so essential is too strong.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>1699.00.02</code><br>
+              <span class="muted small">rank 1699</span></td>
+          <td><strong>romper</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to begin</span><br>
+              <span class="muted xs">to tear / rip / begin to (+se)</span></td>
+          <td>O dia rompeu com um sol lindo.<br>
+              <em>The day began with beautiful sunshine.</em><br>
+              <span class="muted xs">target: <code>rompeu</code></span></td>
+          <td class="hint-cell"><strong>romper = tear/rip; romper-se = break/begin</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">The example uses romper (non-reflexive) to mean &quot;begin/break&quot; (of the day), a sense distinct from its primary &quot;tear/rip&quot; meaning; the reflexive contrast is worth flagging.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>1903.00.01</code><br>
+              <span class="muted small">rank 1903</span></td>
+          <td><strong>desistir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to give up</span><br>
+              <span class="muted xs">to give up</span></td>
+          <td>Não vou desistir do meu sonho de viajar.<br>
+              <em>I won&#x27;t give up on my dream of traveling.</em><br>
+              <span class="muted xs">target: <code>desistir</code></span></td>
+          <td class="hint-cell"><strong>desistir de + noun/infinitive = give up on</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses desistir do (de + o); required de is a classic English-speaker trap.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="medium">
+          <td><code>1699.00.01</code><br>
+              <span class="muted small">rank 1699</span></td>
+          <td><strong>romper</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to tear</span><br>
+              <span class="muted xs">to tear / rip / begin to (+se)</span></td>
+          <td>O cachorro rompeu o travesseiro com os dentes.<br>
+              <em>The dog tore the pillow with its teeth.</em><br>
+              <span class="muted xs">target: <code>rompeu</code></span></td>
+          <td class="hint-cell"><strong>romper-se = to tear/break apart</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge warn">medium</span></td>
+          <td class="reason">The tags flag reflexive and en_all notes &quot;+se&quot; for begin/break apart, but this example only shows plain transitive use; a brief reflexive-contrast note is useful given the tag, though not directly exercised by this row.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>2323.00.01</code><br>
+              <span class="muted small">rank 2323</span></td>
+          <td><strong>lidar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to deal with</span><br>
+              <span class="muted xs">to deal with / treat</span></td>
+          <td>Preciso lidar com muitos problemas no trabalho.<br>
+              <em>I need to deal with many problems at work.</em><br>
+              <span class="muted xs">target: <code>lidar</code></span></td>
+          <td class="hint-cell"><strong>lidar com + noun = deal with</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Required com mirrors English &quot;deal with&quot;; example uses it; English speakers might omit the preposition.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>2143.00.01</code><br>
+              <span class="muted small">rank 2143</span></td>
+          <td><strong>demitir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to resign</span><br>
+              <span class="muted xs">to resign / quit</span></td>
+          <td>O chefe demitiu três funcionários ontem.<br>
+              <em>The boss fired three employees yesterday.</em><br>
+              <span class="muted xs">target: <code>demitiu</code></span></td>
+          <td class="hint-cell"><strong>demitir + person = fire; demitir-se = resign</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">en_primary says &quot;to resign&quot; but example shows demitir = fire someone; the reflexive form is needed to resign — classic false-friend/reflexive trap.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>2916.00.01</code><br>
+              <span class="muted small">rank 2916</span></td>
+          <td><strong>aperceber</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to realize</span><br>
+              <span class="muted xs">to realize / perceive</span></td>
+          <td>Ela não se apercebeu do erro na conta.<br>
+              <em>She didn&#x27;t realize the mistake in the bill.</em><br>
+              <span class="muted xs">target: <code>apercebeu</code></span></td>
+          <td class="hint-cell"><strong>aperceber-se de + noun = realize; reflexive, not like English &quot;perceive&quot;</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises both the reflexive se and required de; false friend trap plus obligatory reflexive+preposition pattern English speakers will miss.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>3451.00.01</code><br>
+              <span class="muted small">rank 3451</span></td>
+          <td><strong>refugiar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to take refuge (+se)</span><br>
+              <span class="muted xs">to take refuge (+se)</span></td>
+          <td>As pessoas se refugiaram na escola durante a tempestade.<br>
+              <em>The people took refuge in the school during the storm.</em><br>
+              <span class="muted xs">target: <code>refugiaram</code></span></td>
+          <td class="hint-cell"><strong>refugiar-se em + place = take refuge in</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Reflexive -se is required for &quot;take refuge&quot;; example exercises both se and the preposition em.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>3508.00.01</code><br>
+              <span class="muted small">rank 3508</span></td>
+          <td><strong>provir</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to come from</span><br>
+              <span class="muted xs">to come from / proceed from</span></td>
+          <td>Muitos problemas provêm da falta de comunicação.<br>
+              <em>Many problems come from a lack of communication.</em><br>
+              <span class="muted xs">target: <code>provêm</code></span></td>
+          <td class="hint-cell"><strong>provir de + source = come/stem from</strong></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Required de after provir; example uses da (de + a); English speakers may omit the preposition.</td>
+        </tr>
+        <tr class="useful"
+            data-priority="useful"
+            data-conf="high">
+          <td><code>2751.00.01</code><br>
+              <span class="muted small">rank 2751</span></td>
+          <td><strong>gozar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to enjoy</span><br>
+              <span class="muted xs">to enjoy / take pleasure</span></td>
+          <td>Eles gozaram as férias na praia.<br>
+              <em>They enjoyed their vacation at the beach.</em><br>
+              <span class="muted xs">target: <code>gozaram</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span><br><span class="risk">⚠ BP warning: strong sexual slang; avoid for neutral &#x27;enjoy&#x27;</span></td>
+          <td><span class="badge use">useful</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">The nsfw bp_status flags that gozar carries a dominant sexual slang sense in BP, making the &quot;enjoy&quot; usage a genuine high-frequency trap for English speakers who might use it innocently.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>3725.00.01</code><br>
+              <span class="muted small">rank 3725</span></td>
+          <td><strong>consagrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to be recognized for</span><br>
+              <span class="muted xs">to be recognized for (+se) / consecrate</span></td>
+          <td>Ela se consagrou como a melhor atleta do ano.<br>
+              <em>She was recognized as the best athlete of the year.</em><br>
+              <span class="muted xs">target: <code>consagrou</code></span></td>
+          <td class="hint-cell"><strong>consagrar-se como/por = to be recognized/established as</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Reflexive -se flips meaning from &quot;consecrate&quot; to &quot;be recognized as&quot;; example directly exercises consagrar-se + como.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>3725.00.02</code><br>
+              <span class="muted small">rank 3725</span></td>
+          <td><strong>consagrar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to consecrate</span><br>
+              <span class="muted xs">to be recognized for (+se) / consecrate</span></td>
+          <td>O padre vai consagrar a nova igreja no domingo.<br>
+              <em>The priest will consecrate the new church on Sunday.</em><br>
+              <span class="muted xs">target: <code>consagrar</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain transitive use; example is a direct cognate with no preposition trap or reflexive contrast exercised.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>3748.00.01</code><br>
+              <span class="muted small">rank 3748</span></td>
+          <td><strong>cansar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to get tired (+se)</span><br>
+              <span class="muted xs">to get tired (+se)</span></td>
+          <td>Eu me canso quando corro muito.<br>
+              <em>I get tired when I run a lot.</em><br>
+              <span class="muted xs">target: <code>canso</code></span></td>
+          <td class="hint-cell"><strong>cansar-se = get tired; cansar + obj = tire someone out</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses reflexive me canso; the +se is essential to express &quot;get tired&quot; vs. tiring someone else.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>4162.00.01</code><br>
+              <span class="muted small">rank 4162</span></td>
+          <td><strong>recear</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to fear</span><br>
+              <span class="muted xs">to fear</span></td>
+          <td>Ele receia perder o emprego.<br>
+              <em>He fears losing his job.</em><br>
+              <span class="muted xs">target: <code>receia</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain verb + infinitive, no preposition trap; Rule 2 applies — no-preposition observation only, omit.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>3983.00.01</code><br>
+              <span class="muted small">rank 3983</span></td>
+          <td><strong>habituar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to get used to (+se)</span><br>
+              <span class="muted xs">to get used to (+se)</span></td>
+          <td>Preciso me habituar ao novo horário de trabalho.<br>
+              <em>I need to get used to the new work schedule.</em><br>
+              <span class="muted xs">target: <code>habituar</code></span></td>
+          <td class="hint-cell"><strong>habituar-se a + noun/infinitive = get used to</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses reflexive me + a (ao = a+o), both of which English speakers need flagged — habituar alone means &quot;to accustom someone else&quot;.</td>
+        </tr>
+        <tr class="omit"
+            data-priority="omit"
+            data-conf="high">
+          <td><code>4849.00.01</code><br>
+              <span class="muted small">rank 4849</span></td>
+          <td><strong>findar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to end</span><br>
+              <span class="muted xs">to end / finalize</span></td>
+          <td>A reunião findou às cinco da tarde.<br>
+              <em>The meeting ended at five in the afternoon.</em><br>
+              <span class="muted xs">target: <code>findou</code></span></td>
+          <td class="hint-cell"><span class="muted">(empty)</span></td>
+          <td><span class="badge omt">omit</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Plain intransitive use; example is self-explanatory with no preposition trap or false friend.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>4257.00.01</code><br>
+              <span class="muted small">rank 4257</span></td>
+          <td><strong>discordar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to disagree</span><br>
+              <span class="muted xs">to disagree</span></td>
+          <td>Eu discordo da sua opinião sobre o filme.<br>
+              <em>I disagree with your opinion about the film.</em><br>
+              <span class="muted xs">target: <code>discordo</code></span></td>
+          <td class="hint-cell"><strong>discordar de + person/opinion; EN uses &quot;with&quot;</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example uses &quot;da&quot; (de + a), while English uses &quot;with&quot;; required preposition trap for English speakers.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>4792.00.01</code><br>
+              <span class="muted small">rank 4792</span></td>
+          <td><strong>acostumar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to get used to (+se)</span><br>
+              <span class="muted xs">to get used to (+se)</span></td>
+          <td>Ela se acostumou com o calor do Brasil.<br>
+              <em>She got used to the heat in Brazil.</em><br>
+              <span class="muted xs">target: <code>acostumou</code></span></td>
+          <td class="hint-cell"><strong>acostumar-se com + noun = get used to</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises the reflexive se + required com; both are traps for English speakers who would say &quot;acostumar with&quot; or drop the se.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>4909.00.01</code><br>
+              <span class="muted small">rank 4909</span></td>
+          <td><strong>suicidar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to commit suicide (+se)</span><br>
+              <span class="muted xs">to commit suicide (+se)</span></td>
+          <td>O personagem se suicida no final do livro.<br>
+              <em>The character commits suicide at the end of the book.</em><br>
+              <span class="muted xs">target: <code>suicida</code></span></td>
+          <td class="hint-cell"><strong>suicidar-se = commit suicide; requires reflexive se</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">BP uses reflexive suicidar-se; example shows se; English has no reflexive equivalent, making this a classic trap.</td>
+        </tr>
+        <tr class="essential"
+            data-priority="essential"
+            data-conf="high">
+          <td><code>4870.00.01</code><br>
+              <span class="muted small">rank 4870</span></td>
+          <td><strong>envergonhar</strong><br>
+              <span class="muted small">verb</span></td>
+          <td><span class="muted small">to be ashamed (+se)</span><br>
+              <span class="muted xs">to be ashamed (+se)</span></td>
+          <td>Ele se envergonhou do erro que cometeu.<br>
+              <em>He was ashamed of the mistake he made.</em><br>
+              <span class="muted xs">target: <code>envergonhou</code></span></td>
+          <td class="hint-cell"><strong>envergonhar-se de + noun = to be ashamed of</strong></td>
+          <td><span class="badge ess">essential</span></td>
+          <td><span class="badge ok">high</span></td>
+          <td class="reason">Example exercises the reflexive form + required de; English speakers need both cues: +se and the de complement.</td>
+        </tr>
+  </tbody>
+</table>
+
+<script>
+function filt(mode, btn) {
+  document.querySelectorAll('.toolbar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('tbody tr').forEach(r => {
+    const pri = r.getAttribute('data-priority');
+    const conf = r.getAttribute('data-conf');
+    let show = true;
+    if (mode === 'essential') show = (pri === 'essential');
+    else if (mode === 'useful') show = (pri === 'useful');
+    else if (mode === 'omit') show = (pri === 'omit');
+    else if (mode === 'low') show = (conf === 'low');
+    r.style.display = show ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
