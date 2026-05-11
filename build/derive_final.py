@@ -5,11 +5,14 @@ Joins:
                                source_line, source_line_number, tags, en_all)
   - data/05-ipa.tsv           (example_pt, example_en, target_word_used,
                                ipa_word_final, ipa_example_final + most other cols)
-  - data/_audio_manifest.tsv  (audio URLs + md5 + voice_id, per (sense_id, clip_type))
-  - config/voices.tsv         (voice_gender from voice_id)
+  - data/_audio_manifest.tsv  (audio URLs + md5 + voice_id, per (sense_id, clip_type).
+                               clip_type ∈ {word, example, en_ex})
+  - config/voices.tsv         (voice_gender from BP voice_id; en_voice_id pairing)
   - data/_audio_asr_override.tsv (notes flag if sense's audio is ASR-untranscribable-but-bp-ok)
 
-Produces 30 columns per the schema in docs/plan.md §"Final TSV schema".
+Produces 33 columns per the schema in docs/plan.md §"Final TSV schema". Stage 10
+extended the schema with three EN columns (`audio_en_example`,
+`audio_en_example_md5`, `voice_id_en`) placed adjacent to the BP audio block.
 
 Usage:
     .venv/bin/python build/derive_final.py
@@ -45,13 +48,20 @@ FINAL_FIELDS = [
     "annotation", "bp_status", "normalization_action", "ipa_word",
     "example_pt", "example_en", "target_word_used", "ipa_example",
     "audio_word", "audio_example", "audio_word_md5", "audio_example_md5",
-    "voice_id", "voice_gender", "family_root", "tags",
+    "audio_en_example", "audio_en_example_md5",
+    "voice_id", "voice_id_en", "voice_gender", "family_root", "tags",
     "source_line", "source_line_number", "notes",
 ]
 
 
 def _voice_gender_map() -> dict[str, str]:
     return {r["voice_id"]: r.get("gender", "")
+            for r in read_tsv(VOICES_PATH)}
+
+
+def _en_voice_pairing() -> dict[str, str]:
+    """BP voice_id → paired EN voice_id from config/voices.tsv."""
+    return {r["voice_id"]: r.get("en_voice_id", "")
             for r in read_tsv(VOICES_PATH)}
 
 
@@ -67,6 +77,7 @@ def main() -> int:
     overrides = read_tsv(OVERRIDE_PATH) if OVERRIDE_PATH.exists() else []
 
     voice_gender = _voice_gender_map()
+    en_pairing = _en_voice_pairing()
 
     enriched_idx = {r["sense_id"]: r for r in enriched}
     ipa_idx = {r["sense_id"]: r for r in ipa}
@@ -90,10 +101,14 @@ def main() -> int:
     gap_stats = {
         "missing_audio_word": 0,
         "missing_audio_example": 0,
+        "missing_audio_en_example": 0,
         "missing_voice_id": 0,
+        "missing_voice_id_en": 0,
         "missing_md5_word": 0,
         "missing_md5_example": 0,
+        "missing_md5_en_example": 0,
         "voice_mismatch": 0,
+        "en_voice_pairing_mismatch": 0,
         "asr_override_applied": 0,
         "family_root_blank": 0,
         "source_line_blank": 0,
@@ -104,15 +119,20 @@ def main() -> int:
         ip = ipa_idx[sid]
         mw = manifest_idx.get((sid, "word"), {})
         mex = manifest_idx.get((sid, "example"), {})
+        men = manifest_idx.get((sid, "en_ex"), {})
 
         if not mw.get("url"):
             gap_stats["missing_audio_word"] += 1
         if not mex.get("url"):
             gap_stats["missing_audio_example"] += 1
+        if not men.get("url"):
+            gap_stats["missing_audio_en_example"] += 1
         if not mw.get("md5"):
             gap_stats["missing_md5_word"] += 1
         if not mex.get("md5"):
             gap_stats["missing_md5_example"] += 1
+        if not men.get("md5"):
+            gap_stats["missing_md5_en_example"] += 1
 
         voice_id = mw.get("voice_id") or mex.get("voice_id") or ""
         if not voice_id:
@@ -122,6 +142,18 @@ def main() -> int:
             voice_id = mw["voice_id"]  # prefer word
         vgender_word = voice_gender.get(voice_id, "")
         vgender_short = "m" if vgender_word == "male" else ("f" if vgender_word == "female" else "")
+
+        # voice_id_en: prefer the en_ex manifest row's voice_id (authoritative —
+        # the voice that actually spoke). Fall back to config/voices.tsv pairing
+        # if the manifest row is missing. Flag if they disagree.
+        voice_id_en_manifest = men.get("voice_id") or ""
+        voice_id_en_pairing = en_pairing.get(voice_id, "")
+        voice_id_en = voice_id_en_manifest or voice_id_en_pairing
+        if not voice_id_en:
+            gap_stats["missing_voice_id_en"] += 1
+        elif (voice_id_en_manifest and voice_id_en_pairing
+              and voice_id_en_manifest != voice_id_en_pairing):
+            gap_stats["en_voice_pairing_mismatch"] += 1
 
         family_root = e.get("family_root", "")
         if not family_root:
@@ -159,7 +191,10 @@ def main() -> int:
             "audio_example": mex.get("url", ""),
             "audio_word_md5": mw.get("md5", ""),
             "audio_example_md5": mex.get("md5", ""),
+            "audio_en_example": men.get("url", ""),
+            "audio_en_example_md5": men.get("md5", ""),
             "voice_id": voice_id,
+            "voice_id_en": voice_id_en,
             "voice_gender": vgender_short,
             "family_root": family_root,
             "tags": e.get("tags", "") or ip.get("tags", ""),
