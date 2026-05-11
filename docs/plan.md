@@ -1437,6 +1437,8 @@ sense_id	clip_type	voice_gender	tts_provider	tts_model	voice_id	text_input	text_
 
 #### Generation (REVISED)
 
+> **Note (Stage 9 supersedes — see § Stage 9 — Migration to Flash v2.5)**: As of 2026-05 the production model is `eleven_flash_v2_5`, not Multilingual v2. The original Multilingual v2 description below is preserved for historical accuracy (the deck was first rendered on it, then re-rendered on Flash). The rest of this stage's design — manifest as source of truth, voice provenance, filename versioning, retry policy — is unchanged.
+
 Generate 2 mp3 clips per sense via **ElevenLabs Multilingual v2** (locked TTS provider — Pro tier $99 first month):
 
 - `audio_word`: voice picked by Stage 4.5 (`voice_id` column), headword text
@@ -1444,7 +1446,11 @@ Generate 2 mp3 clips per sense via **ElevenLabs Multilingual v2** (locked TTS pr
 
 **Voice per sense**: read from `data/045-speaker_gender.tsv` `voice_id` column. The same voice is used for both clips of one sense — this is the user's locked rule (one speaker per Anki record). Voice IDs come from `config/voices.tsv` (4 female + 7 male, user-pinned). Round-robin allocation in Stage 4.5 ensures every voice in the pool gets approximately equal usage.
 
-**File naming**: `{sense_id}-{word|ex}-v{version}.mp3` (e.g., `0001.00.03-word-v1.mp3`). Voice gender is **NOT** in the filename (each sense has only one voice anyway; the manifest records which one). Version is in the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix. Reasons:
+**File naming**: `{sense_id}-{word|ex}-v{version}.mp3` (e.g., `0001.00.03-word-v1.mp3`). Voice gender is **NOT** in the filename (each sense has only one voice anyway; the manifest records which one). Version is in the filename. **The version goes in the filename, not in a `?v=` query string** — this is the critical Anki-compatibility fix.
+
+> **Note (Stage 9 supersedes)**: Post-Stage-9 filenames bake the `model_id` segment for provenance: `{sense_id}-{word|ex}-eleven_flash_v2_5-v{version}.mp3`. The version-in-filename Anki-compatibility rationale below still applies identically; only the slug expanded. See § Stage 9.
+
+Reasons:
 
 - **Anki strips URL query parameters** when downloading media into `collection.media/`. A URL `...0001.00.03-word.mp3?v=2` lands locally as `0001.00.03-word.mp3` (no version), so Anki sees an existing file with the same name and skips the download. Versioned filenames like `0001.00.03-word-v2.mp3` are net-new filenames; Anki always fetches them.
 - **Anki's media sync compares filenames, not file hashes.** If a regenerated clip keeps the same filename, mobile devices won't re-download it during the next AnkiWeb sync. Versioning the filename guarantees clean propagation across desktop + iPhone.
@@ -2429,6 +2435,7 @@ budget envelope (total project spend ~$340 incl. earlier stages).
 - No phoneme rules (multilingual_v2 ignores them; flash_v2 unsuitable).
 - No model swap (still `eleven_multilingual_v2`; still `gpt-4o-transcribe`;
   audio judge is `gpt-4o-audio-preview` — additive, not replacing).
+  *(Note: the "no model swap" scope-limitation was lifted in Stage 9. Multilingual v2 → Flash v2.5 migration documented in § Stage 9.)*
 - No full-corpus ASR sweep. ASR is diagnostic only at re-render time, not
   a primary detection signal — same-orthography drift is exactly what ASR
   cannot see.
@@ -2443,6 +2450,104 @@ budget envelope (total project spend ~$340 incl. earlier stages).
   intercepts the string before TTS at render time.
 - No phoneme-level audio editing. Aliases respell the input text;
   ElevenLabs renders end-to-end as normal.
+
+## Stage 9 — Migration to Flash v2.5 + final deliverable (2026-05)
+
+**Trigger**: After Stage 8 completion, ~30 single-word renders showed systemic mispronunciations that aggressive orthographic respelling (the v3 alias dictionary, 25 rules) couldn't fully fix without listener-noticeable artifacts. Pilot rendering on `eleven_flash_v2_5` showed FLASH_BETTER on 45 of 46 directly comparable pairs vs Multilingual v2: Flash handles most BP phonotactics natively (palatalization, final-l vocalization, initial /ʁ/) without alias rules.
+
+**Outcome**: Full deck migrated to Flash v2.5 (11,450 clips), human-review queue cleared, residual non-BP rate at 0.05 %, final deliverable `data/06-final.tsv` shipped.
+
+### Step 9.0 — Pilot + alias dictionary reset
+
+- Pilot scripts: [build/08_8_pilot_flash.py](../build/08_8_pilot_flash.py) (single-word renders) and [build/08_9_pilot_flash_examples.py](../build/08_9_pilot_flash_examples.py) (example-sentence prosody check)
+- Coverage: ~100 risky single-word senses + ~50 example sentences across all 8 voices
+- Listener verdict (Lair voice as primary reference): FLASH_BETTER on 45 of 46 directly comparable pairs
+- Decision: drop the v3 alias dictionary (25 rules) → **1 rule** (`hospital → ospitau`). All other v3 rules either became unnecessary on Flash or actively introduced artifacts.
+- Archive of v3 dict for historical record: `data/_pronunciation_alias_v3_winners.tsv` (11 winning respellings preserved)
+- Active alias file post-Stage 9: `data/_pronunciation_aliases.tsv` (2 rules after § Step 9.2 adds `gene → jêne`)
+
+### Step 9.1 — Full deck re-render (11,450 clips)
+
+- Model: `eleven_flash_v2_5` set as `DEFAULT_MODEL_ID` in [build/lib/elevenlabs_client.py](../build/lib/elevenlabs_client.py)
+- Filename: model_id baked into the segment → `audio/{sense_id}-{word|ex}-eleven_flash_v2_5-v{N}.mp3`. Clips without the model_id segment are Multilingual v2 era; cleaned in Step 9.5. The model_id segment serves as on-disk provenance — a clip's filename answers "which model rendered this?" without a manifest lookup.
+- Concurrency: **20** (ElevenLabs Pro tier limit for the Flash family — verified against `https://elevenlabs.io/docs/overview/models`)
+- Safety: `fail_fast_on_429=True` in `ElevenLabsClient`. On a single 429 response the worker raises `RateLimitExceeded`, cancels in-flight futures, prints an ABORT banner, and writes `notes=stage_9_flash_migration_aborted_rate_limit` to affected manifest rows. The user is notified; the run resumes from `manifest.status=pending` on the next invocation.
+- Pre-flight script: [build/09_0_migrate_flash.py](../build/09_0_migrate_flash.py) — explicit GO prompt + tee'd audit log + delegation to `stage_6.run(...)` with `sense_id_filter=None` and `concurrency=20`.
+- Wall: ~30 min total for 11,450 clips at concurrency=20.
+- Cost: ~$25 at Flash v2.5 rates (half the per-character cost of Multilingual v2).
+- After run: every manifest URL contains `eleven_flash_v2_5`; `verify_all.py` invariant #5 ("all audio URLs contain `eleven_flash_v2_5`") locks this in.
+
+### Step 9.2 — ASR human-review queue (review HTML)
+
+- Stage 7's ASR roundtrip (`gpt-4o-transcribe`, `language=pt`) flagged **99 senses** post-Flash where ASR similarity to `text_input` dropped below threshold.
+- HTML generator: [build/09_1_review_queue.py](../build/09_1_review_queue.py) → produces `audit/09_1_review_queue.html` with a 3-way decision per row:
+  - `LEAVE` — listener confirms the audio sounds BP and ASR is wrong (cognate-loanword cases, fast speech, rare phonemes)
+  - `REGEN_VOICE_SWAP` — swap to a different same-gender voice and re-render
+  - `TAG_ALIAS` — add an orthographic alias rule to fix a systematic mispronunciation
+- Outcomes from user review:
+  - **21 `REGEN_VOICE_SWAP`** decisions (voice IDs updated in `data/045-speaker_gender.tsv`)
+  - **1 `TAG_ALIAS`** decision — `gene → jêne` added to alias file (BP /ˈʒɛni/ vs ElevenLabs default /d͡ʒiˈni/)
+  - **77 `LEAVE`** decisions
+- Decisions persisted: `data/_audio_review_queue_decisions.tsv`
+- Application script: [build/09_2_apply_review_decisions.py](../build/09_2_apply_review_decisions.py) — updates voices + aliases + manifest, uploads a new ElevenLabs pronunciation dictionary version, runs `stage_6` on the affected `sense_id_filter` only. Handles the JS-export edge case where `sense_id` and `clip_type` concatenate without a tab (parser splits the first 10 chars `RRRR.EE.SS` from the rest).
+
+### Step 9.3 — Audio judge audit of LEAVE decisions
+
+- The 77 `LEAVE` decisions are user assertions ("this sounds BP"). An independent audio judge gives an objective second opinion.
+- Model: `gpt-4o-audio-preview` (OpenAI audio-input model)
+- Script: [build/09_3_audit_leave_decisions.py](../build/09_3_audit_leave_decisions.py) (concurrency=5, audit log at `audit/09_3_audit_leave_decisions.jsonl`)
+- Per clip the judge returns `{pronunciation_verdict ∈ {bp_ok, non_bp, unclear}, drift, severity, confidence, evidence}`
+- Result: **71 / 77 → `bp_ok`**, 6 → `non_bp` or `unclear`
+- The 71 `bp_ok` clips are persisted in `data/_audio_asr_override.tsv` with schema:
+
+```tsv
+sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_drift  audio_judge_severity  audio_judge_confidence  audio_judge_evidence  judged_at
+```
+
+- `derive_final.py` consumes the override file: any sense in it gets `notes = audio_asr_status=untranscribable_audio_verified_bp` so downstream tooling can mute ASR-based shadowing drills on those rows (the learner would otherwise be told they're wrong when they're right).
+- The remaining **6 residual genuinely-non-BP clips**: `rock`, `render`, `time`, `precedente`, `exceto`, `reitor`. Deferred — 0.05 % is within deck-launch noise. Targeted aliases possible in a future iteration if a learner reports them as confusing during study.
+- **Effective audio-verified BP rate: 99.95 %** (5,719 / 5,725 senses, word-clip-weighted).
+
+### Step 9.4 — Final deliverable: `data/06-final.tsv`
+
+- New scripts:
+  - [build/derive_final.py](../build/derive_final.py) — joins `03-enriched.tsv` + `05-ipa.tsv` + `_audio_manifest.tsv` + `_audio_asr_override.tsv` + `config/voices.tsv`. Writes the 30-column TSV. Logs join stats and gap counts to `audit/derive_final.log`.
+  - [build/verify_all.py](../build/verify_all.py) — 8 hard invariants + HTTP-200 sample on 50 random URLs. Exits non-zero on any hard failure. Soft warnings on `family_root` / `source_line` / `example_pt` blanks (optional fields).
+- 30-column schema unchanged from v1 (see § Final TSV schema below); only the audio URL pattern evolved across stages.
+- Verification result on shipped 06-final.tsv: all 8 invariants pass; 50 / 50 sample URLs return HTTP 200; 1 soft warning category (`family_root` blank on rows where the source dictionary did not provide a root).
+
+### Step 9.5 — R2 legacy cleanup
+
+- Pre-migration R2 audio prefix held ~24,000 objects: 11,450 Flash v2.5 (current) + ~12,000 Multilingual v2 (orphans) + mid-iteration superseded versions.
+- Script: [build/09_4_cleanup_legacy_r2.py](../build/09_4_cleanup_legacy_r2.py) — lists the `audio/` prefix, cross-references against `_audio_manifest.tsv` URL set, identifies orphans (in R2 but not in manifest), batch-deletes via S3 `DeleteObjects` (1000 keys per call).
+- Safety: default dry-run; deletion requires `--confirm` flag. Never touches anything outside the `audio/` prefix.
+- Result: **12,066 orphans deleted, ~525 MB freed.** Post-cleanup R2 holds exactly the 11,450 manifest-referenced objects.
+- Bucket size: ~1,004 MB → ~479 MB.
+
+### Step 9.6 — Manifest metadata correction
+
+- Discovery: the `tts_model` column in `_audio_manifest.tsv` was stale on all 11,450 rows — value `eleven_multilingual_v2` despite Flash-rendered audio. The Stage 9.1 migration updated URLs, object_keys, voice_ids, md5s, ASR transcripts, and loudness data correctly, but the `tts_model` field was missed by the migration code path.
+- Fix (commit `428b181`): single in-place pass setting `tts_model = eleven_flash_v2_5` on all rows where the URL contains the `eleven_flash_v2_5` segment.
+- Verification: column-by-column diff against backup proved only col 5 (`tts_model`) changed; all 22 other columns byte-identical. No downstream regeneration needed — `06-final.tsv` does not surface `tts_model`.
+
+### Settled artifacts after Stage 9
+
+| Path | Purpose | Rows |
+|---|---|---|
+| `data/06-final.tsv` | Final deliverable, 30 columns | 5,725 senses |
+| `data/_audio_manifest.tsv` | Authoritative audio state (post-Step-9.6 with corrected `tts_model`) | 11,450 clips |
+| `data/_audio_asr_override.tsv` | BP-verified ASR exceptions | 71 senses |
+| `data/_audio_review_queue_decisions.tsv` | Stage 9.2 review-queue decisions | 99 rows |
+| `data/_pronunciation_aliases.tsv` | Active alias rules | 2 (`hospital`, `gene`) |
+| `data/_pronunciation_alias_v3_winners.tsv` | Archived v3 aliases (historical) | 11 |
+| R2 bucket `audio/` prefix | Live audio storage | 11,450 objects, ~479 MB |
+
+### What Stage 9 deliberately does NOT do
+
+- No fix for the 6 residual non-BP clips. Within noise; revisit only if a learner reports a specific one as confusing.
+- No rewrite of Stages 1–8 documentation. Forward-pointer notes added at the stale references (Stage 6 generation, Stage 6 filename pattern, Stage 8 "deliberately does NOT").
+- No Anki note-type or `.apkg` build. Out of scope per project conventions.
+- No model-registry routing for the TTS model. `eleven_flash_v2_5` is hardcoded in `elevenlabs_client.py` rather than read from `config/models.yaml`. The TTS fleet is small enough (one provider, one chosen model) that registry indirection adds complexity without benefit; LLM jurors keep the registry because they swap models often.
 
 ## Final TSV schema (`data/06-final.tsv`)
 
