@@ -16,7 +16,13 @@ Gap stats:
   voice_mismatch: 0
   en_voice_pairing_mismatch: 0
   asr_override_applied: 71
-  family_root_blank: 5725
+  family_root_shipped: 1776
+  family_root_dropped_low_conf: 0
+  family_root_dropped_not_in_pts: 0
+  family_root_dropped_non_content_pos: 0
+  family_root_self_root_shipped: 121
+  family_root_blank_content: 3784
+  family_root_blank_function: 165
   source_line_blank: 0
   usage_hint_essential: 43
   usage_hint_useful_kept: 23

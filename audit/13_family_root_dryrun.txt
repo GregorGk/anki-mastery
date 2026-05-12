@@ -1,0 +1,116 @@
+================================================================
+ STAGE 13 — FAMILY ROOT CLASSIFIER DRY RUN
+================================================================
+  total rows in 06-final.tsv: 5725
+  content-word rows (eligible):   5560
+    by pos: adj=941, adv=181, noun=3265, verb=1173
+  rows with ≥1 candidate:         2276
+  rows skipped (no candidates):   3284
+
+  candidate-set size: median=1.0  p75=2.0  p95=3
+  GATE: candidate-rows ceiling = 3000
+  GATE: p95 ceiling = 25
+
+  --- top 50 largest candidate sets ---
+    [ 6] 0293.00.01 espécie                  [noun] → especial, específico, especialista, especializar, especializado, especialmente
+    [ 6] 0346.00.01 contrário                [noun] → contraste, contrariar, contratado, contrato, contratar, contrair
+    [ 6] 0346.00.02 contrário                [noun] → contraste, contrariar, contratado, contrato, contratar, contrair
+    [ 6] 0346.00.03 contrário                [noun] → contraste, contrariar, contratado, contrato, contratar, contrair
+    [ 6] 0431.00.01 especial                 [adj] → especialmente, especialista, especializar, especializado, especialidade, especialização
+    [ 6] 0789.00.01 especializar             [verb] → especializado, especialista, especialmente, especial, especialidade, especialização
+    [ 6] 0932.00.01 comunidade               [noun] → comunicar, comunicação, comunista, comunitário, comunicado, comunismo
+    [ 6] 1239.00.01 complexo                 [adj] → completo, completar, completamente, complemento, complementar, complexidade
+    [ 6] 1242.00.01 especialmente            [adv] → especial, especializado, especialista, especializar, especialidade, especialização
+    [ 6] 1372.00.01 comunista                [noun] → comunicar, comunidade, comunicação, comunitário, comunismo, comunicado
+    [ 6] 1490.00.01 investir                 [verb] → vestir, investigar, investigação, investimento, investidor, investigador
+    [ 6] 1807.00.01 especialista             [noun] → especializar, especializado, especialmente, especial, especialidade, especialização
+    [ 6] 2188.00.01 especializado            [adj] → especializar, especialmente, especialista, especial, especialidade, especialização
+    [ 6] 2250.00.01 contrariar               [verb] → contratado, contraste, contrário, contrato, contradição, contratar
+    [ 6] 2382.00.01 contraste                [noun] → contrário, contrariar, contratado, contrato, contratar, contrair
+    [ 6] 2716.00.01 comunitário              [adj] → comunicação, comunidade, comunicar, comunista, comunicado, comunismo
+    [ 6] 2897.00.01 convento                 [noun] → convênio, convencer, convenção, convencional, convencido, conveniente
+    [ 6] 3008.00.01 complementar             [adj] → completamente, completar, completo, complexo, complexidade, complemento
+    [ 6] 3192.00.01 contrair                 [verb] → contrato, contraste, contrário, contrariar, contratado, contratar
+    [ 6] 3207.00.01 contradição              [noun] → contrariar, contratado, contraste, contrário, contrato, contraditório
+    [ 6] 3606.00.01 especialidade            [noun] → especializado, especialmente, especialista, especializar, especial, especialização
+    [ 6] 3791.00.01 contrapartida            [noun] → contrariar, contratado, contraste, contrário, contrato, contraditório
+    [ 6] 3940.00.01 contraditório            [adj] → contrariar, contratado, contraste, contrário, contrato, contrapartida
+    [ 6] 4153.00.01 complexidade             [noun] → completamente, completar, completo, complexo, complementar, complemento
+    [ 6] 4325.00.01 comunismo                [noun] → comunicar, comunista, comunidade, comunicação, comunitário, comunicado
+    [ 6] 4480.00.01 especialização           [noun] → especializado, especialmente, especialista, especializar, especial, especialidade
+    [ 6] 4672.00.01 complemento              [noun] → completamente, completar, completo, complexo, complementar, complexidade
+    [ 6] 4672.00.02 complemento              [noun] → completamente, completar, completo, complexo, complementar, complexidade
+    [ 5] 0145.00.01 público                  [adj] → publicar, publicação, publicidade, publicamente, publicitário
+    [ 5] 0449.00.01 produzir                 [verb] → produtividade, produtivo, produto, produtor, produção
+    [ 5] 0559.00.01 produto                  [noun] → produtividade, produtivo, produtor, produzir, produção
+    [ 5] 0640.00.01 produção                 [noun] → produtividade, produtivo, produto, produtor, produzir
+    [ 5] 1295.00.01 investigação             [noun] → investimento, investigar, investir, investigador, investidor
+    [ 5] 1466.00.01 investimento             [noun] → investigação, investigar, investir, investigador, investidor
+    [ 5] 1620.00.01 continente               [noun] → continuar, continuidade, contínuo, continental, continuação
+    [ 5] 1754.00.01 produtor                 [noun] → produtividade, produtivo, produto, produzir, produção
+    [ 5] 1801.00.01 desconhecido             [adj] → desconhecer, conhecido, desconfiança, desconfiar, desconto
+    [ 5] 1888.00.01 competência              [noun] → competente, competição, competir, competitivo, competitividade
+    [ 5] 2082.00.01 converter                [verb] → conversar, conversa, conversão, conversação, convergência
+    [ 5] 2253.00.01 investigar               [verb] → investigação, investimento, investir, investidor, investigador
+    [ 5] 2324.00.01 desconhecer              [verb] → desconhecido, conhecer, desconfiança, desconfiar, desconto
+    [ 5] 2471.00.01 publicidade              [noun] → publicação, publicar, público, publicamente, publicitário
+    [ 5] 2644.00.01 produtivo                [adj] → produtividade, produto, produtor, produzir, produção
+    [ 5] 2717.00.01 competente               [adj] → competição, competência, competir, competitivo, competitividade
+    [ 5] 3149.00.01 produtividade            [noun] → produtivo, produto, produtor, produzir, produção
+    [ 5] 3320.00.01 investigador             [noun] → investigação, investimento, investigar, investir, investidor
+    [ 5] 3377.00.01 desconfiar               [verb] → confiar, desconhecer, desconhecido, desconfiança, desconto
+    [ 5] 3377.00.02 desconfiar               [verb] → confiar, desconhecer, desconhecido, desconfiança, desconto
+    [ 5] 3440.00.01 repressão                [noun] → pressão, representar, representante, representação, representativo
+    [ 5] 3774.00.01 desconfiança             [noun] → confiança, desconhecido, desconhecer, desconfiar, desconto
+
+  --- 50 random candidate sets ---
+    0123.00.01 conhecer                 [verb] → conhecido, conhecimento
+    0321.00.01 necessário               [adj] → necessitar, necessidade, necessariamente
+    0336.00.01 estudar                  [verb] → estudante
+    0352.00.01 militar                  [noun] → militante
+    0372.00.01 realizar                 [verb] → realização, realizador
+    0458.00.01 espírito                 [noun] → espiritual
+    0477.00.02 levantar                 [verb] → levantamento
+    0654.00.01 gênero                   [noun] → generoso
+    0724.00.01 existência               [noun] → existente
+    0790.00.01 saída                    [noun] → sair
+    0839.00.01 familiar                 [adj] → família
+    0843.00.01 revolução                [noun] → revolucionário
+    0870.00.02 importar                 [verb] → importante, importação, importância
+    0908.00.02 fotografia               [noun] → fotógrafo, fotografar, fotográfico
+    0909.00.01 conhecido                [adj] → conhecer, conhecimento
+    1013.00.01 perigo                   [noun] → perigoso
+    1113.00.01 religião                 [noun] → religioso
+    1262.00.01 normalmente              [adv] → normal
+    1397.00.01 empregado                [noun] → empregar, emprego
+    1430.00.01 geralmente               [adv] → geral
+    1669.00.01 frequência               [noun] → frequentar, frequente, frequentemente
+    1725.00.01 revolucionário           [adj] → revolução
+    1833.00.02 cumprimento              [noun] → cumprir, cumprimentar
+    1867.00.01 aprovar                  [verb] → aprovação
+    1876.00.01 cálculo                  [noun] → calcular
+    1902.00.01 facilmente               [adv] → fácil
+    1988.00.01 solidariedade            [noun] → solidário, solidão
+    2079.00.01 estabilidade             [noun] → estabilização
+    2230.00.01 divulgação               [noun] → divulgar
+    2305.00.01 autorizar                [verb] → autoridade, autorização, autoria, autoritário
+    2325.00.01 basear                   [verb] → baseado
+    2330.00.01 marcado                  [adj] → marcar, marcador
+    2445.00.01 anual                    [adj] → anualmente
+    2835.00.02 condutor                 [noun] → conduta
+    2875.00.01 necessariamente          [adv] → necessidade, necessitar, necessário
+    2923.00.01 ideológico               [adj] → ideologia
+    3080.00.01 governante               [noun] → governador, governar, governamental
+    3092.00.01 desculpa                 [noun] → culpa, desculpar
+    3228.00.01 participante             [noun] → participação, participar
+    3244.00.01 representativo           [adj] → representante, representação, representar
+    3645.00.01 apaixonar                [verb] → apaixonado
+    3669.00.01 imposição                [noun] → posição
+    3673.00.01 embaixada                [noun] → embaixador, embaixo
+    3936.00.01 tributário               [adj] → tributo
+    4030.00.01 estético                 [adj] → estética
+    4523.00.01 aplicado                 [adj] → aplicar, aplicação
+    4797.00.01 condicionar              [verb] → condicionado, condição
+    4884.00.01 reservado                [adj] → reservar, reserva
+    4886.00.01 telefonema               [noun] → telefone, telefonar
+    4940.00.01 artifício                [noun] → artificial

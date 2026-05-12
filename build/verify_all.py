@@ -18,13 +18,25 @@ Invariants (HARD):
   - Stage 12: no embedded newline / tab in usage_hint or risk_note
   - Stage 12: usage_hint length ≤ 120 chars
   - Stage 12: every shipped usage_hint or risk_note has a sidecar row
+  - Stage 13: every non-empty family_root exists as a `pt` in the deck
+  - Stage 13: no family_root ends with `-` or contains a digit (no bare stems)
+  - Stage 13: no low-confidence sidecar row ships (except postprocess_self_root)
+  - Stage 13: every shipped family_root has a sidecar entry
+  - Stage 13: cluster size ≥ 2 distinct `pt` lemmas per shipped family_root
+  - Stage 13: family_root empty on every row where pos ∉ {noun, verb, adj, adv}
   - random sample of N audio URLs returns HTTP 200 (controlled by --http-sample)
 
 Soft warnings (DON'T fail):
-  - family_root blank
   - source_line blank
   - example_pt blank
   - usage_hint longer than 80 chars (target ceiling, hard fail at 120)
+  - Stage 13: content-word coverage < 20% or > 70%
+  - Stage 13: content-word coverage < 30% (target floor)
+  - Stage 13: same `pt` maps to different family_root values across senses
+  - Stage 13: family_root contains whitespace (rare; legitimate only if BP MWE)
+  - Stage 13: chosen root row is bp_status ∈ {false_friend, uncommon, nsfw}
+  - Stage 13: cluster size > 20 (over-grouping)
+  - Stage 13: family_root value whose pt row is itself a function word
 
 Usage:
     .venv/bin/python build/verify_all.py [--http-sample 50]
@@ -49,6 +61,7 @@ CONFIG_DIR = REPO_ROOT / "config"
 FINAL_PATH = DATA_DIR / "06-final.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
 USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
+FAMILY_ROOTS_PATH = DATA_DIR / "_family_roots.tsv"
 
 EXPECTED_ROW_COUNT = 5725
 SENSE_ID_PATTERN = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
@@ -59,6 +72,16 @@ FLASH_MODEL_MARKER = "eleven_flash_v2_5"
 VALID_USAGE_HINT_PRIORITIES = {"essential", "useful", ""}
 USAGE_HINT_SOFT_MAX = 80
 USAGE_HINT_HARD_MAX = 120
+
+# Stage 13 column expectations
+FAMILY_ROOT_CONTENT_POS = {"noun", "verb", "adj", "adv"}
+FAMILY_ROOT_DETERMINISTIC_SOURCES = {"postprocess_self_root", "manual"}
+FAMILY_ROOT_NON_STANDARD_BP_STATUS = {"false_friend", "uncommon", "nsfw"}
+FAMILY_ROOT_COVERAGE_FLOOR = 0.30
+FAMILY_ROOT_COVERAGE_LOW = 0.20
+FAMILY_ROOT_COVERAGE_HIGH = 0.70
+FAMILY_ROOT_CLUSTER_MAX_SOFT = 20
+FAMILY_ROOT_BARE_STEM_RE = re.compile(r"-$|\d")
 
 # Full expected header (37 cols). Used by _verify_header().
 EXPECTED_HEADER = [
@@ -157,10 +180,8 @@ def _verify_rows(rows: list[dict], voice_gender: dict[str, str], v: Verifier) ->
     else:
         print(f"  ✓ voice_gender matches config gender")
 
-    # Soft warnings
-    n_no_family = sum(1 for r in rows if not r.get("family_root", ""))
-    if n_no_family:
-        v.soft_warn(f"family_root blank on {n_no_family}/{len(rows)} rows (optional field)")
+    # Soft warnings — note: family_root coverage is reported in
+    # _verify_family_roots(), which understands the content-word denominator.
     n_no_srcline = sum(1 for r in rows if not r.get("source_line", ""))
     if n_no_srcline:
         v.soft_warn(f"source_line blank on {n_no_srcline}/{len(rows)} rows")
@@ -277,6 +298,186 @@ def _verify_usage_hints(rows: list[dict], v: Verifier) -> None:
                     f"{USAGE_HINT_SOFT_MAX} chars (still ≤ {USAGE_HINT_HARD_MAX})")
 
 
+def _verify_family_roots(rows: list[dict], v: Verifier) -> None:
+    """Stage 13: validate family_root assignments against sidecar + invariants."""
+    all_pts: set[str] = {r["pt"] for r in rows if r.get("pt")}
+    pt_to_pos: dict[str, str] = {}
+    pt_to_bp_status: dict[str, str] = {}
+    for r in rows:
+        pt = r.get("pt") or ""
+        if pt and pt not in pt_to_pos:
+            pt_to_pos[pt] = r.get("pos", "")
+            pt_to_bp_status[pt] = r.get("bp_status", "")
+
+    sidecar_index: dict[str, dict] = {}
+    if FAMILY_ROOTS_PATH.exists():
+        for sc in read_tsv(FAMILY_ROOTS_PATH):
+            sidecar_index[sc["sense_id"]] = sc
+
+    # Collect issue sets.
+    not_in_pts: list[tuple[str, str]] = []
+    bare_stem: list[tuple[str, str]] = []
+    contains_whitespace: list[tuple[str, str]] = []
+    low_conf_shipped: list[tuple[str, str]] = []
+    missing_sidecar: list[str] = []
+    function_word_leak: list[tuple[str, str, str]] = []
+    function_word_root: list[tuple[str, str]] = []
+    nonstandard_root: list[tuple[str, str, str]] = []
+
+    # Per-pt → roots seen, per-root → distinct pts seen.
+    pt_to_roots: dict[str, set[str]] = {}
+    root_to_pts: dict[str, set[str]] = {}
+
+    n_content = 0
+    n_content_filled = 0
+    for r in rows:
+        sid = r["sense_id"]
+        pos = r.get("pos", "")
+        pt = r.get("pt", "")
+        root = (r.get("family_root") or "").strip()
+
+        if pos in FAMILY_ROOT_CONTENT_POS:
+            n_content += 1
+            if root:
+                n_content_filled += 1
+
+        if not root:
+            continue
+
+        # H6: must be empty for non-content-word rows.
+        if pos not in FAMILY_ROOT_CONTENT_POS:
+            function_word_leak.append((sid, pos, root))
+
+        # H1: must exist as a pt in the deck.
+        if root not in all_pts:
+            not_in_pts.append((sid, root))
+
+        # H2: no bare stem / digit.
+        if FAMILY_ROOT_BARE_STEM_RE.search(root):
+            bare_stem.append((sid, root))
+
+        # S4: whitespace.
+        if any(ch.isspace() for ch in root):
+            contains_whitespace.append((sid, root))
+
+        # S7: chosen root's pt row is a function word.
+        root_pos = pt_to_pos.get(root, "")
+        if root_pos and root_pos not in FAMILY_ROOT_CONTENT_POS:
+            function_word_root.append((sid, root))
+
+        # S5: chosen root row is non-standard while standard candidates exist.
+        if pt_to_bp_status.get(root, "") in FAMILY_ROOT_NON_STANDARD_BP_STATUS:
+            nonstandard_root.append((sid, root, pt_to_bp_status.get(root, "")))
+
+        # H3, H4: cross-check sidecar provenance.
+        sc = sidecar_index.get(sid)
+        if sc is None:
+            missing_sidecar.append(sid)
+        else:
+            conf = (sc.get("confidence") or "").strip().lower()
+            source = (sc.get("source") or "llm").strip()
+            if (conf != "high"
+                    and source not in FAMILY_ROOT_DETERMINISTIC_SOURCES):
+                low_conf_shipped.append((sid, conf))
+
+        # Track cluster membership: count distinct pts per root.
+        root_to_pts.setdefault(root, set()).add(pt)
+        if pt:
+            pt_to_roots.setdefault(pt, set()).add(root)
+
+    # H5: cluster size ≥ 2 distinct pts (root's own pt counts if it's in deck).
+    cluster_violations: list[tuple[str, int]] = []
+    oversized_clusters: list[tuple[str, int]] = []
+    for root, pts in root_to_pts.items():
+        members = set(pts)
+        if root in all_pts:
+            members.add(root)
+        if len(members) < 2:
+            cluster_violations.append((root, len(members)))
+        if len(members) > FAMILY_ROOT_CLUSTER_MAX_SOFT:
+            oversized_clusters.append((root, len(members)))
+
+    polyroot_pts = {
+        pt: sorted(roots) for pt, roots in pt_to_roots.items() if len(roots) > 1
+    }
+
+    coverage = n_content_filled / n_content if n_content else 0.0
+    print(f"  Stage 13: {n_content_filled}/{n_content} content-word rows have "
+          f"family_root ({coverage*100:.1f}% coverage); "
+          f"{len(root_to_pts)} distinct roots")
+
+    # --- Hard checks ---
+    if not_in_pts:
+        v.hard_fail(f"{len(not_in_pts)} family_root values not present as pt; "
+                    f"e.g., {not_in_pts[:3]}")
+    else:
+        print(f"  ✓ every family_root is a pt in the deck")
+
+    if bare_stem:
+        v.hard_fail(f"{len(bare_stem)} family_root values end with `-` or "
+                    f"contain a digit; e.g., {bare_stem[:3]}")
+    else:
+        print(f"  ✓ no bare stems / digit-containing roots")
+
+    if low_conf_shipped:
+        v.hard_fail(f"{len(low_conf_shipped)} sidecar rows shipped a root with "
+                    f"non-high confidence and non-deterministic source; "
+                    f"e.g., {low_conf_shipped[:3]}")
+    else:
+        print(f"  ✓ only high-confidence (or deterministic) roots shipped")
+
+    if missing_sidecar:
+        v.hard_fail(f"{len(missing_sidecar)} rows ship a family_root with no "
+                    f"matching sidecar entry; e.g., {missing_sidecar[:3]}")
+    else:
+        print(f"  ✓ every shipped family_root has a sidecar row")
+
+    if cluster_violations:
+        v.hard_fail(f"{len(cluster_violations)} family_root values have cluster "
+                    f"size < 2 distinct pts; e.g., {cluster_violations[:3]}")
+    else:
+        print(f"  ✓ every cluster has ≥ 2 distinct pt lemmas")
+
+    if function_word_leak:
+        v.hard_fail(f"{len(function_word_leak)} rows ship a family_root on a "
+                    f"non-content-word pos; e.g., {function_word_leak[:3]}")
+    else:
+        print(f"  ✓ family_root empty on every function-word row")
+
+    # --- Soft warnings ---
+    if coverage < FAMILY_ROOT_COVERAGE_LOW or coverage > FAMILY_ROOT_COVERAGE_HIGH:
+        v.soft_warn(f"content-word coverage {coverage*100:.1f}% is outside "
+                    f"healthy range "
+                    f"[{FAMILY_ROOT_COVERAGE_LOW*100:.0f}%, "
+                    f"{FAMILY_ROOT_COVERAGE_HIGH*100:.0f}%]")
+    elif coverage < FAMILY_ROOT_COVERAGE_FLOOR:
+        v.soft_warn(f"content-word coverage {coverage*100:.1f}% is below the "
+                    f"target floor "
+                    f"{FAMILY_ROOT_COVERAGE_FLOOR*100:.0f}%")
+
+    if polyroot_pts:
+        sample = list(polyroot_pts.items())[:3]
+        v.soft_warn(f"{len(polyroot_pts)} pts map to different family_roots "
+                    f"across senses (legitimate for sense splits); e.g., {sample}")
+
+    if contains_whitespace:
+        v.soft_warn(f"{len(contains_whitespace)} family_root values contain "
+                    f"whitespace; e.g., {contains_whitespace[:3]}")
+
+    if nonstandard_root:
+        v.soft_warn(f"{len(nonstandard_root)} rows chose a non-standard "
+                    f"(false_friend/uncommon/nsfw) root; e.g., {nonstandard_root[:3]}")
+
+    if oversized_clusters:
+        oversized_clusters.sort(key=lambda x: -x[1])
+        v.soft_warn(f"{len(oversized_clusters)} clusters exceed soft cap "
+                    f"{FAMILY_ROOT_CLUSTER_MAX_SOFT}; e.g., {oversized_clusters[:3]}")
+
+    if function_word_root:
+        v.soft_warn(f"{len(function_word_root)} rows point to a function-word "
+                    f"pt as root; e.g., {function_word_root[:3]}")
+
+
 def _http_sample(rows: list[dict], n: int, v: Verifier) -> None:
     print(f"\n[HTTP-sample] checking {n} random URLs return 200...")
     rng = random.Random(42)
@@ -324,6 +525,7 @@ def main() -> int:
     _verify_header(v)
     _verify_rows(rows, voice_gender, v)
     _verify_usage_hints(rows, v)
+    _verify_family_roots(rows, v)
     if args.http_sample > 0:
         _http_sample(rows, args.http_sample, v)
 

@@ -2512,10 +2512,10 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 ### Step 9.4 — Final deliverable: `data/06-final.tsv`
 
 - New scripts:
-  - [build/derive_final.py](../build/derive_final.py) — joins `03-enriched.tsv` + `05-ipa.tsv` + `_audio_manifest.tsv` + `_audio_asr_override.tsv` + `_usage_hints.tsv` + `config/voices.tsv`. Writes the 37-column TSV (Stage 9 baseline was 30; Stage 10 added 3 EN-audio cols; Stage 10.5 added `pt_display_safe`; Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note`). Logs join stats and gap counts to `audit/derive_final.log`.
-  - [build/verify_all.py](../build/verify_all.py) — header / row-count / audio / voice / Stage-12 invariants + HTTP-200 sample (configurable via `--http-sample N`, default 50). Exits non-zero on any hard failure. Soft warnings on `family_root` / `source_line` / `example_pt` blanks (optional fields).
-- Schema growth: Stage 9 shipped 30 cols → Stage 10 added 3 EN-audio cols (33) → Stage 10.5 added `pt_display_safe` (34) → Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note` (**37**). See § Final TSV schema below.
-- Verification result on shipped 06-final.tsv: all hard invariants pass; HTTP-sample passes; soft warnings on `family_root` blank rows where the source dictionary did not provide a root.
+  - [build/derive_final.py](../build/derive_final.py) — joins `03-enriched.tsv` + `05-ipa.tsv` + `_audio_manifest.tsv` + `_audio_asr_override.tsv` + `_usage_hints.tsv` + `_family_roots.tsv` + `config/voices.tsv`. Writes the 37-column TSV (Stage 9 baseline was 30; Stage 10 added 3 EN-audio cols; Stage 10.5 added `pt_display_safe`; Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note`; Stage 13 fills the previously-empty `family_root` column without changing the schema). Logs join stats and gap counts to `audit/derive_final.log`.
+  - [build/verify_all.py](../build/verify_all.py) — header / row-count / audio / voice / Stage-12 invariants + Stage-13 family_root checks (root exists as pt, no bare stems, only high-confidence shipped, cluster size ≥ 2 distinct pts, content-word coverage band) + HTTP-200 sample (configurable via `--http-sample N`, default 50). Exits non-zero on any hard failure.
+- Schema growth: Stage 9 shipped 30 cols → Stage 10 added 3 EN-audio cols (33) → Stage 10.5 added `pt_display_safe` (34) → Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note` (**37**). Stage 13 fills `family_root` without adding a column. See § Final TSV schema below.
+- Verification result on shipped 06-final.tsv: all hard invariants pass (including Stage-13 family_root checks); HTTP-sample passes; soft warnings remain for `source_line` / `example_pt` blanks (legacy fields).
 
 ### Step 9.5 — R2 legacy cleanup
 
@@ -2535,12 +2535,14 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 
 | Path | Purpose | Rows |
 |---|---|---|
-| `data/06-final.tsv` | Final deliverable, 37 columns (post-Stage 12) | 5,725 senses |
+| `data/06-final.tsv` | Final deliverable, 37 columns (post-Stage 13: `family_root` filled in-place) | 5,725 senses |
 | `data/_audio_manifest.tsv` | Authoritative audio state (post-Step-9.6 with corrected `tts_model`) | 11,450 clips |
 | `data/_audio_asr_override.tsv` | BP-verified ASR exceptions | 71 senses |
 | `data/_audio_review_queue_decisions.tsv` | Stage 9.2 review-queue decisions | 99 rows |
 | `data/_pronunciation_aliases.tsv` | Active alias rules | 2 (`hospital`, `gene`) |
 | `data/_pronunciation_alias_v3_winners.tsv` | Archived v3 aliases (historical) | 11 |
+| `data/_usage_hints.tsv` | Stage 12 usage_hint / risk_note classifier output | 84 rows × 10 cols |
+| `data/_family_roots.tsv` | Stage 13 family_root classifier + cluster + self-root output | 2,277 rows × 11 cols |
 | R2 bucket `audio/` prefix | Live audio storage | 11,450 objects, ~479 MB |
 
 ### What Stage 9 deliberately does NOT do
@@ -2549,6 +2551,71 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 - No rewrite of Stages 1–8 documentation. Forward-pointer notes added at the stale references (Stage 6 generation, Stage 6 filename pattern, Stage 8 "deliberately does NOT").
 - No Anki note-type or `.apkg` build. Out of scope per project conventions.
 - No model-registry routing for the TTS model. `eleven_flash_v2_5` is hardcoded in `elevenlabs_client.py` rather than read from `config/models.yaml`. The TTS fleet is small enough (one provider, one chosen model) that registry indirection adds complexity without benefit; LLM jurors keep the registry because they swap models often.
+
+## Stage 13 — `family_root` fill (2026-05)
+
+Stage 3 deliberately left `family_root` empty across all 5,725 rows
+(`out["family_root"] = ""  # deferred per plan` in
+[build/stage_3.py:365](../build/stage_3.py:365)). Stage 13 fills the existing
+column in-place from a sidecar — no schema change, no new column.
+
+Why now: without `family_root`, derivationally related learner cards
+(`decidir`, `decisão`, `decidido`, `decisivo`, `indeciso`;
+`produzir/produto/produção/produtivo/produtividade`;
+`feliz/felicidade/infelizmente`) arrive as unrelated singletons in Anki.
+Filling the field unlocks downstream filtered-deck queries, intro ordering,
+sibling spacing, and back-of-card family preview without forcing a schema bump.
+
+Pipeline (mirrors Stage 12's sidecar-driven shape):
+
+- **Step 13.1 — Candidate generation (deterministic).** For every content-word
+  row (pos ∈ {noun, verb, adj, adv}), generate candidate root lemmas from
+  the deck via:
+  1. Forward suffix-strip — `-ção/-são/-mento/-dade/-dor/-nte/-vel/-ivo/-ado/-ido/-mente` → infinitive/adjective bases (decisão → decidir).
+  2. Reverse suffix-strip — apply the same table backwards to find derivatives of the target.
+  3. One-hop negation prefix strip — `in-/im-/des-/anti-/re-` to find the bare-stem base.
+  4. Normalized 7-char prefix sibling match (fallback 6-char) — cap 6 per row, prefer content-pos and rank ≤ 3000.
+  5. `SEED_FAMILIES` recall booster (decidir / produzir / negociar / criar / organizar / feliz) — guarantees the highest-value business/abstract clusters are surfaced.
+  Total candidate set capped at 15 per row. Skip the LLM call entirely if the candidate set is empty.
+
+- **Step 13.2 — Dry-run gate.** [build/13_0_family_root_classifier.py](../build/13_0_family_root_classifier.py) `--dry-run` runs candidate generation locally, emits the histogram + top-50 noisy clusters to `audit/13_family_root_dryrun.txt`, and aborts the LLM run if candidate-rows > 3,000 OR p95 candidate-set size > 25. Initial run with looser 5-char prefix matching produced 3,170 rows with 12-candidate noisy clusters from common Latin prefixes (inter-, trans-, cons-, esp-, contr-, corr-); tightening to 7-char preferred / 6-char fallback + cap 6 dropped that to 2,276 rows, p95 = 3.
+
+- **Step 13.3 — LLM classification.** `claude-sonnet-4-6` (Anthropic Tool Use + prompt caching) picks one root from the candidate list or returns empty. Cardinal rules: root MUST come from candidate list (no invention), prefer verb > action/quality noun > adjective > most frequent, sense-aware (target's `en_primary` / `annotation` / `example_pt` must match the candidate's sense), only confidence='high' ships. Per-call audit at `audit/13_family_root.jsonl` carries `prompt_hash` / `response_hash` for reproducibility.
+
+  Result: 2,276 LLM calls, 730 s wall (concurrency=10), 88 % cache hit, 1,718 root assignments + 558 deliberate empties (75 % hit rate). Cost ≈ $7.18.
+
+- **Step 13.4 — Post-process.** [build/13_2_postprocess.py](../build/13_2_postprocess.py) applies idempotent passes:
+  1. Per-row: strip whitespace, reject hallucinated roots, reject bare stems / digits, drop non-high-confidence.
+  2. Deck-level: count distinct `pt` lemmas per root; if cluster < 2 distinct pts, clear all `family_root` references to it (63 LLM picks dropped).
+  3. Self-root propagation: every cluster head's own row(s) get `family_root = head` with provenance `source = "postprocess_self_root"` (121 propagations + 1 newly-appended sidecar row). The head card belongs to its own family for sibling-spacing logic.
+
+  After postprocess: 1,776 shipped roots across 784 distinct clusters (614 size-2, 142 size-3, 25 size-4, 2 size-5, 1 size-6).
+
+- **Step 13.5 — Derive-time export.** `derive_final.py::_resolve_family_root()` re-validates each shipped root against the deck's `pt` set, applies the high-confidence gate (except for `postprocess_self_root` / `manual` provenance), and appends a per-row record to `audit/13_family_root.jsonl` so the join trail reconstructs from sidecar + audit alone.
+
+- **Step 13.6 — Verification.** `verify_all.py::_verify_family_roots()` enforces:
+
+  HARD: every family_root is a `pt` in the deck (validated against pt set, not source_pt — the BP-normalized learner-facing form); no bare stems / digits; only high-confidence (or deterministic) roots ship; every shipped root has a sidecar entry; cluster size ≥ 2 distinct pt lemmas; family_root empty on every non-content-word row.
+
+  SOFT: content-word coverage outside [20 %, 70 %]; same pt mapping to different roots across senses (legitimate for sense splits like banco/bank vs banco/bench); whitespace in root; chosen root is non-standard (`false_friend` / `uncommon` / `nsfw`) while a standard candidate exists; cluster > 20 members.
+
+Shipped numbers on `06-final.tsv`:
+
+- 37 columns (unchanged from Stage 12)
+- 5,725 rows (unchanged)
+- 1,776 non-empty `family_root` values = **31.9 % coverage on content-word rows** (right in the 30–50 % target zone)
+- 784 distinct clusters
+- 0 hard verify failures; 2 informational soft warnings (12 sense-split pts mapping to different roots — e.g. `preciso → precisar` vs `preciso → precisão`; 7 rows whose chosen root is `false_friend`/`uncommon` — e.g. `pretendido → pretender`)
+
+Audit trail at `audit/13_family_root.jsonl` (gitignored): per-row `prompt_hash` / `response_hash` from each LLM call + a derive-time export record showing shipped-vs-sidecar values and provenance. Sidecar at `data/_family_roots.tsv` (2,277 rows × 11 cols) is the authoritative classification state.
+
+### What Stage 13 deliberately does NOT do
+
+- No deterministic Pass-A short-circuit. High-confidence cases like `-mente` adverbs could ship without an LLM call; not in v1 — keeps the classifier flow uniform and auditable.
+- No manual override file yet. Plumbing slot reserved (`data/_manual_family_roots.tsv` → `source = "manual"` bypasses the high-confidence gate at derive time).
+- No Anki note-type wiring. How `family_root` surfaces on cards (filtered decks, sibling spacing, back-of-card family list) is downstream.
+- No Stage 3 rewrite. `build/stage_3.py:365`'s deferred-empty assignment becomes historical context; the sidecar replaces it without source-side code changes.
+- `family_relation` / `confidence` / `reason` stay sidecar-only — only `family_root` ships into the final TSV.
 
 ## Final TSV schema (`data/06-final.tsv`)
 
@@ -2579,7 +2646,7 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 | 23 | `audio_example_md5` | hex | |
 | 24 | `voice_id` | string | ElevenLabs voice ID that generated both clips for this sense. Resolves in `config/voices.tsv`. |
 | 25 | `voice_gender` | enum | `m` / `f`. Redundant with `voice_id` but human-readable in spreadsheets. |
-| 26 | `family_root` | string | Empty if standalone |
+| 26 | `family_root` | string | BP lemma (a `pt` in the deck) heading the derivational family for this row; empty if no cluster ≥ 2 distinct pts (Stage 13). |
 | 27 | `tags` | string | Space-separated |
 | 28 | `source_line` | string | Raw original; never mutated |
 | 29 | `source_line_number` | int | Ledger join key |
@@ -3021,7 +3088,7 @@ If the user wants to push cost even lower:
 - No BP cross-check against external corpora (user opted out).
 - No legal/travel expansion vocabulary (out of scope for now).
 - No conjugation sub-deck (deferred).
-- No derivational-family **review order** — `family_root` is a schema-reserved field for future use.
+- No derivational-family **review order** logic yet (filtered decks, sibling spacing, intro ordering off `family_root`). Stage 13 ships the field; downstream Anki-side scheduling is the next phase.
 - No connected-speech IPA — gap documented, not patched.
 - No storage of authoritative data as anything other than TSV files in this repo (simplicity over DB flexibility).
 - No silent drops, silent replacements, silent merges, or silent regenerations. Everything is in the ledger or the manifest.

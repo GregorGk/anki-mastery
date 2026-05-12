@@ -11,12 +11,17 @@ Joins:
   - data/_audio_asr_override.tsv (notes flag if sense's audio is ASR-untranscribable-but-bp-ok)
   - data/_usage_hints.tsv     (Stage 12: usage_hint, usage_hint_priority, risk_note
                                per sense_id for verb/idiom rows)
+  - data/_family_roots.tsv    (Stage 13: family_root for content-word rows;
+                               LLM-classified, post-processed, cluster-validated)
 
 Produces 37 columns per the schema in docs/plan.md §"Final TSV schema". History:
   v1: 30 cols (Stage 9 baseline)
   +3 EN audio cols (Stage 10):     audio_en_example, audio_en_example_md5, voice_id_en
   +1 POS-safe display (Stage 10.5): pt_display_safe (placed after notes)
   +3 usage-hint cols (Stage 12):   usage_hint, usage_hint_priority, risk_note (appended)
+  Stage 13: no schema change — fills the previously-empty `family_root` column
+            from data/_family_roots.tsv, validated against pt set + cluster
+            size ≥ 2 distinct pt lemmas.
 
 Export filter for Stage 12 columns:
   usage_hint        = essential always; useful only if rank<=1000 or row has
@@ -53,11 +58,18 @@ IPA_PATH = DATA_DIR / "05-ipa.tsv"
 MANIFEST_PATH = DATA_DIR / "_audio_manifest.tsv"
 OVERRIDE_PATH = DATA_DIR / "_audio_asr_override.tsv"
 USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
+FAMILY_ROOTS_PATH = DATA_DIR / "_family_roots.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
 
 FINAL_PATH = DATA_DIR / "06-final.tsv"
 LOG_PATH = AUDIT_DIR / "derive_final.log"
 USAGE_HINT_AUDIT = AUDIT_DIR / "12_usage_hints.jsonl"
+FAMILY_ROOT_AUDIT = AUDIT_DIR / "13_family_root.jsonl"
+
+# Content POS — Stage 13 only ships `family_root` for these.
+FAMILY_ROOT_CONTENT_POS = ("noun", "verb", "adj", "adv")
+# Provenance values that bypass the high-confidence requirement.
+FAMILY_ROOT_DETERMINISTIC_SOURCES = ("postprocess_self_root", "manual")
 
 # Tags that promote a `useful`-priority hint to be included in the final
 # learner-facing column even when rank > 1000.
@@ -138,6 +150,43 @@ def _load_usage_hints() -> dict[str, dict]:
     return {r["sense_id"]: r for r in read_tsv(USAGE_HINTS_PATH)}
 
 
+def _load_family_roots() -> dict[str, dict]:
+    """Read data/_family_roots.tsv as {sense_id: row}. Empty if file missing."""
+    if not FAMILY_ROOTS_PATH.exists():
+        return {}
+    return {r["sense_id"]: r for r in read_tsv(FAMILY_ROOTS_PATH)}
+
+
+def _resolve_family_root(
+    *,
+    pos: str,
+    sidecar_row: dict | None,
+    all_pts: set[str],
+) -> str:
+    """Apply the Stage-13 export filter; return the family_root to ship.
+
+    Rules:
+      - pos not in content set → empty (defense-in-depth)
+      - sidecar missing or family_root empty → empty
+      - family_root not in all_pts → empty (rejects hallucinated/stale roots)
+      - confidence != 'high' AND source not in deterministic sources → empty
+    """
+    if pos not in FAMILY_ROOT_CONTENT_POS:
+        return ""
+    if sidecar_row is None:
+        return ""
+    root = (sidecar_row.get("family_root") or "").strip()
+    if not root or root not in all_pts:
+        return ""
+    confidence = (sidecar_row.get("confidence") or "").strip().lower()
+    source = (sidecar_row.get("source") or "llm").strip()
+    if source in FAMILY_ROOT_DETERMINISTIC_SOURCES:
+        return root
+    if confidence != "high":
+        return ""
+    return root
+
+
 def _resolve_usage_hint_fields(
     *,
     sense_id: str,
@@ -206,6 +255,7 @@ def main() -> int:
     voice_gender = _voice_gender_map()
     en_pairing = _en_voice_pairing()
     usage_hints = _load_usage_hints()
+    family_roots = _load_family_roots()
 
     enriched_idx = {r["sense_id"]: r for r in enriched}
     ipa_idx = {r["sense_id"]: r for r in ipa}
@@ -225,6 +275,16 @@ def main() -> int:
     sids = sorted(en_sids & ipa_sids)
     print(f"Joining {len(sids)} senses (intersection of 03 + 05)")
 
+    # Build the universe of pt values once. Stage 13's _resolve_family_root
+    # validates against this set so hallucinated / stale roots don't ship.
+    all_pts: set[str] = set()
+    for sid in sids:
+        e = enriched_idx[sid]
+        ip = ipa_idx[sid]
+        pt = e.get("pt", "") or ip.get("pt", "")
+        if pt:
+            all_pts.add(pt)
+
     rows: list[dict] = []
     gap_stats = {
         "missing_audio_word": 0,
@@ -238,7 +298,13 @@ def main() -> int:
         "voice_mismatch": 0,
         "en_voice_pairing_mismatch": 0,
         "asr_override_applied": 0,
-        "family_root_blank": 0,
+        "family_root_shipped": 0,
+        "family_root_dropped_low_conf": 0,
+        "family_root_dropped_not_in_pts": 0,
+        "family_root_dropped_non_content_pos": 0,
+        "family_root_self_root_shipped": 0,
+        "family_root_blank_content": 0,
+        "family_root_blank_function": 0,
         "source_line_blank": 0,
         # Stage 12 usage hints
         "usage_hint_essential": 0,
@@ -291,9 +357,6 @@ def main() -> int:
               and voice_id_en_manifest != voice_id_en_pairing):
             gap_stats["en_voice_pairing_mismatch"] += 1
 
-        family_root = e.get("family_root", "")
-        if not family_root:
-            gap_stats["family_root_blank"] += 1
         if not e.get("source_line"):
             gap_stats["source_line_blank"] += 1
 
@@ -313,6 +376,33 @@ def main() -> int:
             sense_id=sid, rank_str=rank_val, tags=tags_val,
             sidecar_row=sidecar_row,
         )
+
+        # Stage 13: family_root from sidecar with export filter.
+        fr_sidecar = family_roots.get(sid)
+        family_root = _resolve_family_root(
+            pos=pos_val, sidecar_row=fr_sidecar, all_pts=all_pts,
+        )
+        # Account for the why-empty paths for the log.
+        if pos_val not in FAMILY_ROOT_CONTENT_POS:
+            if not family_root:
+                gap_stats["family_root_blank_function"] += 1
+        else:
+            if family_root:
+                gap_stats["family_root_shipped"] += 1
+                source = (fr_sidecar.get("source") or "").strip() if fr_sidecar else ""
+                if source in FAMILY_ROOT_DETERMINISTIC_SOURCES:
+                    gap_stats["family_root_self_root_shipped"] += 1
+            else:
+                gap_stats["family_root_blank_content"] += 1
+                if fr_sidecar:
+                    sc_root = (fr_sidecar.get("family_root") or "").strip()
+                    sc_conf = (fr_sidecar.get("confidence") or "").strip().lower()
+                    sc_source = (fr_sidecar.get("source") or "llm").strip()
+                    if sc_root and sc_root not in all_pts:
+                        gap_stats["family_root_dropped_not_in_pts"] += 1
+                    elif (sc_root and sc_conf != "high"
+                          and sc_source not in FAMILY_ROOT_DETERMINISTIC_SOURCES):
+                        gap_stats["family_root_dropped_low_conf"] += 1
         if sidecar_row is not None:
             raw_priority = sidecar_row.get("hint_priority") or "omit"
             raw_hint = (sidecar_row.get("usage_hint") or "").strip()
@@ -430,6 +520,37 @@ def main() -> int:
             }, ensure_ascii=False) + "\n")
     print(f"Appended {gap_stats['usage_hint_total_shipped']} hint-export records "
           f"+ {gap_stats['risk_note_shipped']} risk_note records to {USAGE_HINT_AUDIT}")
+
+    # Stage 13: append a per-row JSONL record for every sense whose family_root
+    # shipped, capturing the sidecar provenance side-by-side with the derive
+    # output. Joins to the LLM classifier log at audit/13_family_root.jsonl
+    # (which has prompt_hash / response_hash) via sense_id.
+    with FAMILY_ROOT_AUDIT.open("a", encoding="utf-8") as af:
+        n_fr_records = 0
+        for r in rows:
+            sid = r["sense_id"]
+            shipped = r.get("family_root", "")
+            if not shipped:
+                continue
+            sc = family_roots.get(sid) or {}
+            af.write(_json.dumps({
+                "event": "derive_final_export",
+                "sense_id": sid,
+                "rank": r.get("rank", ""),
+                "pos": r.get("pos", ""),
+                "pt": r.get("pt", ""),
+                "shipped_family_root": shipped,
+                "sidecar_family_root": sc.get("family_root", ""),
+                "sidecar_family_relation": sc.get("family_relation", ""),
+                "sidecar_confidence": sc.get("confidence", ""),
+                "sidecar_source": sc.get("source", ""),
+                "sidecar_reason": sc.get("reason", ""),
+                "model_id": sc.get("model_id", ""),
+                "derive_ts": derive_ts,
+            }, ensure_ascii=False) + "\n")
+            n_fr_records += 1
+    print(f"Appended {n_fr_records} family_root export records to "
+          f"{FAMILY_ROOT_AUDIT}")
     return 0
 
 
