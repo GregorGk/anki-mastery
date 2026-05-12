@@ -1,0 +1,5 @@
+sense_id	bp_validity	register	risk_flags	risk_note	reason
+1600.00.01	rare_in_bp	archaic	racial_sensitive|outdated	Sensitive/outdated racial term; avoid in normal speech.	Stage-15 manual prefill: racially sensitive
+2124.00.01	regional_br	informal	regional_misuse|offensive	Regional warning: connotation varies sharply across Brazil.	Stage-15 manual prefill: regional sense (young girl) shares lemma with the sex-worker sense in some regions
+2124.00.02	standard	vulgar	vulgar|sexual|offensive	BP warning: in some Brazilian regions means "prostitute"; avoid.	Stage-15 manual prefill: explicit vulgar / sexual sense
+2751.00.01	rare_in_bp	vulgar	sexual|vulgar	BP warning: strong sexual slang; avoid for neutral "enjoy".	Stage-15 manual prefill: preserves Stage 12 risk_note + adds structured flags

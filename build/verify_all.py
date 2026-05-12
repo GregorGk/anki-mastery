@@ -59,6 +59,12 @@ from build.lib.topic_tag_rules import (  # noqa: E402
     MANUAL_TOPIC_OVERRIDES,
     NUM_TOPIC_OVERRIDES,
 )
+from build.lib.risk_register_rules import (  # noqa: E402
+    ALLOWED_BP_VALIDITY_SET,
+    ALLOWED_REGISTER_SET,
+    ALLOWED_RISK_FLAGS_SET,
+    RISK_NOTE_MAX_CHARS,
+)
 
 DATA_DIR = REPO_ROOT / "data"
 CONFIG_DIR = REPO_ROOT / "config"
@@ -68,6 +74,8 @@ VOICES_PATH = CONFIG_DIR / "voices.tsv"
 USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
 FAMILY_ROOTS_PATH = DATA_DIR / "_family_roots.tsv"
 TOPIC_TAGS_PATH = DATA_DIR / "_topic_tags.tsv"
+RISK_REGISTER_PATH = DATA_DIR / "_risk_register.tsv"
+MANUAL_RISK_REGISTER_PATH = DATA_DIR / "_manual_risk_register.tsv"
 
 EXPECTED_ROW_COUNT = 5725
 SENSE_ID_PATTERN = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
@@ -100,7 +108,7 @@ TOPIC_COVERAGE_CHARACTER_QUALITIES_CAP = 0.15
 TOPIC_COVERAGE_MEASUREMENT_CAP = 0.12
 TOPIC_LOW_CONF_CAP = 0.05
 
-# Full expected header (37 cols). Used by _verify_header().
+# Full expected header (40 cols, Stage 15). Used by _verify_header().
 EXPECTED_HEADER = [
     "sense_id", "rank", "source_pt", "pt", "pt_type", "gender",
     "pt_display", "pos", "sense_index", "en_primary", "en_all",
@@ -112,6 +120,7 @@ EXPECTED_HEADER = [
     "source_line", "source_line_number", "notes",
     "pt_display_safe",
     "usage_hint", "usage_hint_priority", "risk_note",
+    "bp_validity", "register", "risk_flags",
 ]
 
 USER_AGENT = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -237,6 +246,17 @@ def _verify_usage_hints(rows: list[dict], v: Verifier) -> None:
     if USAGE_HINTS_PATH.exists():
         sidecar_sids = {r["sense_id"] for r in read_tsv(USAGE_HINTS_PATH)}
 
+    # Stage 15 added a second + third risk_note source: data/_risk_register.tsv
+    # (LLM / deterministic) and data/_manual_risk_register.tsv (manual).
+    # Provenance for risk_note now flows from any of these three files.
+    risk_register_sids: set[str] = set()
+    if RISK_REGISTER_PATH.exists():
+        risk_register_sids = {r["sense_id"] for r in read_tsv(RISK_REGISTER_PATH)}
+    manual_risk_sids: set[str] = set()
+    if MANUAL_RISK_REGISTER_PATH.exists():
+        manual_risk_sids = {r["sense_id"] for r in read_tsv(MANUAL_RISK_REGISTER_PATH)}
+    risk_note_provenance_sids = sidecar_sids | risk_register_sids | manual_risk_sids
+
     for r in rows:
         sid = r["sense_id"]
         hint = r.get("usage_hint", "")
@@ -263,8 +283,12 @@ def _verify_usage_hints(rows: list[dict], v: Verifier) -> None:
         if priority and not hint:
             priority_without_hint.append(sid)
 
-        # Provenance: every shipped hint or risk_note must have a sidecar entry.
-        if (hint or risk) and sid not in sidecar_sids:
+        # Provenance:
+        #   - shipped usage_hint must have an entry in _usage_hints.tsv (Stage 12)
+        #   - shipped risk_note may come from Stage 12 OR Stage 15 sources
+        if hint and sid not in sidecar_sids:
+            hint_without_sidecar.append(sid)
+        elif risk and sid not in risk_note_provenance_sids:
             hint_without_sidecar.append(sid)
 
     n_hints = sum(1 for r in rows if r.get("usage_hint", ""))
@@ -682,6 +706,235 @@ def _verify_topic_tags(rows: list[dict], v: Verifier) -> None:
               f"({n_medium/n_total*100:.1f}%) — informational, not failing")
 
 
+def _verify_risk_register(rows: list[dict], v: Verifier) -> None:
+    """Stage 15: bp_validity / register / risk_flags / risk_note invariants.
+
+    Hard checks (H1-H11) + soft warnings (S1-S10) per plan.
+    """
+    sidecar_index: dict[str, dict] = {}
+    if RISK_REGISTER_PATH.exists():
+        sidecar_index = {r["sense_id"]: r for r in read_tsv(RISK_REGISTER_PATH)}
+    manual_index: dict[str, dict] = {}
+    if MANUAL_RISK_REGISTER_PATH.exists():
+        manual_index = {r["sense_id"]: r for r in read_tsv(MANUAL_RISK_REGISTER_PATH)}
+
+    # Hard check buckets
+    bad_bv: list[tuple[str, str]] = []
+    bad_reg: list[tuple[str, str]] = []
+    bad_flags: list[tuple[str, str]] = []
+    none_mix: list[tuple[str, str]] = []
+    bad_note_len: list[tuple[str, int]] = []
+    bad_note_ws: list[tuple[str, str]] = []
+    h6_violations: list[tuple[str, str, str]] = []   # ep_only/nonstandard + flags=none
+    h7_violations: list[tuple[str, str, str]] = []   # vulgar/taboo + flags=none
+    h8_violations: list[tuple[str, str]] = []         # note+none
+    missing_sidecar: list[str] = []
+
+    # Stage-12 carry-forward checks (H9/H10)
+    # Build set of sense_ids that had non-empty risk_note in the prior
+    # 06-final.tsv. Since we're verifying AFTER regen, we can't read the
+    # "old" file directly. Instead, derive_final's audit JSONL records the
+    # Stage-12 carry — but for a single-shot verifier we approximate by
+    # looking at the LIVE risk_register sidecar's `old_risk_note` column
+    # (which was populated from the prior 06-final.tsv at classifier time).
+    stage12_carry_sids: set[str] = set()
+    for sc in sidecar_index.values():
+        if (sc.get("old_risk_note") or "").strip():
+            stage12_carry_sids.add(sc["sense_id"])
+    stage12_dropped: list[str] = []
+    stage12_no_flag: list[tuple[str, str]] = []
+
+    by_bv: dict[str, int] = {}
+    by_reg: dict[str, int] = {}
+    by_source: dict[str, int] = {"manual": 0, "llm": 0, "deterministic_default": 0,
+                                 "llm_audit_only": 0, "": 0}
+    n_rows = len(rows)
+    n_flags_nonzero = 0
+    n_note_nonempty = 0
+    n_bp_status_ff_missing_ff_flag = 0
+    n_bp_status_nsfw_missing_sensitivity = 0
+    n_bp_status_uncommon_but_standard = 0
+    n_reg_vulgar_no_note = 0
+    n_ep_only_no_note = 0
+    n_regional_br_no_flag = 0
+    pt_to_validity: dict[str, set[str]] = {}     # ignore - reserved for future
+
+    NSFW_FLAG_SET = {"sexual", "vulgar", "offensive", "slur", "racial_sensitive"}
+
+    for r in rows:
+        sid = r["sense_id"]
+        bv = (r.get("bp_validity") or "").strip()
+        reg = (r.get("register") or "").strip()
+        flags_raw = (r.get("risk_flags") or "").strip()
+        note = (r.get("risk_note") or "").strip()
+        bp_status = (r.get("bp_status") or "").strip()
+
+        # H1: bp_validity enum
+        if bv not in ALLOWED_BP_VALIDITY_SET:
+            bad_bv.append((sid, bv))
+        # H2: register enum
+        if reg not in ALLOWED_REGISTER_SET:
+            bad_reg.append((sid, reg))
+
+        # H3 + H4: risk_flags pipe-list + none-mix
+        parts = [p.strip() for p in flags_raw.split("|") if p.strip()] if flags_raw else []
+        invalid_in_flags = [p for p in parts if p not in ALLOWED_RISK_FLAGS_SET]
+        if invalid_in_flags or not parts:
+            bad_flags.append((sid, flags_raw))
+        elif "none" in parts and len(parts) > 1:
+            none_mix.append((sid, flags_raw))
+
+        # H5: risk_note length + whitespace
+        if len(note) > RISK_NOTE_MAX_CHARS:
+            bad_note_len.append((sid, len(note)))
+        if any(ch in note for ch in ("\t", "\n", "\r")):
+            bad_note_ws.append((sid, note[:60]))
+
+        # H6: bp_validity ∈ {ep_only, nonstandard} ⇒ flags != none
+        if bv in {"ep_only", "nonstandard"} and flags_raw == "none":
+            # Allow when manual override explicitly set it (defensive).
+            if sid not in manual_index:
+                h6_violations.append((sid, bv, flags_raw))
+
+        # H7: register ∈ {vulgar, taboo} ⇒ flags != none
+        if reg in {"vulgar", "taboo"} and flags_raw == "none":
+            if sid not in manual_index:
+                h7_violations.append((sid, reg, flags_raw))
+
+        # H8: note non-empty ⇒ flags != none
+        if note and flags_raw == "none":
+            h8_violations.append((sid, note[:60]))
+
+        # H9 + H10: Stage-12 carry-forward
+        if sid in stage12_carry_sids:
+            if not note:
+                stage12_dropped.append(sid)
+            if flags_raw == "none":
+                stage12_no_flag.append((sid, note[:60]))
+
+        # H11: shipped non-default rows must have a sidecar entry
+        # The default source is "deterministic_default"; manual and llm rows
+        # always come from sidecar. So we just need to check rows whose
+        # sidecar source isn't deterministic_default OR which have non-default
+        # values — every such row must be in the sidecar.
+        sc = sidecar_index.get(sid)
+        if sc is None and (bv != "standard" or reg != "neutral" or flags_raw != "none" or note):
+            missing_sidecar.append(sid)
+
+        # Distribution + soft-warning aggregations
+        by_bv[bv] = by_bv.get(bv, 0) + 1
+        by_reg[reg] = by_reg.get(reg, 0) + 1
+        src = (sc.get("source") if sc else "").strip()
+        by_source[src] = by_source.get(src, 0) + 1
+        if flags_raw != "none":
+            n_flags_nonzero += 1
+        if note:
+            n_note_nonempty += 1
+        if bp_status == "false_friend" and "false_friend" not in parts:
+            n_bp_status_ff_missing_ff_flag += 1
+        if bp_status == "nsfw" and not (set(parts) & NSFW_FLAG_SET):
+            n_bp_status_nsfw_missing_sensitivity += 1
+        if bp_status == "uncommon" and bv == "standard":
+            n_bp_status_uncommon_but_standard += 1
+        if reg in {"vulgar", "taboo"} and not note:
+            n_reg_vulgar_no_note += 1
+        if bv == "ep_only" and not note:
+            n_ep_only_no_note += 1
+        if bv == "regional_br" and flags_raw == "none":
+            n_regional_br_no_flag += 1
+
+    uncertain_bv_pct = (by_bv.get("uncertain", 0) / n_rows) if n_rows else 0
+    uncertain_reg_pct = (by_reg.get("uncertain", 0) / n_rows) if n_rows else 0
+    flags_nonzero_pct = (n_flags_nonzero / n_rows) if n_rows else 0
+    note_nonempty_pct = (n_note_nonempty / n_rows) if n_rows else 0
+
+    print(f"  Stage 15: {n_rows} rows; "
+          f"sources: manual={by_source.get('manual',0)} "
+          f"llm={by_source.get('llm',0)} "
+          f"default={by_source.get('deterministic_default',0)}; "
+          f"flags!=none={n_flags_nonzero} ({flags_nonzero_pct*100:.1f}%); "
+          f"risk_note non-empty={n_note_nonempty} ({note_nonempty_pct*100:.1f}%)")
+
+    # ----- Hard checks -----
+    if bad_bv:
+        v.hard_fail(f"{len(bad_bv)} rows have invalid bp_validity; e.g., {bad_bv[:3]}")
+    else:
+        print(f"  ✓ every bp_validity in allowed enum (H1)")
+    if bad_reg:
+        v.hard_fail(f"{len(bad_reg)} rows have invalid register; e.g., {bad_reg[:3]}")
+    else:
+        print(f"  ✓ every register in allowed enum (H2)")
+    if bad_flags:
+        v.hard_fail(f"{len(bad_flags)} rows have invalid risk_flags; e.g., {bad_flags[:3]}")
+    else:
+        print(f"  ✓ every risk_flags in allowed pipe-list (H3)")
+    if none_mix:
+        v.hard_fail(f"{len(none_mix)} rows mix 'none' with other flags; e.g., {none_mix[:3]}")
+    else:
+        print(f"  ✓ 'none' never combined with other flags (H4)")
+    if bad_note_len or bad_note_ws:
+        v.hard_fail(f"{len(bad_note_len) + len(bad_note_ws)} risk_note format violations "
+                    f"(too long or whitespace artifacts)")
+    else:
+        print(f"  ✓ risk_note ≤ {RISK_NOTE_MAX_CHARS} chars + no embedded tab/newline (H5)")
+    if h6_violations:
+        v.hard_fail(f"{len(h6_violations)} bp_validity∈{{ep_only,nonstandard}} rows "
+                    f"with risk_flags=none; e.g., {h6_violations[:3]}")
+    else:
+        print(f"  ✓ ep_only/nonstandard ⇒ risk_flags!=none (H6)")
+    if h7_violations:
+        v.hard_fail(f"{len(h7_violations)} vulgar/taboo register rows with "
+                    f"risk_flags=none; e.g., {h7_violations[:3]}")
+    else:
+        print(f"  ✓ vulgar/taboo ⇒ risk_flags!=none (H7)")
+    if h8_violations:
+        v.hard_fail(f"{len(h8_violations)} rows have non-empty risk_note but "
+                    f"risk_flags=none; e.g., {h8_violations[:3]}")
+    else:
+        print(f"  ✓ non-empty risk_note ⇒ risk_flags!=none (H8)")
+    if stage12_dropped:
+        v.hard_fail(f"{len(stage12_dropped)} Stage-12 risk_note(s) silently dropped; "
+                    f"e.g., {stage12_dropped[:3]}")
+    else:
+        print(f"  ✓ no Stage-12 risk_note dropped (H9)")
+    if stage12_no_flag:
+        v.hard_fail(f"{len(stage12_no_flag)} Stage-12 risk_note rows ship with "
+                    f"risk_flags=none; e.g., {stage12_no_flag[:3]}")
+    else:
+        print(f"  ✓ Stage-12 carry-forward rows have risk_flags!=none (H10)")
+    if missing_sidecar:
+        v.hard_fail(f"{len(missing_sidecar)} non-default rows missing sidecar entry; "
+                    f"e.g., {missing_sidecar[:3]}")
+    else:
+        print(f"  ✓ every non-default shipped row has a sidecar entry (H11)")
+
+    # ----- Soft warnings -----
+    if uncertain_bv_pct > 0.01:
+        v.soft_warn(f"bp_validity=uncertain on {uncertain_bv_pct*100:.1f}% of rows (cap 1%)")
+    if uncertain_reg_pct > 0.01:
+        v.soft_warn(f"register=uncertain on {uncertain_reg_pct*100:.1f}% of rows (cap 1%)")
+    if flags_nonzero_pct > 0.10:
+        v.soft_warn(f"risk_flags!=none on {flags_nonzero_pct*100:.1f}% of rows (cap 10%)")
+    if note_nonempty_pct > 0.03:
+        v.soft_warn(f"risk_note non-empty on {note_nonempty_pct*100:.1f}% of rows (cap 3%)")
+    if n_bp_status_ff_missing_ff_flag:
+        v.soft_warn(f"{n_bp_status_ff_missing_ff_flag} bp_status=false_friend rows "
+                    f"lack the false_friend flag (S5)")
+    if n_bp_status_nsfw_missing_sensitivity:
+        v.soft_warn(f"{n_bp_status_nsfw_missing_sensitivity} bp_status=nsfw rows "
+                    f"lack a sensitivity flag (S6)")
+    if n_bp_status_uncommon_but_standard:
+        v.soft_warn(f"{n_bp_status_uncommon_but_standard} bp_status=uncommon rows "
+                    f"shipped bp_validity=standard (S7)")
+    if n_reg_vulgar_no_note:
+        v.soft_warn(f"{n_reg_vulgar_no_note} vulgar/taboo rows have empty risk_note (S8)")
+    if n_ep_only_no_note:
+        v.soft_warn(f"{n_ep_only_no_note} ep_only rows have empty risk_note (S9)")
+    if n_regional_br_no_flag:
+        v.soft_warn(f"{n_regional_br_no_flag} regional_br rows ship risk_flags=none "
+                    f"(S10 — verify each is genuinely harmless)")
+
+
 def _http_sample(rows: list[dict], n: int, v: Verifier) -> None:
     print(f"\n[HTTP-sample] checking {n} random URLs return 200...")
     rng = random.Random(42)
@@ -731,6 +984,7 @@ def main() -> int:
     _verify_usage_hints(rows, v)
     _verify_family_roots(rows, v)
     _verify_topic_tags(rows, v)
+    _verify_risk_register(rows, v)
     if args.http_sample > 0:
         _http_sample(rows, args.http_sample, v)
 

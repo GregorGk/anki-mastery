@@ -2514,7 +2514,7 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 - New scripts:
   - [build/derive_final.py](../build/derive_final.py) — joins `03-enriched.tsv` + `05-ipa.tsv` + `_audio_manifest.tsv` + `_audio_asr_override.tsv` + `_usage_hints.tsv` + `_family_roots.tsv` + `config/voices.tsv`. Writes the 37-column TSV (Stage 9 baseline was 30; Stage 10 added 3 EN-audio cols; Stage 10.5 added `pt_display_safe`; Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note`; Stage 13 fills the previously-empty `family_root` column without changing the schema). Logs join stats and gap counts to `audit/derive_final.log`.
   - [build/verify_all.py](../build/verify_all.py) — header / row-count / audio / voice / Stage-12 invariants + Stage-13 family_root checks (root exists as pt, no bare stems, only high-confidence shipped, cluster size ≥ 2 distinct pts, content-word coverage band) + HTTP-200 sample (configurable via `--http-sample N`, default 50). Exits non-zero on any hard failure.
-- Schema growth: Stage 9 shipped 30 cols → Stage 10 added 3 EN-audio cols (33) → Stage 10.5 added `pt_display_safe` (34) → Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note` (**37**). Stage 13 fills `family_root` without adding a column. See § Final TSV schema below.
+- Schema growth: Stage 9 shipped 30 cols → Stage 10 added 3 EN-audio cols (33) → Stage 10.5 added `pt_display_safe` (34) → Stage 12 appended `usage_hint`, `usage_hint_priority`, `risk_note` (37). Stage 13 fills `family_root` without adding a column. Stage 14 merges `#topic-*` into the existing `tags` column (still 37). Stage 15 appends `bp_validity`, `register`, `risk_flags` (**40**). See § Final TSV schema below.
 - Verification result on shipped 06-final.tsv: all hard invariants pass (including Stage-13 family_root checks); HTTP-sample passes; soft warnings remain for `source_line` / `example_pt` blanks (legacy fields).
 
 ### Step 9.5 — R2 legacy cleanup
@@ -2535,7 +2535,7 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 
 | Path | Purpose | Rows |
 |---|---|---|
-| `data/06-final.tsv` | Final deliverable, 37 columns (post-Stage 13: `family_root` filled in-place) | 5,725 senses |
+| `data/06-final.tsv` | Final deliverable, **40 columns** (post-Stage 15: `bp_validity` + `register` + `risk_flags` appended) | 5,725 senses |
 | `data/_audio_manifest.tsv` | Authoritative audio state (post-Step-9.6 with corrected `tts_model`) | 11,450 clips |
 | `data/_audio_asr_override.tsv` | BP-verified ASR exceptions | 71 senses |
 | `data/_audio_review_queue_decisions.tsv` | Stage 9.2 review-queue decisions | 99 rows |
@@ -2544,6 +2544,8 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 | `data/_usage_hints.tsv` | Stage 12 usage_hint / risk_note classifier output | 84 rows × 10 cols |
 | `data/_family_roots.tsv` | Stage 13 family_root classifier + cluster + self-root output | 2,277 rows × 11 cols |
 | `data/_topic_tags.tsv` | Stage 14 primary `#topic-*` classifier (deterministic + LLM + manual) | 5,725 rows × 13 cols |
+| `data/_risk_register.tsv` | Stage 15 bp_validity / register / risk_flags / risk_note classifier (manual + LLM + deterministic) | 5,725 rows × 19 cols |
+| `data/_manual_risk_register.tsv` | Stage 15 manual overrides (sense_id-keyed; prefilled with 4 high-risk rows) | 4 rows × 6 cols |
 | R2 bucket `audio/` prefix | Live audio storage | 11,450 objects, ~479 MB |
 
 ### What Stage 9 deliberately does NOT do
@@ -2771,6 +2773,152 @@ the authoritative classification state.
   jitter-backoff is sufficient; explicit `Retry-After` handling is reserved
   for a future stage that hits sustained 429s.
 
+## Stage 15 — BP validity, register, and learner-risk classification (2026-05)
+
+Before Stage 15, three orthogonal learner-safety concepts were forced onto
+two overloaded fields: `bp_status` (only 4 enum values — standard / uncommon
+/ false_friend / nsfw), the `tags` string (loose strings `#false-friend`,
+`#nsfw`, `#bp-rare`, `#regional` mixed with frequency/POS/topic tags), and
+the manually-curated `risk_note` (1 row — `gozar`). `pretender` (mild false
+friend) and `gozar` (sexual slang) ended up with similar metadata despite
+very different learner risk; `mulato` (racially sensitive) had no distinct
+surface; `jurídico` (technical, not risky) and `rapariga` (regionally
+offensive) landed in the same loose category.
+
+Stage 15 splits this into clean structured metadata: **three new columns
+appended after `risk_note`** (no other column changes), keeping `bp_status`
+for backward compatibility and reusing the existing `risk_note` column:
+
+- **`bp_validity`** (7 enum values): standard / rare_in_bp / ep_leaning /
+  ep_only / regional_br / nonstandard / uncertain
+- **`register`** (10 enum values): neutral / informal / formal / technical /
+  literary / archaic / slang / vulgar / taboo / uncertain
+- **`risk_flags`** (pipe-separated, 20-item allowlist): `none` for normal
+  rows; otherwise one or more of false_friend, ep_misleading,
+  regional_misuse, vulgar, sexual, offensive, slur, racial_sensitive,
+  gender_sensitive, outdated, childish, profanity, violence, drug_related,
+  religious_sensitive, political_sensitive, medical_sensitive,
+  legal_sensitive, ambiguous_translation
+- **`risk_note`** — REUSED (already col 37). Stage 15 may preserve, polish,
+  or generate new text; the verifier hard-checks no Stage-12 risk_note is
+  silently dropped (H9) and that Stage-12 carry-forward rows ship a
+  structured flag (H10).
+
+Schema change: **37 → 40 columns**.
+
+Pipeline (mirrors Stage 12–14's sidecar shape, with hybrid LLM/deterministic):
+
+- **Step 15.1 — Manual override layer.**
+  [data/_manual_risk_register.tsv](../data/_manual_risk_register.tsv)
+  is prefilled with **4 high-confidence sensitive sense_ids** (the
+  unambiguous ones; mild false-friend / EP-leaning cases go through the
+  LLM):
+  ```
+  1600.00.01 mulato (mulatto)        → rare_in_bp / archaic / racial_sensitive|outdated
+  2124.00.01 rapariga (young girl)   → regional_br / informal / regional_misuse|offensive
+  2124.00.02 rapariga (prostitute)   → standard / vulgar / vulgar|sexual|offensive
+  2751.00.01 gozar (enjoy)           → rare_in_bp / vulgar / sexual|vulgar  (+ Stage-12 risk_note)
+  ```
+  Manual entries are sense_id-keyed and win over both LLM and
+  deterministic defaults.
+
+- **Step 15.2 — Candidate filter (deterministic).**
+  [build/lib/risk_register_rules.py::is_candidate](../build/lib/risk_register_rules.py)
+  flags a row for LLM processing if any: bp_status ∈ {uncommon,
+  false_friend, nsfw} / non-empty annotation / non-empty Stage-12 risk_note
+  / tag in {#false-friend, #nsfw, #bp-rare, #regional, #archaic,
+  #sensitive-reviewed, #vulgar, #slang} / usage_hint contains "false
+  friend"/"avoid"/"BP warning" / pt ∈ MANUAL_REVIEW_SEED_LEMMAS. Expected
+  candidate count: ~320 (of 5,725 rows).
+
+- **Step 15.3 — Deterministic default for non-candidates.** Every row
+  outside the manual + candidate sets gets `standard / neutral / none / ""`
+  (or Stage-12 risk_note carried forward) with `source="deterministic_default"`.
+  Expected: ~5,400 rows. Zero API cost.
+
+- **Step 15.4 — LLM classification (Sonnet 4.6 + Anthropic Tool Use).**
+  Tool schema enum-locks `bp_validity`, `register`, `confidence`;
+  `risk_flags` is a string validated post-LLM against the allowlist.
+  Same cache-warmup + theoretical-ceiling gate as Stage 14
+  (`AnthropicClient` + `SlidingWindowRateLimiter`).
+
+- **Step 15.5 — Pilot-first workflow.**
+  [build/15_0_risk_register_classifier.py](../build/15_0_risk_register_classifier.py)
+  `--pilot --seed N` writes a stratified pilot to
+  `data/_risk_register.pilot.tsv` + `audit/15_risk_register.pilot.jsonl`
+  + [reports/15_risk_register_pilot.html](../reports/15_risk_register_pilot.html).
+  Pilot composition: **all candidates + 100 random `deterministic_default`
+  rows that ALSO go to the LLM as audit-only** (so we test whether the
+  candidate filter is missing obvious risks). Audit-only rows are written
+  with `source="llm_audit_only"` and the HTML separates them.
+
+- **Step 15.6 — Verifier.**
+  [build/verify_all.py::_verify_risk_register](../build/verify_all.py)
+  enforces **11 hard checks** (H1–H11):
+  enum validity / pipe-list / `none` never combined / risk_note ≤180 chars /
+  ep_only|nonstandard ⇒ flags!=none (regional_br excluded — a regional
+  word CAN be harmless) / vulgar|taboo ⇒ flags!=none / non-empty risk_note
+  ⇒ flags!=none / no Stage-12 risk_note dropped / Stage-12 carry-forward
+  ⇒ flags!=none / sidecar provenance.
+
+  Plus **10 soft warnings** (S1–S10) including a calibrated split between
+  final-deck thresholds (`flags!=none > 10%`, `risk_note > 3%`) and
+  pilot-only report-only metrics (which would always trip a candidate-
+  heavy pilot).
+
+Shipped numbers on `06-final.tsv` (full run 2026-05-12):
+
+- **40 columns × 5,725 rows** (was 37)
+- Sources: **4 manual + 320 LLM + 5,401 deterministic_default = 5,725**
+- `risk_flags != "none"`: **64 rows (1.1 %)** — well under 10 % soft cap
+- `risk_note` non-empty: **64 rows (1.1 %)** — well under 3 % soft cap
+- Perfect 1:1 between non-none risk_flags and non-empty risk_note (H8 holds)
+- 0 hard verify failures; 4 soft warnings:
+  - 2 pre-existing Stage 13 informational notes (polysemy / non-standard root)
+  - 1 nsfw row (`corno`) with `ambiguous_translation` only — defensible:
+    risk_note explains "horn vs. insult"; flagged for human review.
+  - 2 regional_br pronouns (`tu`, `teu`) with `risk_flags=none` — by
+    design (S10 sanity check); both are harmless to use.
+
+Full-run telemetry:
+
+- Pilot: 420 LLM calls, 67.5 s wall, 85.80 % cache hit (== ceiling)
+- Full run: 320 LLM calls, 54.4 s wall, 85.97 % cache hit, 0 / 0 / 0
+  failures / 429s / retries, $0.96 total
+- Concurrency: 25 workers / 3,200 RPM (Tier 4 — no need for 75 at this scale)
+
+Audit trail at `audit/15_risk_register.jsonl` (gitignored): per-row
+`prompt_hash` / `response_hash` from each LLM call + a derive-time export
+record showing manual/llm/deterministic source, sidecar confidence/reason,
+and the Stage-12 risk_note carry-forward. Sidecar at
+`data/_risk_register.tsv` (5,725 rows × 19 cols, includes example_pt/en for
+self-contained review).
+
+### What Stage 15 deliberately does NOT do
+
+- **Doesn't remove `bp_status`**. Kept for provenance/backward compat. A
+  later stage may deprecate it once every downstream reader is on
+  `bp_validity`.
+- **Doesn't rewrite Stage 1.5 / Stage 2 to assign `bp_validity` directly.**
+  Stage 15 is a sidecar pass; source-stage rewrites are out of scope.
+- **Doesn't broaden the candidate filter post-pilot.** The audit-only
+  subset surfaced 6 rows where the LLM gave more nuanced answers than the
+  deterministic default (legal→technical, gente→informal, escudo→rare_in_bp,
+  lance/rabo→ambiguous_translation, efetivamente→false_friend). All are
+  legitimate refinements; none are catastrophic. User can add these to
+  `data/_manual_risk_register.tsv` if they want them shipped.
+- **Doesn't fix the cache-baseline quirk where TTL-warm warmups under-
+  report the cached block size.** The full run captured baseline=534
+  (instead of ~3,464) because the pilot's cache was still warm. The
+  resulting ceiling=0.96 was artificially high and triggered "warn" three
+  times despite the actual 0.86 hit ratio being healthy. Cosmetic; a
+  future stage can capture baseline more robustly (e.g., use
+  `cache_creation+cache_read` from warmup, or run baseline as a fully
+  cold sequential call before warmup).
+- **Doesn't add Anki-side wiring** for `bp_validity` / `register` /
+  `risk_flags` (card colors, filterable tags, back-of-card chips).
+  Downstream concern.
+
 ## Final TSV schema (`data/06-final.tsv`)
 
 | # | Column | Type | Notes |
@@ -2787,7 +2935,7 @@ the authoritative classification state.
 | 10 | `en_primary` | string | Single English gloss for THIS sense |
 | 11 | `en_all` | string | Full original RHS; audit |
 | 12 | `annotation` | JSON string | `{dialect, number, gender_note, reflexive, idiom}` |
-| 13 | `bp_status` | string | `standard`/`uncommon`/`false_friend`/`nsfw` |
+| 13 | `bp_status` | string | `standard`/`uncommon`/`false_friend`/`nsfw`. Stage 15 supersedes this semantically with `bp_validity` (col 38) + `register` (col 39) + `risk_flags` (col 40); the original column is preserved for provenance. |
 | 14 | `normalization_action` | string | `none`/`spelling`/`lexical`/`hyphen`/`idiom_expansion` (composable) |
 | 15 | `ipa_word` | string | `ipa_word_final` from Stage 5 |
 | 16 | `example_pt` | string | ≤15 words, A2 background |
@@ -2805,6 +2953,22 @@ the authoritative classification state.
 | 28 | `source_line` | string | Raw original; never mutated |
 | 29 | `source_line_number` | int | Ledger join key |
 | 30 | `notes` | string | Escape hatch |
+
+**Columns 31–40** (added in later stages — exact order in
+[build/derive_final.py::FINAL_FIELDS](../build/derive_final.py)):
+
+| # | Column | Stage | Notes |
+|---|---|---|---|
+| 31 | `audio_en_example` | 10 | R2 link to English example audio |
+| 32 | `audio_en_example_md5` | 10 | md5 of the English audio file |
+| 33 | `voice_id_en` | 10 | ElevenLabs EN voice that generated `audio_en_example` |
+| 34 | `pt_display_safe` | 10.5 | POS-safe display (e.g. `(adj) real`) |
+| 35 | `usage_hint` | 12 | Optional learner-facing trap hint |
+| 36 | `usage_hint_priority` | 12 | `essential` / `useful` / `""` |
+| 37 | `risk_note` | 12 then 15 | Learner-facing warning (Stage 12 + Stage 15) |
+| 38 | `bp_validity` | 15 | `standard` / `rare_in_bp` / `ep_leaning` / `ep_only` / `regional_br` / `nonstandard` / `uncertain` |
+| 39 | `register` | 15 | `neutral` / `informal` / `formal` / `technical` / `literary` / `archaic` / `slang` / `vulgar` / `taboo` / `uncertain` |
+| 40 | `risk_flags` | 15 | `none` OR pipe-separated allowed flags (20-item allowlist). See [build/lib/risk_register_rules.py::ALLOWED_RISK_FLAGS](../build/lib/risk_register_rules.py). |
 
 Audit-only columns kept in stage TSVs and ledger but **not** in final TSV: `expansion_index`, `bp_replacement`, `merge_target_*`, `decision_model`, `decision_prompt_hash`, `decision_confidence`, `manual_override`, `ipa_word_machine`, `ipa_example_machine`, `ipa_source`, `ipa_confidence`.
 

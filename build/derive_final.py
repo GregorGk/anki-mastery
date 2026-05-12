@@ -60,6 +60,8 @@ OVERRIDE_PATH = DATA_DIR / "_audio_asr_override.tsv"
 USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
 FAMILY_ROOTS_PATH = DATA_DIR / "_family_roots.tsv"
 TOPIC_TAGS_PATH = DATA_DIR / "_topic_tags.tsv"
+RISK_REGISTER_PATH = DATA_DIR / "_risk_register.tsv"
+MANUAL_RISK_REGISTER_PATH = DATA_DIR / "_manual_risk_register.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
 
 FINAL_PATH = DATA_DIR / "06-final.tsv"
@@ -67,6 +69,12 @@ LOG_PATH = AUDIT_DIR / "derive_final.log"
 USAGE_HINT_AUDIT = AUDIT_DIR / "12_usage_hints.jsonl"
 FAMILY_ROOT_AUDIT = AUDIT_DIR / "13_family_root.jsonl"
 TOPIC_TAG_AUDIT = AUDIT_DIR / "14_topic_tags.jsonl"
+RISK_REGISTER_AUDIT = AUDIT_DIR / "15_risk_register.jsonl"
+
+# Stage 15 defaults (mirror build/lib/risk_register_rules.py).
+DEFAULT_BP_VALIDITY = "standard"
+DEFAULT_REGISTER = "neutral"
+DEFAULT_RISK_FLAGS = "none"
 
 # Content POS — Stage 13 only ships `family_root` for these.
 FAMILY_ROOT_CONTENT_POS = ("noun", "verb", "adj", "adv")
@@ -93,6 +101,7 @@ FINAL_FIELDS = [
     "source_line", "source_line_number", "notes",
     "pt_display_safe",
     "usage_hint", "usage_hint_priority", "risk_note",
+    "bp_validity", "register", "risk_flags",
 ]
 
 
@@ -164,6 +173,64 @@ def _load_topic_tags() -> dict[str, dict]:
     if not TOPIC_TAGS_PATH.exists():
         return {}
     return {r["sense_id"]: r for r in read_tsv(TOPIC_TAGS_PATH)}
+
+
+def _load_risk_register() -> dict[str, dict]:
+    """Read data/_risk_register.tsv as {sense_id: row}. Empty if missing."""
+    if not RISK_REGISTER_PATH.exists():
+        return {}
+    return {r["sense_id"]: r for r in read_tsv(RISK_REGISTER_PATH)}
+
+
+def _load_manual_risk_register() -> dict[str, dict]:
+    """Read data/_manual_risk_register.tsv as {sense_id: row}. Empty if missing."""
+    if not MANUAL_RISK_REGISTER_PATH.exists():
+        return {}
+    return {r["sense_id"]: r for r in read_tsv(MANUAL_RISK_REGISTER_PATH)}
+
+
+def _resolve_risk_register_fields(
+    *,
+    sidecar_row: dict | None,
+    manual_row: dict | None,
+    stage12_risk_note: str,
+) -> tuple[str, str, str, str, str]:
+    """Apply Stage 15 precedence: manual > sidecar > deterministic.
+
+    Returns (bp_validity, register, risk_flags, risk_note, source_tag).
+
+    risk_note resolution:
+      1. Manual non-empty → manual text.
+      2. Sidecar non-empty (LLM or carry-forward) → sidecar text.
+      3. Else → Stage-12 risk_note carried forward (or "").
+    """
+    if manual_row:
+        return (
+            (manual_row.get("bp_validity") or DEFAULT_BP_VALIDITY).strip(),
+            (manual_row.get("register") or DEFAULT_REGISTER).strip(),
+            (manual_row.get("risk_flags") or DEFAULT_RISK_FLAGS).strip(),
+            (manual_row.get("risk_note") or stage12_risk_note or "").strip(),
+            "manual",
+        )
+    if sidecar_row:
+        rn = (sidecar_row.get("risk_note") or "").strip()
+        if not rn:
+            rn = stage12_risk_note  # carry-forward defensively
+        return (
+            (sidecar_row.get("bp_validity") or DEFAULT_BP_VALIDITY).strip(),
+            (sidecar_row.get("register") or DEFAULT_REGISTER).strip(),
+            (sidecar_row.get("risk_flags") or DEFAULT_RISK_FLAGS).strip(),
+            rn,
+            (sidecar_row.get("source") or "deterministic_default").strip(),
+        )
+    # No sidecar row at all — deterministic default with Stage-12 carry.
+    return (
+        DEFAULT_BP_VALIDITY,
+        DEFAULT_REGISTER,
+        DEFAULT_RISK_FLAGS,
+        stage12_risk_note,
+        "deterministic_default",
+    )
 
 
 def _merge_topic_tag(current_tags: str, topic: str) -> str:
@@ -281,6 +348,20 @@ def main() -> int:
     usage_hints = _load_usage_hints()
     family_roots = _load_family_roots()
     topic_tags = _load_topic_tags()
+    risk_register = _load_risk_register()
+    manual_risk_register = _load_manual_risk_register()
+
+    # Stage 12 risk_note carry-forward: build a {sense_id: text} map from
+    # the current 06-final.tsv (if present) so we can detect Stage-12 rows
+    # that already had a risk_note even when the Stage-15 sidecar didn't
+    # ship one. This makes the carry-forward source of truth survive
+    # regenerations.
+    stage12_risk_notes: dict[str, str] = {}
+    if FINAL_PATH.exists():
+        for r in read_tsv(FINAL_PATH):
+            rn = (r.get("risk_note") or "").strip()
+            if rn:
+                stage12_risk_notes[r["sense_id"]] = rn
 
     enriched_idx = {r["sense_id"]: r for r in enriched}
     ipa_idx = {r["sense_id"]: r for r in ipa}
@@ -345,6 +426,12 @@ def main() -> int:
         "topic_tag_low_conf": 0,
         "topic_tag_deterministic": 0,
         "topic_tag_llm": 0,
+        # Stage 15 risk/register
+        "risk_register_manual": 0,
+        "risk_register_llm": 0,
+        "risk_register_default": 0,
+        "risk_flags_nonzero": 0,
+        "risk_note_shipped_stage15": 0,
     }
 
     for sid in sids:
@@ -454,6 +541,34 @@ def main() -> int:
         if uh_risk:
             gap_stats["risk_note_shipped"] += 1
 
+        # Stage 15: bp_validity / register / risk_flags + risk_note.
+        # Precedence: manual > sidecar > deterministic_default.
+        # Stage 12's risk_note is carried forward when neither manual nor
+        # sidecar sets a new note.
+        rr_manual = manual_risk_register.get(sid)
+        rr_sidecar = risk_register.get(sid)
+        s12_note = stage12_risk_notes.get(sid, "")
+        bp_validity, register, risk_flags, final_risk_note, rr_source = (
+            _resolve_risk_register_fields(
+                sidecar_row=rr_sidecar,
+                manual_row=rr_manual,
+                stage12_risk_note=s12_note,
+            )
+        )
+        # The Stage-15 risk_note REPLACES the Stage-12 surface in the final
+        # TSV. uh_risk (from the Stage 12 export filter) is still computed
+        # for the audit JSONL but we use final_risk_note for the column.
+        if rr_source == "manual":
+            gap_stats["risk_register_manual"] += 1
+        elif rr_source == "llm":
+            gap_stats["risk_register_llm"] += 1
+        else:
+            gap_stats["risk_register_default"] += 1
+        if risk_flags != "none":
+            gap_stats["risk_flags_nonzero"] += 1
+        if final_risk_note:
+            gap_stats["risk_note_shipped_stage15"] += 1
+
         # Stage 14: merge topic tag into the existing tags string.
         topic_sidecar = topic_tags.get(sid) or {}
         topic_primary = (topic_sidecar.get("topic_primary") or "").strip()
@@ -507,7 +622,12 @@ def main() -> int:
             "pt_display_safe": _pt_display_safe(pt_display_val, pos_val),
             "usage_hint": uh_hint,
             "usage_hint_priority": uh_priority,
-            "risk_note": uh_risk,
+            # Stage 15 supersedes Stage-12 risk_note here: final_risk_note
+            # already preserves Stage-12 text when Stage 15 didn't ship one.
+            "risk_note": final_risk_note,
+            "bp_validity": bp_validity,
+            "register": register,
+            "risk_flags": risk_flags,
         })
 
     # Write log
@@ -629,6 +749,39 @@ def main() -> int:
             n_topic_records += 1
     print(f"Appended {n_topic_records} topic-tag export records to "
           f"{TOPIC_TAG_AUDIT}")
+
+    # Stage 15: append a per-row JSONL record for every sense. Includes
+    # the resolved bp_validity / register / risk_flags / risk_note, the
+    # sidecar source (manual / llm / deterministic_default), and the
+    # carry-forward chain (Stage-12 risk_note → Stage-15 risk_note).
+    with RISK_REGISTER_AUDIT.open("a", encoding="utf-8") as af:
+        n_rr_records = 0
+        for r in rows:
+            sid = r["sense_id"]
+            sc = risk_register.get(sid) or {}
+            mv = manual_risk_register.get(sid) or {}
+            s12_note = stage12_risk_notes.get(sid, "")
+            af.write(_json.dumps({
+                "event": "derive_final_export",
+                "sense_id": sid,
+                "rank": r.get("rank", ""),
+                "pos": r.get("pos", ""),
+                "pt": r.get("pt", ""),
+                "shipped_bp_validity": r.get("bp_validity", ""),
+                "shipped_register": r.get("register", ""),
+                "shipped_risk_flags": r.get("risk_flags", ""),
+                "shipped_risk_note": r.get("risk_note", ""),
+                "manual_present": bool(mv),
+                "sidecar_source": sc.get("source", ""),
+                "sidecar_confidence": sc.get("confidence", ""),
+                "sidecar_reason": sc.get("reason", ""),
+                "stage12_risk_note": s12_note,
+                "model_id": sc.get("model_id", ""),
+                "derive_ts": derive_ts,
+            }, ensure_ascii=False) + "\n")
+            n_rr_records += 1
+    print(f"Appended {n_rr_records} risk_register export records to "
+          f"{RISK_REGISTER_AUDIT}")
     return 0
 
 

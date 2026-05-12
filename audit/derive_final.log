@@ -36,3 +36,8 @@ Gap stats:
   topic_tag_low_conf: 2292
   topic_tag_deterministic: 155
   topic_tag_llm: 5566
+  risk_register_manual: 4
+  risk_register_llm: 320
+  risk_register_default: 5401
+  risk_flags_nonzero: 64
+  risk_note_shipped_stage15: 64
