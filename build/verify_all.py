@@ -54,6 +54,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from build.lib.tsv import read_tsv  # noqa: E402
+from build.lib.topic_tag_rules import (  # noqa: E402
+    ALLOWED_TOPIC_TAG_SET,
+    MANUAL_TOPIC_OVERRIDES,
+    NUM_TOPIC_OVERRIDES,
+)
 
 DATA_DIR = REPO_ROOT / "data"
 CONFIG_DIR = REPO_ROOT / "config"
@@ -62,6 +67,7 @@ FINAL_PATH = DATA_DIR / "06-final.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
 USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
 FAMILY_ROOTS_PATH = DATA_DIR / "_family_roots.tsv"
+TOPIC_TAGS_PATH = DATA_DIR / "_topic_tags.tsv"
 
 EXPECTED_ROW_COUNT = 5725
 SENSE_ID_PATTERN = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
@@ -82,6 +88,17 @@ FAMILY_ROOT_COVERAGE_LOW = 0.20
 FAMILY_ROOT_COVERAGE_HIGH = 0.70
 FAMILY_ROOT_CLUSTER_MAX_SOFT = 20
 FAMILY_ROOT_BARE_STEM_RE = re.compile(r"-$|\d")
+
+# Stage 14 column expectations
+TOPIC_TAG_DETERMINISTIC_POS_GRAMMAR = {"prep", "conj", "pron", "art"}
+TOPIC_TAG_DETERMINISTIC_POS_NUMBERS = {"num"}
+TOPIC_COVERAGE_ANY_CAP = 0.25
+TOPIC_COVERAGE_DAILY_ROUTINES_CAP = 0.15
+TOPIC_COVERAGE_OBJECTS_TOOLS_CAP = 0.15
+TOPIC_COVERAGE_WORK_JOBS_CAP = 0.15
+TOPIC_COVERAGE_CHARACTER_QUALITIES_CAP = 0.15
+TOPIC_COVERAGE_MEASUREMENT_CAP = 0.12
+TOPIC_LOW_CONF_CAP = 0.05
 
 # Full expected header (37 cols). Used by _verify_header().
 EXPECTED_HEADER = [
@@ -478,6 +495,193 @@ def _verify_family_roots(rows: list[dict], v: Verifier) -> None:
                     f"pt as root; e.g., {function_word_root[:3]}")
 
 
+def _verify_topic_tags(rows: list[dict], v: Verifier) -> None:
+    """Stage 14: every row carries exactly one #topic-* tag from the 50-item
+    allowlist; deterministic invariants hold; no legacy #cat-* leakage.
+    """
+    sidecar_index: dict[str, dict] = {}
+    if TOPIC_TAGS_PATH.exists():
+        sidecar_index = {r["sense_id"]: r for r in read_tsv(TOPIC_TAGS_PATH)}
+
+    no_topic: list[tuple[str, str]] = []
+    multi_topic: list[tuple[str, list[str]]] = []
+    invalid_topic: list[tuple[str, str]] = []
+    duplicate_topic: list[tuple[str, str]] = []
+    missing_sidecar: list[str] = []
+    grammar_violation: list[tuple[str, str, str]] = []
+    numbers_violation: list[tuple[str, str, str]] = []
+    legacy_cat: list[tuple[str, str]] = []
+
+    topic_counts: dict[str, int] = {}
+    by_conf: dict[str, int] = {"high": 0, "medium": 0, "low": 0, "": 0}
+    by_source: dict[str, int] = {"deterministic": 0, "llm": 0, "manual": 0, "": 0}
+
+    for r in rows:
+        sid = r["sense_id"]
+        pos = r.get("pos", "")
+        tags = (r.get("tags") or "").split()
+
+        topic_hits = [t for t in tags if t.startswith("#topic-")]
+        cat_hits = [t for t in tags if t.startswith("#cat-")]
+
+        # H7: legacy #cat-* regression
+        if cat_hits:
+            legacy_cat.append((sid, " ".join(cat_hits)))
+
+        # H1: exactly one #topic-*
+        if not topic_hits:
+            no_topic.append((sid, pos))
+            continue
+        if len(topic_hits) > 1:
+            # H3: duplicates first (could be same tag repeated)
+            if len(set(topic_hits)) == 1:
+                duplicate_topic.append((sid, topic_hits[0]))
+            else:
+                multi_topic.append((sid, topic_hits))
+            # Use the first for further checks
+            t = topic_hits[0]
+        else:
+            t = topic_hits[0]
+
+        # H2: allowlist enum
+        if t not in ALLOWED_TOPIC_TAG_SET:
+            invalid_topic.append((sid, t))
+
+        topic_counts[t] = topic_counts.get(t, 0) + 1
+
+        # H5: deterministic grammar invariant — except per-sense MANUAL
+        # overrides (e.g. a future override could re-route a function-word
+        # row away from #topic-grammar, but only via explicit manual entry).
+        if pos in TOPIC_TAG_DETERMINISTIC_POS_GRAMMAR:
+            expected = MANUAL_TOPIC_OVERRIDES.get(sid, "#topic-grammar")
+            if t != expected:
+                grammar_violation.append((sid, pos, t))
+
+        # H6: deterministic numbers invariant — except per-sense overrides.
+        # NUM_TOPIC_OVERRIDES handles pos=num rows whose sense isn't numeric
+        # (segundo/quarto/cento). MANUAL_TOPIC_OVERRIDES wins if both apply.
+        if pos in TOPIC_TAG_DETERMINISTIC_POS_NUMBERS:
+            if sid in MANUAL_TOPIC_OVERRIDES:
+                expected = MANUAL_TOPIC_OVERRIDES[sid]
+            elif sid in NUM_TOPIC_OVERRIDES:
+                expected = NUM_TOPIC_OVERRIDES[sid]
+            else:
+                expected = "#topic-numbers"
+            if t != expected:
+                numbers_violation.append((sid, pos, t))
+
+        # H4: sidecar provenance
+        sc = sidecar_index.get(sid)
+        if sc is None:
+            missing_sidecar.append(sid)
+        else:
+            by_conf[(sc.get("confidence") or "").strip().lower() or ""] = (
+                by_conf.get((sc.get("confidence") or "").strip().lower() or "", 0) + 1
+            )
+            by_source[(sc.get("source") or "").strip() or ""] = (
+                by_source.get((sc.get("source") or "").strip() or "", 0) + 1
+            )
+
+    n_rows = len(rows)
+    n_topics = sum(topic_counts.values())
+    n_distinct = len(topic_counts)
+    print(f"  Stage 14: {n_topics}/{n_rows} rows tagged across "
+          f"{n_distinct}/{len(ALLOWED_TOPIC_TAG_SET)} topics; "
+          f"sources: {by_source}; conf: {by_conf}")
+
+    # --- Hard checks ---
+    if no_topic:
+        v.hard_fail(f"{len(no_topic)} rows have NO #topic-* tag; e.g., {no_topic[:3]}")
+    else:
+        print(f"  ✓ every row has at least one #topic-* tag")
+
+    if multi_topic:
+        v.hard_fail(f"{len(multi_topic)} rows have multiple distinct #topic-* "
+                    f"tags; e.g., {multi_topic[:3]}")
+    else:
+        print(f"  ✓ no row has multiple distinct #topic-* tags")
+
+    if duplicate_topic:
+        v.hard_fail(f"{len(duplicate_topic)} rows have duplicate #topic-* "
+                    f"entries (same tag repeated); e.g., {duplicate_topic[:3]}")
+    else:
+        print(f"  ✓ no duplicate #topic-* within a single row's tags")
+
+    if invalid_topic:
+        v.hard_fail(f"{len(invalid_topic)} rows have an invalid #topic-* tag "
+                    f"(not in the 50-item allowlist); e.g., {invalid_topic[:3]}")
+    else:
+        print(f"  ✓ every #topic-* tag is in the 50-item allowlist")
+
+    if missing_sidecar:
+        v.hard_fail(f"{len(missing_sidecar)} rows ship a #topic-* tag with no "
+                    f"matching sidecar entry; e.g., {missing_sidecar[:3]}")
+    else:
+        print(f"  ✓ every shipped #topic-* tag has a sidecar row")
+
+    if grammar_violation:
+        v.hard_fail(f"{len(grammar_violation)} function-word rows missing "
+                    f"#topic-grammar; e.g., {grammar_violation[:3]}")
+    else:
+        print(f"  ✓ pos∈{{prep,conj,pron,art}} → #topic-grammar invariant")
+
+    if numbers_violation:
+        v.hard_fail(f"{len(numbers_violation)} numeral rows missing "
+                    f"#topic-numbers; e.g., {numbers_violation[:3]}")
+    else:
+        print(f"  ✓ pos=num → #topic-numbers invariant")
+
+    if legacy_cat:
+        v.hard_fail(f"{len(legacy_cat)} rows contain legacy #cat-* tags; "
+                    f"e.g., {legacy_cat[:3]}")
+    else:
+        print(f"  ✓ no legacy #cat-* tags present")
+
+    # --- Soft warnings ---
+    zero_coverage = sorted(ALLOWED_TOPIC_TAG_SET - set(topic_counts.keys()))
+    if zero_coverage:
+        v.soft_warn(f"{len(zero_coverage)} topics have zero coverage: "
+                    f"{zero_coverage[:5]}...")
+
+    n_total = max(n_rows, 1)
+    over_25 = [(t, c) for t, c in topic_counts.items()
+               if c / n_total > TOPIC_COVERAGE_ANY_CAP]
+    if over_25:
+        v.soft_warn(f"{len(over_25)} topics exceed 25% of the deck "
+                    f"(anti-collapse): {over_25[:3]}")
+
+    soft_caps = (
+        ("#topic-daily-routines", TOPIC_COVERAGE_DAILY_ROUTINES_CAP, "verb catchall"),
+        ("#topic-objects-tools",  TOPIC_COVERAGE_OBJECTS_TOOLS_CAP, "noun catchall"),
+        ("#topic-work-jobs",      TOPIC_COVERAGE_WORK_JOBS_CAP, "business-skew"),
+        ("#topic-character-qualities", TOPIC_COVERAGE_CHARACTER_QUALITIES_CAP,
+         "generic-adj catchall"),
+        ("#topic-measurement",    TOPIC_COVERAGE_MEASUREMENT_CAP,
+         "numbers/measurement confusion"),
+    )
+    for tag, cap, label in soft_caps:
+        c = topic_counts.get(tag, 0)
+        if c / n_total > cap:
+            v.soft_warn(
+                f"{tag} = {c}/{n_total} ({c/n_total*100:.1f}%) > "
+                f"{cap*100:.0f}% soft cap ({label})"
+            )
+
+    # Only `low` is the "guessing" signal — `medium` is honest uncertainty
+    # (the prompt's "broadest honest topic" fallback firing on generic
+    # verbs/adjectives). Calibrated against pilot v1 which had 0% low and
+    # 31% medium, all rows correctly using the catchall fallback.
+    n_low = by_conf.get("low", 0)
+    if n_low / n_total > TOPIC_LOW_CONF_CAP:
+        v.soft_warn(f"low-confidence rows {n_low}/{n_total} "
+                    f"({n_low/n_total*100:.1f}%) > "
+                    f"{TOPIC_LOW_CONF_CAP*100:.0f}% soft cap")
+    n_medium = by_conf.get("medium", 0)
+    if n_medium > 0:
+        print(f"  Stage 14: {n_medium}/{n_total} medium-confidence rows "
+              f"({n_medium/n_total*100:.1f}%) — informational, not failing")
+
+
 def _http_sample(rows: list[dict], n: int, v: Verifier) -> None:
     print(f"\n[HTTP-sample] checking {n} random URLs return 200...")
     rng = random.Random(42)
@@ -526,6 +730,7 @@ def main() -> int:
     _verify_rows(rows, voice_gender, v)
     _verify_usage_hints(rows, v)
     _verify_family_roots(rows, v)
+    _verify_topic_tags(rows, v)
     if args.http_sample > 0:
         _http_sample(rows, args.http_sample, v)
 

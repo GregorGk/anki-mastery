@@ -59,12 +59,14 @@ MANIFEST_PATH = DATA_DIR / "_audio_manifest.tsv"
 OVERRIDE_PATH = DATA_DIR / "_audio_asr_override.tsv"
 USAGE_HINTS_PATH = DATA_DIR / "_usage_hints.tsv"
 FAMILY_ROOTS_PATH = DATA_DIR / "_family_roots.tsv"
+TOPIC_TAGS_PATH = DATA_DIR / "_topic_tags.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
 
 FINAL_PATH = DATA_DIR / "06-final.tsv"
 LOG_PATH = AUDIT_DIR / "derive_final.log"
 USAGE_HINT_AUDIT = AUDIT_DIR / "12_usage_hints.jsonl"
 FAMILY_ROOT_AUDIT = AUDIT_DIR / "13_family_root.jsonl"
+TOPIC_TAG_AUDIT = AUDIT_DIR / "14_topic_tags.jsonl"
 
 # Content POS — Stage 13 only ships `family_root` for these.
 FAMILY_ROOT_CONTENT_POS = ("noun", "verb", "adj", "adv")
@@ -155,6 +157,28 @@ def _load_family_roots() -> dict[str, dict]:
     if not FAMILY_ROOTS_PATH.exists():
         return {}
     return {r["sense_id"]: r for r in read_tsv(FAMILY_ROOTS_PATH)}
+
+
+def _load_topic_tags() -> dict[str, dict]:
+    """Read data/_topic_tags.tsv as {sense_id: row}. Empty if file missing."""
+    if not TOPIC_TAGS_PATH.exists():
+        return {}
+    return {r["sense_id"]: r for r in read_tsv(TOPIC_TAGS_PATH)}
+
+
+def _merge_topic_tag(current_tags: str, topic: str) -> str:
+    """Append the Stage-14 topic tag to `tags`, space-separated, dedupe.
+
+    Order: existing tags preserved verbatim; `#topic-*` appended at the end.
+    Matches the natural Stage-N append convention already in 06-final.tsv.
+    """
+    if not topic:
+        return current_tags
+    parts = current_tags.split() if current_tags else []
+    if topic in parts:
+        return current_tags
+    parts.append(topic)
+    return " ".join(parts)
 
 
 def _resolve_family_root(
@@ -256,6 +280,7 @@ def main() -> int:
     en_pairing = _en_voice_pairing()
     usage_hints = _load_usage_hints()
     family_roots = _load_family_roots()
+    topic_tags = _load_topic_tags()
 
     enriched_idx = {r["sense_id"]: r for r in enriched}
     ipa_idx = {r["sense_id"]: r for r in ipa}
@@ -314,6 +339,12 @@ def main() -> int:
         "usage_hint_risk_note_only": 0,
         "usage_hint_total_shipped": 0,
         "risk_note_shipped": 0,
+        # Stage 14 topic tags
+        "topic_tag_shipped": 0,
+        "topic_tag_missing": 0,
+        "topic_tag_low_conf": 0,
+        "topic_tag_deterministic": 0,
+        "topic_tag_llm": 0,
     }
 
     for sid in sids:
@@ -422,6 +453,23 @@ def main() -> int:
             gap_stats["usage_hint_total_shipped"] += 1
         if uh_risk:
             gap_stats["risk_note_shipped"] += 1
+
+        # Stage 14: merge topic tag into the existing tags string.
+        topic_sidecar = topic_tags.get(sid) or {}
+        topic_primary = (topic_sidecar.get("topic_primary") or "").strip()
+        if topic_primary:
+            tags_val = _merge_topic_tag(tags_val, topic_primary)
+            gap_stats["topic_tag_shipped"] += 1
+            src = (topic_sidecar.get("source") or "").strip()
+            if src == "deterministic":
+                gap_stats["topic_tag_deterministic"] += 1
+            elif src == "llm":
+                gap_stats["topic_tag_llm"] += 1
+            if (topic_sidecar.get("confidence") or "").strip().lower() != "high":
+                gap_stats["topic_tag_low_conf"] += 1
+        else:
+            gap_stats["topic_tag_missing"] += 1
+
         rows.append({
             "sense_id": sid,
             "rank": rank_val,
@@ -551,6 +599,36 @@ def main() -> int:
             n_fr_records += 1
     print(f"Appended {n_fr_records} family_root export records to "
           f"{FAMILY_ROOT_AUDIT}")
+
+    # Stage 14: append a per-row JSONL record for every sense whose
+    # `#topic-*` tag was merged into `tags`. Joins to the classifier log at
+    # audit/14_topic_tags.jsonl (which has prompt_hash / response_hash per
+    # LLM call) via sense_id. Deterministic rows ship too — their sidecar
+    # `source` field reads "deterministic".
+    with TOPIC_TAG_AUDIT.open("a", encoding="utf-8") as af:
+        n_topic_records = 0
+        for r in rows:
+            sid = r["sense_id"]
+            sc = topic_tags.get(sid) or {}
+            shipped_topic = (sc.get("topic_primary") or "").strip()
+            if not shipped_topic:
+                continue
+            af.write(_json.dumps({
+                "event": "derive_final_export",
+                "sense_id": sid,
+                "rank": r.get("rank", ""),
+                "pos": r.get("pos", ""),
+                "pt": r.get("pt", ""),
+                "shipped_topic": shipped_topic,
+                "sidecar_confidence": sc.get("confidence", ""),
+                "sidecar_source": sc.get("source", ""),
+                "sidecar_reason": sc.get("reason", ""),
+                "model_id": sc.get("model_id", ""),
+                "derive_ts": derive_ts,
+            }, ensure_ascii=False) + "\n")
+            n_topic_records += 1
+    print(f"Appended {n_topic_records} topic-tag export records to "
+          f"{TOPIC_TAG_AUDIT}")
     return 0
 
 

@@ -2543,6 +2543,7 @@ sense_id  clip_type  pt  voice_id  asr_status  audio_judge_verdict  audio_judge_
 | `data/_pronunciation_alias_v3_winners.tsv` | Archived v3 aliases (historical) | 11 |
 | `data/_usage_hints.tsv` | Stage 12 usage_hint / risk_note classifier output | 84 rows × 10 cols |
 | `data/_family_roots.tsv` | Stage 13 family_root classifier + cluster + self-root output | 2,277 rows × 11 cols |
+| `data/_topic_tags.tsv` | Stage 14 primary `#topic-*` classifier (deterministic + LLM + manual) | 5,725 rows × 13 cols |
 | R2 bucket `audio/` prefix | Live audio storage | 11,450 objects, ~479 MB |
 
 ### What Stage 9 deliberately does NOT do
@@ -2617,6 +2618,159 @@ Audit trail at `audit/13_family_root.jsonl` (gitignored): per-row `prompt_hash` 
 - No Stage 3 rewrite. `build/stage_3.py:365`'s deferred-empty assignment becomes historical context; the sidecar replaces it without source-side code changes.
 - `family_relation` / `confidence` / `reason` stay sidecar-only — only `family_root` ships into the final TSV.
 
+## Stage 14 — Primary topic tag (`#topic-*`) per row (2026-05)
+
+Before Stage 14, `06-final.tsv`'s `tags` field (col 30) carried frequency
+tier, POS, morphology, and special-category flags but **no subject-matter
+classification**. For an A1 BP learner the missing piece is filterable
+topic: "show me everything about transport / food / law / family". Stage 14
+assigns **exactly one** `#topic-*` tag per row from a 50-item controlled
+taxonomy, merged into the existing `tags` field. **No schema growth.**
+
+Pipeline mirrors Stage 13's sidecar-driven shape:
+
+- **Step 14.1 — Deterministic prelude (no LLM, 155 + 4 rows).**
+  [build/lib/topic_tag_rules.py::deterministic_topic_for_row](../build/lib/topic_tag_rules.py)
+  maps function-word POS values to a fixed tag and applies per-sense
+  overrides:
+
+      pos ∈ {prep, conj, pron, art}  → #topic-grammar       (110 rows)
+      pos == num                      → #topic-numbers      (41 rows after NUM overrides)
+      NUM_TOPIC_OVERRIDES (4 senses)  → various             (segundo/quarto×2/cento)
+      MANUAL_TOPIC_OVERRIDES (4 senses) → various           (ocorrer + 3 history rows)
+
+  These bypass the LLM entirely. `interj` (7) and `idiom` (3) go to the LLM
+  per the locked Q&A — they're content-bearing (e.g. `obrigado → #topic-
+  social-life`, `por cento → #topic-measurement`).
+
+- **Step 14.2 — LLM classification (5,566 rows).** `claude-sonnet-4-6`
+  via Anthropic Tool Use + prompt caching. The tool schema enum-locks the
+  output to the 50-item allowlist. Cardinal rule: **classify by the target
+  sense first, then use the example only as context.** Don't let an
+  incidental example setting (`café antes do trabalho`) override the core
+  sense (`café → #topic-food-drink`).
+
+  Prompt at [build/prompts/topic_tags.md](../build/prompts/topic_tags.md):
+  - Decision-order rules (sense > example).
+  - Special-defaults table (cognition verbs → `#topic-opinion-belief`,
+    frequency/time adverbs → `#topic-time-calendar`, determiner-like
+    adjectives → `#topic-grammar`, measurement units → `#topic-measurement`,
+    generic verbs → `#topic-daily-routines`, generic adjectives →
+    `#topic-character-qualities`).
+  - 19 worked examples covering every fallback bucket.
+
+- **Step 14.3 — Cache discipline (theoretical-ceiling gate).** Stage 14
+  introduces a new cache invariant: instead of a fixed `0.90` floor (which
+  is mathematically unreachable for prompts with non-trivial user-message
+  size), the classifier captures the cached-block size from a 1-call
+  sequential warmup and computes the asymptotic ceiling
+  `C / (C + avg_uncached_per_call)`. The gate passes if
+  `actual_ratio >= ceiling − 0.03` AND `cache_read_tokens > 0`. Hard halt
+  only on `ratio < 0.75` or zero cache reads. Pilot v1 hit a false-positive
+  halt at 0.69 because 25 concurrent workers all raced a cold cache; the
+  sequential warmup is the fix.
+
+- **Step 14.4 — Throughput.** New
+  [build/lib/rate_limit.py](../build/lib/rate_limit.py) `SlidingWindowRateLimiter`
+  (thread-safe; 60-s window) gives a real RPM cap. `AnthropicClient` already
+  handles retries and prompt caching but does NOT enforce local RPM —
+  Stage 14 adds it explicitly. CLI flags: `--max-workers`, `--max-rpm`,
+  `--max-retries` (env fallbacks: `ANTHROPIC_MAX_WORKERS`, `ANTHROPIC_MAX_RPM`,
+  `ANTHROPIC_MAX_RETRIES`). `lib/llm.py` threaded the `max_retries`
+  constructor arg through to honor the CLI. **Pilot at 25 workers / 3,200 RPM,
+  full run at 75 workers / 3,200 RPM** (Tier 4 console cap is 4,000 RPM;
+  80 % headroom).
+
+- **Step 14.5 — Pilot-first workflow.**
+  [build/14_0_topic_classifier.py](../build/14_0_topic_classifier.py)
+  `--pilot N --seed S --pilot-suffix v2` runs a stratified subset (155
+  deterministic + 345 LLM stratified across rank tier, POS, multi-sense
+  lemmas, `usage_hint`, `risk_note`, `family_root`) to separate
+  `data/_topic_tags.pilot.{vN}.tsv` + `audit/14_topic_tags.pilot.{vN}.jsonl`
+  + `reports/14_topic_tags_pilot_{vN}.html`.
+  [build/14_1_pilot_html.py](../build/14_1_pilot_html.py) renders the
+  review HTML (KPIs, distribution, low-conf table, 50 random rows, all
+  numerals, top-20 daily-routines / objects-tools / top-30 character-
+  qualities).
+
+  Two pilot iterations:
+  - **v1 (`fccfe71`'s predecessor prompt)**: 86.3 % cache hit (= ceiling),
+    0 invalid tags, but revealed the deterministic `pos == num` rule
+    over-applied to `segundo` (= "according to"), `quarto` (= bedroom),
+    `cento` (= percent). Also drift: cognition verbs (`lembrar`) and
+    frequency adverbs (`geralmente`) defaulted to `#topic-daily-routines`.
+  - **v2 (current)**: added `NUM_TOPIC_OVERRIDES` + cognition / time /
+    determiner default sections + 3 new examples. 88.14 % cache hit
+    (== ceiling), 0.2 % low-conf, all 4 targeted fixes landed.
+
+- **Step 14.6 — Verifier.**
+  [build/verify_all.py::_verify_topic_tags](../build/verify_all.py)
+  enforces **7 hard checks** (every row has exactly one `#topic-*`; tag in
+  the 50-item allowlist; no duplicates; sidecar provenance for every
+  shipped tag; pos function words → `#topic-grammar`; pos num →
+  `#topic-numbers` unless an override applies; no legacy `#cat-*`) and
+  **8 soft warnings** (zero-coverage topics; > 25 % anti-collapse; daily-
+  routines / objects-tools / work-jobs / character-qualities > 15 %;
+  measurement > 12 %; low confidence > 5 %). The 0.90 fixed warn
+  threshold from earlier plan iterations was replaced by the
+  theoretical-ceiling gate.
+
+### Shipped numbers on `06-final.tsv` (post-Stage-14, full run 2026-05-12)
+
+- **37 columns × 5,725 rows** (schema unchanged from Stage 13)
+- **5,725 / 5,725 rows tagged** across **all 50 / 50 topics** (zero
+  zero-coverage buckets)
+- Sources: **155 deterministic + 5,566 LLM + 4 manual**
+- Confidence: **60.0 % high / 39.5 % medium / 0.5 % low** (30 low rows,
+  well under the 5 % soft cap)
+- Top buckets (well below the 15 % verb / noun catchall caps):
+  - `#topic-character-qualities`  468 (8.2 %)
+  - `#topic-work-jobs`             269 (4.7 %)
+  - `#topic-law-rules`             239 (4.2 %)
+  - `#topic-opinion-belief`        237 (4.1 %)
+  - `#topic-movement-position`     225 (3.9 %)
+  - …`#topic-grammar`              184 (3.2 %)
+  - `#topic-daily-routines`        138 (2.4 %)
+- **0 hard verify failures**; the only soft warnings are the 2
+  pre-existing Stage 13 polysemy / non-standard-root informational notes.
+
+Full LLM run stats:
+
+- 5,568 LLM calls + 4 manual overrides + 155 deterministic = 5,725 sidecar rows
+- Wall: **229.7 s ≈ 3 min 50 s** (75 workers, 3,200 RPM cap)
+- Realized RPM: **1,454** total (peak `rpm_last_100` ≈ 1,900)
+- 0 / 0 failures / 429s
+- Cache hit ratio: **88.38 %** (== theoretical ceiling, baseline 4,227 cached tokens)
+- Cost: ≈ **$16.71** (5,568 × ~$0.003, matching Stage 13's per-call rate)
+
+Audit trail at `audit/14_topic_tags.jsonl` (gitignored): per-row
+`prompt_hash` / `response_hash` from each LLM call + a derive-time export
+record showing shipped tag, sidecar `confidence` / `source` / `reason`,
+and the join timestamp. Sidecar at `data/_topic_tags.tsv` (5,725 rows × 13
+cols, including `example_pt` / `example_en` for self-contained review) is
+the authoritative classification state.
+
+### What Stage 14 deliberately does NOT do
+
+- **No secondary topic tag.** Locked: one primary topic per row.
+  `bancário` could plausibly be both `work-jobs` and `money` — not in v1.
+- **No `#cat-*` namespace.** Hard verifier check H7 prevents accidental
+  regression. Zero `#cat-*` tags in the current deck.
+- **No `data/_manual_topic_tags.tsv` file.** Manual overrides live in
+  [build/lib/topic_tag_rules.py::MANUAL_TOPIC_OVERRIDES](../build/lib/topic_tag_rules.py)
+  for now (only 4 entries). The file-based slot is reserved for when this
+  grows.
+- **No Anki filtered-deck wiring.** Browse-search `tag:topic-food-drink`
+  is downstream.
+- **No taxonomy refinement based on coverage.** The 50-tag list is frozen
+  for v1. The LLM did try to invent `#topic-history` for 3 rows; we
+  manually rerouted them rather than adding a new tag (per the "frozen
+  taxonomy" rule). Future iteration may add `#topic-history` if reviewer
+  feedback supports it.
+- **No `Retry-After` header parsing in `AnthropicClient`.** The existing
+  jitter-backoff is sufficient; explicit `Retry-After` handling is reserved
+  for a future stage that hits sustained 429s.
+
 ## Final TSV schema (`data/06-final.tsv`)
 
 | # | Column | Type | Notes |
@@ -2647,7 +2801,7 @@ Audit trail at `audit/13_family_root.jsonl` (gitignored): per-row `prompt_hash` 
 | 24 | `voice_id` | string | ElevenLabs voice ID that generated both clips for this sense. Resolves in `config/voices.tsv`. |
 | 25 | `voice_gender` | enum | `m` / `f`. Redundant with `voice_id` but human-readable in spreadsheets. |
 | 26 | `family_root` | string | BP lemma (a `pt` in the deck) heading the derivational family for this row; empty if no cluster ≥ 2 distinct pts (Stage 13). |
-| 27 | `tags` | string | Space-separated |
+| 27 | `tags` | string | Space-separated. Stage 14 appends exactly one `#topic-*` tag per row from the 50-item allowlist; see [build/lib/topic_tag_rules.py::ALLOWED_TOPIC_TAGS](../build/lib/topic_tag_rules.py). |
 | 28 | `source_line` | string | Raw original; never mutated |
 | 29 | `source_line_number` | int | Ledger join key |
 | 30 | `notes` | string | Escape hatch |

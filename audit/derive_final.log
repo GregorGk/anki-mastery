@@ -31,3 +31,8 @@ Gap stats:
   usage_hint_risk_note_only: 1
   usage_hint_total_shipped: 66
   risk_note_shipped: 1
+  topic_tag_shipped: 5725
+  topic_tag_missing: 0
+  topic_tag_low_conf: 2292
+  topic_tag_deterministic: 155
+  topic_tag_llm: 5566

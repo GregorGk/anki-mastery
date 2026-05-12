@@ -115,6 +115,7 @@ class AnthropicClient:
         api_key: str | None = None,
         audit_path: str | Path | None = None,
         enable_caching: bool = True,
+        max_retries: int | None = None,
     ) -> None:
         self.model = model or DEFAULT_GENERATOR_MODEL
         self.premium_model = premium_model or DEFAULT_PREMIUM_MODEL
@@ -123,6 +124,13 @@ class AnthropicClient:
         if self.audit_path:
             self.audit_path.parent.mkdir(parents=True, exist_ok=True)
         self.enable_caching = enable_caching
+        # Per-instance retry cap; falls back to the module-level default if
+        # not specified. Stage 14 + onward use this to expose --max-retries
+        # at the CLI honestly.
+        self.max_retries = (
+            int(max_retries) if max_retries and max_retries > 0
+            else _MAX_ATTEMPTS
+        )
         # Audit-write lock so concurrent threads don't interleave JSONL lines.
         self._audit_lock = threading.Lock()
         # Telemetry for cache hit ratio (read across threads).
@@ -229,7 +237,7 @@ class AnthropicClient:
         system_param = self._build_system_param(system)
 
         last_exc: Exception | None = None
-        for attempt in range(_MAX_ATTEMPTS):
+        for attempt in range(self.max_retries):
             try:
                 resp = self.client.messages.create(
                     model=model_id,
@@ -241,7 +249,7 @@ class AnthropicClient:
                 )
             except Exception as exc:
                 last_exc = exc
-                if not _retryable(exc) or attempt == _MAX_ATTEMPTS - 1:
+                if not _retryable(exc) or attempt == self.max_retries - 1:
                     raise
                 time.sleep(_backoff(attempt))
                 continue
@@ -257,7 +265,7 @@ class AnthropicClient:
                     f"Model did not call tool {tool_name!r}; got: "
                     f"{resp.content[:1] if resp.content else 'empty'}"
                 )
-                if attempt == _MAX_ATTEMPTS - 1:
+                if attempt == self.max_retries - 1:
                     raise last_exc
                 time.sleep(_backoff(attempt))
                 continue
