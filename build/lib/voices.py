@@ -33,24 +33,36 @@ class Voice:
     voice_id: str
     gender: str  # 'male' | 'female'
     pool_index: int
+    status: str = "active"  # 'active' | 'retired_bp_only'
     notes: str = ""
 
 
 def load_voices(path: Path = VOICES_PATH) -> list[Voice]:
-    """Load voice pool from config/voices.tsv. Returns sorted by (gender, pool_index)."""
+    """Load voice pool from config/voices.tsv. Returns sorted by (gender, pool_index).
+
+    Voices whose `status` is not "active" are excluded from the returned pool —
+    they're kept in the TSV for provenance (e.g., to preserve the en_voice_id
+    of a retired BP voice that still voices en_ex rows in the manifest), but
+    they are NOT eligible for round-robin assignment.
+    """
     if not path.exists():
         raise FileNotFoundError(
             f"Voice pool not found at {path}. Create config/voices.tsv "
-            f"with voice_id, gender, pool_index, notes columns."
+            f"with voice_id, gender, pool_index, status, notes columns."
         )
     rows = read_tsv(path)
     voices = []
     for r in rows:
+        status = (r.get("status") or "active").strip() or "active"
+        if status != "active":
+            # Retired / preserved-en-only rows: keep file row but skip pool.
+            continue
         voices.append(
             Voice(
                 voice_id=r["voice_id"].strip(),
                 gender=r["gender"].strip().lower(),
                 pool_index=int(r["pool_index"]),
+                status=status,
                 notes=(r.get("notes") or "").strip(),
             )
         )
