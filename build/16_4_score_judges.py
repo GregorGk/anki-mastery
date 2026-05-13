@@ -41,6 +41,15 @@ JUDGE_LABELS = {
     "gemini_31_pro": "gemini-3.1-pro",
 }
 
+# Per-judge audit JSONLs (appended live as 16_2 runs; the merged file
+# above only contains the LAST run's verdicts, so we read the per-judge
+# audits as the canonical source).
+PER_JUDGE_AUDITS = {
+    "gpt4o":         AUDIT / "16_judge_gpt4o.jsonl",
+    "gpt_audio_15":  AUDIT / "16_judge_gpt_audio_15.jsonl",
+    "gemini_31_pro": AUDIT / "16_judge_gemini_31_pro.jsonl",
+}
+
 
 def _normalize_verdict_to_class(v: str) -> str:
     """Map any verdict form to one of: bp / nonbp / unclear."""
@@ -82,23 +91,46 @@ def _metrics(predictions: list[tuple[str, str]]) -> dict:
 
 
 def main() -> int:
-    if not INPUT_TSV.exists() or not VERDICTS_JSONL.exists():
-        print(f"ERROR: missing {INPUT_TSV} or {VERDICTS_JSONL}", file=sys.stderr)
+    if not INPUT_TSV.exists():
+        print(f"ERROR: missing {INPUT_TSV}", file=sys.stderr)
         return 1
 
     rows = list(csv.DictReader(INPUT_TSV.open(encoding="utf-8"), dialect="excel-tab"))
     row_meta = {r["row_id"]: r for r in rows}
     gold_dialect = {r["row_id"]: ("bp" if r["dialect"] == "BP" else "nonbp")
                     for r in rows}
+    row_id_lookup = {(r["sense_id"], r["clip_type"], r["voice_id"]): r["row_id"]
+                     for r in rows}
 
-    # Load judge verdicts (per row + per judge).
+    # Load judge verdicts — prefer per-judge audits (canonical, 800 entries
+    # each), fall back to the merged JSONL for legacy compatibility.
     judge_verdicts: dict[str, dict[str, dict]] = {}
-    for line in VERDICTS_JSONL.read_text(encoding="utf-8").splitlines():
-        rec = json.loads(line)
-        rid = rec.get("row_id")
-        j = rec.get("judge")
-        if rid and j:
-            judge_verdicts.setdefault(rid, {})[j] = rec
+    for jkey, path in PER_JUDGE_AUDITS.items():
+        if not path.exists():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            key = (rec.get("sense_id", ""), rec.get("clip_type", ""),
+                   rec.get("voice_id", ""))
+            rid = row_id_lookup.get(key)
+            if rid:
+                # Last write wins — per-judge audits are append-only,
+                # so retries naturally supersede earlier failures.
+                judge_verdicts.setdefault(rid, {})[jkey] = rec
+    # Optional supplement from merged file (no overwrite if already present).
+    if VERDICTS_JSONL.exists():
+        for line in VERDICTS_JSONL.read_text(encoding="utf-8").splitlines():
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            rid = rec.get("row_id")
+            j = rec.get("judge")
+            if rid and j and j not in judge_verdicts.get(rid, {}):
+                judge_verdicts.setdefault(rid, {})[j] = rec
 
     # Load human labels (gold from your ears).
     human: dict[str, str] = {}

@@ -43,6 +43,7 @@ DATA = REPO_ROOT / "data"
 AUDIT = REPO_ROOT / "audit"
 INPUT_TSV = DATA / "_audio_judge_ab.tsv"
 CUES_TSV = DATA / "_ep_cues.tsv"
+HUMAN_LABELS = DATA / "_audio_judge_ab_human_labels.tsv"
 VERDICTS = AUDIT / "16_judge_verdicts.jsonl"
 OUT_HTML = AUDIT / "16_audio_judge_ab.html"
 
@@ -106,6 +107,16 @@ def main() -> int:
 
     rows = list(csv.DictReader(INPUT_TSV.open(encoding="utf-8"), dialect="excel-tab"))
     cues = _load_cues()
+
+    # Preload prior human labels so the user can resume an interrupted
+    # listening session. We pre-check the corresponding radio button.
+    prior_labels: dict[str, str] = {}
+    if HUMAN_LABELS.exists():
+        for r in csv.DictReader(HUMAN_LABELS.open(encoding="utf-8"), dialect="excel-tab"):
+            rid = r.get("row_id", "").strip()
+            v = r.get("human_verdict", "").strip()
+            if rid and v:
+                prior_labels[rid] = v
 
     # Build (sense_id, clip_type, voice_id) → row_id map so we can look up
     # judge audits that don't carry row_id directly.
@@ -234,6 +245,10 @@ def main() -> int:
         "body[data-filter='correct'] tr[data-same-ipa='1']{display:none;}",
         # Dedicated 'same-ipa' filter shows ONLY those rows.
         "body[data-filter='same_ipa'] tr:not([data-same-ipa='1']){display:none;}",
+        # Dialect filter is independent of the disagreement filter — both
+        # selectors apply additively (a row must satisfy both to be visible).
+        "body[data-dialect='bp'] tr.ep{display:none;}",
+        "body[data-dialect='ep'] tr.bp{display:none;}",
         ".wrong-badge{display:inline-block;padding:1px 6px;border-radius:3px;",
         " font-size:.78em;margin-left:4px;}",
         ".wrong-0{background:#d4edda;color:#155724;}",
@@ -275,6 +290,13 @@ def main() -> int:
         f"<option value='correct'>All 3 correct, excl. same-IPA ({n_unanimous_correct})</option>"
         f"<option value='same_ipa'>Same-IPA only ({n_same_ipa})</option>"
         "</select></label>",
+        # NEW: dialect filter (independent of disagreement filter).
+        f"<label class='sm'>Dialect: "
+        f"<select id='dialect-select' onchange='applyDialect(this.value)'>"
+        f"<option value='all'>All ({sum(1 for r in rows)})</option>"
+        f"<option value='bp'>BP only ({sum(1 for r in rows if r['dialect']=='BP')})</option>"
+        f"<option value='ep'>EP only ({sum(1 for r in rows if r['dialect']=='EP')})</option>"
+        f"</select></label>",
         f"<span class='sm'>Judge verdicts loaded: "
         f"{sum(1 for v in verdicts.values() if len(v) >= len(JUDGE_ORDER))}/{len(rows)} rows</span>",
         "<span class='sm'>Difficulty legend: "
@@ -373,15 +395,17 @@ def main() -> int:
 
         # ----- your verdict cell -----
         parts.append("<td class='human'>")
+        existing = prior_labels.get(rid, "")
         for label, value in [
             ("BP-OK",      "bp_ok"),
             ("non-BP (EP)", "non_bp_ep"),
             ("non-BP (other)", "non_bp_other"),
             ("unclear",    "unclear"),
         ]:
+            checked = " checked" if existing == value else ""
             parts.append(
                 f"<label><input type='radio' name='h_{escape(rid)}' "
-                f"value='{value}'> {label}</label>"
+                f"value='{value}'{checked}> {label}</label>"
             )
         parts.append("</td>")
         parts.append("</tr>")
@@ -393,12 +417,21 @@ def main() -> int:
 function exportLabels() {
   const lines = ['row_id\\thuman_verdict'];
   document.querySelectorAll('tbody tr').forEach(tr => {
-    const rid_cell = tr.querySelector('td');
-    const rid = rid_cell.textContent.trim();
+    // Extract clean row_id (the radio buttons all share name='h_<row_id>').
+    const radio = tr.querySelector('input[type=radio]');
+    if (!radio) return;
+    const rid = radio.name.replace(/^h_/, '');
     const sel = tr.querySelector('input[type=radio]:checked');
     if (sel) lines.push(rid + '\\t' + sel.value);
   });
-  document.getElementById('export-out').value = lines.join('\\n');
+  const out = lines.join('\\n');
+  const ta = document.getElementById('export-out');
+  ta.value = out;
+  // Auto-copy to clipboard.
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  ta.setSelectionRange(0,0);
+  console.log('exported ' + (lines.length - 1) + ' labels (copied to clipboard)');
 }
 function toggleAllCues() {
   const body = document.body;
@@ -410,15 +443,24 @@ function toggleAllCues() {
 }
 function applyFilter(mode) {
   document.body.setAttribute('data-filter', mode);
-  // Count visible rows for sanity:
+  _logVisibility();
+}
+function applyDialect(mode) {
+  document.body.setAttribute('data-dialect', mode);
+  _logVisibility();
+}
+function _logVisibility() {
   const total = document.querySelectorAll('tbody tr').length;
   const visible = Array.from(document.querySelectorAll('tbody tr')).filter(
     tr => window.getComputedStyle(tr).display !== 'none'
   ).length;
-  console.log('filter=' + mode + ': ' + visible + '/' + total + ' rows visible');
+  const f = document.body.getAttribute('data-filter');
+  const d = document.body.getAttribute('data-dialect');
+  console.log('filter=' + f + ' dialect=' + d + ': ' + visible + '/' + total + ' rows visible');
 }
-// Initialize default filter (matches `selected` option in the select).
+// Initialize both filters from their `selected` options.
 applyFilter(document.getElementById('filter-select').value);
+applyDialect(document.getElementById('dialect-select').value);
 document.querySelectorAll('audio').forEach(a => {
   a.addEventListener('play', () => {
     document.querySelectorAll('audio').forEach(o => { if (o !== a) o.pause(); });
