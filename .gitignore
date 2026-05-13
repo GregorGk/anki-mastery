@@ -23,6 +23,12 @@ audit/*.jsonl
 audit/*.mp3
 !audit/.gitkeep
 
+# SQLite mirror of 06-final.tsv (rebuilt by build/16_0_build_sqlite.py)
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+
 # OS junk
 .DS_Store
 Thumbs.db
