@@ -80,7 +80,11 @@ MANUAL_RISK_REGISTER_PATH = DATA_DIR / "_manual_risk_register.tsv"
 EXPECTED_ROW_COUNT = 5725
 SENSE_ID_PATTERN = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
 MD5_MIN_LEN = 10
-FLASH_MODEL_MARKER = "eleven_flash_v2_5"
+# As of Stage 11.1 (2026-05-13), the production audio model is eleven_v3.
+# Stage 9 (flash) is legacy. The check below accepts either marker so a
+# partial-migration state (some flash, some v3) doesn't false-fail; a full
+# v3 deck is the steady-state target.
+EXPECTED_MODEL_MARKERS = ("eleven_v3", "eleven_flash_v2_5")
 
 # Stage 12 column expectations
 VALID_USAGE_HINT_PRIORITIES = {"essential", "useful", ""}
@@ -171,13 +175,25 @@ def _verify_rows(rows: list[dict], voice_gender: dict[str, str], v: Verifier) ->
     else:
         print(f"  ✓ audio_word + audio_example populated on all rows")
 
-    non_flash = [r["sense_id"] for r in rows
-                 if FLASH_MODEL_MARKER not in r["audio_word"]
-                 or FLASH_MODEL_MARKER not in r["audio_example"]]
-    if non_flash:
-        v.hard_fail(f"{len(non_flash)} rows have non-Flash audio URL; e.g., {non_flash[:3]}")
+    def _has_expected_marker(url: str) -> bool:
+        return any(m in url for m in EXPECTED_MODEL_MARKERS)
+    non_expected = [r["sense_id"] for r in rows
+                    if r["audio_word"] and r["audio_example"]
+                    and (not _has_expected_marker(r["audio_word"])
+                         or not _has_expected_marker(r["audio_example"]))]
+    if non_expected:
+        v.hard_fail(f"{len(non_expected)} rows have audio URL outside expected models "
+                    f"{EXPECTED_MODEL_MARKERS}; e.g., {non_expected[:3]}")
     else:
-        print(f"  ✓ all audio URLs contain '{FLASH_MODEL_MARKER}'")
+        # Soft warning if the deck is mixed across models (steady state = all v3).
+        v3_count = sum(1 for r in rows if "eleven_v3" in r["audio_word"])
+        flash_count = sum(1 for r in rows if "eleven_flash_v2_5" in r["audio_word"])
+        if v3_count and flash_count:
+            v.soft_warn(f"deck is mixed-model: v3={v3_count} flash={flash_count} "
+                        f"(steady-state target is all v3)")
+        marker = "eleven_v3" if v3_count >= flash_count else "eleven_flash_v2_5"
+        print(f"  ✓ all audio URLs contain a recognized model marker "
+              f"(predominant: {marker})")
 
     missing_md5 = [r["sense_id"] for r in rows
                    if len(r.get("audio_word_md5", "")) < MD5_MIN_LEN

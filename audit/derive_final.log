@@ -14,7 +14,7 @@ Gap stats:
   missing_md5_example: 0
   missing_md5_en_example: 0
   voice_mismatch: 0
-  en_voice_pairing_mismatch: 0
+  en_voice_pairing_mismatch: 476
   asr_override_applied: 71
   family_root_shipped: 1776
   family_root_dropped_low_conf: 0
