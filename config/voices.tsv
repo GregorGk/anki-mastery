@@ -1,6 +1,7 @@
 voice_id	gender	pool_index	bp_name	en_voice_id	en_name	status	notes
 Rw38T6bn0lTNOb1aUevR	female	1	Beatriz	5jVVMAv2LzffTcLGarKh	Allison	active	user-selected 2026; was pool_index 2 before voice-swap remediation; en pair: Allison
 m151rjrbWXbBqyq56tly	female	2	Carla	UPh4KsZtOX5QeK2POdYy	Elara	active	user-selected 2026; was pool_index 4 before voice-swap remediation; en pair: Elara
+PznTnBc8X6pvixs9UkQm	female	3	Dani			active_escape_hatch	added 2026-05-14 as Stage 16.10 hard-case fallback for 2687.00.01 word "a fortuna" (both Beatriz F#1 and Carla F#2 produced EP-leaning vowel reduction). ElevenLabs library voice "Dani - Warm Brazilian Social Media Voice", carioca (Rio de Janeiro) accent, 12,552 community uses. NOT in round-robin pool — only used when an existing F voice's drift remediation fails. en_voice_id deliberately empty (no en_ex rows touched).
 wxoDdfPKBuna5KnUEotz	male	1	Eduardo	UzWuLKD4RG6zpabGrt91	John	active	user-selected 2026; en pair: John
 qPfM2laM0pRL4rrZtBGl	male	2	Sandro Dutra	VU16byTywsWv5JpI8rbc	Ash	active	user-selected 2026; en pair: Ash
 ny3E2DZImeZm00WLGZi9	male	3	José Paulo	8IbUB2LiiCZ85IJAHNnZ	Don	active	user-selected 2026; en pair: Don
