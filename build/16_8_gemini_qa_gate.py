@@ -63,6 +63,10 @@ VOICES_TSV = CONFIG / "voices.tsv"
 AB_AUDIT = AUDIT / "16_judge_gemini_31_pro.jsonl"
 # This run's audit (append-only).
 OUT_AUDIT = AUDIT / "16_8_gemini_qa_gate.jsonl"
+# Stage 16.9's in-line Gemini judgments on freshly re-rendered clips.
+# Each entry's (sense_id, clip_type, voice_id) is current-state ground
+# truth for whatever bytes now live at the manifest URL for that key.
+RERENDER_JUDGE_AUDIT = AUDIT / "16_9_gemini_judge.jsonl"
 OUT_WATCHLIST = DATA / "_gemini_drift_watchlist.tsv"
 
 MODEL = "gemini-3.1-pro-preview"
@@ -219,17 +223,38 @@ def _judge_one(
 
 
 def _build_watchlist(voice_names: dict[str, str]) -> int:
-    """Walk both audit files; emit data/_gemini_drift_watchlist.tsv with
-    every non_bp verdict on an ACTIVE production BP voice. Sorted by
-    (severity DESC, confidence DESC, sense_id). Returns rows written.
+    """Walk all audit files; emit data/_gemini_drift_watchlist.tsv with
+    every non_bp verdict that represents the CURRENT-STATE manifest
+    audio for a production BP voice. Sorted by (severity DESC,
+    confidence DESC, sense_id). Returns rows written.
 
-    The AB-pool audit contains correct non_bp verdicts on EP control
-    clips (e.g. Nelson Silvestre); those are filtered out so the
-    watchlist only surfaces production-deck drift."""
+    Sources walked, in order from oldest to newest:
+      AB_AUDIT  — 800-clip A/B pool (~400 BP, some EP controls)
+      OUT_AUDIT — Stage 16.8 full-deck QA gate pass
+      RERENDER_JUDGE_AUDIT — Stage 16.9 in-line judgments after each
+                              re-render attempt
+
+    Per-key (sense_id, clip_type, voice_id) the LATEST verdict wins.
+    EP control clips (e.g. Nelson Silvestre) are filtered out by the
+    active-voice check so the watchlist only surfaces production
+    drift. Keys whose CURRENT manifest voice_id does NOT match this
+    audit entry's voice_id are dropped: that means the deck has since
+    been swapped to a different voice and the old verdict no longer
+    describes what users hear."""
     active_bp = _load_active_bp_voices()
-    seen: set[tuple[str, str, str]] = set()
-    drifts: list[dict] = []
-    for path in (AB_AUDIT, OUT_AUDIT):
+
+    # Read the manifest to learn each row's CURRENT voice_id, so we
+    # can ignore stale audit entries from before a Stage 16.9 swap.
+    current_voice: dict[tuple[str, str], str] = {}
+    if MANIFEST.exists():
+        for r in csv.DictReader(MANIFEST.open(encoding="utf-8"),
+                                 dialect="excel-tab"):
+            if r["clip_type"] in BP_CLIP_TYPES and r["tts_model"] == V3_MODEL_ID:
+                current_voice[(r["sense_id"], r["clip_type"])] = r["voice_id"]
+
+    # latest_verdict[(sid,ct,vid)] = record; later sources overwrite earlier.
+    latest: dict[tuple[str, str, str], dict] = {}
+    for path in (AB_AUDIT, OUT_AUDIT, RERENDER_JUDGE_AUDIT):
         if not path.exists():
             continue
         for line in path.read_text(encoding="utf-8").splitlines():
@@ -237,18 +262,25 @@ def _build_watchlist(voice_names: dict[str, str]) -> int:
                 r = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if r.get("verdict") != "non_bp":
+            sid = r.get("sense_id", ""); ct = r.get("clip_type", "")
+            vid = r.get("voice_id", "")
+            if not (sid and ct and vid):
                 continue
-            if r.get("clip_type") not in BP_CLIP_TYPES:
-                continue
-            if r.get("voice_id", "") not in active_bp:
-                continue
-            key = (r.get("sense_id", ""), r.get("clip_type", ""),
-                   r.get("voice_id", ""))
-            if key in seen:
-                continue
-            seen.add(key)
-            drifts.append(r)
+            latest[(sid, ct, vid)] = r
+
+    drifts: list[dict] = []
+    for (sid, ct, vid), r in latest.items():
+        # Skip entries for voices that aren't the current manifest pointer
+        # — Stage 16.9 swaps make the old voice's verdict obsolete.
+        if current_voice.get((sid, ct), vid) != vid:
+            continue
+        if r.get("verdict") != "non_bp":
+            continue
+        if ct not in BP_CLIP_TYPES:
+            continue
+        if vid not in active_bp:
+            continue
+        drifts.append(r)
     sev_rank = {"high": 0, "medium": 1, "low": 2, "": 3}
     conf_rank = {"high": 0, "medium": 1, "low": 2, "": 3}
     drifts.sort(key=lambda r: (sev_rank.get(r.get("severity", ""), 3),
