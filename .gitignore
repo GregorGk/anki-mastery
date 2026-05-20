@@ -23,6 +23,10 @@ audit/*.jsonl
 audit/*.mp3
 !audit/.gitkeep
 
+# Stage 18 — Anki package artifacts (large binaries, rebuilt from manifest)
+dist/
+data/anki_media/
+
 # SQLite mirror of 06-final.tsv (rebuilt by build/16_0_build_sqlite.py)
 data/*.sqlite
 data/*.sqlite-journal
