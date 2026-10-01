@@ -1,0 +1,22 @@
+sense_id	pt	group	source	filename	ref_ipa	recognized	markers	sim	your_verdict
+0259.00.01	tarde	legacy_human_OK	human:OK	0259.00.01-word-v1.mp3	tˈaʁdʒi	t a r dʒ i	2/2	0.83	model_right
+0719.00.01	oportunidade	legacy_human_OK	human:OK	0719.00.01-word-v1.mp3	ˌopoɾtuniˈdadʒi	o p u ɾ t u n i d a d ɨ	0/2	0.77	model_wrong
+2632.00.01	saudade	legacy_human_OK	human:OK	2632.00.01-word-v1.mp3	sawˈdadʒi	s aʊ d a d ɨ	0/2	0.62	model_wrong
+4125.00.01	batizar	legacy_human_OK	human:OK	4125.00.01-word-v1.mp3	batʃizˈaʁ	b a tʃ i z a	1/1	0.88	model_right
+3234.00.01	bilhete	legacy_human_OK	human:OK	3234.00.01-word-v1.mp3	biʎˈetʃi	b i l e tʃ i	2/2	0.86	model_right
+2363.00.01	restaurante	legacy_human_OK	human:OK	2363.00.01-word-v1.mp3	ʁestawɾˈɐ̃tʃi	r e s t aʊ r a n tʃ i	2/2	0.58	model_right
+1430.00.01	geralmente	legacy_human_OK	human:OK	1430.00.01-word-v1.mp3	ʒeɾawmˈẽtʃi	ʒ e ɾ aʊ l m eɪ ŋ t ɨ	0/2	0.42	model_wrong
+3341.00.01	ansiedade	legacy_human_OK	human:OK	3341.00.01-word-v1.mp3	ˌɐ̃sjed͡ʒˈadʒi	ɐ̃ ŋ s j ɐ d a d ɨ	0/2	0.55	model_wrong
+0937.00.01	sede	legacy_human_BAD	human:MISPRONOUNCED	0937.00.01-word-v1.mp3	sˈɛdʒi	s eɪ ð eɪ	1/2	0.17	model_wrong
+3009.00.01	proveniente	legacy_human_BAD	human:MISPRONOUNCED	3009.00.01-word-v1.mp3	pɾoveniˈẽtʃi	p r o v e n j e n t i	1/2	0.55	unsure
+1175.00.01	agente	legacy_human_BAD	human:MISPRONOUNCED	1175.00.01-word-v1.mp3	aˈʒẽtʃi	ɐ dʒ e n t ɨ	0/2	0.14	unsure
+3536.00.01	elite	legacy_human_BAD	human:MISPRONOUNCED	3536.00.01-word-v1.mp3	ˌelˈitʃi	e l iː t	0/2	0.67	model_right
+3013.00.01	jazz	legacy_human_BAD	human:MISPRONOUNCED	3013.00.01-word-v1.mp3	dʒɛs	dʒ aː z	1/1	0.50	model_right
+4064.00.01	variante	legacy_human_BAD	human:MISPRONOUNCED	4064.00.01-word-v1.mp3	vaɾiˈɐ̃tʃi	v a ɾ i a n t i	1/2	0.67	unsure
+0534.00.01	verde	v3_gemini_BAD	gemini:non_bp	0534.00.01-word-eleven_v3-v1.mp3	vˈeʁdʒi	v e r d e	0/2	0.50	model_right
+0002.00.01	de	v3_gemini_BAD	gemini:non_bp	0002.00.01-word-eleven_v3-v1.mp3	dʒi	z y	0/2	0.00	unsure
+0304.00.01	partido	v3_gemini_BAD	gemini:non_bp	0304.00.01-word-eleven_v3-v1.mp3	paɾtʃˈidu	u p a r tʃ i b	1/1	0.50	model_right
+0913.00.01	sítio	v3_gemini_BAD	gemini:non_bp	0913.00.01-word-eleven_v3-v1.mp3	sˈitʃiu	u s i t j o	0/1	0.33	model_right
+1454.00.01	doze	v3_gemini_BAD	gemini:non_bp	1454.00.01-word-eleven_v3-v1.mp3	dˈozi	d o z	0/1	0.75	model_right
+0580.00.01	garantir	v3_gemini_BAD	gemini:non_bp	0580.00.01-word-eleven_v3-v1.mp3	ɡaɾɐ̃tʃˈiʁ	ɡ æ ɾ ɪ n s iː d	0/1	0.33	model_wrong
+0534.00.01	verde	v3_contested	gemini:bp_ok/user:bad	0534.00.01-word-eleven_v3-v2.mp3	vˈeʁdʒi	v e r d e	0/2	0.50	model_right

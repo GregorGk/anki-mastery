@@ -1,0 +1,301 @@
+sense_id	pt	en_primary	source	priority_idx	ipa_word_stage5	ipa_word_mfa	ipa_word_espeak	bp_validity
+0200.00.01	real	real	confirmed-bad	0	ʁeˈaw	x e a w	ʁeˈau	standard
+0207.00.01	social	social	confirmed-bad	0	sosi̯ˈaw	s o s i a w / s o s j a w	sˌosiˈau	standard
+0316.00.01	espaço	space	confirmed-bad	0	espˈasu	i s p a s u	ˌespˈasu	standard
+0408.00.01	capital	investment	confirmed-bad	0	kapitˈaw	k a p i t a w	kˌapitˈau	standard
+0408.00.02	capital	city	confirmed-bad	0	kapitˈaw	k a p i t a w	kˌapitˈau	standard
+0662.00.01	série	series	confirmed-bad	0	sˈɛɾi	s ɛ ɾ i / s ɛ ɾ i e / s ɛ ɾ j e / s ɛ ɾ j i	sˈɛɾji	standard
+0664.00.01	face	face	confirmed-bad	0	fˈasi	f a s i	fˈasi	standard
+0867.00.01	cara	face	confirmed-bad	0	kˈaɾɐ	k a ɾ ɐ	kˈaɾæ	standard
+0887.00.01	roda	wheel	confirmed-bad	0	ʁˈɔdɐ	x ɔ d ɐ	ʁˈɔdæ	standard
+0937.00.01	sede	headquarters	confirmed-bad	0	sˈɛdʒi	s e dʒ i / s ɛ dʒ i	sˈedʒi	standard
+1078.00.01	general	general	confirmed-bad	0	ʒeɾˈaw	ʒ e n e ɾ a w	ʒˌeneɾˈau	standard
+1125.00.01	policial	police officer	confirmed-bad	0	polisiˈaw	p u ʎ i s i a w	pˌolisiˈau	standard
+1125.00.02	policial	policeman	confirmed-bad	0	pˌolisiˈaw	p u ʎ i s i a w	pˌolisiˈau	standard
+1175.00.01	agente	agent	confirmed-bad	0	aˈʒẽtʃi	a ʒ ẽ tʃ i	ˌaʒˈeɪŋtʃi	standard
+1324.00.01	industrial	industrial	confirmed-bad	0	ĩdʊstɾiˈaw	ĩ d u s t ɾ i a w	ˌiŋdustriˈau	standard
+1365.00.02	sorte	lot	confirmed-bad	0	sˈɔɾtʃi	s ɔ x tʃ i	sˈɔɾətʃi	standard
+1375.00.01	ultrapassar	to overcome	confirmed-bad	0	ˌuwtɾɐpɐsˈaʁ		ˌuwtrapasˈar	standard
+1473.00.02	recorrer	to resort to	confirmed-bad	0	ʁekɔˈʁeʁ	x e k o x e x	ʁˌekoʁˈer	standard
+1734.00.01	concerto	concert	confirmed-bad	0	kõsˈɛɾtu	k õ s e x t u	kˌoŋsˈɛɾətu	standard
+1771.00.01	rato	mouse	confirmed-bad	0	ʁˈatu		ʁˈatu	standard
+2075.00.01	ruim	bad	confirmed-bad	0	ʁuˈĩ	x u ĩ / x ũ j̃	ʁuˈiŋ	standard
+2124.00.01	rapariga	young girl	confirmed-bad	0	ʁɐpɐɾˈiɡɐ	x a p a ɾ i ɡ ɐ	ʁˌapaɾˈiɡæ	regional_br
+2124.00.02	rapariga	prostitute	confirmed-bad	0	ʁapɐˈɾiɡɐ	x a p a ɾ i ɡ ɐ	ʁˌapaɾˈiɡæ	standard
+2215.00.01	habitual	usual	confirmed-bad	0	abituˈaw	a b i t u a w	ˌabituˈau	standard
+2747.00.01	chance	chance	confirmed-bad	0	ʃˈɐ̃si	ʃ ɐ̃ s i	ʃˈɐ̃si	standard
+2821.00.01	poço	water well	confirmed-bad	0	pˈosu	p o s u	pˈosu	standard
+2847.00.01	reto	straight	confirmed-bad	0	ˈʁetu	x ɛ t u	ʁˈɛtu	standard
+2851.00.01	paço	palace	confirmed-bad	0	pˈasu	p a s u	pˈasu	rare_in_bp
+3009.00.01	proveniente	proceeding or resulting from	confirmed-bad	0	pɾoveniˈẽtʃi		prˌoveniˈeɪŋtʃi	standard
+3013.00.01	jazz	jazz	confirmed-bad	0	dʒɛs	dʒ ɛ s	dʒɪˈɛs	standard
+3031.00.01	maré	tide	confirmed-bad	0	maˈɾɛ	m a ɾ ɛ	maɾˈɛ	standard
+3266.00.01	tropical	tropical	confirmed-bad	0	tɾopiˈkaw	t ɾ o p i k a w	trˌopikˈau	standard
+3457.00.01	remeter	to send	confirmed-bad	0	ʁemeˈteʁ		ʁˌemetˈer	standard
+3536.00.01	elite	elite	confirmed-bad	0	ˌelˈitʃi	e ʎ i tʃ i	ˌelˈitʃi	standard
+3611.00.01	sindical	relating to a trade union	confirmed-bad	0	sĩdʒikˈaw	s ĩ dʒ i k a w	sˌiŋdʒikˈau	standard
+3704.00.01	fatal	fatal	confirmed-bad	0	fatˈaw		fatˈau	standard
+3742.00.02	reger	to manage	confirmed-bad	0	ʁeʒˈeʁ		ʁeʒˈer	standard
+3742.00.03	reger	to conduct	confirmed-bad	0	ʁeʒˈeʁ		ʁeʒˈer	standard
+3814.00.01	verbal	verbal	confirmed-bad	0	veɾbˈaw	v e x b a w	veɾəbˈau	standard
+3821.00.01	manteiga	butter	confirmed-bad	0	mɐ̃ˈteɡɐ	m ɐ̃ t e j ɡ ɐ	mˌɐ̃tˈeɪɡæ	standard
+3877.00.01	cela	cell (building)	confirmed-bad	0	sˈɛlɐ	s ɛ l a	sˈɛlæ	standard
+3931.00.01	adeus	goodbye	confirmed-bad	0	adˈews	a d e w s / a d e w ʃ	adˈeʊs	standard
+3976.00.01	tijolo	brick	confirmed-bad	0	tʃiʒˈolu		tʃˌiʒˈolu	standard
+4064.00.01	variante	variant	confirmed-bad	0	vaɾiˈɐ̃tʃi	v a ɾ i ɐ̃ tʃ i	vˌaɾiˈɐ̃tʃi	standard
+4234.00.02	grade	railing	confirmed-bad	0	ɡɾˈadʒi	ɡ ɾ a dʒ i	ɡrˈadʒi	standard
+4491.00.01	revólver	revolver	confirmed-bad	0	ʁevˈɔlveʁ	x i v ɔ l v e x	ʁˌevˈɔlver	standard
+4507.00.01	hino	anthem	confirmed-bad	0	ˈinu	i n u	ˈinu	standard
+4625.00.01	trajeto	route	confirmed-bad	0	tɾaˈʒɛtu		trˌaʒˈɛtu	standard
+4625.00.02	trajeto	distance	confirmed-bad	0	tɾɐˈʒɛtu		trˌaʒˈɛtu	standard
+4676.00.01	postal	postal	confirmed-bad	0	postˈaw	p o s t a w	postˈau	standard
+4691.00.02	vulto	appearance	confirmed-bad	0	vˈuwtu	v u w t u	vˈuwtu	standard
+4743.00.01	vice	vice (assistant)	confirmed-bad	0	vˈisi	v i s i	vˈisi	standard
+4863.00.01	decerto	certainly	confirmed-bad	0	dˌesˈɛɾtu		dˌesˈɛɾətu	rare_in_bp
+4895.00.01	apreender	to comprehend	confirmed-bad	0	apɾeẽˈdeʁ	a p ɾ e ẽ d e x	ˌapreeɪŋdˈer	standard
+4910.00.01	roer	to gnaw	confirmed-bad	0	ʁoˈeʁ	x o e / x o e x / x u e / x u e x	ʁoˈer	standard
+0265.00.01	altura	height	unclear	1	awtˈuɾɐ	a w t u ɾ ɐ	ˌaʊtˈuɾæ	standard
+0265.00.02	altura	time period	unclear	1	awtˈuɾɐ	a w t u ɾ ɐ	ˌaʊtˈuɾæ	standard
+0937.00.02	sede	thirst	unclear	1	sˈedʒi	s e dʒ i / s ɛ dʒ i	sˈedʒi	standard
+0983.00.01	trás	back	unclear	1	tɾˈas	t ɾ a j s	trˈas	standard
+1034.00.01	puro	pure	unclear	1	pˈuɾu	p u ɾ u	pˈuɾu	standard
+1126.00.01	recente	recent	unclear	1	ʁesˈẽtʃi	x e s ẽ tʃ i	ʁˌesˈeɪŋtʃi	standard
+1193.00.01	tribunal	court	unclear	1	tɾibunˈaw	t ɾ i b u n a w	trˌibunˈau	standard
+1473.00.01	recorrer	to appeal	unclear	1	ʁekuˈʁeʁ	x e k o x e x	ʁˌekoʁˈer	standard
+1483.00.01	vara	stick	unclear	1	vˈaɾɐ	v a ɾ ɐ	vˈaɾæ	standard
+1606.00.01	serra	mountain range	unclear	1	sˈɛʁɐ	s ɛ x ɐ	sˈɛʁæ	standard
+1606.00.02	serra	saw	unclear	1	sˈɛʁɐ	s ɛ x ɐ	sˈɛʁæ	standard
+1673.00.01	fiel	faithful	unclear	1	fiˈɛw	f i ɛ w	fiˈɛu	standard
+1709.00.02	capa	cape	unclear	1	kˈapɐ	k a p ɐ	kˈapæ	standard
+1742.00.03	placa	sign	unclear	1	plˈakɐ	p l a k a / p l a k ɐ	plˈakæ	standard
+2522.00.01	terror	terror	unclear	1	teˈʁoʁ	t e x o x	teʁˈor	standard
+2710.00.01	herdar	to inherit	unclear	1	eʁdˈaʁ		eɾədˈar	standard
+2973.00.01	touro	bull	unclear	1	tˈowɾu	t o w ɾ u	tˈowɾu	standard
+2994.00.01	seda	silk	unclear	1	sˈedɐ	s e d a / s e d ɐ	sˈedæ	standard
+3322.00.01	tubo	tube	unclear	1	tˈubu		tˈubu	standard
+3383.00.01	ilegal	illegal	unclear	1	ileˈɡaw	i l e ɡ a w	ˌileɡˈau	standard
+3426.00.01	elogio	compliment	unclear	1	eloˈʒiu	e l o ʒ i o	ˌeloʒˈiu	standard
+3597.00.02	turno	shift	unclear	1	tˈuɾnu	t u x n u	tˈuɾənu	standard
+3659.00.01	sino	bell	unclear	1	sˈinu	s i n u	sˈinu	standard
+3664.00.01	malha	knit clothing	unclear	1	mˈaʎɐ	m a ʎ a / m a ʎ ɐ	mˈaʎæ	standard
+3664.00.02	malha	net	unclear	1	mˈaʎɐ	m a ʎ a / m a ʎ ɐ	mˈaʎæ	standard
+3664.00.03	malha	club	unclear	1	mˈaʎɐ	m a ʎ a / m a ʎ ɐ	mˈaʎæ	standard
+3728.00.01	aranha	spider	unclear	1	aˈɾɐ̃ɲɐ	a ɾ ɐ̃ j̃ a / a ɾ ɐ̃ j̃ ɐ	ˌaɾˈɐ̃ɲæ	standard
+3732.00.01	aquando	at the time (of)	unclear	1	akwˈɐ̃du		ˌakwˈɐ̃du	ep_leaning
+3742.00.01	reger	to rule	unclear	1	ʁeʒˈeʁ		ʁeʒˈer	standard
+3911.00.01	cova	opening	unclear	1	kˈɔvɐ		kˈɔvæ	standard
+3911.00.02	cova	cave	unclear	1	kˈɔvɐ		kˈɔvæ	standard
+3911.00.03	cova	hole	unclear	1	kˈɔvɐ		kˈɔvæ	standard
+4034.00.01	macio	soft	unclear	1	masˈiu	m a s i u	masˈiu	standard
+4227.00.01	doer	to hurt	unclear	1	doˈeʁ	d o e x	doˈer	standard
+4234.00.01	grade	bars	unclear	1	ɡɾˈadʒi	ɡ ɾ a dʒ i	ɡrˈadʒi	standard
+4267.00.01	judaico	Jewish	unclear	1	ʒudˈajku	ʒ u d a j k u	ʒˌudˈaɪku	standard
+4332.00.01	enterro	burial	unclear	1	ẽtˈɛʁu	ĩ t e x u	ˌeɪŋtˈɛʁu	standard
+4381.00.01	cera	wax	unclear	1	sˈɛɾɐ	s e ɾ a	sˈeɾæ	standard
+4389.00.01	marketing	marketing	unclear	1	ˈmaɾketʃĩ	m a x c e tʃ ĩ	mˈarketʃiŋ	standard
+4424.00.01	mouro	moor	unclear	1	mˈowɾu	m o w ɾ u	mˈowɾu	standard
+4501.00.01	suor	sweat	unclear	1	suˈoʁ		suˈɔr	standard
+4633.00.01	ceia	supper	unclear	1	sˈejɐ	s e j a	sˈeɪæ	standard
+4691.00.01	vulto	notable person	unclear	1	vˈuwtu	v u w t u	vˈuwtu	standard
+4854.00.01	rito	rite	unclear	1	ʁˈitu	x i t u	ʁˈitu	standard
+4895.00.02	apreender	to apprehend	unclear	1	apɾeẽˈdeʁ	a p ɾ e ẽ d e x	ˌapreeɪŋdˈer	standard
+4950.00.01	cimo	top	unclear	1	sˈimu		sˈimu	rare_in_bp
+4981.00.01	feitio	personality	unclear	1	fejtʃˈiu	f e j tʃ i w	feɪtʃˈiu	standard
+4981.00.02	feitio	feature	unclear	1	fejˈtʃiu	f e j tʃ i w	feɪtʃˈiu	standard
+0503.00.01	quarto	room	user-reported	2	kwˈaɾtu	k w a x t u	kwˈaɾətu	standard
+0503.00.02	quarto	bedroom	user-reported	2	kwaɾtʊ	k w a x t u	kwˈaɾətu	standard
+0503.00.03	quarto	fourth	user-reported	2	kwˈaɾtu	k w a x t u	kwˈaɾətu	standard
+0664.00.02	face	surface	user-reported	2	fˈasi	f a s i	fˈasi	standard
+0858.00.01	data	date	user-reported	2	dˈatɐ	d a t ɐ	dˈatæ	standard
+1365.00.01	sorte	luck	user-reported	2	sˈɔɾtʃi	s ɔ x tʃ i	sˈɔɾətʃi	standard
+1595.00.01	caça	hunt	user-reported	2	kˈasɐ	k a s a	kˈasæ	standard
+1682.00.01	visar	to aim at	user-reported	2	vizˈaʁ	v i z a x	vizˈar	standard
+1709.00.01	capa	cover	user-reported	2	kˈapɐ	k a p ɐ	kˈapæ	standard
+1742.00.01	placa	plate	user-reported	2	plˈakɐ	p l a k a / p l a k ɐ	plˈakæ	standard
+1742.00.02	placa	plaque	user-reported	2	plˈakɐ	p l a k a / p l a k ɐ	plˈakæ	standard
+2173.00.01	meta	goal	user-reported	2	mˈetɐ	m e t ɐ / m ɛ t ɐ	mˈetæ	standard
+2626.00.01	ribeira	stream	user-reported	2	ʁibˈejɾɐ		ʁˌibˈeɪɾæ	standard
+2626.00.02	ribeira	riverbank	user-reported	2	ʁibˈejɾɐ		ʁˌibˈeɪɾæ	standard
+2712.00.01	carioca	From Rio de Janeiro	user-reported	2	kˌaɾiˈɔkɐ	k a ɾ i ɔ k ɐ / k a ɾ j ɔ k ɐ	kˌaɾiˈɔkæ	standard
+3098.00.01	dose	dose	user-reported	2	dˈɔzi		dˈɔzi	standard
+3203.00.01	referente	relating to	user-reported	2	ʁefeɾˈẽtʃi	x e f e ɾ ẽ tʃ i	ʁˌefeɾˈeɪŋtʃi	standard
+3597.00.01	turno	round	user-reported	2	tˈuɾnu	t u x n u	tˈuɾənu	standard
+3599.00.01	descida	drop	user-reported	2	desˈidɐ	d e s i d a / d e s i d ɐ	dˌesˈidæ	standard
+3879.00.01	sanção	sanction	user-reported	2	sɐ̃ˈsɐ̃w	s ɐ̃ s ɐ̃ w̃	sɐ̃sˈɐ̃ʊ̃	standard
+3897.00.01	salarial	relating to salary	user-reported	2	salɐɾiˈaw	s a l a ɾ i a w	sˌalaɾiˈau	standard
+3954.00.01	eh	hey	user-reported	2	ˈɛ		ˈe	standard
+4032.00.01	cesta	basket	user-reported	2	sˈɛstɐ	s e s t a / s ɛ s t ɐ	sˈestæ	standard
+4032.00.02	cesta	trash can	user-reported	2	sˈɛstɐ	s e s t a / s ɛ s t ɐ	sˈestæ	standard
+4032.00.03	cesta	hoop	user-reported	2	sˈɛstɐ	s e s t a / s ɛ s t ɐ	sˈestæ	standard
+4089.00.01	hospitalar	relating to a hospital	user-reported	2	ˌospitaˈlaʁ		ˌospitalˈar	standard
+4125.00.01	batizar	to baptize	user-reported	2	batʃizˈaʁ		bˌatʃizˈar	standard
+4178.00.01	assente	settled	user-reported	2	asˈẽtʃi		ˌasˈeɪŋtʃi	standard
+4197.00.01	baía	bay	user-reported	2	baˈiɐ	b a i ɐ	bˌaˈiæ	standard
+4380.00.01	casto	chaste	user-reported	2	kˈastu		kˈastu	rare_in_bp
+4757.00.01	crente	believer	user-reported	2	kɾˈẽtʃi		krˈeɪŋtʃi	standard
+4772.00.01	susceptível	susceptible	user-reported	2	suseptʃˈivew		sˌuseptʃˈiveu	standard
+4832.00.01	cavalheiro	gentleman	user-reported	2	kavaʎˈejɾu	k a v a ʎ e j ɾ u	kˌavaʎˈeɪɾu	standard
+4948.00.01	candeeiro	lamp	user-reported	2	kɐ̃dʒiˈejɾu	k ɐ̃ dʒ i e j ɾ o / k ɐ̃ dʒ i e j ɾ u / k ɐ̃ dʒ j e j ɾ o / k ɐ̃ dʒ j e j ɾ u	kˌɐ̃deˈeɪɾu	standard
+0002.00.01	de	of	spike-bad	3	dʒi	d e / d i / dʒ i	dʒi	standard
+0304.00.01	partido	(political) party	spike-bad	3	paɾtʃˈidu	p a x tʃ i d o / p a x tʃ i d u	pˌaɾətʃˈidu	standard
+0534.00.01	verde	green	spike-bad	3	vˈeʁdʒi	v e x d e	vˈeɾədʒi	standard
+0580.00.01	garantir	to guarantee	spike-bad	3	ɡaɾɐ̃tʃˈiʁ	ɡ a ɾ ɐ̃ tʃ i x	ɡˌaɾɐ̃tʃˈir	standard
+0913.00.01	sítio	site	spike-bad	3	sˈitʃiu	s i tʃ i u / s i tʃ j u	sˈitʃju	standard
+1454.00.01	doze	twelve	spike-bad	3	dˈozi	d o z e / d o z i	dˈozi	standard
+0003.00.02	em	on	v4-flag	4	ẽ	ẽ j̃ / ĩ	ˈeɪŋ	standard
+0008.00.01	por	by	v4-flag	4	poʁ	p o x / p o ɾ / p u x / p u ɾ	por	standard
+0039.00.01	ver	to see	v4-flag	4	vˈeʁ	v e x	vˈer	standard
+0210.00.01	mão	hand	v4-flag	4	mˈɐ̃w̃	m ɐ̃ w̃	mˈɐ̃ʊ̃	standard
+0263.00.02	forte	stronghold	v4-flag	4	fˈɔɾtʃi	f ɔ x t i / f ɔ x tʃ i	fˈɔɾətʃi	standard
+0266.00.02	volta	turn	v4-flag	4	vˈɔltɐ	v ɔ w t a / v ɔ w t ɐ	vˈɔltæ	standard
+0325.00.01	falta	lack	v4-flag	4	fˈawtɐ	f a w t ɐ	fˈaʊtæ	standard
+0422.00.01	superior	greater / higher / superior	v4-flag	4	supeɾiˈoʁ	s u p e ɾ i o x	sˌupeɾiˈor	standard
+0435.00.01	cor	color	v4-flag	4	kˈoʁ	k o x / k ɔ x	kˈor	standard
+0438.00.01	ar	air	v4-flag	4	aʁ	a x	ˈar	standard
+0604.00.03	central	office	v4-flag	4	sẽtɾˈaw	s ẽ t ɾ a w	seɪŋtrˈau	standard
+0612.00.01	metro	meter	v4-flag	4	mˈɛtɾu	m e t ɾ u	mˈɛtru	standard
+0647.00.01	popular	popular	v4-flag	4	pˌopulˈaʁ	p o p u l a x	pˌopulˈar	standard
+2171.00.01	potencial	potential	v4-flag	4	potẽsiˈaw	p o t ẽ s i a w	pˌoteɪŋsiˈau	standard
+0154.00.01	sair	to leave	asr-fail-v5	6	saˈiʁ	s a i x	saˈir	standard
+0877.00.01	impor	to impose	asr-fail-v5	6	ĩpˈoʁ	ĩ p o x	impˈor	standard
+1958.00.02	concelho	council	asr-fail-v5	6	kõsˈeʎu		kˌoŋsˈeʎu	ep_leaning
+2549.00.01	porquê	why	asr-fail-v5	6	poɾkˈe	p u x c e	poɾəkˈe	standard
+4172.00.01	signo	sign of the zodiac	asr-fail-v5	6	sˈiɡnu	s i ɡ n u	sˈiɡnu	standard
+4263.00.01	aceso	on	asr-fail-v5	6	ɐsˈezu	a s e z u	ˌasˈezu	standard
+4321.00.01	contatar	to contact	asr-fail-v5	6	kõtɐtˈaʁ	k õ t a t a x	kˌoŋtatˈar	standard
+0672.00.01	fase	phase	asr-fail-v4	7	fˈazi	f a z i	fˈazi	standard
+0810.00.01	pesar	to weigh	asr-fail-v4	7	pezˈaʁ		pezˈar	standard
+1165.00.01	gado	cattle	asr-fail-v4	7	ɡˈadu	ɡ a d u	ɡˈadu	standard
+1173.00.01	ativo	active	asr-fail-v4	7	aˈtʃivu	a tʃ i v u	ˌatʃˈivu	standard
+1551.00.01	mata	forest	asr-fail-v4	7	mˈatɐ	m a t ɐ	mˈatæ	standard
+1628.00.01	seção	section	asr-fail-v4	7	sesˈɐ̃w̃	s e s ɐ̃ w̃	sesˈɐ̃ʊ̃	standard
+1669.00.01	frequência	frequency	asr-fail-v4	7	fɾekwˈẽsiɐ	f ɾ e k w ẽ s j a	frˌekwˈeɪŋsjæ	standard
+1773.00.01	inúmero	innumerable	asr-fail-v4	7	ĩnˈumeɾu		ˌinˈũmeɾu	standard
+1866.00.01	judeu	Jew	asr-fail-v4	7	ʒuˈdew	ʒ u d e w	ʒudˈeu	standard
+1958.00.01	concelho	municipality	asr-fail-v4	7	kõsˈeʎu		kˌoŋsˈeʎu	ep_leaning
+2092.00.01	notável	notable	asr-fail-v4	7	notˈavew	n o t a v e w	nˌotˈaveu	standard
+2103.00.01	tecer	to weave	asr-fail-v4	7	tesˈeʁ	t e s e ɾ	tesˈer	standard
+2199.00.02	gordo	thick	asr-fail-v4	7	ɡˈoɾdu	ɡ o x d u	ɡˈoɾədu	standard
+2214.00.01	convição	conviction	asr-fail-v4	7	kõvikˈsɐ̃w		kˌoŋvisˈɐ̃ʊ̃	standard
+2224.00.01	redor	surroundings	asr-fail-v4	7	ʁedˈoʁ	x e d o x	ʁedˈɔr	standard
+2423.00.03	porte	fare	asr-fail-v4	7	pˈɔɾtʃi	p ɔ x t i	pˈɔɾətʃi	standard
+2634.00.01	senso	sense	asr-fail-v4	7	sˈẽsu	s ẽ s u	sˈeɪŋsu	standard
+2796.00.01	amostra	sample	asr-fail-v4	7	ɐmˈɔstɾɐ	a m ɔ s t ɾ ɐ	ˌæmˈɔstræ	standard
+2808.00.01	satisfeito	satisfied	asr-fail-v4	7	satʃisfˈejtu	s a t i s f e j t u	sˌatʃisfˈeɪtu	standard
+2916.00.01	aperceber	to realize	asr-fail-v4	7	ˌapeɾseˈbeɾ		ˌapeɾəsebˈer	ep_leaning
+3240.00.01	selo	stamp	asr-fail-v4	7	sˈelu	s e l u / s ɛ l u	sˈelu	standard
+3352.00.01	comprimento	length	asr-fail-v4	7	kõpɾimˈẽtu	k õ p ɾ i m ẽ t o / k õ p ɾ i m ẽ t u / k ũ p ɾ i m ẽ t u	kˌomprimˈeɪŋtu	standard
+3354.00.01	respectivamente	respectively	asr-fail-v4	7	ʁespektʃˈivɐmẽtʃi	x e s p ɛ c i tʃ i v ɐ m ẽ tʃ i	ʁˌespektʃˌivæmˈeɪŋtʃi	standard
+3387.00.01	calhar	to happen (by accident)	asr-fail-v4	7	kaʎˈaʁ		kaʎˈar	standard
+3480.00.01	ascensão	rise	asr-fail-v4	7	ˌasẽsˈɐ̃w	a s ẽ s ɐ̃ w̃	ˌaseɪŋsˈɐ̃ʊ̃	standard
+3648.00.01	tristeza	sadness	asr-fail-v4	7	tɾistˈezɐ	t ɾ i s t e z ɐ / t ɾ i ʃ t e z ɐ	trˌistˈezæ	standard
+3848.00.01	ascender	to go up	asr-fail-v4	7	asẽˈdeʁ	a s ẽ d e x	ˌaseɪŋdˈer	standard
+3875.00.01	júri	jury	asr-fail-v4	7	ʒˈuɾi	ʒ u ɾ i	ʒˈuɾi	standard
+3918.00.01	infeção	infection	asr-fail-v4	7	ĩfesˈɐ̃w̃		ˌiŋfesˈɐ̃ʊ̃	standard
+3949.00.01	coxa	thigh	asr-fail-v4	7	kˈoʃɐ	k o ʃ ɐ	kˈoʃæ	standard
+4208.00.01	seara	field of grains	asr-fail-v4	7	sˈeaɾɐ		sˌeˈaɾæ	standard
+4410.00.01	pasto	animal feed	asr-fail-v4	7	pˈastu	p a s t u / p a ʃ t u	pˈastu	standard
+4411.00.01	feixe	shaft of light	asr-fail-v4	7	fˈejʃi		fˈeɪʃi	standard
+4565.01.01	à mercê de	at the mercy of	asr-fail-v4	7	a mɛɾˈse dʒi		ˌaː meɾəsˈe dʒi	standard
+4709.00.02	arraial	fair	asr-fail-v4	7	aʁaɪˈaw	a x a j a w	ˌaʁaɪˈau	standard
+4710.00.01	assessor	advisor	asr-fail-v4	7	asesˈoʁ	a s e s o x	ˌasesˈor	standard
+4711.00.01	saca	bag	asr-fail-v4	7	sˈakɐ		sˈakæ	standard
+0080.00.01	tudo	everything	asr-fail-v3	8	tˈudu	t u d o / t u d u	tˈudu	standard
+0280.00.01	modo	way	asr-fail-v3	8	mˈɔdu	m ɔ d u	mˈɔdu	standard
+0564.00.01	marcar	to mark	asr-fail-v3	8	maɾkˈaʁ	m a x k a x	maɾəkˈar	standard
+1300.00.01	útil	useful	asr-fail-v3	8	ˈutʃiw	u t i l / u tʃ i w	ˈutʃiu	standard
+1349.00.01	restar	to remain	asr-fail-v3	8	ʁestˈaʁ	x e s t a x	ʁestˈar	standard
+1410.00.03	corda	spring	asr-fail-v3	8	kˈɔɾdɐ	k ɔ x d ɐ	kˈɔɾədæ	standard
+1758.00.01	globo	globe	asr-fail-v3	8	ɡlˈobu	ɡ l o b u	ɡlˈobu	standard
+2890.00.01	frei	friar	asr-fail-v3	8	fɾˈej	f ɾ e j	frˈeɪ	standard
+3301.00.01	dotar	to endow	asr-fail-v3	8	dotˈaʁ		dotˈar	standard
+3799.00.01	têxtil	textile	asr-fail-v3	8	tˈɛstʃiw	t e j s tʃ i w	tˈestʃiu	standard
+0067.00.01	porque	because	asr-fail	9	puɾˈke	p o x c e / p o ɾ c e / p u x c e	pˈoɾəki	standard
+0102.00.01	meio	means	asr-fail	9	mˈeju	m e j u	mˈeɪu	standard
+0153.00.01	hora	hour	asr-fail	9	ˈɔɾɐ	ɔ ɾ ɐ	ˈɔɾæ	standard
+0363.00.01	passo	step	asr-fail	9	pˈasu	p a s u	pˈasu	standard
+0374.00.01	olho	eye	asr-fail	9	ˈoʎu	o ʎ u / ɔ ʎ u	ˈɔʎu	standard
+0402.00.01	aspecto	aspect	asr-fail	9	aspˈɛktu	a s p ɛ c i t u / a s p ɛ k t u	ˌaspˈɛktu	standard
+0564.00.02	marcar	to set a date	asr-fail	9	maɾkˈaʁ	m a x k a x	maɾəkˈar	standard
+0659.00.01	cento	percent (por c.)	asr-fail	9	sˈẽtu	s ẽ t u	sˈeɪŋtu	standard
+0665.00.01	supor	to suppose	asr-fail	9	supˈoʁ	s u p o x	supˈor	standard
+0715.00.01	civil	civil	asr-fail	9	sivˈiw	s i v i w	sivˈiu	standard
+0717.00.01	resultar	to result	asr-fail	9	ʁezuwtˈaʁ	x e z u w t a x	ʁˌezuwtˈar	standard
+0732.00.01	grave	grave / serious	asr-fail	9	ɡɾˈavi	ɡ ɾ a v i	ɡrˈavi	standard
+0780.00.02	monte	mound	asr-fail	9	mˈõtʃi	m õ t e / m õ tʃ i	mˈoŋtʃi	standard
+1233.00.02	golpe	blow	asr-fail	9	ɡˈɔwpi	ɡ ɔ w p i	ɡˈɔwpi	standard
+1243.00.02	senão	except	asr-fail	9	senˈɐ̃w	s e n ɐ̃ w̃	senˈɐ̃ʊ̃	standard
+1290.00.01	permanente	permanent	asr-fail	9	peɾmɐnˈẽtʃi	p e x m ɐ n ẽ tʃ i	pˌeɾəmænˈeɪŋtʃi	standard
+1320.00.01	expor	to exhibit / expose	asr-fail	9	espoʁ	e s p o x	espˈor	standard
+1368.00.01	deter	to arrest	asr-fail	9	detˈeʁ	d e t e x	detˈer	standard
+1406.00.01	deitar	to lie down	asr-fail	9	dejtˈaʁ	d e j t a x	deɪtˈar	standard
+1598.00.01	prosseguir	to proceed	asr-fail	9	pɾoseɡˈiʁ	p ɾ o s e ɟ i x	prˌoseɡˈir	standard
+1723.00.01	teto	ceiling	asr-fail	9	tˈɛtu	t ɛ t u	tˈɛtu	standard
+1732.00.01	rumo	course of action	asr-fail	9	ʁˈumu	x u m u	ʁˈumu	standard
+1764.00.01	marcha	march	asr-fail	9	mˈaʁʃɐ	m a x ʃ ɐ	mˈaɾəʃæ	standard
+1764.00.03	marcha	parade	asr-fail	9	mˈaʁʃɐ	m a x ʃ ɐ	mˈaɾəʃæ	ep_leaning
+1887.00.01	febre	fever	asr-fail	9	fˈɛbɾi	f ɛ b ɾ e / f ɛ b ɾ i	fˈɛbri	standard
+1938.00.01	render	to yield	asr-fail	9	ʁẽˈdeʁ	x ẽ d e x	ʁeɪŋdˈer	standard
+2036.00.01	alcance	range	asr-fail	9	awˈkɐ̃si	a w k ɐ̃ s i	ˌaʊkˈɐ̃si	standard
+2043.00.01	arco	bow	asr-fail	9	ˈaʁku	a x k u	ˈaɾəku	standard
+2077.00.03	pasta	paste	asr-fail	9	pˈastɐ	p a s t ɐ	pˈastæ	standard
+2228.00.02	humor	mood	asr-fail	9	umˈoʁ	u m o x	umˈor	standard
+2241.00.02	erguer	to raise up	asr-fail	9	eʁɡˈeʁ	e x ɟ e x	eɾəɡˈer	standard
+2241.00.03	erguer	to support	asr-fail	9	eʁɡˈeʁ	e x ɟ e x	eɾəɡˈer	standard
+2254.00.01	cruzado	old Brazilian monetary unit	asr-fail	9	kɾuˈzadu		krˌuzˈadu	standard
+2271.00.01	nomeado	nominated	asr-fail	9	nomjˈadu	n o m i a d u	nˌomeˈadu	standard
+2331.00.01	rock	rock music	asr-fail	9	ʁˈɔki	x ɔ c i / x ɔ k	ʁˈɔk	standard
+2453.00.01	exprimir	to express	asr-fail	9	ˌespɾimˈiʁ		ˌesprimˈir	standard
+2464.00.01	aderir	to adhere	asr-fail	9	adeɾˈiʁ	a d e ɾ i x	ˌadeɾˈir	standard
+2506.00.01	pátria	homeland	asr-fail	9	pˈatɾiɐ	p a t ɾ i a / p a t ɾ i ɐ / p a t ɾ j a / p a t ɾ j ɐ	pˈatrjæ	standard
+2568.00.01	resíduo	residue	asr-fail	9	ʁezˈidwu	x e z i d w u	ʁˌezˈiduu	standard
+2627.00.01	sobrinho	nephew	asr-fail	9	sobɾˈĩɲu	s o b ɾ ĩ j̃ u	sˌobrˈiɲu	standard
+2794.00.01	crença	belief	asr-fail	9	kɾˈẽsɐ	k ɾ ẽ s ɐ	krˈeɪŋsæ	standard
+2934.00.02	burro	fool	asr-fail	9	bˈuʁu	b u x u	bˈuʁu	standard
+2961.00.01	exceto	except	asr-fail	9	esˈɛtu	e s e t u	ˌesˈɛtu	standard
+2983.00.01	cauda	tail	asr-fail	9	kˈawdɐ	k a w d ɐ	kˈaʊdæ	standard
+3015.00.01	auto	legal document	asr-fail	9	ˈawtu	a w t u	ˈaʊtu	standard
+3015.00.02	auto	theatrical play	asr-fail	9	ˈawtu	a w t u	ˈaʊtu	standard
+3077.00.01	time	team	asr-fail	9	tʃˈimi	tʃ i m e / tʃ i m i	tʃˈimi	standard
+3194.00.01	reitor	dean	asr-fail	9	ʁejtˈoʁ	x e j t o x	ʁeɪtˈor	standard
+3213.00.01	guerrilheiro	guerilla (military)	asr-fail	9	ɡeʁiˈʎejɾu	ɟ ɛ x i ʎ e j ɾ u	ɡˌeʁiʎˈeɪɾu	standard
+3234.00.02	bilhete	ticket	asr-fail	9	biʎˈetʃi	b i ʎ e tʃ i	bˌiʎˈetʃi	standard
+3298.00.01	quotidiano	day-to-day	asr-fail	9	kotʃidʒiˈɐ̃nu	k o tʃ i dʒ i ɐ n u	kwˌotʃidʒiˈɐ̃nu	standard
+3304.00.01	credor	creditor	asr-fail	9	kɾedˈoʁ	k ɾ e d o ɾ	kredˈor	standard
+3344.00.03	afastamento	removal	asr-fail	9	ɐfɐstɐmˈẽtu	a f a s t a m ẽ t u / a f a ʃ t a m ẽ t u	ˌafastæmˈeɪŋtu	standard
+3353.00.01	roubo	theft	asr-fail	9	ʁˈowbu	x o w b u	ʁˈowbu	standard
+3378.00.01	invés	instead (ao i.)	asr-fail	9	ĩvˈɛs	ĩ v ɛ j s	iŋvˈɛs	standard
+3421.00.01	mútuo	mutual	asr-fail	9	mˈutʃu	m u t w u	mˈutuu	standard
+3435.00.01	piorar	to get worse	asr-fail	9	pjoɾˈaʁ	p i o ɾ a x	pˌioɾˈar	standard
+3441.00.02	mole	weak	asr-fail	9	mˈɔli	m ɔ ʎ i	mˈɔli	standard
+3517.00.01	pulso	pulse	asr-fail	9	pˈuwsu	p u w s u	pˈuwsu	standard
+3604.00.01	proferir	to utter	asr-fail	9	pɾofeɾˈiɾ		prˌofeɾˈir	standard
+3634.00.01	filmar	to film	asr-fail	9	fiwˈmaʁ	f i w m a x	fiʊmˈar	standard
+3644.00.01	dispersar	to disperse	asr-fail	9	dʒispeɾsˈaʁ	dʒ i s p e x s a x	dʒˌispeɾəsˈar	standard
+3675.00.01	conversão	conversion	asr-fail	9	kõveɾsˈɐ̃w	k õ v e x s ɐ̃ w̃	kˌoŋveɾəsˈɐ̃ʊ̃	standard
+3813.00.01	acarretar	to cause	asr-fail	9	akɐʁetˈaʁ	a k a x e t a x	ˌakaʁetˈar	standard
+3818.00.01	táxi	taxi	asr-fail	9	tˈaksi	t a ʃ i	tˈaksi	standard
+3825.00.01	gene	gene	asr-fail	9	ʒˈeni		ʒˈeni	standard
+3908.00.01	alastrar	to spread	asr-fail	9	alasˈtɾaʁ		ˌalastrˈar	standard
+3952.00.01	narrar	to narrate	asr-fail	9	naˈʁaʁ		naʁˈar	standard
+3962.00.01	contabilidade	accounting	asr-fail	9	kõtabiliˈdadʒi	k õ t a b i ʎ i d a dʒ i	kˌoŋtabˌilidˈadʒi	standard
+4075.00.01	auge	peak	asr-fail	9	ˈawʒi	a w ʒ i	ˈaʊʒi	standard
+4111.00.01	beijar	to kiss	asr-fail	9	beʒˈaʁ	b e j ʒ a x	beɪʒˈar	standard
+4188.00.01	cubano	Cuban	asr-fail	9	kuˈbɐ̃nu	k u b ɐ n u	kˌubˈɐ̃nu	standard
+4283.00.01	cesto	basket	asr-fail	9	sˈestu		sˈestu	standard
+4366.00.01	ronda	round	asr-fail	9	ʁˈõdɐ	x õ d ɐ	ʁˈoŋdæ	standard
+4366.00.02	ronda	surveillance	asr-fail	9	ʁˈõdɐ	x õ d ɐ	ʁˈoŋdæ	standard
+4393.00.02	troço	section of road	asr-fail	9	tɾˈɔsu		trˈɔsu	ep_leaning
+4464.00.01	difundir	to spread	asr-fail	9	dʒifũˈdʒiʁ		dʒˌifũdʒˈir	standard
+4464.00.02	difundir	to broadcast	asr-fail	9	dʒifũndʒˈiʁ		dʒˌifũdʒˈir	standard
+4505.00.01	incerto	uncertain	asr-fail	9	ĩsˈɛɾtu		ˌiŋsˈɛɾətu	standard
+4518.00.01	precedente	precedent	asr-fail	9	pɾesedˈẽtʃi	p ɾ e s e d ẽ tʃ i	prˌesedˈeɪŋtʃi	standard
+4538.00.01	furioso	sharp	asr-fail	9	fuɾiˈozu	f u ɾ i o z u / f u ɾ j o z u	fˌuɾiˈozu	standard
+4549.00.01	desconto	discount	asr-fail	9	deskˈõtu	d e s k õ t u	dˌeskˈoŋtu	standard
+4565.00.01	mercê	(a m. de) at the mercy of	asr-fail	9	meɾsˈe		meɾəsˈe	rare_in_bp
+4568.00.01	tremer	to shake	asr-fail	9	tɾemˈeʁ		tremˈer	standard
+4613.00.01	hostil	hostile	asr-fail	9	osˈtʃiw	o s tʃ i w	ostʃˈiu	standard
+4695.00.01	corporal	relating to the body	asr-fail	9	koɾpoɾˈaw	k o x p o ɾ a w	kˌoɾəpoɾˈau	standard
+4701.00.01	fação	faction	asr-fail	9	fakˈsɐ̃w		fasˈɐ̃ʊ̃	standard
+4726.00.01	acrescido	increased	asr-fail	9	ˌakɾesˈidu		ˌakresˈidu	standard
+4753.00.01	incompleto	incomplete	asr-fail	9	ĩkõplˈɛtu	ĩ k õ p l e t u	ˌiŋkomplˈɛtu	standard

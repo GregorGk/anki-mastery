@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 8 — Final flag pass</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1200px; margin: 2em auto; padding: 0 1em; line-height: 1.5; color: #222; }
+h1 { border-bottom: 2px solid #888; padding-bottom: 0.3em; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92em; }
+th, td { border: 1px solid #aaa; padding: 0.4em 0.6em; text-align: left; vertical-align: middle; }
+th { background: #e6ecf2; position: sticky; top: 60px; z-index: 5; }
+code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+code.alias { background: #d4edda; color: #155724; }
+audio { width: 240px; }
+.muted { color: #999; }
+.drift { font-size: 0.85em; padding: 0.1em 0.4em; border-radius: 3px; }
+.drift-en { background: #fde2e2; color: #842029; }
+.drift-ep { background: #fff3cd; color: #664d03; }
+.drift-es { background: #cfe2ff; color: #084298; }
+.drift-fr { background: #f3e5f5; color: #4a148c; }
+.drift-other { background: #e0e0e0; color: #333; }
+.flag-cell label { margin-right: 0.8em; white-space: nowrap; }
+.alias-row { background: #fafffa; }
+.other-row { background: #fffafa; }
+.export { position: sticky; top: 0; background: #ffd; padding: 0.8em 1em; border: 2px solid #ba0;
+  border-radius: 4px; margin: 0 0 1em 0; z-index: 10; display: flex; align-items: center; gap: 1em; }
+button { font-size: 1em; padding: 0.5em 1em; cursor: pointer; }
+.intro { background: #f5f8fb; border: 1px solid #cdd; border-radius: 6px;
+  padding: 1em 1.5em; margin: 1em 0 1.5em; font-size: 0.95em; }
+#export-output { width: 100%; height: 200px; font-family: ui-monospace, monospace; }
+.flag-count { font-weight: bold; color: #c00; }
+</style>
+</head>
+<body>
+
+<h1>Stage 8 — Final flag pass</h1>
+
+<div class="intro">
+  <p><strong>What this is:</strong> 100 clips (0
+  alias-affected with green respelling cells + 100 other audio-judge non_bp
+  with red drift labels). For each clip, decide: <code>OK</code> (good
+  enough, leave alone) or <code>FLAG</code> (needs v4 improvement).
+  Default is <code>OK</code>.</p>
+  <p><strong>How to flag:</strong> Click the <code>FLAG</code> radio
+  for clips you want revisited. Most clips will stay <code>OK</code> —
+  only flag what genuinely bothers you. When done, click Export →
+  paste TSV into <code>data/_audio_v4_flag_list.tsv</code>.</p>
+  <p><strong>Future v4 pass:</strong> only the FLAG-marked clips get
+  re-rendered. The OK ones stay as-is, avoiding TTS-non-determinism
+  drift.</p>
+</div>
+
+<div class="export">
+  <button onclick="exportFlags()">Export flags (copy TSV to clipboard)</button>
+  <span id="export-status" style="color: #060;"></span>
+  <span id="flag-counter" class="flag-count"></span>
+</div>
+
+<details style="margin-bottom: 1em;">
+  <summary>Show raw TSV</summary>
+  <textarea id="export-output" readonly></textarea>
+</details>
+
+<table>
+<tr>
+  <th>sense_id</th>
+  <th>pt</th>
+  <th>alias respelling</th>
+  <th>drift</th>
+  <th>audio</th>
+  <th>flag</th>
+</tr>
+
+<tr class="other-row">
+  <td><code>0682.00.01</code></td>
+  <td><strong>crime</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0682.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0682.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0682.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0700.00.01</code></td>
+  <td><strong>economia</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0700.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0700.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0700.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0732.00.01</code></td>
+  <td><strong>grave</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0732.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0732.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0732.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0771.00.02</code></td>
+  <td><strong>margem</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0771.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0771.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0771.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0777.00.01</code></td>
+  <td><strong>hospital</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0777.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0777.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0777.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0801.00.01</code></td>
+  <td><strong>exército</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0801.00.01-word-v2.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0801.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0801.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0828.00.01</code></td>
+  <td><strong>metade</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0828.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0828.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0828.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0868.00.01</code></td>
+  <td><strong>consequência</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0868.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0868.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0868.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0884.00.01</code></td>
+  <td><strong>tendência</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0884.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0884.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0884.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0890.00.01</code></td>
+  <td><strong>costumar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0890.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0890.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0890.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>0928.00.01</code></td>
+  <td><strong>padre</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0928.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_0928.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_0928.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1006.00.01</code></td>
+  <td><strong>baixar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1006.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1006.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1006.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1021.00.01</code></td>
+  <td><strong>bola</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1021.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1021.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1021.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1071.00.01</code></td>
+  <td><strong>finalmente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1071.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1071.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1071.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1076.00.01</code></td>
+  <td><strong>quantidade</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1076.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1076.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1076.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1087.00.01</code></td>
+  <td><strong>independente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1087.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1087.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1087.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1094.00.01</code></td>
+  <td><strong>descer</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1094.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1094.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1094.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1167.00.01</code></td>
+  <td><strong>sozinho</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1167.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1167.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1167.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1189.00.01</code></td>
+  <td><strong>musical</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1189.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1189.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1189.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1209.00.01</code></td>
+  <td><strong>exame</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1209.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1209.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1209.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1220.00.01</code></td>
+  <td><strong>fator</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1220.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1220.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1220.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1411.00.01</code></td>
+  <td><strong>jamais</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-fr'>FR</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1411.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1411.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1411.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1442.00.01</code></td>
+  <td><strong>infantil</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1442.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1442.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1442.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1457.00.01</code></td>
+  <td><strong>relativamente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1457.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1457.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1457.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1469.00.01</code></td>
+  <td><strong>comentário</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1469.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1469.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1469.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1470.00.01</code></td>
+  <td><strong>resolução</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1470.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1470.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1470.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1497.00.01</code></td>
+  <td><strong>mental</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1497.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1497.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1497.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1502.00.01</code></td>
+  <td><strong>imóvel</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1502.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1502.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1502.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1507.00.01</code></td>
+  <td><strong>beber</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1507.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1507.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1507.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1511.00.01</code></td>
+  <td><strong>cobrar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1511.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1511.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1511.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1526.00.01</code></td>
+  <td><strong>distinguir</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1526.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1526.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1526.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1547.00.01</code></td>
+  <td><strong>medir</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1547.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1547.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1547.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1564.00.01</code></td>
+  <td><strong>individual</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1564.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1564.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1564.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1590.00.01</code></td>
+  <td><strong>meter</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1590.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1590.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1590.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1603.00.01</code></td>
+  <td><strong>tender</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1603.00.01-word-v2.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1603.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1603.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1605.00.01</code></td>
+  <td><strong>rever</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1605.00.01-word-v2.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1605.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1605.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1612.00.01</code></td>
+  <td><strong>orçamento</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1612.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1612.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1612.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1614.00.01</code></td>
+  <td><strong>debate</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1614.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1614.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1614.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1625.00.01</code></td>
+  <td><strong>dona</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1625.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1625.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1625.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1651.00.01</code></td>
+  <td><strong>féria</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1651.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1651.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1651.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1652.00.02</code></td>
+  <td><strong>arranjar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1652.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1652.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1652.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1655.00.01</code></td>
+  <td><strong>introduzir</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1655.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1655.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1655.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1674.00.01</code></td>
+  <td><strong>seguida</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1674.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1674.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1674.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1684.00.01</code></td>
+  <td><strong>interpretação</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1684.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1684.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1684.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1758.00.01</code></td>
+  <td><strong>globo</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1758.00.01-word-v3.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1758.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1758.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1788.00.01</code></td>
+  <td><strong>restante</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1788.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1788.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1788.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1810.00.01</code></td>
+  <td><strong>nomeadamente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1810.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1810.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1810.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1831.00.01</code></td>
+  <td><strong>fechado</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1831.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1831.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1831.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1832.00.01</code></td>
+  <td><strong>revolta</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1832.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1832.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1832.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1866.00.01</code></td>
+  <td><strong>judeu</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1866.00.01-word-v4.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1866.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1866.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1901.00.01</code></td>
+  <td><strong>arrancar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1901.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1901.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1901.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1925.00.01</code></td>
+  <td><strong>mecânico</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1925.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1925.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1925.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1925.00.02</code></td>
+  <td><strong>mecânico</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1925.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1925.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1925.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>1982.00.01</code></td>
+  <td><strong>absorver</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1982.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_1982.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_1982.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2041.00.01</code></td>
+  <td><strong>tio</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2041.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2041.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2041.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2042.01.01</code></td>
+  <td><strong>em vigor</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2042.01.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2042.01.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2042.01.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2068.00.02</code></td>
+  <td><strong>dobrar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2068.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2068.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2068.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2075.00.01</code></td>
+  <td><strong>ruim</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2075.00.01-word-v4.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2075.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2075.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2082.00.01</code></td>
+  <td><strong>converter</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2082.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2082.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2082.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2124.00.01</code></td>
+  <td><strong>rapariga</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2124.00.01-word-v4.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2124.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2124.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2124.00.02</code></td>
+  <td><strong>rapariga</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2124.00.02-word-v4.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2124.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2124.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2134.00.01</code></td>
+  <td><strong>reflexo</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2134.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2134.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2134.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2183.00.01</code></td>
+  <td><strong>formal</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2183.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2183.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2183.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2189.00.01</code></td>
+  <td><strong>situar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2189.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2189.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2189.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2194.00.01</code></td>
+  <td><strong>rejeitar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-other'>other</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2194.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2194.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2194.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2203.00.01</code></td>
+  <td><strong>efetivamente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2203.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2203.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2203.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2205.00.01</code></td>
+  <td><strong>classificar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2205.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2205.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2205.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2211.00.01</code></td>
+  <td><strong>apertar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2211.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2211.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2211.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2217.00.01</code></td>
+  <td><strong>levantamento</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2217.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2217.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2217.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2246.00.01</code></td>
+  <td><strong>zero</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2246.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2246.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2246.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2283.00.01</code></td>
+  <td><strong>global</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2283.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2283.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2283.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2309.00.01</code></td>
+  <td><strong>matemática</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2309.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2309.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2309.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2333.00.01</code></td>
+  <td><strong>candidatura</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2333.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2333.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2333.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2341.00.01</code></td>
+  <td><strong>festival</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2341.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2341.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2341.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2353.00.01</code></td>
+  <td><strong>denúncia</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2353.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2353.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2353.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2391.00.01</code></td>
+  <td><strong>pormenor</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2391.00.01-word-v2.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2391.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2391.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2405.00.01</code></td>
+  <td><strong>bolso</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2405.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2405.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2405.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2422.00.01</code></td>
+  <td><strong>lateral</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2422.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2422.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2422.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2422.00.02</code></td>
+  <td><strong>lateral</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2422.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2422.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2422.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2423.00.02</code></td>
+  <td><strong>porte</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2423.00.02-word-v2.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2423.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2423.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2432.00.01</code></td>
+  <td><strong>cruzeiro</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2432.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2432.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2432.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2460.00.01</code></td>
+  <td><strong>rodar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2460.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2460.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2460.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2519.00.01</code></td>
+  <td><strong>aguentar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2519.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2519.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2519.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2541.00.01</code></td>
+  <td><strong>major</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2541.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2541.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2541.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2590.00.01</code></td>
+  <td><strong>rígido</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2590.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2590.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2590.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2603.00.01</code></td>
+  <td><strong>solar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2603.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2603.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2603.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2620.00.02</code></td>
+  <td><strong>voluntário</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2620.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2620.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2620.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2677.00.01</code></td>
+  <td><strong>editor</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2677.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2677.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2677.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2680.00.01</code></td>
+  <td><strong>lance</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2680.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2680.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2680.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2680.00.02</code></td>
+  <td><strong>lance</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2680.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2680.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2680.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2680.00.03</code></td>
+  <td><strong>lance</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2680.00.03-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2680.00.03" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2680.00.03" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2747.00.01</code></td>
+  <td><strong>chance</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2747.00.01-word-v4.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2747.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2747.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2785.00.02</code></td>
+  <td><strong>rosa</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2785.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2785.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2785.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2793.00.01</code></td>
+  <td><strong>informática</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2793.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2793.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2793.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2813.00.01</code></td>
+  <td><strong>oh</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2813.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2813.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2813.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2927.00.01</code></td>
+  <td><strong>bacia</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2927.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2927.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2927.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2940.00.02</code></td>
+  <td><strong>bala</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2940.00.02-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2940.00.02" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2940.00.02" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>2981.00.01</code></td>
+  <td><strong>repórter</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2981.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_2981.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_2981.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>3004.00.01</code></td>
+  <td><strong>residente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3004.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_3004.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_3004.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+<tr class="other-row">
+  <td><code>3009.00.01</code></td>
+  <td><strong>proveniente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3009.00.01-word-v1.mp3'></audio></td>
+  <td class="flag-cell">
+    <label><input type="radio" name="flag_3009.00.01" value="OK" checked> OK</label>
+    <label><input type="radio" name="flag_3009.00.01" value="FLAG"> FLAG</label>
+  </td>
+</tr>
+
+</table>
+
+<script>
+function updateCounter() {
+  const flagged = document.querySelectorAll('input[type=radio][value=FLAG]:checked').length;
+  document.getElementById('flag-counter').textContent =
+    flagged > 0 ? `${flagged} flagged` : '';
+}
+document.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', updateCounter));
+
+function exportFlags() {
+  const rows = ["sense_id\tpt\talias_respelling\tdrift\tflag"];
+  document.querySelectorAll('table tr').forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    if (cells.length === 0) return;
+    const sid = cells[0].textContent.trim();
+    const pt = cells[1].textContent.trim();
+    const respelling = cells[2].textContent.trim();
+    const drift = cells[3].textContent.trim();
+    const sel = tr.querySelector('input[type=radio]:checked');
+    const flag = sel ? sel.value : 'OK';
+    rows.push([sid, pt, respelling === '—' ? '' : respelling,
+               drift === '—' ? '' : drift, flag].join('\t'));
+  });
+  const tsv = rows.join('\n');
+  document.getElementById('export-output').value = tsv;
+  navigator.clipboard.writeText(tsv).then(() => {
+    document.getElementById('export-status').textContent = '✓ Copied to clipboard.';
+  }, () => {
+    document.getElementById('export-status').textContent = 'Copy failed — copy manually from the textarea below.';
+  });
+}
+</script>
+
+</body>
+</html>

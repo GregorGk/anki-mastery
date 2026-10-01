@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 8 — Flash v2.5 pilot</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1500px; margin: 1em auto; padding: 0 1em; line-height: 1.5; color: #222; }
+h1 { border-bottom: 2px solid #888; padding-bottom: 0.3em; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88em; }
+th, td { border: 1px solid #aaa; padding: 0.4em 0.6em; text-align: left; vertical-align: middle; }
+th { background: #e6ecf2; position: sticky; top: 70px; z-index: 5; }
+code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+audio { width: 200px; }
+.muted { color: #999; }
+.flag { font-size: 0.85em; padding: 0.1em 0.4em; border-radius: 3px; font-weight: bold; }
+.flag-yes { background: #fde2e2; color: #842029; }
+.flag-ok { background: #d4edda; color: #155724; }
+.drift { font-size: 0.85em; padding: 0.1em 0.4em; border-radius: 3px; }
+.drift-en { background: #fde2e2; color: #842029; }
+.drift-ep { background: #fff3cd; color: #664d03; }
+.drift-es { background: #cfe2ff; color: #084298; }
+.drift-fr { background: #f3e5f5; color: #4a148c; }
+.drift-other { background: #e0e0e0; color: #333; }
+.alias-marker { background: #cfe2ff; color: #084298; padding: 0.1em 0.3em; border-radius: 3px;
+  font-size: 0.7em; font-weight: bold; margin-left: 0.4em; }
+.vote-cell label { margin-right: 0.5em; white-space: nowrap; display: inline-block; font-size: 0.82em; }
+.export { position: sticky; top: 0; background: #ffd; padding: 0.6em 1em; border: 2px solid #ba0;
+  border-radius: 4px; margin: 0 0 1em 0; z-index: 10; display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
+button { font-size: 1em; padding: 0.5em 1em; cursor: pointer; }
+.intro { background: #f5f8fb; border: 1px solid #cdd; border-radius: 6px;
+  padding: 1em 1.5em; margin: 1em 0 1em; font-size: 0.95em; }
+#export-output { width: 100%; height: 200px; font-family: ui-monospace, monospace; }
+.tally { font-weight: bold; }
+.tally span { display: inline-block; padding: 0.1em 0.5em; border-radius: 3px; margin: 0 0.2em; }
+.tally-flash { background: #d4edda; color: #155724; }
+.tally-current { background: #cfe2ff; color: #084298; }
+.tally-same { background: #f0f0f0; color: #333; }
+.tally-bad { background: #fde2e2; color: #842029; }
+</style>
+</head>
+<body>
+
+<h1>Stage 8 — Flash v2.5 vs Multilingual v2 pilot</h1>
+
+<div class="intro">
+  <p><strong>What this is:</strong> 84 risky clips rendered both
+  ways. <code>CURRENT</code> column is your existing production audio
+  (Multilingual v2, with v3 alias dict applied where applicable —
+  <span class='alias-marker'>ALIAS</span> tag in column 1).
+  <code>FLASH</code> column is a fresh Flash v2.5 render with NO dict
+  (testing native BP defaults).</p>
+  <p><strong>How to vote:</strong> Per row, pick which sounds more
+  BP-correct: <code>FLASH</code>, <code>CURRENT</code>,
+  <code>SAME</code> (default — no audible difference / tie), or
+  <code>BOTH_BAD</code>. Live tally shows in the export bar.</p>
+  <p><strong>Decision threshold:</strong> If <code>FLASH</code> dominates
+  by ~2× over <code>CURRENT</code>, switching the deck makes sense
+  (drops alias complexity, ~50% cheaper renders). Otherwise stay on
+  Multilingual v2.</p>
+</div>
+
+<div class="export">
+  <button onclick="exportVotes()">Export decisions (copy TSV to clipboard)</button>
+  <span id="export-status" style="color: #060;"></span>
+  <span class="tally" id="tally"></span>
+</div>
+
+<details style="margin-bottom: 1em;">
+  <summary>Show raw TSV</summary>
+  <textarea id="export-output" readonly></textarea>
+</details>
+
+<table>
+<tr>
+  <th>sense_id</th>
+  <th>pt</th>
+  <th>v4 flag</th>
+  <th>drift</th>
+  <th>current (Multilingual v2)</th>
+  <th>Flash v2.5 (no dict)</th>
+  <th>vote</th>
+</tr>
+
+<tr>
+  <td><code>0200.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>real</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0200.00.01-word-v5.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0200.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0200.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0200.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0200.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0200.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0408.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>capital</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0408.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0408.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0408.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0408.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0408.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0408.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0408.00.02</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>capital</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0408.00.02-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0408.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0408.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0408.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0408.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0408.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0431.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>especial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0431.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0431.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0431.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0431.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0431.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0431.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0656.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>oficial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0656.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0656.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0656.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0656.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0656.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0656.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0822.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>comercial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0822.00.01-word-v3.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0822.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0822.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0822.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0822.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0822.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1078.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>general</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1078.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1078.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1078.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1078.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1078.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1078.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1125.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>policial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1125.00.01-word-v8.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1125.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1125.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1125.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1125.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1125.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1125.00.02</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>policial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1125.00.02-word-v9.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1125.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1125.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1125.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1125.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1125.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1269.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>essencial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1269.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1269.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1269.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1269.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1269.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1269.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1324.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>industrial</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1324.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1324.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1324.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1324.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1324.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1324.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2171.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>potencial</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2171.00.01-word-v6.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2171.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2171.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2171.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2171.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2171.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2490.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>presidencial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2490.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2490.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2490.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2490.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2490.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2490.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2784.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>judicial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2784.00.01-word-v3.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2784.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2784.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2784.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2784.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2784.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2832.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>artificial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2832.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2832.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2832.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2832.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2832.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2832.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>3266.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>tropical</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3266.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_3266.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_3266.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_3266.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_3266.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_3266.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>3331.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>parcial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3331.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_3331.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_3331.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_3331.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_3331.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_3331.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>3704.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>fatal</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3704.00.01-word-v8.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_3704.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_3704.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_3704.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_3704.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_3704.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>3785.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>superficial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3785.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_3785.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_3785.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_3785.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_3785.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_3785.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>3814.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>verbal</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/3814.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_3814.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_3814.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_3814.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_3814.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_3814.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>4676.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>postal</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/4676.00.01-word-v5.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_4676.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_4676.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_4676.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_4676.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_4676.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>4784.00.01</code><span class='alias-marker'>ALIAS</span></td>
+  <td><strong>substancial</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/4784.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_4784.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_4784.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_4784.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_4784.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_4784.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0003.00.02</code></td>
+  <td><strong>em</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0003.00.02-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0003.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0003.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0003.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0003.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0003.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0008.00.01</code></td>
+  <td><strong>por</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0008.00.01-word-v2.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0008.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0008.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0008.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0008.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0008.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0039.00.01</code></td>
+  <td><strong>ver</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0039.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0039.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0039.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0039.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0039.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0039.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0041.00.01</code></td>
+  <td><strong>dois</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0041.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0041.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0041.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0041.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0041.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0041.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0210.00.01</code></td>
+  <td><strong>mão</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0210.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0210.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0210.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0210.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0210.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0210.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0266.00.02</code></td>
+  <td><strong>volta</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0266.00.02-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0266.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0266.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0266.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0266.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0266.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0335.00.01</code></td>
+  <td><strong>jogo</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0335.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0335.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0335.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0335.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0335.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0335.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0369.00.01</code></td>
+  <td><strong>dez</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0369.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0369.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0369.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0369.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0369.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0369.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0396.00.01</code></td>
+  <td><strong>sistema</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0396.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0396.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0396.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0396.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0396.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0396.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0422.00.01</code></td>
+  <td><strong>superior</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0422.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0422.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0422.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0422.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0422.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0422.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0435.00.01</code></td>
+  <td><strong>cor</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0435.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0435.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0435.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0435.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0435.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0435.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0438.00.01</code></td>
+  <td><strong>ar</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0438.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0438.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0438.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0438.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0438.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0438.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0534.00.01</code></td>
+  <td><strong>verde</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0534.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0534.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0534.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0534.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0534.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0534.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0573.00.01</code></td>
+  <td><strong>morto</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0573.00.01-word-v2.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0573.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0573.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0573.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0573.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0573.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0604.00.03</code></td>
+  <td><strong>central</strong></td>
+  <td><span class='flag flag-yes'>FLAG</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0604.00.03-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0604.00.03.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0604.00.03' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0604.00.03' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0604.00.03' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0604.00.03' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0612.00.02</code></td>
+  <td><strong>metro</strong></td>
+  <td><span class='flag flag-ok'>OK</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0612.00.02-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0612.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0612.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0612.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0612.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0612.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0732.00.01</code></td>
+  <td><strong>grave</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0732.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0732.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0732.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0732.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0732.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0732.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0771.00.02</code></td>
+  <td><strong>margem</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0771.00.02-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0771.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0771.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0771.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0771.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0771.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0890.00.01</code></td>
+  <td><strong>costumar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0890.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0890.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0890.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0890.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0890.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0890.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>0928.00.01</code></td>
+  <td><strong>padre</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/0928.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_0928.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_0928.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_0928.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_0928.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_0928.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1006.00.01</code></td>
+  <td><strong>baixar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1006.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1006.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1006.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1006.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1006.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1006.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1021.00.01</code></td>
+  <td><strong>bola</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1021.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1021.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1021.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1021.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1021.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1021.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1071.00.01</code></td>
+  <td><strong>finalmente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1071.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1071.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1071.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1071.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1071.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1071.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1076.00.01</code></td>
+  <td><strong>quantidade</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1076.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1076.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1076.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1076.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1076.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1076.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1087.00.01</code></td>
+  <td><strong>independente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1087.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1087.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1087.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1087.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1087.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1087.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1094.00.01</code></td>
+  <td><strong>descer</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1094.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1094.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1094.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1094.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1094.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1094.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1167.00.01</code></td>
+  <td><strong>sozinho</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1167.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1167.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1167.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1167.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1167.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1167.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1189.00.01</code></td>
+  <td><strong>musical</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1189.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1189.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1189.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1189.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1189.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1189.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1209.00.01</code></td>
+  <td><strong>exame</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1209.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1209.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1209.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1209.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1209.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1209.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1220.00.01</code></td>
+  <td><strong>fator</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1220.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1220.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1220.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1220.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1220.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1220.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1442.00.01</code></td>
+  <td><strong>infantil</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1442.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1442.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1442.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1442.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1442.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1442.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1457.00.01</code></td>
+  <td><strong>relativamente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1457.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1457.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1457.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1457.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1457.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1457.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1470.00.01</code></td>
+  <td><strong>resolução</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1470.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1470.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1470.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1470.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1470.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1470.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1507.00.01</code></td>
+  <td><strong>beber</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1507.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1507.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1507.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1507.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1507.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1507.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1526.00.01</code></td>
+  <td><strong>distinguir</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1526.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1526.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1526.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1526.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1526.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1526.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1547.00.01</code></td>
+  <td><strong>medir</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1547.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1547.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1547.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1547.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1547.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1547.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1564.00.01</code></td>
+  <td><strong>individual</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1564.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1564.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1564.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1564.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1564.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1564.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1605.00.01</code></td>
+  <td><strong>rever</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='muted'>—</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1605.00.01-word-v2.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1605.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1605.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1605.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1605.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1605.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1612.00.01</code></td>
+  <td><strong>orçamento</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1612.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1612.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1612.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1612.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1612.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1612.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1614.00.01</code></td>
+  <td><strong>debate</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1614.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1614.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1614.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1614.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1614.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1614.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1625.00.01</code></td>
+  <td><strong>dona</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1625.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1625.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1625.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1625.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1625.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1625.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1651.00.01</code></td>
+  <td><strong>féria</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1651.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1651.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1651.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1651.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1651.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1651.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1674.00.01</code></td>
+  <td><strong>seguida</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1674.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1674.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1674.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1674.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1674.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1674.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1684.00.01</code></td>
+  <td><strong>interpretação</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1684.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1684.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1684.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1684.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1684.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1684.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1758.00.01</code></td>
+  <td><strong>globo</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1758.00.01-word-v3.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1758.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1758.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1758.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1758.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1758.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1788.00.01</code></td>
+  <td><strong>restante</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1788.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1788.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1788.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1788.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1788.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1788.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1810.00.01</code></td>
+  <td><strong>nomeadamente</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1810.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1810.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1810.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1810.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1810.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1810.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1831.00.01</code></td>
+  <td><strong>fechado</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1831.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1831.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1831.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1831.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1831.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1831.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>1866.00.01</code></td>
+  <td><strong>judeu</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/1866.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_1866.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_1866.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_1866.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_1866.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_1866.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2042.01.01</code></td>
+  <td><strong>em vigor</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2042.01.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2042.01.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2042.01.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2042.01.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2042.01.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2042.01.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2075.00.01</code></td>
+  <td><strong>ruim</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2075.00.01-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2075.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2075.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2075.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2075.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2075.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2082.00.01</code></td>
+  <td><strong>converter</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2082.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2082.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2082.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2082.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2082.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2082.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2124.00.02</code></td>
+  <td><strong>rapariga</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2124.00.02-word-v4.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2124.00.02.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2124.00.02' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2124.00.02' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2124.00.02' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2124.00.02' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2183.00.01</code></td>
+  <td><strong>formal</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2183.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2183.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2183.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2183.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2183.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2183.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2189.00.01</code></td>
+  <td><strong>situar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2189.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2189.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2189.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2189.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2189.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2189.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2211.00.01</code></td>
+  <td><strong>apertar</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2211.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2211.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2211.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2211.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2211.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2211.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2217.00.01</code></td>
+  <td><strong>levantamento</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2217.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2217.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2217.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2217.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2217.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2217.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2246.00.01</code></td>
+  <td><strong>zero</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2246.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2246.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2246.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2246.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2246.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2246.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2309.00.01</code></td>
+  <td><strong>matemática</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2309.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2309.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2309.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2309.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2309.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2309.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2341.00.01</code></td>
+  <td><strong>festival</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-en'>EN</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2341.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2341.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2341.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2341.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2341.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2341.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2391.00.01</code></td>
+  <td><strong>pormenor</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-ep'>EP</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2391.00.01-word-v2.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2391.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2391.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2391.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2391.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2391.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+<tr>
+  <td><code>2405.00.01</code></td>
+  <td><strong>bolso</strong></td>
+  <td><span class='muted'>—</span></td>
+  <td><span class='drift drift-es'>ES</span></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/build/audio_cache/2405.00.01-word-v1.mp3'></audio></td>
+  <td><audio controls preload='none' src='file:///Users/grzegorzgorkiewicz/Projects/anki-mastery/audit/08_8_pilot_flash_2405.00.01.mp3'></audio></td>
+  <td class='vote-cell'>
+    <label><input type='radio' name='vote_2405.00.01' value='SAME' checked> SAME</label>
+    <label><input type='radio' name='vote_2405.00.01' value='FLASH_BETTER'> FLASH</label>
+    <label><input type='radio' name='vote_2405.00.01' value='MULTILINGUAL_BETTER'> CURRENT</label>
+    <label><input type='radio' name='vote_2405.00.01' value='BOTH_BAD'> BOTH_BAD</label>
+  </td>
+</tr>
+
+</table>
+
+<script>
+function updateTally() {
+  let flash = 0, current = 0, same = 0, bad = 0;
+  document.querySelectorAll('input[type=radio]:checked').forEach(r => {
+    if (r.value === 'FLASH_BETTER') flash++;
+    else if (r.value === 'MULTILINGUAL_BETTER') current++;
+    else if (r.value === 'SAME') same++;
+    else if (r.value === 'BOTH_BAD') bad++;
+  });
+  document.getElementById('tally').innerHTML =
+    `<span class="tally-flash">FLASH: ${flash}</span>` +
+    `<span class="tally-current">CURRENT: ${current}</span>` +
+    `<span class="tally-same">SAME: ${same}</span>` +
+    `<span class="tally-bad">BOTH_BAD: ${bad}</span>`;
+}
+document.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', updateTally));
+updateTally();
+
+function exportVotes() {
+  const rows = ["sense_id\tpt\tv4_flag\tdrift\tis_alias\tdecision"];
+  document.querySelectorAll('table tbody tr, table tr').forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    if (cells.length === 0) return;
+    const sidText = cells[0].textContent.trim();
+    const sid = sidText.split(/\s+/)[0];
+    const isAlias = sidText.includes('ALIAS') ? 'true' : 'false';
+    const pt = cells[1].textContent.trim();
+    const v4 = cells[2].textContent.trim();
+    const drift = cells[3].textContent.trim();
+    const sel = tr.querySelector('input[type=radio]:checked');
+    const decision = sel ? sel.value : 'SAME';
+    rows.push([sid, pt, v4 === '—' ? '' : v4, drift === '—' ? '' : drift, isAlias, decision].join('\t'));
+  });
+  const tsv = rows.join('\n');
+  document.getElementById('export-output').value = tsv;
+  navigator.clipboard.writeText(tsv).then(() => {
+    document.getElementById('export-status').textContent = '✓ Copied to clipboard.';
+  }, () => {
+    document.getElementById('export-status').textContent = 'Copy failed — copy manually from textarea.';
+  });
+}
+</script>
+
+</body>
+</html>

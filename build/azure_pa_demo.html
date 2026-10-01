@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azure Pronunciation Assessment — Brazilian Portuguese demo</title>
+<style>
+  :root {
+    --bg:#0f1115; --panel:#181b22; --panel-2:#20242d; --border:#2c3140;
+    --text:#e6e9ef; --muted:#9098a6; --accent:#5aa9ff;
+    --good:#4ade80; --mid:#ffd166; --bad:#ff6b6b;
+  }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); margin:0; padding:24px;
+         font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .container { max-width:920px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.6px;
+       color:var(--muted); margin:24px 0 10px; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  .panel { background:var(--panel); border:1px solid var(--border);
+           border-radius:10px; padding:16px 18px; margin-bottom:14px; }
+  code { background:var(--panel-2); padding:1px 6px; border-radius:4px;
+         font-size:13px; }
+  a { color:var(--accent); }
+
+  .banner { border-radius:8px; padding:10px 14px; margin-bottom:14px;
+            font-size:14px; }
+  .banner.warn { background:rgba(255,107,107,.12); border:1px solid var(--bad);
+                 color:#ffc9c9; }
+
+  details.cfg summary { cursor:pointer; font-weight:600; color:var(--accent); }
+  .cfg label { display:block; color:var(--muted); font-size:12px;
+               margin:10px 0 3px; }
+  .cfg input { width:100%; background:var(--panel-2); color:var(--text);
+               border:1px solid var(--border); border-radius:6px;
+               padding:8px 10px; font-size:14px; font-family:ui-monospace,Menlo,monospace; }
+  .cfg .row { display:flex; gap:12px; }
+  .cfg .row > div { flex:1; }
+  .cfg .hint { color:var(--muted); font-size:12px; margin-top:8px; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--panel-2); border:1px solid var(--border);
+          border-radius:20px; padding:6px 14px; cursor:pointer; font-size:14px;
+          transition:all .12s; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.tricky { border-color:#5a4a2a; background:rgba(255,209,102,.08); }
+  .chip.sel { background:var(--accent); color:#06121f; border-color:var(--accent);
+              font-weight:600; }
+  .free { margin-top:10px; }
+  .free input { width:100%; background:var(--panel-2); color:var(--text);
+                border:1px solid var(--border); border-radius:8px;
+                padding:10px 12px; font-size:15px; }
+
+  .target { text-align:center; padding:22px 18px; }
+  .target-pt { font-size:30px; font-weight:700; }
+  .target-meta { color:var(--muted); margin-top:6px; font-size:14px; }
+  .target-meta .ipa { font-family:ui-monospace,Menlo,monospace; color:var(--accent); }
+  .target-empty { color:var(--muted); font-size:15px; }
+
+  #record-btn { display:block; width:100%; padding:16px; font-size:17px;
+                font-weight:700; border:0; border-radius:10px; cursor:pointer;
+                background:var(--accent); color:#06121f; }
+  #record-btn:disabled { opacity:.5; cursor:not-allowed; }
+  #record-btn.live { background:var(--bad); color:#fff; }
+  .listen-btn { display:block; width:100%; padding:12px; font-size:15px;
+                font-weight:600; border:1.5px solid var(--accent);
+                border-radius:10px; cursor:pointer; background:transparent;
+                color:var(--accent); margin-bottom:10px; }
+  .listen-btn:hover { background:rgba(90,169,255,.10); }
+  .listen-mini { font-size:13px; padding:5px 12px; border-radius:6px;
+                 border:1.5px solid var(--accent); background:transparent;
+                 color:var(--accent); cursor:pointer; }
+  .listen-mini:hover { background:rgba(90,169,255,.10); }
+  #status { text-align:center; color:var(--muted); min-height:20px;
+            margin-top:8px; font-size:14px; }
+
+  .gauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+            gap:12px; }
+  .gauge { background:var(--panel-2); border-radius:8px; padding:12px 14px; }
+  .gauge-label { color:var(--muted); font-size:11px; text-transform:uppercase;
+                 letter-spacing:.5px; }
+  .gauge-num { font-size:30px; font-weight:800; line-height:1.1; margin:2px 0 6px; }
+  .gauge-bar { height:6px; background:var(--border); border-radius:3px;
+               overflow:hidden; }
+  .gauge-fill { height:100%; border-radius:3px; }
+
+  .heard { margin:14px 0; font-size:14px; }
+  .heard .lbl { color:var(--muted); }
+  .heard .txt { font-weight:600; }
+
+  .wrow { padding:10px 0; border-bottom:1px solid var(--border); }
+  .wrow:last-child { border-bottom:0; }
+  .wword { font-size:18px; font-weight:700; }
+  .wword em { font-size:13px; font-weight:600; margin-left:6px;
+              font-style:normal; }
+  .werr { font-size:11px; padding:2px 7px; border-radius:4px; margin-left:8px;
+          background:rgba(255,107,107,.18); color:var(--bad);
+          text-transform:uppercase; letter-spacing:.3px; }
+  .phons { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .phon { font-family:ui-monospace,Menlo,monospace; font-size:14px;
+          padding:3px 9px; border-radius:6px; border:1.5px solid;
+          background:var(--panel-2); }
+  .phon em { font-style:normal; font-size:11px; color:var(--muted);
+             margin-left:5px; }
+  .targetipa { color:var(--muted); font-size:13px; margin-top:10px; }
+  .targetipa .ipa { font-family:ui-monospace,Menlo,monospace; color:var(--accent); }
+  .wipa { font-size:12px; color:var(--muted); margin-top:6px; }
+  .wipa .ipa { font-family:ui-monospace,Menlo,monospace; color:var(--accent); }
+
+  .hist { font-size:13px; }
+  .hist .h { display:flex; justify-content:space-between; padding:5px 0;
+             border-bottom:1px solid var(--border); color:var(--muted); }
+  .hist .h b { color:var(--text); }
+  .muted { color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Azure Pronunciation Assessment — Brazilian Portuguese</h1>
+  <p class="sub">Pick a word or sentence, record yourself, and see Azure's
+  per-phoneme scoring. Runs entirely in your browser via the Azure Speech
+  JS SDK — nothing is uploaded anywhere except to Azure.</p>
+
+  <div id="ctx-warn" class="banner warn" hidden>
+    <b>Microphone needs a secure context.</b> Open this file over
+    <code>localhost</code>, not <code>file://</code>. From the repo root:
+    <code>python3 -m http.server 8000</code> then visit
+    <code>http://localhost:8000/build/azure_pa_demo.html</code>.
+  </div>
+  <div id="sdk-warn" class="banner warn" hidden>
+    <b>Azure Speech SDK failed to load</b> from the CDN — check your
+    network connection and reload.
+  </div>
+
+  <details class="cfg panel">
+    <summary>Azure credentials</summary>
+    <div id="cfg-status" style="margin:10px 0 4px; font-size:13px; color:var(--muted)">
+      reading <code>.env</code>…</div>
+    <div class="row">
+      <div>
+        <label>SPEECH_KEY</label>
+        <input id="cfg-key" type="password" placeholder="auto-loaded from .env" autocomplete="off">
+      </div>
+      <div>
+        <label>SPEECH_REGION</label>
+        <input id="cfg-region" placeholder="auto-loaded from .env" autocomplete="off">
+      </div>
+    </div>
+    <div class="hint">Auto-loaded from the project's <code>.env</code>
+    (<code>SPEECH_KEY</code> / <code>SPEECH_REGION</code>) when this page is
+    served from the repo root — the fetch is localhost→localhost, the file
+    never leaves your machine. If <code>.env</code> isn't reachable (served
+    from a subdir, or opened as a file), paste the values here instead —
+    those are kept in this browser's <code>localStorage</code> only.
+    F0 free tier covers this demo easily.</div>
+  </details>
+
+  <h2>Pick something to say</h2>
+  <div class="panel">
+    <div class="chips" id="word-chips"></div>
+    <div style="margin-top:10px" class="chips" id="tricky-chips"></div>
+    <div style="margin-top:10px" class="chips" id="ex-chips"></div>
+    <div class="free">
+      <input id="free-text" placeholder="…or type any Brazilian Portuguese text and press Enter">
+    </div>
+  </div>
+
+  <div class="panel target" id="target-card">
+    <div class="target-empty">Pick a chip above (or type your own) to set the target.</div>
+  </div>
+
+  <button id="listen-btn" class="listen-btn" hidden>▶ Listen to the native clip</button>
+  <audio id="ref-audio" preload="none"></audio>
+  <button id="record-btn" disabled>🎤 Record</button>
+  <div id="status"></div>
+
+  <div id="results" hidden>
+    <h2>Azure's findings</h2>
+    <div class="panel">
+      <div style="margin-bottom:12px">
+        <button id="listen-btn-2" class="listen-mini" hidden>▶ hear the native clip again</button>
+        <span class="muted" style="font-size:12px; margin-left:8px">
+          loop: listen → record → compare → listen → record</span>
+      </div>
+      <div class="gauges" id="gauges"></div>
+      <div class="heard" id="heard"></div>
+      <div id="words"></div>
+      <div class="targetipa" id="target-ipa"></div>
+      <details style="margin-top:14px">
+        <summary style="cursor:pointer; color:var(--muted); font-size:13px">
+          raw Azure JSON (debug — note: every "Phoneme" field is empty for pt-BR)</summary>
+        <pre id="raw-json" style="max-height:340px; overflow:auto;
+          background:var(--panel-2); border:1px solid var(--border);
+          border-radius:6px; padding:10px; font-size:11px; line-height:1.45;
+          margin-top:8px; white-space:pre-wrap; word-break:break-word"></pre>
+      </details>
+    </div>
+  </div>
+
+  <div id="history-wrap" hidden>
+    <h2>This session</h2>
+    <div class="panel hist" id="history"></div>
+  </div>
+</div>
+
+<script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+<script>
+(() => {
+  "use strict";
+
+  // Official deck audio lives on Cloudflare R2; we store just the basename.
+  const R2 = "https://pub-155fa287ae724688aaa870d99135311a.r2.dev/audio/";
+
+  // ---- curated deck content (real rows from data/06-final.tsv) ----------
+  // `pt` is the deck's `pt_display` form — nouns carry their article,
+  // because the WORD audio clips were synthesized from pt_display (the
+  // native clip literally says "a mulher", not "mulher"). The article's
+  // IPA is prepended so it lines up word-for-word with Azure's slots.
+  // `audio` is the CURRENT production clip (post Stage 16.9/16.10 re-renders).
+  const WORDS = [
+    {pt:"não",        ipa:"nˈɐ̃w̃",       en:"no / not", audio:"0011.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"a casa",     ipa:"ɐ kˈazɐ",     en:"house",    audio:"0081.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"a cidade",   ipa:"ɐ sidˈadʒi",  en:"city",     audio:"0109.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"a mulher",   ipa:"ɐ muˈʎɛʁ",    en:"woman",    audio:"0122.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"a gente",    ipa:"ɐ ʒˈẽtʃi",    en:"people",   audio:"0281.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"a noite",    ipa:"ɐ nˈojtʃi",   en:"night",    audio:"0284.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"o dinheiro", ipa:"u dʒĩɲˈejɾu", en:"money",    audio:"0299.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"o animal",   ipa:"u ˌaniˈmaw",  en:"animal",   audio:"0317.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"o carro",    ipa:"u kˈaʁu",     en:"car",      audio:"0439.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"verde",      ipa:"vˈeʁdʒi",     en:"green",    audio:"0534.00.01-word-eleven_v3-v2.mp3"},
+    {pt:"o coração",  ipa:"u koɾɐsˈɐ̃w", en:"heart",    audio:"0766.00.01-word-eleven_v3-v1.mp3"},
+    {pt:"o pão",      ipa:"u pˈɐ̃w̃",     en:"bread",    audio:"1250.00.01-word-eleven_v3-v1.mp3"},
+  ];
+  // The clips ElevenLabs itself drifted on in Stage 16 — `audio` here is
+  // the FIXED re-render (verde/fortuna/caldo/fachada are post-16.9/16.10).
+  const TRICKY = [
+    {pt:"a fortuna",  ipa:"ɐ foʁtʃˈunɐ", en:"fortune  (Stage-16 drift, now fixed)", audio:"2687.00.01-word-eleven_v3-v2.mp3"},
+    {pt:"o caldo",    ipa:"u kˈawdu",    en:"broth  (Stage-16 drift, now fixed)",   audio:"4825.00.01-word-eleven_v3-v2.mp3"},
+    {pt:"a fachada",  ipa:"ɐ faʃˈadɐ",   en:"facade  (Stage-16 drift, now fixed)",  audio:"3365.00.01-word-eleven_v3-v2.mp3"},
+  ];
+  const EXAMPLES = [
+    {pt:"O livro está na mesa.",                ipa:"u lˈivɾu ˈɛstɐ nɐ mˈezɐ",                  en:"The book is on the table.",        audio:"0001.00.01-ex-eleven_v3-v1.mp3"},
+    {pt:"Eu sou de São Paulo.",                 ipa:"ˈew sˈow dʒi sˈɐ̃w pˈawlu",                en:"I am from São Paulo.",             audio:"0002.00.02-ex-eleven_v3-v1.mp3"},
+    {pt:"Eu tenho um gato preto.",              ipa:"ˈew tˈẽɲu ũ ɡˈatu pɾˈetu",                 en:"I have a black cat.",              audio:"0007.00.01-ex-eleven_v3-v1.mp3"},
+    {pt:"Ela é professora de inglês.",          ipa:"ˈɛlɐ ɛ pɾofesˈoɾɐ dʒi ĩɡlˈes",             en:"She is an English teacher.",       audio:"0006.00.01-ex-eleven_v3-v1.mp3"},
+    {pt:"Ele disse que vai chegar tarde hoje.", ipa:"ˈeli dʒˈisi ki vˈaj ʃeɡˈaʁ tˈaɾdʒi ˈoʒi", en:"He said he'll arrive late today.", audio:"0005.00.01-ex-eleven_v3-v1.mp3"},
+    {pt:"Meu irmão é mais alto que eu.",        ipa:"mˈew iɾmˈɐ̃w ɛ majs ˈawtʊ ki ˈew",         en:"My brother is taller than me.",    audio:"0005.00.02-ex-eleven_v3-v1.mp3"},
+  ];
+
+  const SDK = window.SpeechSDK;
+  const $ = (id) => document.getElementById(id);
+  const LS_KEY = "azure_pa_key", LS_REGION = "azure_pa_region";
+
+  let target = null;     // {pt, ipa, en} or {pt} for free text
+  const history = [];
+
+  // ---- environment checks ----------------------------------------------
+  if (!window.isSecureContext) $("ctx-warn").hidden = false;
+  if (!SDK) $("sdk-warn").hidden = false;
+
+  // ---- credentials: prefer .env, fall back to localStorage / manual ----
+  // Seed from localStorage so something is there before .env resolves.
+  $("cfg-key").value = localStorage.getItem(LS_KEY) || "";
+  $("cfg-region").value = localStorage.getItem(LS_REGION) || "";
+
+  function saveCreds() {
+    // Only the MANUAL path persists to localStorage; .env values stay
+    // session-only (re-read fresh each load, never written to disk here).
+    localStorage.setItem(LS_KEY, $("cfg-key").value.trim());
+    localStorage.setItem(LS_REGION, $("cfg-region").value.trim());
+    refreshRecordState();
+  }
+  $("cfg-key").addEventListener("change", saveCreds);
+  $("cfg-region").addEventListener("change", saveCreds);
+  function creds() {
+    return { key: ($("cfg-key").value || "").trim(),
+             region: ($("cfg-region").value || "").trim() };
+  }
+
+  async function loadEnv() {
+    // `python3 -m http.server` from the repo root serves /.env; try a few
+    // paths so it also works if served from build/ or the repo root.
+    const tries = ["/.env", "../.env", ".env"];
+    for (const path of tries) {
+      try {
+        const r = await fetch(path, { cache: "no-store" });
+        if (!r.ok) continue;
+        const text = await r.text();
+        const get = (name) => {
+          const m = text.match(new RegExp("^\\s*" + name + "\\s*=\\s*(.+?)\\s*$", "m"));
+          return m ? m[1].trim().replace(/^["']|["']$/g, "") : "";
+        };
+        const k = get("SPEECH_KEY"), reg = get("SPEECH_REGION");
+        if (k && reg) {
+          $("cfg-key").value = k;
+          $("cfg-region").value = reg;
+          $("cfg-status").innerHTML =
+            '<span style="color:var(--good)">✓ credentials loaded from ' +
+            path + '</span>';
+          refreshRecordState();
+          return;
+        }
+      } catch (e) { /* try next path */ }
+    }
+    const haveLS = localStorage.getItem(LS_KEY) && localStorage.getItem(LS_REGION);
+    $("cfg-status").innerHTML = haveLS
+      ? 'Using credentials saved in this browser ' +
+        '(<code>.env</code> not reachable — serve from the repo root to auto-load).'
+      : 'Could not read <code>.env</code> — serve this page from the repo ' +
+        'root, or paste your key + region below.';
+    refreshRecordState();
+  }
+
+  // ---- chips ------------------------------------------------------------
+  function makeChip(item, container, cls) {
+    const el = document.createElement("div");
+    el.className = "chip" + (cls ? " " + cls : "");
+    el.textContent = item.pt;
+    el.addEventListener("click", () => setTarget(item, el));
+    container.appendChild(el);
+    return el;
+  }
+  WORDS.forEach(w => makeChip(w, $("word-chips")));
+  TRICKY.forEach(w => makeChip(w, $("tricky-chips"), "tricky"));
+  EXAMPLES.forEach(e => makeChip(e, $("ex-chips")));
+
+  $("free-text").addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") {
+      const t = $("free-text").value.trim();
+      if (t) setTarget({ pt: t }, null);
+    }
+  });
+
+  function setTarget(item, chipEl) {
+    target = item;
+    document.querySelectorAll(".chip.sel").forEach(c => c.classList.remove("sel"));
+    if (chipEl) chipEl.classList.add("sel");
+    const card = $("target-card");
+    let meta = "";
+    if (item.ipa || item.en) {
+      meta = `<div class="target-meta">` +
+             (item.ipa ? `<span class="ipa">/${item.ipa}/</span>` : "") +
+             (item.ipa && item.en ? " &nbsp;·&nbsp; " : "") +
+             (item.en ? item.en : "") + `</div>`;
+    } else {
+      meta = `<div class="target-meta">free text</div>`;
+    }
+    card.innerHTML = `<div class="target-pt">${escapeHtml(item.pt)}</div>${meta}`;
+
+    // reference audio — the official deck clip for this item (none for free text)
+    if (item.audio) {
+      refAudio.src = R2 + item.audio;
+      $("listen-btn").hidden = false;
+      setListenLabel("idle");
+    } else {
+      refAudio.removeAttribute("src");
+      refAudio.load();
+      $("listen-btn").hidden = true;
+    }
+
+    $("results").hidden = true;
+    refreshRecordState();
+  }
+
+  // ---- reference audio (the official deck clip) ------------------------
+  const refAudio = $("ref-audio");
+  function setListenLabel(state) {
+    const main = { idle:"▶ Listen to the native clip",
+                   playing:"♪ playing…", error:"⚠ clip unavailable" };
+    const mini = { idle:"▶ hear the native clip again",
+                   playing:"♪ playing…", error:"⚠ unavailable" };
+    $("listen-btn").textContent = main[state] || main.idle;
+    $("listen-btn-2").textContent = mini[state] || mini.idle;
+  }
+  function playReference() {
+    if (!refAudio.getAttribute("src")) return;
+    try { refAudio.currentTime = 0; } catch (e) {}
+    refAudio.play().catch(() => setListenLabel("error"));
+  }
+  refAudio.addEventListener("playing", () => setListenLabel("playing"));
+  refAudio.addEventListener("ended",   () => setListenLabel("idle"));
+  refAudio.addEventListener("pause",   () => setListenLabel("idle"));
+  refAudio.addEventListener("error",   () => setListenLabel("error"));
+  $("listen-btn").addEventListener("click", playReference);
+  $("listen-btn-2").addEventListener("click", playReference);
+
+  // ---- record button ----------------------------------------------------
+  let recognizing = false;
+  function refreshRecordState() {
+    const c = creds();
+    const ready = SDK && window.isSecureContext && target &&
+                  c.key.length > 0 && c.region.length > 0;
+    $("record-btn").disabled = !ready || recognizing;
+    if (!recognizing) {
+      if (!target) setStatus("Pick something to say first.");
+      else if (!c.key || !c.region) setStatus("Add your Azure key + region above.");
+      else if (!window.isSecureContext) setStatus("Open over localhost — see the banner.");
+      else setStatus("Ready. Press Record and say it out loud.");
+    }
+  }
+  function setStatus(msg) { $("status").textContent = msg; }
+
+  // Browsers suspend page audio until a user gesture interacts with audio,
+  // and the Azure SDK's mic capture needs it "running" — otherwise the
+  // FIRST recognition gets silence (which is why playing the native clip
+  // first used to be a workaround). Prime the AudioContext + mic permission
+  // inside the Record click gesture so recording works standalone.
+  let audioCtx = null;
+  async function primeAudio() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") await audioCtx.resume();
+    } catch (e) { /* no AudioContext — proceed anyway */ }
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      s.getTracks().forEach(t => t.stop());   // release; the Azure SDK reopens it
+      return true;
+    } catch (e) {
+      setStatus("Microphone unavailable — allow mic access for this page, then retry.");
+      return false;
+    }
+  }
+
+  $("record-btn").addEventListener("click", async () => {
+    if (recognizing || !target) return;
+    $("record-btn").disabled = true;
+    setStatus("Preparing microphone…");
+    const ok = await primeAudio();
+    if (!ok) { refreshRecordState(); return; }
+    assess(target.pt);
+  });
+
+  // ---- the Azure call ---------------------------------------------------
+  function assess(referenceText) {
+    const c = creds();
+    recognizing = true;
+    $("record-btn").classList.add("live");
+    $("record-btn").textContent = "● Listening… speak now";
+    $("record-btn").disabled = true;
+    setStatus("Listening — say it clearly, then pause.");
+
+    let speechConfig, recognizer;
+    try {
+      speechConfig = SDK.SpeechConfig.fromSubscription(c.key, c.region);
+      speechConfig.speechRecognitionLanguage = "pt-BR";
+      const audioConfig = SDK.AudioConfig.fromDefaultMicrophoneInput();
+      const paConfig = SDK.PronunciationAssessmentConfig.fromJSON(JSON.stringify({
+        referenceText: referenceText,
+        gradingSystem: "HundredMark",
+        granularity: "Phoneme",
+        phonemeAlphabet: "IPA",
+        enableMiscue: true,
+      }));
+      // VERIFIED: Azure pronunciation assessment for pt-BR returns phoneme
+      // (and syllable) *scores* but leaves every `Phoneme` string EMPTY —
+      // no config flag changes that; it's an Azure limitation for Portuguese.
+      // The per-phoneme IPA labels in the UI are therefore sourced from the
+      // deck's own Stage-5 IPA, aligned positionally to Azure's score slots.
+      try { paConfig.enableProsodyAssessment = true; } catch (e) { /* locale may not support it */ }
+      recognizer = new SDK.SpeechRecognizer(speechConfig, audioConfig);
+      paConfig.applyTo(recognizer);
+    } catch (e) {
+      finishRecording();
+      setStatus("Setup error: " + e.message);
+      return;
+    }
+
+    recognizer.recognizeOnceAsync(
+      (result) => {
+        try { recognizer.close(); } catch (e) {}
+        finishRecording();
+        handleResult(result, referenceText);
+      },
+      (err) => {
+        try { recognizer.close(); } catch (e) {}
+        finishRecording();
+        setStatus("Recognition error: " + err);
+      }
+    );
+  }
+
+  function finishRecording() {
+    recognizing = false;
+    $("record-btn").classList.remove("live");
+    $("record-btn").textContent = "🎤 Record";
+    refreshRecordState();
+  }
+
+  function handleResult(result, referenceText) {
+    if (result.reason === SDK.ResultReason.RecognizedSpeech) {
+      const pa = SDK.PronunciationAssessmentResult.fromResult(result);
+      let words = [], raw = "";
+      try {
+        raw = result.properties.getProperty(
+          SDK.PropertyId.SpeechServiceResponse_JsonResult) || "";
+        const j = JSON.parse(raw);
+        console.log("Azure pronunciation-assessment raw JSON:", j);
+        words = (j.NBest && j.NBest[0] && j.NBest[0].Words) || [];
+      } catch (e) { console.warn("raw JSON parse failed:", e); }
+      render(pa, result.text || "", words, raw);
+      setStatus("Done. Pick another, or record again.");
+    } else if (result.reason === SDK.ResultReason.NoMatch) {
+      setStatus("Didn't catch any speech — try again, a little louder.");
+    } else if (result.reason === SDK.ResultReason.Canceled) {
+      const c = SDK.CancellationDetails.fromResult(result);
+      setStatus("Canceled — " + c.reason +
+                (c.errorDetails ? (": " + c.errorDetails) : "") +
+                "  (a 401 means a bad key/region; throttling clears in ~60 s)");
+    }
+  }
+
+  // ---- rendering --------------------------------------------------------
+  function scoreColor(s) {
+    if (!Number.isFinite(s)) return "var(--muted)";
+    if (s >= 80) return "var(--good)";
+    if (s >= 60) return "var(--mid)";
+    return "var(--bad)";
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, ch =>
+      ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+  }
+
+  // Azure pt-BR returns phoneme SCORES but not phoneme SYMBOLS, so we
+  // label the pills from the deck's Stage-5 IPA: strip stress/length/
+  // syllable marks, split into grapheme-cluster phoneme units, and zip
+  // them positionally onto Azure's score slots (per word).
+  function ipaPhonemes(ipaWord) {
+    const cleaned = (ipaWord || "").replace(/[ˈˌːˑ.’ʼ'‿\s]/g, "");
+    if (!cleaned) return [];
+    if (typeof Intl !== "undefined" && Intl.Segmenter) {
+      const seg = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+      return [...seg.segment(cleaned)].map(s => s.segment);
+    }
+    return cleaned.match(/.[̀-ͯ᷀-᷿]*/gu) || [...cleaned];
+  }
+
+  function render(pa, heard, words, rawJson) {
+    // gauges
+    const gauges = [
+      ["Pronunciation", pa.pronunciationScore],
+      ["Accuracy",      pa.accuracyScore],
+      ["Fluency",       pa.fluencyScore],
+      ["Completeness",  pa.completenessScore],
+    ];
+    if (Number.isFinite(pa.prosodyScore)) gauges.push(["Prosody", pa.prosodyScore]);
+    $("gauges").innerHTML = gauges.map(([label, v]) => {
+      const n = Number.isFinite(v) ? Math.round(v) : "—";
+      const col = scoreColor(v);
+      const w = Number.isFinite(v) ? v : 0;
+      return `<div class="gauge">
+        <div class="gauge-label">${label}</div>
+        <div class="gauge-num" style="color:${col}">${n}</div>
+        <div class="gauge-bar"><div class="gauge-fill"
+          style="width:${w}%;background:${col}"></div></div>
+      </div>`;
+    }).join("");
+
+    // heard
+    const same = heard.trim().toLowerCase().replace(/[.?!,]/g,"") ===
+                 String(target.pt).trim().toLowerCase().replace(/[.?!,]/g,"");
+    $("heard").innerHTML = `<span class="lbl">Azure heard: </span>` +
+      `<span class="txt" style="color:${same ? "var(--good)" : "var(--mid)"}">` +
+      `${escapeHtml(heard || "(nothing)")}</span>` +
+      (same ? "" : ` <span class="muted">— differs from the target</span>`);
+
+    // per-word + per-phoneme. Phoneme symbols come from the Stage-5 IPA
+    // (Azure pt-BR doesn't return them), aligned by position per word.
+    if (words.length) {
+      const ipaWords = (target.ipa || "").trim().split(/\s+/).filter(Boolean);
+      const ipaAligned = ipaWords.length === words.length;  // word-count guard
+      $("words").innerHTML = words.map((w, wi) => {
+        const wpa = w.PronunciationAssessment || {};
+        const wscore = wpa.AccuracyScore;
+        const err = wpa.ErrorType && wpa.ErrorType !== "None" ? wpa.ErrorType : "";
+        const slots = w.Phonemes || [];
+        const wordIpa = ipaAligned ? ipaWords[wi] : "";
+        const toks = ipaPhonemes(wordIpa);
+        const symbolsFit = slots.length > 0 && toks.length === slots.length;
+        const phons = slots.map((p, pi) => {
+          const ps = (p.PronunciationAssessment || {}).AccuracyScore;
+          const col = scoreColor(ps);
+          const sym = symbolsFit ? escapeHtml(toks[pi])
+                                 : `<span class="muted">·</span>`;
+          return `<span class="phon" style="border-color:${col}">` +
+                 `${sym}<em>${Number.isFinite(ps) ? Math.round(ps) : "?"}</em></span>`;
+        }).join("");
+        const ipaLine = wordIpa
+          ? `<div class="wipa">target <span class="ipa">/${escapeHtml(wordIpa)}/</span>` +
+            (symbolsFit ? "" :
+              ` <span class="muted">— scores are positional; symbol count ` +
+              `differs from Azure's ${slots.length} slot(s)</span>`) + `</div>`
+          : "";
+        return `<div class="wrow">
+          <span class="wword" style="color:${scoreColor(wscore)}">
+            ${escapeHtml(w.Word || "")}
+            <em>${Number.isFinite(wscore) ? Math.round(wscore) : "?"}</em>
+          </span>
+          ${err ? `<span class="werr">${escapeHtml(err)}</span>` : ""}
+          ${ipaLine}
+          ${phons ? `<div class="phons">${phons}</div>` : ""}
+        </div>`;
+      }).join("");
+    } else {
+      $("words").innerHTML = `<div class="muted">No per-word detail returned.</div>`;
+    }
+
+    // target IPA (Stage-5) — the source for the per-phoneme pill labels,
+    // since Azure pt-BR scores phonemes but doesn't return their symbols.
+    $("target-ipa").innerHTML = target.ipa
+      ? `Stage-5 target IPA: <span class="ipa">/${escapeHtml(target.ipa)}/</span>
+         &nbsp;— the phoneme pills are labelled from this; Azure supplies the
+         per-phoneme <em>scores</em>, the deck supplies the <em>symbols</em>.`
+      : "";
+
+    $("results").hidden = false;
+    $("listen-btn-2").hidden = !target.audio;
+    setListenLabel("idle");
+
+    // debug — the raw Azure JSON, so we can see exactly which phoneme
+    // fields the service returns for pt-BR
+    try {
+      $("raw-json").textContent = rawJson
+        ? JSON.stringify(JSON.parse(rawJson), null, 2)
+        : "(no raw JSON returned)";
+    } catch (e) { $("raw-json").textContent = rawJson || "(none)"; }
+
+    // history
+    history.unshift({
+      pt: target.pt,
+      score: Number.isFinite(pa.pronunciationScore)
+        ? Math.round(pa.pronunciationScore) : "—",
+      t: new Date().toLocaleTimeString(),
+    });
+    if (history.length > 8) history.pop();
+    $("history-wrap").hidden = false;
+    $("history").innerHTML = history.map(h =>
+      `<div class="h"><span>${h.t} &nbsp; <b>${escapeHtml(h.pt)}</b></span>` +
+      `<span style="color:${scoreColor(h.score)}"><b>${h.score}</b></span></div>`
+    ).join("");
+  }
+
+  refreshRecordState();
+  loadEnv();   // auto-pull SPEECH_KEY / SPEECH_REGION from .env
+})();
+</script>
+</body>
+</html>
