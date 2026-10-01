@@ -62,6 +62,67 @@ TIER_DEFAULT = "default"
 TIER_PREMIUM = "premium"
 VALID_TIERS = {TIER_DEFAULT, TIER_PREMIUM}
 
+# Claude 5.x models reject a forced `tool_choice` (type "tool"/"any") and keep
+# adaptive thinking on (it can't be disabled) — verified live 2026-10-01 on
+# claude-opus-5-5 and claude-fable-5-1. For them we send tool_choice=auto plus
+# an explicit "respond only by calling <tool>" instruction, and raise
+# max_tokens so thinking has room.
+NO_FORCED_TOOL_MODEL_PREFIXES = (
+    "claude-opus-5", "claude-sonnet-5", "claude-fable-5", "claude-mythos-5",
+)
+THINKING_MODEL_MIN_MAX_TOKENS = 16000
+
+
+def forces_tool_choice(model_id: str) -> bool:
+    """False for models that only accept tool_choice=auto (Claude 5.x)."""
+    return not any(model_id.startswith(p) for p in NO_FORCED_TOOL_MODEL_PREFIXES)
+
+
+def tool_request_params(
+    *,
+    model_id: str,
+    system_param: Any,
+    tool_name: str,
+    tool_description: str,
+    tool_input_schema: dict,
+    max_tokens: int,
+    strict: bool = False,
+    effort: str | None = None,
+) -> dict:
+    """Model-aware request params for a single-tool structured call.
+
+    Pre-5.x models: forced tool_choice (unchanged legacy behaviour).
+    5.x models: tool_choice=auto, a tool-only instruction appended to the
+    system prompt, max_tokens >= THINKING_MODEL_MIN_MAX_TOKENS, optional
+    `strict` schema adherence and `output_config.effort`.
+    """
+    tool: dict = {
+        "name": tool_name,
+        "description": tool_description,
+        "input_schema": tool_input_schema,
+    }
+    if strict:
+        tool["strict"] = True
+    params: dict = {"model": model_id, "tools": [tool]}
+    if forces_tool_choice(model_id):
+        params["system"] = system_param
+        params["max_tokens"] = max_tokens
+        params["tool_choice"] = {"type": "tool", "name": tool_name}
+        return params
+    instruction = (f"\n\nRespond only by calling the `{tool_name}` tool exactly once; "
+                   f"do not answer in plain text.")
+    if isinstance(system_param, list):
+        system_param = [dict(b) for b in system_param]
+        system_param[-1]["text"] = system_param[-1]["text"] + instruction
+    else:
+        system_param = (system_param or "") + instruction
+    params["system"] = system_param
+    params["max_tokens"] = max(max_tokens, THINKING_MODEL_MIN_MAX_TOKENS)
+    params["tool_choice"] = {"type": "auto"}
+    if effort:
+        params["output_config"] = {"effort": effort}
+    return params
+
 _RETRYABLE_STATUS = {408, 425, 429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 6
 _BASE_BACKOFF_SEC = 1.0
@@ -204,6 +265,8 @@ class AnthropicClient:
         stage: str = "",
         provenance_key: str = "",
         tier: str = TIER_DEFAULT,
+        strict: bool = False,
+        effort: str | None = None,
     ) -> dict:
         """Force tool invocation; return the structured tool input as a dict.
 
@@ -211,6 +274,8 @@ class AnthropicClient:
             tier: 'default' (Sonnet) or 'premium' (Opus). Premium routes to a
                 stronger model for high-risk, low-volume calls. Default
                 tier is appropriate for >95% of pipeline calls.
+            strict / effort: see `tool_request_params` (Claude 5.x only for
+                effort; strict needs an additionalProperties:false schema).
 
         Raises if all retries fail or the model refuses to call the tool.
         """
@@ -219,13 +284,6 @@ class AnthropicClient:
                 f"Invalid tier {tier!r}; must be one of {sorted(VALID_TIERS)}"
             )
         model_id = self._model_for_tier(tier)
-        tools = [
-            {
-                "name": tool_name,
-                "description": tool_description,
-                "input_schema": tool_input_schema,
-            }
-        ]
         prompt_payload = {
             "model": model_id,
             "system": system,
@@ -234,18 +292,23 @@ class AnthropicClient:
             "schema": tool_input_schema,
         }
         prompt_hash = _hash_payload(prompt_payload)
-        system_param = self._build_system_param(system)
+        params = tool_request_params(
+            model_id=model_id,
+            system_param=self._build_system_param(system),
+            tool_name=tool_name,
+            tool_description=tool_description,
+            tool_input_schema=tool_input_schema,
+            max_tokens=max_tokens,
+            strict=strict,
+            effort=effort,
+        )
 
         last_exc: Exception | None = None
         for attempt in range(self.max_retries):
             try:
                 resp = self.client.messages.create(
-                    model=model_id,
-                    max_tokens=max_tokens,
-                    system=system_param,
-                    tools=tools,
-                    tool_choice={"type": "tool", "name": tool_name},
                     messages=[{"role": "user", "content": user_message}],
+                    **params,
                 )
             except Exception as exc:
                 last_exc = exc
@@ -301,6 +364,9 @@ class AnthropicClient:
                     "prompt_hash": prompt_hash,
                     "response_hash": response_hash,
                     "decision": decision,
+                    "confidence": decision.get("confidence", ""),
+                    "manual_override": False,
+                    "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                     "attempt": attempt,
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,
@@ -331,28 +397,33 @@ class AnthropicClient:
         tool_description: str = "",
         max_tokens: int = 1024,
         tier: str = TIER_DEFAULT,
+        strict: bool = False,
+        effort: str | None = None,
     ) -> str:
         """Submit a batch of tool-use requests. Returns batch_id.
 
-        Each request dict needs `custom_id` (unique str) and `user_message`.
+        Each request dict needs `custom_id` (unique str) and `user_message`
+        (`id` is accepted as an alias of `custom_id`).
         """
         if tier not in VALID_TIERS:
             raise ValueError(
                 f"Invalid tier {tier!r}; must be one of {sorted(VALID_TIERS)}"
             )
         model_id = self._model_for_tier(tier)
-        system_param = self._build_system_param(system)
-        tools = [
-            {
-                "name": tool_name,
-                "description": tool_description,
-                "input_schema": tool_input_schema,
-            }
-        ]
+        params = tool_request_params(
+            model_id=model_id,
+            system_param=self._build_system_param(system),
+            tool_name=tool_name,
+            tool_description=tool_description,
+            tool_input_schema=tool_input_schema,
+            max_tokens=max_tokens,
+            strict=strict,
+            effort=effort,
+        )
 
         batch_requests = []
         for req in requests:
-            cid = req.get("custom_id")
+            cid = req.get("custom_id") or req.get("id")
             user_msg = req.get("user_message")
             if not cid or not user_msg:
                 raise ValueError(
@@ -362,11 +433,7 @@ class AnthropicClient:
                 {
                     "custom_id": cid,
                     "params": {
-                        "model": model_id,
-                        "max_tokens": max_tokens,
-                        "system": system_param,
-                        "tools": tools,
-                        "tool_choice": {"type": "tool", "name": tool_name},
+                        **params,
                         "messages": [{"role": "user", "content": user_msg}],
                     },
                 }
@@ -461,6 +528,8 @@ class AnthropicClient:
         timeout_s: int = 86400,
         poll_interval_s: int = 30,
         progress_callback=None,
+        strict: bool = False,
+        effort: str | None = None,
     ) -> dict[str, dict]:
         """High-level batch helper. Falls through to per-row sync if rows < sync_threshold.
 
@@ -490,6 +559,8 @@ class AnthropicClient:
                         tier=tier,
                         stage=stage,
                         provenance_key=cid,
+                        strict=strict,
+                        effort=effort,
                     )
                 except Exception as exc:
                     results[cid] = {
@@ -507,6 +578,8 @@ class AnthropicClient:
             tool_description=tool_description,
             max_tokens=max_tokens,
             tier=tier,
+            strict=strict,
+            effort=effort,
         )
         return self.poll_batch(
             batch_id,

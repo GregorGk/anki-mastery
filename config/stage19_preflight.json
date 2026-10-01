@@ -1,0 +1,53 @@
+{
+  "seed_deterministic": false,
+  "dict_locator_ok": true,
+  "full_voice_settings_accepted": true,
+  "ipa_probe": {
+    "stress_honored_by_variant": {
+      "quoted": "4/20",
+      "bare": "4/20",
+      "ctx_quoted": "5/20",
+      "plain": "16/20",
+      "plain_ctx": "16/20",
+      "dict_phoneme": "3/20"
+    },
+    "leak_free": true,
+    "nasals_ok": false,
+    "segment_failures": [
+      "leak:gato→'Gatu'",
+      "nasal:pão→'Părul.'",
+      "strong_r:rato→'Hatu.'",
+      "nasal:pão→'Përu.'",
+      "strong_r:rato→'Hatu'"
+    ],
+    "internal_pauses": {
+      "article-Beatriz": 1,
+      "article_inside-Beatriz": 0,
+      "sentence-Beatriz": 0,
+      "article-Sandro Dutra": 0,
+      "article_inside-Sandro Dutra": 0,
+      "sentence-Sandro Dutra": 0
+    },
+    "phoneme_dictionary": {
+      "pronunciation_dictionary_id": "9odJIY6SfksI5OfVj7kh",
+      "version_id": "CQJIDFHJjSgixnV8eMx7"
+    }
+  },
+  "direction_tags_leak_free": {
+    "[sotaque paulistano]": true,
+    "[clear, careful pronunciation]": true
+  },
+  "ipa_enabled": false,
+  "ipa_mechanism": null,
+  "budget": {
+    "credits_used": 337,
+    "chars_sent": 2526,
+    "credits_per_char": 0.133,
+    "character_cost_header_sum": 336,
+    "concurrency": {
+      "current-concurrent-requests": "3",
+      "maximum-concurrent-requests": "10"
+    }
+  },
+  "generated_at": "2026-10-01T14:49:55.781511+00:00"
+}

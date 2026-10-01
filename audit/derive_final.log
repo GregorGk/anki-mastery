@@ -41,3 +41,7 @@ Gap stats:
   risk_register_default: 5401
   risk_flags_nonzero: 64
   risk_note_shipped_stage15: 64
+  ipa_word_source_ipa_v2: 5725
+  ipa_example_source_ipa_v2: 5725
+  ep_spelling_rows_fixed: 6
+  ep_spelling_tokens_fixed: 17

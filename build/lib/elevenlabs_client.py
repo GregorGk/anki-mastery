@@ -2,19 +2,27 @@
 
 Locked decisions (see docs/plan.md § "Audio quality settings"):
 
-- model_id              = "eleven_multilingual_v2"
-- output_format         = "pcm_44100"  (raw 16-bit signed-LE PCM, 44.1 kHz mono)
+- model_id              = passed explicitly by every production script
+                          (multilingual_v2 → flash_v2_5 [Stage 9] → eleven_v3
+                          [Stage 11] → eleven_v4 [Stage 19]). The module
+                          default below is only a legacy fallback.
+- output_format         = "pcm_44100"  (raw 16-bit signed-LE PCM, 44.1 kHz mono;
+                          Pro tier)
 - voice_settings        = stability=0.65, similarity_boost=0.80, style=0.0,
-                          use_speaker_boost=True
+                          use_speaker_boost=True. eleven_v4 only exposes
+                          stability + similarity (`/v1/models` reports
+                          can_use_style / can_use_speaker_boost = False), so
+                          `voice_settings_for_model` drops the other two.
 - seed                  = stable_hash(sense_id + clip_type + version)  (best-effort
-                          determinism)
+                          determinism); callers may pass an explicit `seed`.
 - apply_text_normalization = "auto"
 
 Retry policy:
 - Retryable: HTTP 429, 500, 502, 503, 504, 408, connection / timeout errors.
 - Non-retryable: 400, 401, 403, 404, 422.
+- Out of credits → `QuotaExceeded` (never retried) so batch runs stop cleanly.
 - Backoff: full jitter, base 1s, cap 60s, up to 6 attempts. Honors Retry-After
-  if present.
+  if present (header keys are lower-cased by the SDK).
 """
 from __future__ import annotations
 
@@ -22,7 +30,7 @@ import hashlib
 import os
 import random
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import httpx
 from elevenlabs import VoiceSettings
@@ -46,6 +54,14 @@ class RateLimitExceeded(RuntimeError):
     instead of invisible retries and backoffs.
     """
 
+
+class QuotaExceeded(RuntimeError):
+    """Raised when the account is out of credits (`quota_exceeded`).
+
+    Never retried: the run must stop, flush its state, and resume after the
+    balance is topped up / the subscription renews.
+    """
+
 # Locked voice settings.
 LOCKED_VOICE_SETTINGS = VoiceSettings(
     stability=0.65,
@@ -54,8 +70,29 @@ LOCKED_VOICE_SETTINGS = VoiceSettings(
     use_speaker_boost=True,
 )
 
+# Models that only accept stability + similarity_boost.
+_STABILITY_SIMILARITY_ONLY_PREFIXES = ("eleven_v4",)
+
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 NON_RETRYABLE_HTTP_CODES = {400, 401, 403, 404, 422}
+
+# Response headers worth keeping per call (keys are lower-case in the SDK).
+META_HEADERS = (
+    "character-cost",
+    "request-id",
+    "current-concurrent-requests",
+    "maximum-concurrent-requests",
+)
+
+
+def voice_settings_for_model(model_id: str, base: VoiceSettings) -> VoiceSettings:
+    """Return the subset of `base` the given model actually accepts."""
+    if any(model_id.startswith(p) for p in _STABILITY_SIMILARITY_ONLY_PREFIXES):
+        return VoiceSettings(
+            stability=base.stability,
+            similarity_boost=base.similarity_boost,
+        )
+    return base
 
 
 def stable_seed(sense_id: str, clip_type: str, version: int) -> int:
@@ -80,6 +117,11 @@ class ElevenLabsResult:
     seed: int
     attempt: int  # 1-indexed; how many attempts it took
     char_count: int
+    # Filled by generate_pcm_meta() only.
+    character_cost: int | None = None
+    request_id: str = ""
+    headers: dict = field(default_factory=dict)
+    latency_ms: int = 0
 
 
 class ElevenLabsClient:
@@ -98,6 +140,7 @@ class ElevenLabsClient:
         rng: random.Random | None = None,
         pronunciation_dict_locators: list[dict] | None = None,
         fail_fast_on_429: bool = False,
+        apply_text_normalization: str = "auto",
     ) -> None:
         """Construct an ElevenLabs TTS client.
 
@@ -115,9 +158,10 @@ class ElevenLabsClient:
         self.output_format = output_format
         self.language_code = language_code
         self.max_attempts = max_attempts
-        self.voice_settings = voice_settings
+        self.voice_settings = voice_settings_for_model(model_id, voice_settings)
         self.pronunciation_dict_locators = pronunciation_dict_locators
         self.fail_fast_on_429 = fail_fast_on_429
+        self.apply_text_normalization = apply_text_normalization
         self._client = ElevenLabs(api_key=api_key, timeout=timeout_s)
         self._rng = rng or random.Random()
         # PCM constants for pcm_44100 (16-bit signed LE, mono).
@@ -135,17 +179,72 @@ class ElevenLabsClient:
         sense_id: str,
         clip_type: str,
         version: int,
+        seed: int | None = None,
+        voice_settings: VoiceSettings | None = None,
     ) -> ElevenLabsResult:
         """Generate raw PCM bytes for one clip with retries.
 
         Caller should pipe the bytes into ffmpeg (loudness normalization +
         MP3 encode) — see build/lib/loudness.py.
+
+        `seed` overrides the (sense_id, clip_type, version) default — Stage 19
+        salts it per take so best-of-N candidates never share a seed.
+        `voice_settings` overrides the client's settings for this call only.
         """
-        seed = stable_seed(sense_id, clip_type, version)
+        return self._generate(
+            text=text, voice_id=voice_id, sense_id=sense_id, clip_type=clip_type,
+            version=version, seed=seed, voice_settings=voice_settings, meta=False,
+        )
+
+    def generate_pcm_meta(
+        self,
+        *,
+        text: str,
+        voice_id: str,
+        sense_id: str,
+        clip_type: str,
+        version: int,
+        seed: int | None = None,
+        voice_settings: VoiceSettings | None = None,
+    ) -> ElevenLabsResult:
+        """Like generate_pcm, but via the raw-response API so the result also
+        carries `character-cost`, `request-id` and the concurrency headers."""
+        return self._generate(
+            text=text, voice_id=voice_id, sense_id=sense_id, clip_type=clip_type,
+            version=version, seed=seed, voice_settings=voice_settings, meta=True,
+        )
+
+    # --- Internals --------------------------------------------------------- #
+
+    def _generate(
+        self,
+        *,
+        text: str,
+        voice_id: str,
+        sense_id: str,
+        clip_type: str,
+        version: int,
+        seed: int | None,
+        voice_settings: VoiceSettings | None,
+        meta: bool,
+    ) -> ElevenLabsResult:
+        if seed is None:
+            seed = stable_seed(sense_id, clip_type, version)
+        settings = (voice_settings_for_model(self.model_id, voice_settings)
+                    if voice_settings is not None else self.voice_settings)
         last_exc: Exception | None = None
         for attempt in range(1, self.max_attempts + 1):
             try:
-                pcm_bytes = self._call_once(text=text, voice_id=voice_id, seed=seed)
+                t0 = time.monotonic()
+                if meta:
+                    pcm_bytes, headers = self._call_once_meta(
+                        text=text, voice_id=voice_id, seed=seed, voice_settings=settings)
+                else:
+                    pcm_bytes = self._call_once(
+                        text=text, voice_id=voice_id, seed=seed, voice_settings=settings)
+                    headers = {}
+                latency_ms = int((time.monotonic() - t0) * 1000)
+                cost = headers.get("character-cost")
                 return ElevenLabsResult(
                     audio_pcm=pcm_bytes,
                     sample_rate=self._pcm_sample_rate,
@@ -155,8 +254,15 @@ class ElevenLabsClient:
                     seed=seed,
                     attempt=attempt,
                     char_count=len(text),
+                    character_cost=int(cost) if cost not in (None, "") else None,
+                    request_id=headers.get("request-id", ""),
+                    headers=headers,
+                    latency_ms=latency_ms,
                 )
             except Exception as exc:  # noqa: BLE001 — re-classify below
+                if _is_quota_exceeded(exc):
+                    raise QuotaExceeded(
+                        f"ElevenLabs quota exceeded: {getattr(exc, 'body', exc)}") from exc
                 if not self._is_retryable(exc):
                     raise
                 last_exc = exc
@@ -167,24 +273,41 @@ class ElevenLabsClient:
         assert last_exc is not None
         raise last_exc
 
-    # --- Internals --------------------------------------------------------- #
-
-    def _call_once(self, *, text: str, voice_id: str, seed: int) -> bytes:
+    def _request_kwargs(self, *, text: str, voice_id: str, seed: int,
+                        voice_settings: VoiceSettings | None = None) -> dict:
         kwargs = dict(
             voice_id=voice_id,
             text=text,
             model_id=self.model_id,
             output_format=self.output_format,
             language_code=self.language_code,
-            voice_settings=self.voice_settings,
+            voice_settings=voice_settings or self.voice_settings,
             seed=seed,
-            apply_text_normalization="auto",
+            apply_text_normalization=self.apply_text_normalization,
         )
         if self.pronunciation_dict_locators:
             kwargs["pronunciation_dictionary_locators"] = self.pronunciation_dict_locators
+        return kwargs
+
+    def _call_once(self, *, text: str, voice_id: str, seed: int,
+                   voice_settings: VoiceSettings | None = None) -> bytes:
+        kwargs = self._request_kwargs(text=text, voice_id=voice_id, seed=seed,
+                                      voice_settings=voice_settings)
         chunks = self._client.text_to_speech.convert(**kwargs)
         # convert() returns Iterator[bytes]; concatenate.
         return b"".join(chunks)
+
+    def _call_once_meta(self, *, text: str, voice_id: str, seed: int,
+                        voice_settings: VoiceSettings | None = None
+                        ) -> tuple[bytes, dict]:
+        kwargs = self._request_kwargs(text=text, voice_id=voice_id, seed=seed,
+                                      voice_settings=voice_settings)
+        voice = kwargs.pop("voice_id")
+        with self._client.text_to_speech.with_raw_response.convert(voice, **kwargs) as resp:
+            audio = b"".join(resp.data)
+            all_headers = {k.lower(): v for k, v in resp.headers.items()}
+        headers = {k: all_headers[k] for k in META_HEADERS if k in all_headers}
+        return audio, headers
 
     def _is_retryable(self, exc: Exception) -> bool:
         # Fail-fast on 429 if requested — re-raises as RateLimitExceeded
@@ -223,12 +346,24 @@ class ElevenLabsClient:
 
     @staticmethod
     def _extract_retry_after(exc: Exception) -> float | None:
-        # ElevenLabs' ApiError exposes `headers` on some versions; defensive.
+        # ElevenLabs' ApiError exposes `headers` as dict(httpx.Headers), whose
+        # keys are lower-case — look the header up case-insensitively.
         headers = getattr(exc, "headers", None) or {}
-        ra = headers.get("Retry-After") if hasattr(headers, "get") else None
+        if not hasattr(headers, "items"):
+            return None
+        ra = next((v for k, v in headers.items()
+                   if str(k).lower() == "retry-after"), None)
         if not ra:
             return None
         try:
             return float(ra)
         except (TypeError, ValueError):
             return None
+
+
+def _is_quota_exceeded(exc: Exception) -> bool:
+    """True when ElevenLabs rejected the call for lack of credits."""
+    if not isinstance(exc, ElevenLabsApiError):
+        return False
+    body = getattr(exc, "body", None)
+    return "quota_exceeded" in str(body).lower()

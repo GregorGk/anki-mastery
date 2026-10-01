@@ -7,6 +7,7 @@ quotes correctly.
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
@@ -43,23 +44,33 @@ def write_tsv(
     """Write rows to a TSV file. Returns row count written.
 
     Coerces None → "" and non-string values → str() so the output is always valid TSV.
+    Atomic: writes a sibling temp file and `os.replace`s it over the target, so
+    a crash mid-write can never leave a truncated file behind.
     """
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     written = 0
-    with p.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=fieldnames,
-            dialect="excel-tab",
-            quoting=csv.QUOTE_MINIMAL,
-            extrasaction="ignore",
-        )
-        writer.writeheader()
-        for row in rows:
-            sanitized = {k: ("" if v is None else str(v)) for k, v in row.items()}
-            writer.writerow(sanitized)
-            written += 1
+    tmp = p.with_name(f".{p.name}.tmp-{os.getpid()}")
+    try:
+        with tmp.open("w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=fieldnames,
+                dialect="excel-tab",
+                quoting=csv.QUOTE_MINIMAL,
+                extrasaction="ignore",
+            )
+            writer.writeheader()
+            for row in rows:
+                sanitized = {k: ("" if v is None else str(v)) for k, v in row.items()}
+                writer.writerow(sanitized)
+                written += 1
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, p)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
     return written
 
 

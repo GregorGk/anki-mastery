@@ -23,8 +23,16 @@ PRICE_PER_MINUTE = {
     "whisper-1": 0.006,
     "gpt-4o-mini-transcribe": 0.003,
     "gpt-4o-transcribe": 0.006,
+    "gpt-transcribe": 0.006,          # Stage 19 candidate; price assumed
     "scribe_v2": 0.0067,
+    "gemini-3.5-transcribe": 0.004,   # Stage 19 candidate; rough token-based est.
 }
+
+GEMINI_TRANSCRIBE_INSTRUCTION = (
+    "Transcribe this Brazilian Portuguese audio verbatim, exactly as spoken. "
+    "Do not correct grammar, do not complete words, do not translate. "
+    "Output only the transcript text."
+)
 
 DEFAULT_MAX_ATTEMPTS = 3
 RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504}
@@ -148,6 +156,43 @@ def transcribe_elevenlabs(
                 attempts=attempt,
             )
         except Exception as exc:  # ElevenLabs-specific errors not split here
+            if attempt < max_attempts:
+                time.sleep(_backoff(attempt))
+                last_exc = exc
+                continue
+            raise
+    assert last_exc is not None
+    raise last_exc
+
+
+# --- Gemini transcribe (Stage 19 candidate) ------------------------------- #
+
+
+def transcribe_gemini(
+    *,
+    client,  # google.genai.Client
+    mp3_bytes: bytes,
+    model: str = "gemini-3.5-transcribe",
+    duration_seconds: float = 0.0,
+    max_attempts: int = DEFAULT_MAX_ATTEMPTS,
+) -> TranscribeResponse:
+    """Verbatim transcription through a Gemini audio model (generate_content)."""
+    from google.genai import types
+
+    last_exc: Exception | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            resp = client.models.generate_content(
+                model=model,
+                contents=[types.Part.from_bytes(data=mp3_bytes, mime_type="audio/mpeg"),
+                          GEMINI_TRANSCRIBE_INSTRUCTION],
+                config=types.GenerateContentConfig(temperature=0.0),
+            )
+            text = (resp.text or "").strip()
+            cost = (duration_seconds / 60.0) * PRICE_PER_MINUTE.get(model, 0.004)
+            return TranscribeResponse(model=model, transcript=text,
+                                      cost_usd=round(cost, 5), attempts=attempt)
+        except Exception as exc:  # noqa: BLE001 — genai errors aren't split by type
             if attempt < max_attempts:
                 time.sleep(_backoff(attempt))
                 last_exc = exc

@@ -51,6 +51,8 @@ from openai import (
     OpenAI,
 )
 
+from build.lib import judge_prompts
+
 DEFAULT_AUDIO_JUDGE_MODEL = "gpt-4o-audio-preview"
 
 # Pricing 2026-05 (subject to model registry updates)
@@ -167,8 +169,13 @@ class AudioJudgeClient:
         model: str | None = None,
         api_key: str | None = None,
         audit_path: str | Path | None = None,
+        prompt_version: str = "J1",
     ) -> None:
         self.model = model or DEFAULT_AUDIO_JUDGE_MODEL
+        self.prompt_version = prompt_version
+        self.system_prompt = judge_prompts.build_system_prompt(
+            JUDGE_SYSTEM_PROMPT, prompt_version)
+        self.prompt_hash = judge_prompts.prompt_hash(self.system_prompt)
         self.client = OpenAI(api_key=api_key or os.environ.get("OPENAI_API_KEY"))
         self.audit_path = Path(audit_path) if audit_path else None
         if self.audit_path:
@@ -211,13 +218,12 @@ class AudioJudgeClient:
         Raises after `max_attempts` retries.
         """
         audio_b64 = base64.b64encode(audio_bytes).decode("ascii")
-        user_text = (
-            f"Word: {pt}\n"
-            f"Target IPA (Brazilian Portuguese): {ipa_word_final}\n"
-            f"Clip type: {clip_type}"
-        )
+        # J1 reproduces the production user message byte-for-byte.
+        user_text = judge_prompts.user_text(
+            pt=pt, ipa=ipa_word_final, clip_type=clip_type,
+            version=self.prompt_version)
         messages = [
-            {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
+            {"role": "system", "content": self.system_prompt},
             {
                 "role": "user",
                 "content": [
@@ -339,6 +345,8 @@ class AudioJudgeClient:
                 "pt": pt,
                 "ipa_word_final": ipa_word_final,
                 "model": self.model,
+                "prompt_version": self.prompt_version,
+                "prompt_hash": self.prompt_hash,
                 "verdict": parsed["pronunciation_verdict"],
                 "drift": parsed["drift"],
                 "severity": parsed["severity"],

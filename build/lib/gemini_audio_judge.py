@@ -15,7 +15,13 @@ Pricing (2026-05) on `gemini-3.1-pro-preview`:
     text input <200K:   ~$2/1M
     audio input:        ~$2-3/1M est. (audio billed at ~text rate × 1-2)
     output:             ~$12/1M
-~$0.0002 per ~3-s clip — ~25× cheaper than gpt-4o-audio-preview.
+Measured from the audit logs: ~$0.0027 per ~3-s clip (thinking tokens
+dominate; the old "$0.0002" estimate ignored them). Flash models are
+estimated at roughly a quarter of that.
+
+Prompt versions (Stage 19): J1 (production, unchanged), J1p, J2 — see
+build/lib/judge_prompts.py. The audit record carries `prompt_version` and
+`prompt_hash`.
 
 Structured output quirk (verified 2026-05-13): gemini-3.1-pro-preview
 sometimes emits a free-text preamble ("Here is the JSON requested:") and
@@ -42,6 +48,8 @@ from pathlib import Path
 from google import genai
 from google.genai import types
 
+from build.lib import judge_prompts
+
 DEFAULT_GEMINI_AUDIO_JUDGE_MODEL = "gemini-3.1-pro-preview"
 # Cheap fast alternative for cost-sensitive runs.
 GEMINI_FLASH_AUDIO_JUDGE_MODEL = "gemini-3-flash-preview"
@@ -51,6 +59,18 @@ PRICE_PER_1M_INPUT_TEXT = 2.00
 PRICE_PER_1M_OUTPUT = 12.00
 # Audio is billed similarly to text on Gemini, sometimes at a small multiplier.
 PRICE_PER_1M_INPUT_AUDIO = 3.00  # conservative est.
+# Flash-tier estimate (USD per 1M tokens: audio input, output).
+FLASH_PRICE_PER_1M_INPUT_AUDIO = 1.00
+FLASH_PRICE_PER_1M_OUTPUT = 3.00
+
+JSON_ONLY_SUFFIX = "\n\nRespond with ONE raw JSON object only — no preamble, no markdown."
+
+
+def _prices_for(model: str) -> tuple[float, float]:
+    """(audio-input, output) USD per 1M tokens — rough, for budgeting only."""
+    if "flash" in model:
+        return FLASH_PRICE_PER_1M_INPUT_AUDIO, FLASH_PRICE_PER_1M_OUTPUT
+    return PRICE_PER_1M_INPUT_AUDIO, PRICE_PER_1M_OUTPUT
 
 JUDGE_RESPONSE_SCHEMA = {
     "type": "object",
@@ -167,8 +187,15 @@ class GeminiAudioJudgeClient:
         model: str | None = None,
         api_key: str | None = None,
         audit_path: str | Path | None = None,
+        prompt_version: str = "J1",
+        thinking_budget: int | None = 1024,
     ) -> None:
         self.model = model or DEFAULT_GEMINI_AUDIO_JUDGE_MODEL
+        self.prompt_version = prompt_version
+        self.system_prompt = judge_prompts.build_system_prompt(
+            JUDGE_SYSTEM_PROMPT, prompt_version)
+        self.prompt_hash = judge_prompts.prompt_hash(self.system_prompt)
+        self.thinking_budget = thinking_budget
         api_key = api_key or os.environ.get("GEMINI_API_KEY")
         if not api_key:
             raise RuntimeError("GEMINI_API_KEY not set in environment")
@@ -206,12 +233,10 @@ class GeminiAudioJudgeClient:
         max_attempts: int = 6,
     ) -> GeminiJudgeResult:
         mime = f"audio/{audio_format}" if audio_format != "mp3" else "audio/mpeg"
-        user_text = (
-            f"Word: {pt}\n"
-            f"Target IPA (Brazilian Portuguese): {ipa_word_final}\n"
-            f"Clip type: {clip_type}\n\n"
-            f"Respond with ONE raw JSON object only — no preamble, no markdown."
-        )
+        # J1 reproduces the production user message byte-for-byte.
+        user_text = judge_prompts.user_text(
+            pt=pt, ipa=ipa_word_final, clip_type=clip_type,
+            version=self.prompt_version, json_only_suffix=JSON_ONLY_SUFFIX)
 
         # The SDK uses ContentUnion. We pass: [audio Part, text Part].
         contents = [
@@ -219,7 +244,7 @@ class GeminiAudioJudgeClient:
             user_text,
         ]
         config = types.GenerateContentConfig(
-            system_instruction=JUDGE_SYSTEM_PROMPT,
+            system_instruction=self.system_prompt,
             response_mime_type="application/json",
             response_schema=JUDGE_RESPONSE_SCHEMA,
             temperature=0.0,
@@ -230,7 +255,8 @@ class GeminiAudioJudgeClient:
             # of room after thinking-token consumption (max_output_tokens
             # includes BOTH thinking and emitted-response tokens).
             max_output_tokens=5000,
-            thinking_config=types.ThinkingConfig(thinking_budget=1024),
+            thinking_config=(types.ThinkingConfig(thinking_budget=self.thinking_budget)
+                             if self.thinking_budget is not None else None),
         )
 
         last_exc: Exception | None = None
@@ -295,10 +321,12 @@ class GeminiAudioJudgeClient:
         output_tokens = getattr(usage, "candidates_token_count", 0) or 0
         # We treat all input tokens at the audio rate as a conservative
         # over-estimate. Real Gemini billing splits audio vs text but the
-        # SDK doesn't surface that cleanly here.
+        # SDK doesn't surface that cleanly here. Thinking tokens bill as output.
+        thoughts_tokens = getattr(usage, "thoughts_token_count", 0) or 0
+        price_in, price_out = _prices_for(self.model)
         cost = (
-            input_tokens * PRICE_PER_1M_INPUT_AUDIO / 1_000_000
-            + output_tokens * PRICE_PER_1M_OUTPUT / 1_000_000
+            input_tokens * price_in / 1_000_000
+            + (output_tokens + thoughts_tokens) * price_out / 1_000_000
         )
 
         result = GeminiJudgeResult(
@@ -326,6 +354,8 @@ class GeminiAudioJudgeClient:
                 "event": "judged",
                 "judge": "gemini",
                 "model": self.model,
+                "prompt_version": self.prompt_version,
+                "prompt_hash": self.prompt_hash,
                 "sense_id": sense_id,
                 "clip_type": clip_type,
                 "voice_id": voice_id,

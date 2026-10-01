@@ -48,6 +48,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from build.lib.tsv import read_tsv, write_tsv  # noqa: E402
+from build.lib.final_postfix import (  # noqa: E402
+    apply_spelling_to_row,
+    load_ipa_v2,
+    load_manual_ipa,
+    load_spelling_map,
+    resolve_ipa,
+)
 
 DATA_DIR = REPO_ROOT / "data"
 CONFIG_DIR = REPO_ROOT / "config"
@@ -63,6 +70,10 @@ TOPIC_TAGS_PATH = DATA_DIR / "_topic_tags.tsv"
 RISK_REGISTER_PATH = DATA_DIR / "_risk_register.tsv"
 MANUAL_RISK_REGISTER_PATH = DATA_DIR / "_manual_risk_register.tsv"
 VOICES_PATH = CONFIG_DIR / "voices.tsv"
+# Stage 19 post-fixes (see build/lib/final_postfix.py).
+SPELLING_MAP_PATH = DATA_DIR / "_ep_spelling_map.tsv"
+IPA_V2_PATH = DATA_DIR / "_ipa_v2.tsv"
+MANUAL_IPA_PATH = DATA_DIR / "_manual_ipa.tsv"
 
 FINAL_PATH = DATA_DIR / "06-final.tsv"
 LOG_PATH = AUDIT_DIR / "derive_final.log"
@@ -350,6 +361,9 @@ def main() -> int:
     topic_tags = _load_topic_tags()
     risk_register = _load_risk_register()
     manual_risk_register = _load_manual_risk_register()
+    spelling_map = load_spelling_map(SPELLING_MAP_PATH)
+    ipa_v2 = load_ipa_v2(IPA_V2_PATH)
+    manual_ipa = load_manual_ipa(MANUAL_IPA_PATH)
 
     # Stage 12 risk_note carry-forward: build a {sense_id: text} map from
     # the current 06-final.tsv (if present) so we can detect Stage-12 rows
@@ -585,6 +599,14 @@ def main() -> int:
         else:
             gap_stats["topic_tag_missing"] += 1
 
+        # Stage 19: card IPA precedence manual > ipa_v2 > stage 5.
+        ipa_word_val, ipa_example_val, ipa_wsrc, ipa_esrc = resolve_ipa(
+            sid, ip, ipa_v2, manual_ipa)
+        gap_stats[f"ipa_word_source_{ipa_wsrc}"] = (
+            gap_stats.get(f"ipa_word_source_{ipa_wsrc}", 0) + 1)
+        gap_stats[f"ipa_example_source_{ipa_esrc}"] = (
+            gap_stats.get(f"ipa_example_source_{ipa_esrc}", 0) + 1)
+
         rows.append({
             "sense_id": sid,
             "rank": rank_val,
@@ -600,11 +622,11 @@ def main() -> int:
             "annotation": e.get("annotation", ""),
             "bp_status": e.get("bp_status", "") or ip.get("bp_status", ""),
             "normalization_action": e.get("normalization_action", ""),
-            "ipa_word": ip.get("ipa_word_final", ""),
+            "ipa_word": ipa_word_val,
             "example_pt": ip.get("example_pt", ""),
             "example_en": ip.get("example_en", ""),
             "target_word_used": ip.get("target_word_used", ""),
-            "ipa_example": ip.get("ipa_example_final", ""),
+            "ipa_example": ipa_example_val,
             "audio_word": mw.get("url", ""),
             "audio_example": mex.get("url", ""),
             "audio_word_md5": mw.get("md5", ""),
@@ -629,6 +651,15 @@ def main() -> int:
             "register": register,
             "risk_flags": risk_flags,
         })
+
+    # Stage 19: EP→BP spelling post-fix on learner-facing text fields.
+    gap_stats["ep_spelling_rows_fixed"] = 0
+    gap_stats["ep_spelling_tokens_fixed"] = 0
+    for r in rows:
+        n = apply_spelling_to_row(r, spelling_map)
+        if n:
+            gap_stats["ep_spelling_rows_fixed"] += 1
+            gap_stats["ep_spelling_tokens_fixed"] += n
 
     # Write log
     AUDIT_DIR.mkdir(parents=True, exist_ok=True)

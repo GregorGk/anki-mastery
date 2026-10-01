@@ -28,6 +28,7 @@ import os
 import re
 import subprocess
 import sys
+import threading
 import time
 import unicodedata
 from dataclasses import dataclass
@@ -83,6 +84,7 @@ ASR_PRICE_PER_MINUTE: dict[str, float] = {
     "gpt-4o-transcribe": 0.006,
     "gpt-4o-mini-transcribe": 0.003,
     "gpt-4o-transcribe-diarize": 0.006,
+    "gpt-transcribe": 0.006,  # Stage 19 candidate; price assumed = gpt-4o-transcribe
 }
 # Backwards-compat scalar for legacy callers; equals whisper-1's rate.
 WHISPER_PRICE_PER_MINUTE = ASR_PRICE_PER_MINUTE["whisper-1"]
@@ -160,15 +162,19 @@ def text_similarity(a: str, b: str) -> float:
     return float(Levenshtein.normalized_similarity(normalize_text(a), normalize_text(b)))
 
 
+_ESPEAK_SLOTS = threading.BoundedSemaphore(8)  # cap concurrent espeak processes
+
+
 def phonetic_distance(input_text: str, asr_transcript: str) -> float | None:
     """Compare eSpeak IPA of input vs ASR transcript; return 1 - similarity ∈ [0, 1].
 
-    Returns None if either eSpeak run fails or produces empty IPA.
+    Returns None if either eSpeak run fails, times out, or produces empty IPA.
     """
     try:
-        ipa_in = ipa_transcribe(input_text)
-        ipa_out = ipa_transcribe(asr_transcript) if asr_transcript else ""
-    except RuntimeError:
+        with _ESPEAK_SLOTS:
+            ipa_in = ipa_transcribe(input_text)
+            ipa_out = ipa_transcribe(asr_transcript) if asr_transcript else ""
+    except (RuntimeError, subprocess.TimeoutExpired, OSError):
         return None
     if not ipa_in or not ipa_out:
         return None

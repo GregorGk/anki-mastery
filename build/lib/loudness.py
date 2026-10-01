@@ -254,7 +254,9 @@ def measure_mp3_loudness(
     af = (
         f"loudnorm=I={target_i}:TP={target_tp}:LRA={target_lra}:print_format=json"
     )
-    args = ["-i", "pipe:0", "-af", af, "-f", "null", "-"]
+    # Explicit input format: ffmpeg's probe can fail on very short MP3s
+    # ("Failed to find two consecutive MPEG audio frames").
+    args = ["-f", "mp3", "-i", "pipe:0", "-af", af, "-f", "null", "-"]
     _, stderr = _run_ffmpeg(args, mp3_bytes)
     return _parse_loudnorm_json(stderr)
 

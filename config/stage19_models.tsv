@@ -1,0 +1,2 @@
+role	config	backend	model	prompt_version	combine
+asr	gpt-4o-transcribe		gpt-4o-transcribe		

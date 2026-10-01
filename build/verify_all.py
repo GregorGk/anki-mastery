@@ -80,11 +80,11 @@ MANUAL_RISK_REGISTER_PATH = DATA_DIR / "_manual_risk_register.tsv"
 EXPECTED_ROW_COUNT = 5725
 SENSE_ID_PATTERN = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
 MD5_MIN_LEN = 10
-# As of Stage 11.1 (2026-05-13), the production audio model is eleven_v3.
-# Stage 9 (flash) is legacy. The check below accepts either marker so a
-# partial-migration state (some flash, some v3) doesn't false-fail; a full
-# v3 deck is the steady-state target.
-EXPECTED_MODEL_MARKERS = ("eleven_v3", "eleven_flash_v2_5")
+# Stage 19 (2026-10) moves the BP word/example clips to eleven_v4; clips that
+# fail the v4 QA gate deliberately stay on eleven_v3 (never replace a passing
+# v3 clip with a failing v4 one), and one "ó" holdout is still Flash. The check
+# accepts all three markers; a mixed deck is a soft warning, not a failure.
+EXPECTED_MODEL_MARKERS = ("eleven_v4", "eleven_v3", "eleven_flash_v2_5")
 
 # Stage 12 column expectations
 VALID_USAGE_HINT_PRIORITIES = {"essential", "useful", ""}
@@ -185,13 +185,15 @@ def _verify_rows(rows: list[dict], voice_gender: dict[str, str], v: Verifier) ->
         v.hard_fail(f"{len(non_expected)} rows have audio URL outside expected models "
                     f"{EXPECTED_MODEL_MARKERS}; e.g., {non_expected[:3]}")
     else:
-        # Soft warning if the deck is mixed across models (steady state = all v3).
-        v3_count = sum(1 for r in rows if "eleven_v3" in r["audio_word"])
-        flash_count = sum(1 for r in rows if "eleven_flash_v2_5" in r["audio_word"])
-        if v3_count and flash_count:
-            v.soft_warn(f"deck is mixed-model: v3={v3_count} flash={flash_count} "
-                        f"(steady-state target is all v3)")
-        marker = "eleven_v3" if v3_count >= flash_count else "eleven_flash_v2_5"
+        # Soft warning if the deck is mixed across models.
+        counts = {m: sum(1 for r in rows for col in ("audio_word", "audio_example")
+                         if m in r[col])
+                  for m in EXPECTED_MODEL_MARKERS}
+        present = {m: n for m, n in counts.items() if n}
+        if len(present) > 1:
+            v.soft_warn("deck is mixed-model (word+example clips): "
+                        + " ".join(f"{m}={n}" for m, n in present.items()))
+        marker = max(counts, key=counts.get)
         print(f"  ✓ all audio URLs contain a recognized model marker "
               f"(predominant: {marker})")
 
