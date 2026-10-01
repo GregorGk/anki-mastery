@@ -33,6 +33,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+from dotenv import load_dotenv  # noqa: E402
+
+load_dotenv(REPO_ROOT / ".env", override=True)
+
 from build.lib.r2_client import R2Client  # noqa: E402
 from build.lib.tsv import read_tsv  # noqa: E402
 
@@ -48,6 +52,10 @@ def main() -> int:
                         help="Actually delete orphans (default: dry-run report).")
     parser.add_argument("--sample", type=int, default=10,
                         help="How many orphan keys to print as samples.")
+    parser.add_argument("--keep-manifest", action="append", default=[],
+                        help="Also preserve every key referenced by this manifest file "
+                             "(repeatable) — e.g. data/_audio_manifest.tsv.bak_pre_stage19 "
+                             "keeps the v3 rollback copies after the Stage-19 v4 swap.")
     args = parser.parse_args()
 
     r2 = R2Client()
@@ -76,6 +84,14 @@ def main() -> int:
         if ok:
             manifest_keys.add(ok)
     print(f"  Manifest references: {len(manifest_keys):,} keys")
+    for extra in args.keep_manifest:
+        extra_rows = read_tsv(REPO_ROOT / extra if not Path(extra).is_absolute() else Path(extra))
+        if not extra_rows:
+            print(f"ERROR: --keep-manifest {extra} is empty or missing", file=sys.stderr)
+            return 2
+        before = len(manifest_keys)
+        manifest_keys |= {r["object_key"] for r in extra_rows if r.get("object_key")}
+        print(f"  + keep-list {extra}: {len(manifest_keys) - before:,} extra keys preserved")
 
     # Step 3: orphans = R2 keys NOT in manifest
     orphans = [(k, s) for k, s in r2_keys if k not in manifest_keys]
@@ -88,11 +104,13 @@ def main() -> int:
         return 0
 
     # Step 4: classify orphans for the report
-    legacy_no_model = sum(1 for k, _ in orphans if "eleven_flash_v2_5" not in k)
-    superseded_flash = sum(1 for k, _ in orphans if "eleven_flash_v2_5" in k)
+    models = ("eleven_v4", "eleven_v3", "eleven_flash_v2_5")
+    breakdown = {m: sum(1 for k, _ in orphans if m in k) for m in models}
+    legacy_no_model = len(orphans) - sum(breakdown.values())
     print(f"=== Orphan breakdown ===")
     print(f"  Legacy Multilingual (no model_id segment): {legacy_no_model:,}")
-    print(f"  Superseded Flash (older version replaced):  {superseded_flash:,}")
+    for m, n in breakdown.items():
+        print(f"  Superseded / unreferenced {m}: {n:,}")
     print()
 
     # Sample

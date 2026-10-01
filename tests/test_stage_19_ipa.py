@@ -97,6 +97,31 @@ def test_accent_issue(word, ipa, need):
     assert B.accent_issue(word, ipa) == need
 
 
+@pytest.mark.parametrize("word,ipa,mismatch", [
+    ("suicídio", "ˈsujsidʒiu", True),     # stress on u, written accent on í
+    ("suicídio", "suiˈsidʒju", False),
+    ("gênio", "ˈʒɛnju", False),           # quality swap is accent_issue's job
+    ("café", "kaˈfɛ", False), ("verde", "ˈveɾdʒi", False),
+])
+def test_accent_stress_mismatch(word, ipa, mismatch):
+    assert B.accent_stress_mismatch(word, ipa) is mismatch
+
+
+@pytest.mark.parametrize("word,ipa,fixed", [
+    ("aquece", "aˈkesɐ", "aˈkesi"),
+    ("parte", "ˈpaɾte", "ˈpaɾtʃi"),        # final e → i re-triggers palatalization
+    ("tapete", "taˈpɛte", "taˈpɛtʃi"),
+    ("tarde", "ˈtaɾdʒi", None), ("café", "kaˈfɛ", None), ("mãe", "ˈmɐ̃j̃", None),
+])
+def test_final_vowel_fix(word, ipa, fixed):
+    assert B.final_vowel_fix(word, ipa) == fixed
+
+
+@needs_espeak
+def test_oracle_rejects_wrong_vowel_at_matching_position():
+    assert B.stress_matches_oracle("incluindo", "ĩˈkluĩdu") is False
+
+
 def test_fix_stressed_vowel():
     assert B.fix_stressed_vowel("ˈʒɛnju", "e") == "ˈʒenju"
     assert B.fix_stressed_vowel("ˈkɔmodu", "o") == "ˈkomodu"

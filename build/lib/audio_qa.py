@@ -29,7 +29,7 @@ SAMPLE_RATE = 44100
 SILENCE_DBFS = -40.0
 MAX_EDGE_SILENCE_S = 0.7
 WORD_ABS_S = (0.25, 3.0)
-WORD_REL = (0.5, 2.0)
+WORD_REL = (0.5, 2.0)   # only the upper bound is applied to words (see pcm_sanity)
 EXAMPLE_REL = (0.6, 1.7)
 EXAMPLE_MAX_S = 12.0
 MAX_TRUE_PEAK = -1.0
@@ -69,7 +69,11 @@ def pcm_sanity(pcm: bytes, clip_type: str, v3_duration_s: float | None = None) -
     if clip_type == "word":
         if not WORD_ABS_S[0] <= dur <= WORD_ABS_S[1]:
             issues.append(f"dur:word_{dur:.2f}s")
-        if v3_duration_s and not WORD_REL[0] <= dur / v3_duration_s <= WORD_REL[1]:
+        # Only the UPPER relative bound for words (runaway renders): v3 word
+        # clips carry variable padding, so v4/v3 ratios measured 0.34–1.2× on
+        # perfectly good takes (pilot, 232 takes). Truncation is caught by the
+        # absolute bound and the ASR check.
+        if v3_duration_s and dur / v3_duration_s > WORD_REL[1]:
             issues.append(f"dur:vs_v3_{dur / v3_duration_s:.2f}x")
     else:
         if dur > EXAMPLE_MAX_S:
@@ -99,9 +103,36 @@ def _joined_forms(s: str) -> set[str]:
     return {f for f in forms if f}
 
 
-def leaked(transcript: str) -> bool:
+def leaked(transcript: str, reference: str = "") -> bool:
+    """A tag / slash word spoken aloud — unless the reference itself contains
+    that word ("Ela fala português sem sotaque.")."""
     t = unicodedata.normalize("NFC", (transcript or "").lower())
-    return any(re.search(rf"\b{re.escape(x)}\b", t) for x in LEAK_TOKENS)
+    ref = set(normalize_text(reference).split())
+    return any(re.search(rf"\b{re.escape(x)}\b", t) for x in LEAK_TOKENS
+               if normalize_text(x) not in ref)
+
+
+_NUMBER_WORDS = set("""zero um uma dois duas tres quatro cinco seis sete oito nove dez onze doze
+treze catorze quatorze quinze dezesseis dezessete dezoito dezenove vinte trinta quarenta
+cinquenta sessenta setenta oitenta noventa cem cento duzentos duzentas trezentos trezentas
+quatrocentos quinhentos seiscentos setecentos oitocentos novecentos mil milhao milhoes
+bilhao bilhoes e primeiro segundo terceiro""".split())
+_ROMAN_RE = re.compile(r"^[ivxlcdm]+$")
+_UPPER_ROMAN_RE = re.compile(r"\b[IVXLCDM]{2,}\b")
+
+
+def _strip_numbers(s: str) -> str:
+    """Drop digit tokens, Roman numerals, number words and abbreviation
+    tokens (km/h, kg, %) so '40 km/h' ≈ 'quarenta quilômetros por hora'."""
+    raw = unicodedata.normalize("NFC", s.lower())
+    raw = re.sub(r"\b\d[\d.,:/%]*\b|%|\bkm/h\b|\bkm\b|\bkg\b|\bm²\b|\bh\b", " ", raw)
+    toks = [t for t in normalize_text(raw).split()
+            if t not in _NUMBER_WORDS and not (len(t) <= 4 and _ROMAN_RE.match(t))
+            and t not in ("quilometros", "quilometro", "por", "hora", "horas", "quilos",
+                          "quilo", "metros", "metro", "porcento", "cento", "reais", "real")]
+    return " ".join(toks)
+
+
 
 
 def relaxed_asr_pass(
@@ -115,8 +146,15 @@ def relaxed_asr_pass(
     manual_pass: bool = False,
 ) -> tuple[bool, str, float]:
     """(pass, mode, best_similarity). `transcripts` = every transcript the
-    production roundtrip produced (biased / unbiased). Leaks always fail."""
-    if any(leaked(t) for t in transcripts if t):
+    production roundtrip produced (biased / unbiased). Leaks always fail.
+
+    Relaxations, in order: space/article-insensitive match; the spelled-out
+    reference for sentences with numbers; a number-insensitive match (digits,
+    Roman numerals, number words and unit abbreviations removed on both sides).
+    There is deliberately NO phonetic-distance relaxation: it passed dropped
+    final -r (resumir → 'Resumi') in the pilot. A dropped final -r stays a
+    failure; oddly-spelled transcripts of correct audio are simply re-rolled."""
+    if any(leaked(t, reference) for t in transcripts if t):
         return False, "leak", 0.0
     thr = THRESHOLD_TOP1000 if is_top_1000 else THRESHOLD_LONGTAIL
     best = max((text_similarity(t, reference) for t in transcripts if t), default=0.0)
@@ -134,6 +172,10 @@ def relaxed_asr_pass(
             return True, "relaxed", best
         if spoken_reference and text_similarity(t, spoken_reference) >= thr:
             return True, "spoken", best
+        if re.search(r"\d", reference + spoken_reference + t) or _UPPER_ROMAN_RE.search(t):
+            a, b = _strip_numbers(t), _strip_numbers(reference)
+            if a and b and Levenshtein.normalized_similarity(a, b) >= thr:
+                return True, "numbers", best
     return False, "fail", best
 
 

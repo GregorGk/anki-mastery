@@ -124,8 +124,12 @@ class TakeResult:
 
     @property
     def qa_pass(self) -> bool:
-        return (not self.error and not self.sanity and not self.loudness and self.asr_pass
-                and self.gate_pass)
+        return self.pre_judge_pass and self.gate_pass
+
+    @property
+    def pre_judge_pass(self) -> bool:
+        """Everything except the judges (used while judges are still pending)."""
+        return not self.error and not self.sanity and not self.loudness and self.asr_pass
 
     def score(self) -> tuple:
         """Higher is better: judge passes, raw ASR, similarity, loudness fit."""
@@ -153,9 +157,10 @@ class TakeResult:
         }
 
 
-def load_judge_configs(path: Path = PINNED_MODELS, role: str = "judge") -> list[dict]:
+def load_judge_configs(path: Path = PINNED_MODELS, role: str = "judge",
+                       allow_empty: bool = False) -> list[dict]:
     rows = [r for r in read_tsv(path) if r["role"] == role]
-    if not rows:
+    if not rows and not allow_empty:
         raise RuntimeError(f"no '{role}' rows in {path} — run build/19_2_model_selection.py")
     return rows
 
@@ -226,12 +231,30 @@ class Engine:
 
     def cached_result(self, spec: RenderSpec) -> TakeResult | None:
         row = self.cached.get(spec.take_id)
-        if not row or row.get("error") or not Path(row["path"]).exists():
+        # Rows without a saved MP3 (TTS error, failed PCM sanity) are re-rendered:
+        # the sanity rules may have changed since.
+        if not row or row.get("error") or not row.get("path") or not Path(row["path"]).is_file():
+            return None
+        if row.get("tts_text") != spec.tts_text:      # the text to speak changed → re-render
             return None
         res = _result_from_row(spec, row)
-        if row.get("judge_hash") != self.judge_hash and not res.sanity and not res.loudness \
-                and res.asr_pass:
+        changed = False
+        # Re-check a stored ASR failure under the current relaxed rules (they
+        # only get more accurate; the transcript itself is reused, not re-bought).
+        if not res.asr_pass and res.asr_transcript and not res.sanity and not res.loudness:
+            ok, mode, sim = QA.relaxed_asr_pass(
+                transcripts=[res.asr_transcript], reference=spec.display_text,
+                clip_type=spec.clip_type, is_top_1000=spec.is_top_1000,
+                production_decision="regen", spoken_reference=spec.spoken_reference,
+                manual_pass=spec.manual_pass)
+            if ok:
+                res.asr_pass, res.asr_mode = True, f"recheck:{mode}"
+                changed = True
+        if (self.judges and (changed or row.get("judge_hash") != self.judge_hash)
+                and not res.sanity and not res.loudness and res.asr_pass):
             self._judge(res, Path(row["path"]).read_bytes())
+            changed = True
+        if changed:
             self._append(res)
         return res
 
@@ -303,7 +326,7 @@ class Engine:
             res.error = f"asr:{type(exc).__name__}: {exc}"[:300]
             self._append(res)
             return res
-        if res.asr_pass:
+        if res.asr_pass and self.judges:
             self._judge(res, norm.mp3_bytes)
         self._append(res)
         return res

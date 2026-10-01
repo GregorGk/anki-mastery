@@ -1,240 +1,240 @@
-clip_id	set	label	pt	gptaudio-J1p
-L:0265.00.01	L	unclear	altura	non_bp/non_bp
-L:0265.00.02	L	unclear	altura	non_bp/non_bp
-L:0503.00.01	L	ok	quarto	bp_ok/bp_ok
-L:0503.00.02	L	ok	quarto	non_bp/non_bp
-L:0503.00.03	L	ok	quarto	non_bp/bp_ok
-L:0662.00.01	L	bad	série	bp_ok/bp_ok
-L:0664.00.01	L	bad	face	bp_ok/bp_ok
-L:0664.00.02	L	ok	face	non_bp/bp_ok
-L:0858.00.01	L	ok	data	non_bp/non_bp
-L:0867.00.01	L	bad	cara	non_bp/bp_ok
-L:0887.00.01	L	bad	roda	non_bp/bp_ok
-L:0937.00.01	L	bad	sede	non_bp/non_bp
-L:0937.00.02	L	unclear	sede	non_bp/non_bp
-L:0983.00.01	L	unclear	trás	bp_ok/non_bp
-L:1034.00.01	L	unclear	puro	non_bp/bp_ok
-L:1125.00.01	L	bad	policial	non_bp/non_bp
-L:1125.00.02	L	bad	policial	non_bp/non_bp
-L:1365.00.01	L	ok	sorte	bp_ok/bp_ok
-L:1365.00.02	L	bad	sorte	non_bp/non_bp
-L:1473.00.01	L	unclear	recorrer	non_bp/bp_ok
-L:1473.00.02	L	bad	recorrer	non_bp/non_bp
-L:1483.00.01	L	unclear	vara	non_bp/bp_ok
-L:1595.00.01	L	ok	caça	non_bp/non_bp
-L:1606.00.01	L	unclear	serra	bp_ok/bp_ok
-L:1606.00.02	L	unclear	serra	bp_ok/non_bp
-L:1673.00.01	L	unclear	fiel	non_bp/non_bp
-L:1682.00.01	L	ok	visar	non_bp/bp_ok
-L:1709.00.01	L	ok	capa	non_bp/bp_ok
-L:1709.00.02	L	unclear	capa	bp_ok/bp_ok
-L:1742.00.01	L	ok	placa	non_bp/bp_ok
-L:1742.00.02	L	ok	placa	bp_ok/bp_ok
-L:1742.00.03	L	unclear	placa	non_bp/bp_ok
-L:2075.00.01	L	bad	ruim	bp_ok/bp_ok
-L:2124.00.01	L	bad	rapariga	non_bp/non_bp
-L:2124.00.02	L	bad	rapariga	non_bp/non_bp
-L:2173.00.01	L	ok	meta	non_bp/non_bp
-L:2626.00.01	L	ok	ribeira	non_bp/non_bp
-L:2626.00.02	L	ok	ribeira	non_bp/bp_ok
-L:2710.00.01	L	unclear	herdar	bp_ok/bp_ok
-L:2712.00.01	L	ok	carioca	bp_ok/non_bp
-L:2747.00.01	L	bad	chance	non_bp/non_bp
-L:2821.00.01	L	bad	poço	non_bp/non_bp
-L:2847.00.01	L	bad	reto	non_bp/non_bp
-L:2851.00.01	L	bad	paço	non_bp/bp_ok
-L:2973.00.01	L	unclear	touro	bp_ok/bp_ok
-L:2994.00.01	L	unclear	seda	bp_ok/non_bp
-L:3009.00.01	L	bad	proveniente	non_bp/bp_ok
-L:3031.00.01	L	bad	maré	bp_ok/non_bp
-L:3098.00.01	L	ok	dose	non_bp/bp_ok
-L:3203.00.01	L	ok	referente	bp_ok/bp_ok
-L:3322.00.01	L	unclear	tubo	bp_ok/bp_ok
-L:3426.00.01	L	unclear	elogio	bp_ok/bp_ok
-L:3457.00.01	L	bad	remeter	non_bp/non_bp
-L:3597.00.01	L	ok	turno	non_bp/bp_ok
-L:3597.00.02	L	unclear	turno	non_bp/non_bp
-L:3599.00.01	L	ok	descida	non_bp/non_bp
-L:3611.00.01	L	bad	sindical	bp_ok/non_bp
-L:3659.00.01	L	unclear	sino	non_bp/non_bp
-L:3664.00.01	L	unclear	malha	bp_ok/bp_ok
-L:3664.00.02	L	unclear	malha	bp_ok/non_bp
-L:3664.00.03	L	unclear	malha	bp_ok/bp_ok
-L:3704.00.01	L	bad	fatal	bp_ok/bp_ok
-L:3728.00.01	L	unclear	aranha	bp_ok/non_bp
-L:3732.00.01	L	unclear	aquando	non_bp/non_bp
-L:3742.00.01	L	unclear	reger	non_bp/non_bp
-L:3742.00.02	L	bad	reger	non_bp/non_bp
-L:3742.00.03	L	bad	reger	non_bp/non_bp
-L:3821.00.01	L	bad	manteiga	bp_ok/non_bp
-L:3877.00.01	L	bad	cela	non_bp/non_bp
-L:3879.00.01	L	ok	sanção	bp_ok/bp_ok
-L:3911.00.01	L	unclear	cova	bp_ok/non_bp
-L:3911.00.02	L	unclear	cova	bp_ok/bp_ok
-L:3911.00.03	L	unclear	cova	non_bp/non_bp
-L:3931.00.01	L	bad	adeus	bp_ok/non_bp
-L:3954.00.01	L	ok	eh	bp_ok/bp_ok
-L:3976.00.01	L	ok	tijolo	non_bp/bp_ok
-L:4032.00.01	L	ok	cesta	bp_ok/non_bp
-L:4032.00.02	L	ok	cesta	non_bp/bp_ok
-L:4032.00.03	L	ok	cesta	bp_ok/non_bp
-L:4034.00.01	L	unclear	macio	non_bp/non_bp
-L:4089.00.01	L	ok	hospitalar	non_bp/non_bp
-L:4125.00.01	L	ok	batizar	non_bp/non_bp
-L:4178.00.01	L	ok	assente	non_bp/non_bp
-L:4197.00.01	L	ok	baía	bp_ok/non_bp
-L:4227.00.01	L	unclear	doer	non_bp/non_bp
-L:4234.00.01	L	unclear	grade	non_bp/non_bp
-L:4234.00.02	L	bad	grade	bp_ok/bp_ok
-L:4267.00.01	L	unclear	judaico	non_bp/non_bp
-L:4380.00.01	L	ok	casto	non_bp/non_bp
-L:4381.00.01	L	unclear	cera	bp_ok/non_bp
-L:4424.00.01	L	unclear	mouro	non_bp/bp_ok
-L:4491.00.01	L	bad	revólver	bp_ok/non_bp
-L:4501.00.01	L	unclear	suor	bp_ok/non_bp
-L:4507.00.01	L	bad	hino	non_bp/non_bp
-L:4625.00.01	L	bad	trajeto	non_bp/bp_ok
-L:4625.00.02	L	bad	trajeto	bp_ok/bp_ok
-L:4633.00.01	L	unclear	ceia	bp_ok/bp_ok
-L:4691.00.01	L	unclear	vulto	non_bp/non_bp
-L:4691.00.02	L	bad	vulto	non_bp/non_bp
-L:4743.00.01	L	bad	vice	bp_ok/non_bp
-L:4757.00.01	L	ok	crente	non_bp/non_bp
-L:4772.00.01	L	ok	susceptível	non_bp/bp_ok
-L:4832.00.01	L	ok	cavalheiro	non_bp/non_bp
-L:4854.00.01	L	unclear	rito	bp_ok/bp_ok
-L:4863.00.01	L	bad	decerto	bp_ok/non_bp
-L:4895.00.01	L	ok	apreender	non_bp/non_bp
-L:4895.00.02	L	unclear	apreender	non_bp/non_bp
-L:4910.00.01	L	bad	roer	non_bp/non_bp
-L:4948.00.01	L	ok	candeeiro	bp_ok/non_bp
-L:4950.00.01	L	unclear	cimo	non_bp/non_bp
-L:4981.00.01	L	unclear	feitio	non_bp/bp_ok
-L:4981.00.02	L	unclear	feitio	bp_ok/non_bp
-L:0153.00.01	L	ok	hora	non_bp/non_bp
-L:0200.00.01	L	bad	real	non_bp/non_bp
-L:0204.00.01	L	ok	possível	bp_ok/non_bp
-L:0207.00.01	L	bad	social	bp_ok/non_bp
-L:0225.00.01	L	ok	nacional	non_bp/non_bp
-L:0408.00.01	L	bad	capital	non_bp/non_bp
-L:0408.00.02	L	bad	capital	non_bp/non_bp
-L:0536.00.01	L	ok	nível	bp_ok/non_bp
-L:0572.00.01	L	ok	atual	bp_ok/non_bp
-L:0619.00.01	L	ok	profissional	non_bp/non_bp
-L:1078.00.01	L	bad	general	non_bp/non_bp
-L:1193.00.01	L	unclear	tribunal	non_bp/non_bp
-L:1324.00.01	L	bad	industrial	non_bp/non_bp
-L:1820.00.01	L	ok	bar	non_bp/non_bp
-L:2215.00.01	L	bad	habitual	non_bp/non_bp
-L:2522.00.01	L	unclear	terror	bp_ok/non_bp
-L:2874.00.01	L	ok	combustível	bp_ok/bp_ok
-L:3013.00.01	L	bad	jazz	non_bp/non_bp
-L:3266.00.01	L	bad	tropical	bp_ok/non_bp
-L:3383.00.01	L	unclear	ilegal	non_bp/non_bp
-L:3575.00.01	L	ok	excepcional	non_bp/non_bp
-L:3799.00.01	L	ok	têxtil	non_bp/non_bp
-L:3814.00.01	L	bad	verbal	non_bp/non_bp
-L:4389.00.01	L	unclear	marketing	non_bp/non_bp
-L:4676.00.01	L	bad	postal	non_bp/non_bp
-L:0259.00.01	L	ok	tarde	bp_ok/non_bp
-L:0719.00.01	L	ok	oportunidade	non_bp/non_bp
-L:1126.00.01	L	unclear	recente	non_bp/non_bp
-L:1175.00.01	L	bad	agente	non_bp/non_bp
-L:1430.00.01	L	ok	geralmente	bp_ok/bp_ok
-L:1721.00.01	L	ok	existente	non_bp/non_bp
-L:1725.00.01	L	ok	revolucionário	non_bp/non_bp
-L:1771.00.01	L	bad	rato	bp_ok/bp_ok
-L:2040.00.01	L	ok	concorrer	bp_ok/non_bp
-L:2132.00.02	L	ok	redação	bp_ok/non_bp
-L:2363.00.01	L	ok	restaurante	non_bp/non_bp
-L:2632.00.01	L	ok	saudade	non_bp/non_bp
-L:2754.00.01	L	ok	essencialmente	non_bp/non_bp
-L:3038.00.01	L	ok	independentemente	bp_ok/bp_ok
-L:3234.00.01	L	ok	bilhete	non_bp/non_bp
-L:3341.00.01	L	ok	ansiedade	non_bp/non_bp
-L:3489.00.01	L	ok	eventualmente	non_bp/non_bp
-L:3536.00.01	L	bad	elite	non_bp/non_bp
-L:3587.00.01	L	ok	fabricante	non_bp/non_bp
-L:3753.00.01	L	ok	nascente	non_bp/non_bp
-L:3824.00.01	L	ok	rasgar	non_bp/non_bp
-L:4064.00.01	L	bad	variante	non_bp/non_bp
-L:4098.00.01	L	ok	regionalização	non_bp/non_bp
-L:4153.00.01	L	ok	complexidade	non_bp/non_bp
-L:4316.00.01	L	ok	impressionante	non_bp/non_bp
-L:4317.00.02	L	ok	arrecadar	non_bp/non_bp
-L:4332.00.01	L	unclear	enterro	bp_ok/bp_ok
-L:4740.00.01	L	ok	rodada	non_bp/non_bp
-L:0100.00.01	L	ok	três	bp_ok/non_bp
-L:0316.00.01	L	bad	espaço	non_bp/bp_ok
-L:0328.00.02	L	ok	banco	non_bp/non_bp
-L:0378.00.01	L	ok	mar	bp_ok/non_bp
-L:1280.00.01	L	ok	crescimento	bp_ok/bp_ok
-L:1307.00.01	L	ok	esconder	non_bp/non_bp
-L:1375.00.01	L	bad	ultrapassar	bp_ok/bp_ok
-L:1804.00.01	L	ok	cama	non_bp/bp_ok
-L:1968.00.01	L	ok	esquema	bp_ok/non_bp
-L:2601.00.01	L	ok	descansar	bp_ok/bp_ok
-L:4040.00.01	L	ok	sistemático	bp_ok/non_bp
-L:4120.00.01	L	ok	desprezo	non_bp/non_bp
-L:4551.00.01	L	ok	espinha	non_bp/bp_ok
-L:0490.00.01	L	ok	programa	bp_ok/non_bp
-L:0564.00.02	L	ok	marcar	bp_ok/non_bp
-L:1410.00.01	L	ok	corda	bp_ok/non_bp
-L:1696.00.01	L	ok	obrigado	bp_ok/non_bp
-L:1734.00.01	L	bad	concerto	non_bp/non_bp
-L:2817.00.01	L	ok	tecnológico	non_bp/non_bp
-B:016_bp	B	ok	merecer	bp_ok/bp_ok
-B:029_bp	B	unclear	nominal	non_bp/non_bp
-B:043_bp	B	ok	indicar	non_bp/bp_ok
-B:063_bp	B	ok	As crianças dançam ao redor da fogueira.	non_bp/non_bp
-B:077_bp	B	ok	A ligação de internet está muito lenta hoje.	non_bp/bp_ok
-B:110_bp	B	ok	a mercê	non_bp/non_bp
-B:113_bp	B	ok	excepcional	bp_ok/non_bp
-B:126_bp	B	ok	o francês	non_bp/non_bp
-B:127_bp	B	ok	mal	non_bp/non_bp
-B:130_bp	B	bad	a camisola	non_bp/non_bp
-B:131_bp	B	ok	o Deus	non_bp/non_bp
-B:135_bp	B	ok	o concelho	non_bp/non_bp
-B:141_bp	B	ok	o molde	non_bp/non_bp
-B:142_bp	B	ok	aquando	non_bp/non_bp
-B:143_bp	B	ok	aquecer	non_bp/non_bp
-B:147_bp	B	bad	fértil	non_bp/non_bp
-B:204_bp	B	ok	render	non_bp/non_bp
-B:207_bp	B	ok	estrutural	non_bp/non_bp
-B:210_bp	B	ok	depois	bp_ok/bp_ok
-B:216_bp	B	bad	cruel	non_bp/non_bp
-B:219_bp	B	ok	o espanhol	non_bp/non_bp
-B:234_bp	B	ok	casto	non_bp/non_bp
-B:237_bp	B	ok	fatal	bp_ok/non_bp
-B:238_bp	B	ok	territorial	non_bp/non_bp
-B:243_bp	B	ok	a habilidade	non_bp/non_bp
-B:246_bp	B	ok	o imóvel	non_bp/non_bp
-B:248_bp	B	ok	o inglês	non_bp/non_bp
-B:259_bp	B	ok	decerto	non_bp/non_bp
-B:263_bp	B	ok	recear	non_bp/non_bp
-B:264_bp	B	bad	o concelho	non_bp/non_bp
-B:275_bp	B	ok	a fidelidade	non_bp/non_bp
-B:276_bp	B	unclear	a cal	non_bp/non_bp
-B:282_bp	B	ok	municipal	non_bp/non_bp
-B:286_bp	B	bad	a camisola	non_bp/non_bp
-B:288_bp	B	ok	a faculdade	non_bp/non_bp
-B:294_bp	B	unclear	ponderar	non_bp/non_bp
-B:330_bp	B	ok	Os miúdos brincam no parque toda tarde.	non_bp/non_bp
-B:371_bp	B	ok	Vós sois bem-vindos à nossa casa.	non_bp/non_bp
-B:376_bp	B	ok	A bandeira está no cimo da montanha.	non_bp/non_bp
-B:381_bp	B	ok	A polícia prendeu uma rapariga na operação contra o tráfico.	non_bp/non_bp
-S:0259.00.01-word-v1.mp3	S	ok	tarde	non_bp/non_bp
-S:0719.00.01-word-v1.mp3	S	ok	oportunidade	bp_ok/non_bp
-S:2632.00.01-word-v1.mp3	S	ok	saudade	non_bp/non_bp
-S:4125.00.01-word-v1.mp3	S	ok	batizar	bp_ok/bp_ok
-S:3234.00.01-word-v1.mp3	S	ok	bilhete	non_bp/bp_ok
-S:2363.00.01-word-v1.mp3	S	ok	restaurante	non_bp/non_bp
-S:1430.00.01-word-v1.mp3	S	ok	geralmente	bp_ok/non_bp
-S:3341.00.01-word-v1.mp3	S	ok	ansiedade	bp_ok/bp_ok
-S:0937.00.01-word-v1.mp3	S	bad	sede	non_bp/non_bp
-S:3009.00.01-word-v1.mp3	S	bad	proveniente	non_bp/non_bp
-S:1175.00.01-word-v1.mp3	S	bad	agente	non_bp/non_bp
-S:3536.00.01-word-v1.mp3	S	bad	elite	non_bp/non_bp
-S:3013.00.01-word-v1.mp3	S	bad	jazz	non_bp/non_bp
-S:4064.00.01-word-v1.mp3	S	bad	variante	non_bp/non_bp
-S:0534.00.01-word-eleven_v3-v2.mp3	S	bad	verde	non_bp/non_bp
+clip_id	set	label	pt	pro-J1	pro-J1p	pro-J2	flash38-J1p	flash38-J2	flash35-J2	gptaudio-J1p	gptaudio-J2
+L:0265.00.01	L	unclear	altura	non_bp/bp_ok	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0265.00.02	L	unclear	altura	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:0503.00.01	L	ok	quarto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp
+L:0503.00.02	L	ok	quarto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+L:0503.00.03	L	ok	quarto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:0662.00.01	L	bad	série	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:0664.00.01	L	bad	face	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+L:0664.00.02	L	ok	face	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:0858.00.01	L	ok	data	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0867.00.01	L	bad	cara	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:0887.00.01	L	bad	roda	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+L:0937.00.01	L	bad	sede	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0937.00.02	L	unclear	sede	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0983.00.01	L	unclear	trás	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:1034.00.01	L	unclear	puro	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/bp_ok
+L:1125.00.01	L	bad	policial	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp
+L:1125.00.02	L	bad	policial	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1365.00.01	L	ok	sorte	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok
+L:1365.00.02	L	bad	sorte	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:1473.00.01	L	unclear	recorrer	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:1473.00.02	L	bad	recorrer	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:1483.00.01	L	unclear	vara	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:1595.00.01	L	ok	caça	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1606.00.01	L	unclear	serra	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:1606.00.02	L	unclear	serra	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:1673.00.01	L	unclear	fiel	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1682.00.01	L	ok	visar	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:1709.00.01	L	ok	capa	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+L:1709.00.02	L	unclear	capa	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+L:1742.00.01	L	ok	placa	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:1742.00.02	L	ok	placa	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok
+L:1742.00.03	L	unclear	placa	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+L:2075.00.01	L	bad	ruim	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+L:2124.00.01	L	bad	rapariga	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:2124.00.02	L	bad	rapariga	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:2173.00.01	L	ok	meta	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2626.00.01	L	ok	ribeira	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2626.00.02	L	ok	ribeira	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:2710.00.01	L	unclear	herdar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:2712.00.01	L	ok	carioca	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+L:2747.00.01	L	bad	chance	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2821.00.01	L	bad	poço	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2847.00.01	L	bad	reto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2851.00.01	L	bad	paço	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:2973.00.01	L	unclear	touro	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:2994.00.01	L	unclear	seda	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/non_bp
+L:3009.00.01	L	bad	proveniente	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp
+L:3031.00.01	L	bad	maré	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:3098.00.01	L	ok	dose	bp_ok/unclear	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:3203.00.01	L	ok	referente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:3322.00.01	L	unclear	tubo	non_bp/non_bp	non_bp/bp_ok	bp_ok/non_bp	non_bp/bp_ok	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp
+L:3426.00.01	L	unclear	elogio	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+L:3457.00.01	L	bad	remeter	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3597.00.01	L	ok	turno	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:3597.00.02	L	unclear	turno	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+L:3599.00.01	L	ok	descida	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3611.00.01	L	bad	sindical	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:3659.00.01	L	unclear	sino	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3664.00.01	L	unclear	malha	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok
+L:3664.00.02	L	unclear	malha	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:3664.00.03	L	unclear	malha	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp
+L:3704.00.01	L	bad	fatal	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp
+L:3728.00.01	L	unclear	aranha	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:3732.00.01	L	unclear	aquando	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:3742.00.01	L	unclear	reger	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3742.00.02	L	bad	reger	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3742.00.03	L	bad	reger	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:3821.00.01	L	bad	manteiga	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:3877.00.01	L	bad	cela	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3879.00.01	L	ok	sanção	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+L:3911.00.01	L	unclear	cova	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:3911.00.02	L	unclear	cova	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok
+L:3911.00.03	L	unclear	cova	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3931.00.01	L	bad	adeus	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:3954.00.01	L	ok	eh	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:3976.00.01	L	ok	tijolo	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp
+L:4032.00.01	L	ok	cesta	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4032.00.02	L	ok	cesta	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp	non_bp/bp_ok	bp_ok/non_bp
+L:4032.00.03	L	ok	cesta	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp
+L:4034.00.01	L	unclear	macio	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4089.00.01	L	ok	hospitalar	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4125.00.01	L	ok	batizar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+L:4178.00.01	L	ok	assente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4197.00.01	L	ok	baía	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:4227.00.01	L	unclear	doer	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4234.00.01	L	unclear	grade	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4234.00.02	L	bad	grade	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:4267.00.01	L	unclear	judaico	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+L:4380.00.01	L	ok	casto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4381.00.01	L	unclear	cera	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4424.00.01	L	unclear	mouro	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:4491.00.01	L	bad	revólver	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4501.00.01	L	unclear	suor	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok	bp_ok/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/non_bp	bp_ok/non_bp
+L:4507.00.01	L	bad	hino	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+L:4625.00.01	L	bad	trajeto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/non_bp
+L:4625.00.02	L	bad	trajeto	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+L:4633.00.01	L	unclear	ceia	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:4691.00.01	L	unclear	vulto	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4691.00.02	L	bad	vulto	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4743.00.01	L	bad	vice	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4757.00.01	L	ok	crente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+L:4772.00.01	L	ok	susceptível	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+L:4832.00.01	L	ok	cavalheiro	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4854.00.01	L	unclear	rito	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:4863.00.01	L	bad	decerto	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4895.00.01	L	ok	apreender	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4895.00.02	L	unclear	apreender	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4910.00.01	L	bad	roer	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4948.00.01	L	ok	candeeiro	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4950.00.01	L	unclear	cimo	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+L:4981.00.01	L	unclear	feitio	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+L:4981.00.02	L	unclear	feitio	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:0153.00.01	L	ok	hora	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+L:0200.00.01	L	bad	real	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0204.00.01	L	ok	possível	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+L:0207.00.01	L	bad	social	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp
+L:0225.00.01	L	ok	nacional	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0408.00.01	L	bad	capital	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:0408.00.02	L	bad	capital	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:0536.00.01	L	ok	nível	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:0572.00.01	L	ok	atual	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+L:0619.00.01	L	ok	profissional	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:1078.00.01	L	bad	general	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:1193.00.01	L	unclear	tribunal	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1324.00.01	L	bad	industrial	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:1820.00.01	L	ok	bar	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+L:2215.00.01	L	bad	habitual	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2522.00.01	L	unclear	terror	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:2874.00.01	L	ok	combustível	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp
+L:3013.00.01	L	bad	jazz	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3266.00.01	L	bad	tropical	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp
+L:3383.00.01	L	unclear	ilegal	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+L:3575.00.01	L	ok	excepcional	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3799.00.01	L	ok	têxtil	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3814.00.01	L	bad	verbal	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4389.00.01	L	unclear	marketing	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4676.00.01	L	bad	postal	bp_ok/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+L:0259.00.01	L	ok	tarde	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:0719.00.01	L	ok	oportunidade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1126.00.01	L	unclear	recente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:1175.00.01	L	bad	agente	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+L:1430.00.01	L	ok	geralmente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp
+L:1721.00.01	L	ok	existente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1725.00.01	L	ok	revolucionário	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1771.00.01	L	bad	rato	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp
+L:2040.00.01	L	ok	concorrer	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/non_bp
+L:2132.00.02	L	ok	redação	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+L:2363.00.01	L	ok	restaurante	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2632.00.01	L	ok	saudade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2754.00.01	L	ok	essencialmente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3038.00.01	L	ok	independentemente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:3234.00.01	L	ok	bilhete	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3341.00.01	L	ok	ansiedade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3489.00.01	L	ok	eventualmente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3536.00.01	L	bad	elite	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp
+L:3587.00.01	L	ok	fabricante	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:3753.00.01	L	ok	nascente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:3824.00.01	L	ok	rasgar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:4064.00.01	L	bad	variante	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:4098.00.01	L	ok	regionalização	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+L:4153.00.01	L	ok	complexidade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4316.00.01	L	ok	impressionante	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4317.00.02	L	ok	arrecadar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4332.00.01	L	unclear	enterro	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:4740.00.01	L	ok	rodada	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:0100.00.01	L	ok	três	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:0316.00.01	L	bad	espaço	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+L:0328.00.02	L	ok	banco	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+L:0378.00.01	L	ok	mar	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:1280.00.01	L	ok	crescimento	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:1307.00.01	L	ok	esconder	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:1375.00.01	L	bad	ultrapassar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:1804.00.01	L	ok	cama	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+L:1968.00.01	L	ok	esquema	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:2601.00.01	L	ok	descansar	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+L:4040.00.01	L	ok	sistemático	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+L:4120.00.01	L	ok	desprezo	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:4551.00.01	L	ok	espinha	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/non_bp
+L:0490.00.01	L	ok	programa	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/non_bp
+L:0564.00.02	L	ok	marcar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+L:1410.00.01	L	ok	corda	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+L:1696.00.01	L	ok	obrigado	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/non_bp
+L:1734.00.01	L	bad	concerto	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+L:2817.00.01	L	ok	tecnológico	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:016_bp	B	ok	merecer	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp
+B:029_bp	B	unclear	nominal	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+B:043_bp	B	ok	indicar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+B:063_bp	B	ok	As crianças dançam ao redor da fogueira.	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+B:077_bp	B	ok	A ligação de internet está muito lenta hoje.	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok
+B:110_bp	B	ok	a mercê	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:113_bp	B	ok	excepcional	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/non_bp
+B:126_bp	B	ok	o francês	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:127_bp	B	ok	mal	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/non_bp
+B:130_bp	B	bad	a camisola	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+B:131_bp	B	ok	o Deus	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:135_bp	B	ok	o concelho	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+B:141_bp	B	ok	o molde	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:142_bp	B	ok	aquando	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+B:143_bp	B	ok	aquecer	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:147_bp	B	bad	fértil	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:204_bp	B	ok	render	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:207_bp	B	ok	estrutural	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:210_bp	B	ok	depois	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp
+B:216_bp	B	bad	cruel	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:219_bp	B	ok	o espanhol	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:234_bp	B	ok	casto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:237_bp	B	ok	fatal	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+B:238_bp	B	ok	territorial	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:243_bp	B	ok	a habilidade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:246_bp	B	ok	o imóvel	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:248_bp	B	ok	o inglês	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:259_bp	B	ok	decerto	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:263_bp	B	ok	recear	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:264_bp	B	bad	o concelho	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	bp_ok/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+B:275_bp	B	ok	a fidelidade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+B:276_bp	B	unclear	a cal	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:282_bp	B	ok	municipal	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:286_bp	B	bad	a camisola	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:288_bp	B	ok	a faculdade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:294_bp	B	unclear	ponderar	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:330_bp	B	ok	Os miúdos brincam no parque toda tarde.	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/bp_ok
+B:371_bp	B	ok	Vós sois bem-vindos à nossa casa.	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:376_bp	B	ok	A bandeira está no cimo da montanha.	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+B:381_bp	B	ok	A polícia prendeu uma rapariga na operação contra o tráfico.	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+S:0259.00.01-word-v1.mp3	S	ok	tarde	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok
+S:0719.00.01-word-v1.mp3	S	ok	oportunidade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	non_bp/bp_ok
+S:2632.00.01-word-v1.mp3	S	ok	saudade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+S:4125.00.01-word-v1.mp3	S	ok	batizar	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp
+S:3234.00.01-word-v1.mp3	S	ok	bilhete	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp
+S:2363.00.01-word-v1.mp3	S	ok	restaurante	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+S:1430.00.01-word-v1.mp3	S	ok	geralmente	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/non_bp	bp_ok/bp_ok
+S:3341.00.01-word-v1.mp3	S	ok	ansiedade	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok
+S:0937.00.01-word-v1.mp3	S	bad	sede	bp_ok/non_bp	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok
+S:3009.00.01-word-v1.mp3	S	bad	proveniente	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+S:1175.00.01-word-v1.mp3	S	bad	agente	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+S:3536.00.01-word-v1.mp3	S	bad	elite	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp
+S:3013.00.01-word-v1.mp3	S	bad	jazz	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+S:4064.00.01-word-v1.mp3	S	bad	variante	non_bp/non_bp	non_bp/non_bp	non_bp/non_bp	bp_ok/non_bp	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/non_bp
+S:0534.00.01-word-eleven_v3-v2.mp3	S	bad	verde	bp_ok/bp_ok	bp_ok/bp_ok	bp_ok/bp_ok	non_bp/bp_ok	non_bp/non_bp	bp_ok/bp_ok	non_bp/non_bp	non_bp/bp_ok

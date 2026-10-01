@@ -199,8 +199,13 @@ def plan_arms(sample: list[dict], jobs: dict) -> list[tuple[str, T.RenderSpec]]:
     return arms
 
 
-def _engine() -> T.Engine:
-    return T.Engine(judge_configs=T.load_judge_configs(), asr_model=T.load_asr_model(),
+def _engine(*, allow_no_judges: bool = False) -> T.Engine:
+    judges = T.load_judge_configs(allow_empty=allow_no_judges)
+    if not judges:
+        print("  ! no judge pinned yet (Gemini blocked?) — rendering TTS + ASR only; re-run "
+              "--render after build/19_2_model_selection.py pins a judge: cached takes are "
+              "judged then, without re-rendering")
+    return T.Engine(judge_configs=judges, asr_model=T.load_asr_model(),
                     dict_locator=PT_DICT_LOCATOR)
 
 
@@ -224,20 +229,22 @@ def render(sample: list[dict], yes: bool) -> None:
     arms = plan_arms(sample, jobs)
     chars = sum(len(s.tts_text) for _, s in arms)
     by = collections.Counter(a for a, _ in arms)
+    judges = [c["config"] for c in T.load_judge_configs(allow_empty=True)]
     print(f"  arms: {dict(by)} = {len(arms)} takes, {chars:,} chars ≈ "
           f"{chars * CREDITS_PER_CHAR:,.0f} credits (+ example t2 retries); judges "
-          f"{[c['config'] for c in T.load_judge_configs()]}, ASR {T.load_asr_model()}")
+          f"{judges or 'PENDING'}, ASR {T.load_asr_model()}")
     if not yes:
         print("  (cost table only — pass --yes to render)")
         return
     _with_durations(arms, jobs)
-    eng = _engine()
+    eng = _engine(allow_no_judges=True)
     done = collections.Counter()
 
     def run(arm_spec):
         arm, spec = arm_spec
         res = eng.render_take(spec)
-        if arm == "example_plain" and not res.qa_pass:
+        passed = res.qa_pass if eng.judges else res.pre_judge_pass
+        if arm == "example_plain" and not passed:
             j = jobs[(spec.sense_id, "example")]
             res = eng.render_take(spec_for(j, take=2, v3_duration_s=spec.v3_duration_s))
         done[arm] += 1
@@ -306,7 +313,9 @@ def _best(rows: list[dict]) -> dict | None:
     def score(r):
         judges = json.loads(r["judges"] or "{}")
         passes = sum(1 for v in judges.values() if v.get("verdict") == "bp_ok")
-        return (int(r["qa_pass"]), passes, float(r["asr_similarity"] or 0))
+        pre = int(not r["error"] and not r["sanity"] and not r["loudness"]
+                  and r["asr_pass"] == "1")
+        return (int(r["qa_pass"]), pre, passes, float(r["asr_similarity"] or 0))
     rows = [r for r in rows if r.get("path") and Path(r["path"]).exists()]
     return max(rows, key=score) if rows else None
 
@@ -316,7 +325,11 @@ def listen_page(sample: list[dict]) -> None:
     takes = collections.defaultdict(list)
     for r in read_tsv(T.LEDGER):
         takes[(r["sense_id"], r["clip_type"], r["variant"], r["stability"], r["dict_on"])].append(r)
-    reported = {s for s in (r["sense_id"] for r in sample if r["stratum"] == "A:user_reported")}
+    in_sample = {r["sense_id"] for r in sample}
+    final_rows = read_tsv(DATA / "06-final.tsv")
+    by_pt_all = _senses_by_pt(final_rows)
+    reported = {s for r in read_tsv(DATA / "_audio_user_reported_failures.tsv")
+                for s in by_pt_all.get(r["pt"].strip().lower(), []) if s in in_sample}
     rng = random.Random(SEED)
     # one sense per reported headword
     by_pt: dict[str, str] = {}

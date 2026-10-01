@@ -130,9 +130,10 @@ the human's, never auto-generated. Examples: `_manual_bp_status.tsv`,
 | Metadata classification (Stages 12–15) | Anthropic Claude Sonnet (4.6-class) | tool use + caching |
 | Example *validator*, speaker-gender classifier | OpenAI `gpt-4o-mini` | cross-family check |
 | **ASR roundtrip** | OpenAI `gpt-4o-transcribe` | locked by A/B — [§5](#5-asr-verification--deep-dive) |
-| **Audio judge** (production) | Google `gemini-3.1-pro-preview` | locked by A/B — [§6](#6-audio-judgment--deep-dive) |
+| **Audio judge** (production) | Google `gemini-3.1-pro-preview` AND `gemini-3.8-flash`, expected-IPA prompt (Stage 19) | chosen on 239 user-labeled clips — [§6](#6-audio-judgment--deep-dive), Stage 19 |
 | Audio judge (legacy / A/B losers) | OpenAI `gpt-4o-audio-preview`, `gpt-audio-1.5` | used Stages 8–9; lost the Stage-16 bake-off |
-| TTS | ElevenLabs `eleven_v3` | migrated `multilingual_v2` → `flash_v2_5` → `eleven_v3` |
+| TTS | ElevenLabs `eleven_v4` (Portuguese word + example), `eleven_v3` (English) | migrated `multilingual_v2` → `flash_v2_5` → `eleven_v3` → `eleven_v4` (Stage 19) |
+| IPA (cards) | IPA v2: Stage-05 + validators + `claude-opus-5-5`, audited by `claude-fable-5-1` | São Paulo convention (Stage 19) |
 | IPA baseline | eSpeak-NG (`pt-BR` locale) | deterministic, free; LLM corrects it |
 
 The exact model snapshot for any run is recorded in that stage's `audit/*.jsonl`.
@@ -410,6 +411,44 @@ learner/card/filter columns, audio as `[sound:…]` tags, generated `anki_tags`,
 **`17_2_ordering_html.py`** — `reports/17_ordering.html`, the ordering review
 report.
 **LLM.** None — pure deterministic SQL + Python.
+
+### Stage 19 — ElevenLabs `eleven_v4` re-render + IPA v2 · `build/19_0…19_5*.py`
+**Purpose.** Move the 11,450 Portuguese word + example clips from `eleven_v3` to
+`eleven_v4` (released 2026-09-28) at the best quality the pipeline can *verify*,
+and replace the Stage-05 IPA with one validated São Paulo convention for the
+cards. English `en_ex` clips stay on v3. Guardrail: a v3 clip is never replaced
+by a v4 take that fails QA.
+**`19_0_preflight.py`** — free + paid smoke test of every key and constraint
+(subscription tier/credits, voices on v4, model lists, R2 write, local tools),
+IPA-adherence probes, direction-tag probes, one call per judge/ASR candidate.
+Finding: inline IPA (`"/…/"`, bare `/…/`, in context, dictionary phoneme rules)
+does **not** steer v4 for Portuguese (stress pairs 3–5/20 vs 16/20 for plain
+spelling) → TTS input stays plain text. v4 bills ~0.13 credits/char.
+**`19_1_ipa_v2.py`** + `build/lib/bp_ipa.py` — IPA v2 for every word and
+sentence: Stage-05 majority vote per spelling, notation normalization (stress
+before the onset, strong r → `h`, coda r → `ɾ`, `tʃ/dʒ`, final `i/u/ɐ`, coda-s
+voicing across words, clitic weak forms), validators (eSpeak stress oracle by
+position + vowel class, written-accent rules, final-vowel rule, MFA soft
+check); 255 conflicts + 310 heterophone occurrences + 32 number sentences
+adjudicated by `claude-opus-5-5`; independent `claude-fable-5-1` audit
+(95/100 consensus, 92/100 LLM-decided). `derive_final.py` applies
+`_manual_ipa` > `_ipa_v2` > `05-ipa` and the EP→BP spelling map.
+**`19_2_model_selection.py`** — judge + ASR bake-off on 239 clips the user had
+labeled. Winner: `gemini-3.1-pro-preview` AND `gemini-3.8-flash`, both with the
+expected-IPA prompt (J2): 94 % recall on mispronounced clips (production J1:
+77 %). OpenAI `gpt-audio` rejects 70 %+ of good clips. ASR stays
+`gpt-4o-transcribe` (`gpt-transcribe` silently "fixes" dropped final -r).
+**`19_3_pilot.py`** — 685-sense pilot through the production engine
+(`build/lib/v4_tts.py`, `build/lib/audio_qa.py`): arms, v3 baseline under the
+same gate, a blind listening page, pre-registered decisions →
+`config/stage19_policy.tsv`.
+**`19_4_render_v4.py`** — full run: per-clip ladder (best-of-2 words, re-takes,
+same-gender voice swaps), acceptance = PCM sanity ∧ loudness ∧ relaxed ASR ∧
+both judges `bp_ok`; winners only uploaded as `…-eleven_v4-v{N}.mp3`, manifest
+rows rewritten only on accept, unresolved clips keep v3 (`_v4_unresolved.tsv`).
+**`19_5_qa_report.py`** — coverage / failure-reason report + residue page.
+**LLM.** Claude Opus 5.5 + Fable 5.1 (IPA), Gemini 3.1 Pro + 3.8 Flash (judges),
+`gpt-4o-transcribe` (ASR).
 
 ---
 

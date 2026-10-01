@@ -58,6 +58,40 @@ def test_leaks_always_fail(transcript):
     assert _relaxed(transcript, "verde", decision="pass")[0] is False
 
 
+def test_leak_word_present_in_reference_is_not_a_leak():
+    s = "Ela fala português naturalmente, sem sotaque."
+    assert _relaxed(s, s, decision="pass")[0] is True
+
+
+def test_slash_read_aloud_fails():
+    assert _relaxed("O barra a policial.", "o/a policial")[0] is False
+
+
+@pytest.mark.parametrize("transcript,reference", [
+    ("A velocidade máxima nesta rua é 40 quilômetros por hora.",
+     "A velocidade máxima nesta rua é 40 km/h."),
+    ("Einstein foi um cientista notável do século XX.",
+     "Einstein foi um cientista notável do século vinte."),
+])
+def test_number_insensitive_match(transcript, reference):
+    ok, mode, _ = QA.relaxed_asr_pass(transcripts=[transcript], reference=reference,
+                                      clip_type="example", is_top_1000=False,
+                                      production_decision="regen")
+    assert ok and mode == "numbers"
+
+
+@pytest.mark.parametrize("transcript,reference", [("Resumi.", "resumir"), ("Deduzi.", "deduzir"),
+                                                  ("Calha", "calhar")])
+def test_dropped_final_r_is_never_relaxed(transcript, reference):
+    assert _relaxed(transcript, reference)[0] is False
+
+
+def test_o_a_headwords_are_spoken_as_both_forms():
+    from build.lib.stage19_data import spoken_headword
+    assert spoken_headword("o/a presidente") == "o presidente, a presidente"
+    assert spoken_headword("a cara") == "a cara"
+
+
 def _pcm(seconds: float, *, amp: int = 8000, lead_silence: float = 0.0,
          trail_silence: float = 0.0, sr: int = 44100) -> bytes:
     out = bytearray()
@@ -73,13 +107,18 @@ def test_pcm_sanity_ok_word():
     assert s.ok, s.issues
 
 
+def test_short_v4_word_vs_padded_v3_is_ok():
+    # v3 "que" was 2.1 s of padded audio; a crisp 0.7 s v4 take is fine
+    assert QA.pcm_sanity(_pcm(0.7), "word", v3_duration_s=2.1).ok
+
+
 @pytest.mark.parametrize("pcm,clip,v3,issue", [
     (b"", "word", None, "pcm:empty_or_odd"),
     (b"\x00\x00" * 44100, "word", None, "pcm:silent"),
     (_pcm(0.1), "word", None, "dur:word"),
     (_pcm(0.6, lead_silence=1.0), "word", None, "edge:lead"),
-    (_pcm(2.5), "word", 0.7, "dur:vs_v3"),
-    (_pcm(1.0), "example", 3.0, "dur:vs_v3"),
+    (_pcm(2.5), "word", 0.7, "dur:vs_v3"),        # runaway word render
+    (_pcm(1.0), "example", 3.0, "dur:vs_v3"),     # truncated example
 ])
 def test_pcm_sanity_failures(pcm, clip, v3, issue):
     s = QA.pcm_sanity(pcm, clip, v3_duration_s=v3)

@@ -24,7 +24,7 @@ ANKI_MEDIA = DATA / "anki_media"
 class ClipJob:
     sense_id: str
     clip_type: str                 # "word" | "example"
-    display_text: str
+    display_text: str              # what the clip says (TTS input, ASR reference, judge text)
     voice_id: str
     voice_gender: str
     expected_ipa: str
@@ -46,6 +46,16 @@ class ClipJob:
     @property
     def is_top_1000(self) -> bool:
         return 0 < self.rank <= 1000
+
+
+def spoken_headword(pt_display: str) -> str:
+    """What the word clip SAYS. "o/a presidente" is shown on the card but
+    spoken as "o presidente, a presidente" (user decision 2026-10-01: v4 reads
+    the slash aloud as "barra")."""
+    if pt_display.startswith("o/a "):
+        noun = pt_display[4:].strip()
+        return f"o {noun}, a {noun}"
+    return pt_display
 
 
 def _article_prefix_ipa(pt_display: str, pt: str) -> str:
@@ -73,10 +83,13 @@ def load_jobs() -> dict[tuple[str, str], ClipJob]:
         f = final[sid]
         v2 = ipa.get(sid, {})
         if ct == "word":
-            display = f["pt_display"]
+            display = spoken_headword(f["pt_display"])
             w = v2.get("ipa_word") or f["ipa_word"]
-            art = _article_prefix_ipa(f["pt_display"], f["pt"])
-            expected = f"{art} {w}".strip() if art else w
+            if display != f["pt_display"]:                       # o/a → both forms
+                expected = f"u {w} a {w}"
+            else:
+                art = _article_prefix_ipa(f["pt_display"], f["pt"])
+                expected = f"{art} {w}".strip() if art else w
             spoken = ""
         else:
             display = f["example_pt"]
