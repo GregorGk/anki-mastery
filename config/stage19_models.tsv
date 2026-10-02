@@ -1,6 +1,6 @@
-role	config	backend	model	prompt_version	combine
-judge	pro-J2	gemini	gemini-3.1-pro-preview	J2	AND
-judge	flash38-J2	gemini	gemini-3.8-flash	J2	AND
-judge_fallback	pro-J1p	gemini	gemini-3.1-pro-preview	J1p	AND
-judge_fallback	flash38-J1p	gemini	gemini-3.8-flash	J1p	AND
-asr	gpt-4o-transcribe		gpt-4o-transcribe		
+role	config	backend	model	prompt_version	combine	scope
+judge	flash38-J2	gemini	gemini-3.8-flash	J2	AND	all
+judge	pro-J2	gemini	gemini-3.1-pro-preview	J2	AND	risky_word
+judge_fallback	pro-J1p	gemini	gemini-3.1-pro-preview	J1p	AND	all
+judge_fallback	flash38-J1p	gemini	gemini-3.8-flash	J1p	AND	all
+asr	gpt-4o-transcribe		gpt-4o-transcribe			

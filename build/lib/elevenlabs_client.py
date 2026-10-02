@@ -21,6 +21,10 @@ Retry policy:
 - Retryable: HTTP 429, 500, 502, 503, 504, 408, connection / timeout errors.
 - Non-retryable: 400, 401, 403, 404, 422.
 - Out of credits → `QuotaExceeded` (never retried) so batch runs stop cleanly.
+- Account-wide refusals → `TTSUnavailable` (QuotaExceeded's base class): 401
+  (bad / revoked key), 402, 403, and 429s that outlast every attempt. They hit
+  every clip alike, so a batch run must stop rather than log each clip failed.
+  A 5xx that outlasts the retries is re-raised as is: it can be clip-specific.
 - Backoff: full jitter, base 1s, cap 60s, up to 6 attempts. Honors Retry-After
   if present (header keys are lower-cased by the SDK).
 """
@@ -55,7 +59,16 @@ class RateLimitExceeded(RuntimeError):
     """
 
 
-class QuotaExceeded(RuntimeError):
+class TTSUnavailable(RuntimeError):
+    """Raised when ElevenLabs refuses every call, not just this one: HTTP 401
+    (bad or revoked key), 402, 403, or 429s that outlast every attempt.
+
+    Never retried: the run must stop, flush its state, and resume once the key,
+    plan or rate limit is fixed.
+    """
+
+
+class QuotaExceeded(TTSUnavailable):
     """Raised when the account is out of credits (`quota_exceeded`).
 
     Never retried: the run must stop, flush its state, and resume after the
@@ -75,6 +88,8 @@ _STABILITY_SIMILARITY_ONLY_PREFIXES = ("eleven_v4",)
 
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 NON_RETRYABLE_HTTP_CODES = {400, 401, 403, 404, 422}
+# Account-wide refusals → TTSUnavailable (402 is in neither set above).
+UNAVAILABLE_HTTP_CODES = {401, 402, 403}
 
 # Response headers worth keeping per call (keys are lower-case in the SDK).
 META_HEADERS = (
@@ -263,6 +278,10 @@ class ElevenLabsClient:
                 if _is_quota_exceeded(exc):
                     raise QuotaExceeded(
                         f"ElevenLabs quota exceeded: {getattr(exc, 'body', exc)}") from exc
+                status = _status(exc)
+                if status in UNAVAILABLE_HTTP_CODES:
+                    raise TTSUnavailable(
+                        f"ElevenLabs HTTP {status}: {getattr(exc, 'body', exc)}") from exc
                 if not self._is_retryable(exc):
                     raise
                 last_exc = exc
@@ -271,6 +290,10 @@ class ElevenLabsClient:
                     time.sleep(wait_s)
         # Exhausted retries
         assert last_exc is not None
+        if _status(last_exc) == 429:
+            raise TTSUnavailable(
+                f"ElevenLabs HTTP 429 after {self.max_attempts} attempts: "
+                f"{getattr(last_exc, 'body', last_exc)}") from last_exc
         raise last_exc
 
     def _request_kwargs(self, *, text: str, voice_id: str, seed: int,
@@ -359,6 +382,11 @@ class ElevenLabsClient:
             return float(ra)
         except (TypeError, ValueError):
             return None
+
+
+def _status(exc: Exception) -> int | None:
+    """HTTP status of an ElevenLabs SDK error (None for network errors)."""
+    return getattr(exc, "status_code", None) if isinstance(exc, ElevenLabsApiError) else None
 
 
 def _is_quota_exceeded(exc: Exception) -> bool:

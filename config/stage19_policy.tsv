@@ -1,0 +1,12 @@
+key	value	evidence
+go	yes	controls v4 0.963 of 298 vs v3 0.963 of 298; left out: 4 where v3 says another text; weak v4 0.941 of 289 vs v3 0.855 of 289; left out: 11 where v3 says another text; fixes 40/42; human bad v3=(0.037037037037037035, 27) v4=(0.0, 26) (1 words whose v3 clip says another text left out)
+word_variant_order	plain	tag 0.910 of 400 vs plain 0.948 of 400 on A∪B; human bad tag=(0.0, 30)
+gate_ok	yes	7/83 human-Good rejected
+voice_order	xNGAXaCH8MaasNuo7Hr7,ny3E2DZImeZm00WLGZi9,AaeZyyi87RCxtFnHPS3e,qPfM2laM0pRL4rrZtBGl,Rw38T6bn0lTNOb1aUevR,m151rjrbWXbBqyq56tly,wxoDdfPKBuna5KnUEotz	"{""m151rjrbWXbBqyq56tly"": 0.043, ""xNGAXaCH8MaasNuo7Hr7"": 0.023, ""ny3E2DZImeZm00WLGZi9"": 0.031, ""qPfM2laM0pRL4rrZtBGl"": 0.038, ""Rw38T6bn0lTNOb1aUevR"": 0.042, ""wxoDdfPKBuna5KnUEotz"": 0.043, ""AaeZyyi87RCxtFnHPS3e"": 0.032}"
+voices_demoted		median fail rate 0.038
+stability	0.65	"{""0.5"": ""0.980 of 100"", ""0.65"": ""0.960 of 100"", ""0.8"": ""0.950 of 100""}"
+dict_on	no	with 0.984 of 62 vs without 0.984 of 62
+short_words	v4_if_both_takes_pass	v4 0.897 of 39 vs v3 0.872 of 39
+judge_hash	9851aabdf5	the judge gate these decisions were made under; 19_4 refuses another gate
+human_labels	90	"{""v3"": {""good"": 26, ""unsure"": 3, ""bad"": 1}, ""v4_plain"": {""good"": 27, ""unsure"": 3}, ""v4_tag"": {""good"": 30}}"
+excluded	23	8 v4 takes and 0 v3 baseline rows without a valid verdict under judges 9851aabdf5 (judge error, other judge config, a TTS/ASR error, or scored on another text or v3 clip); 15 v3 clips of D1/D5 rendered from another text than v4 says; 0 sample clips without a v3 baseline row and 0 without a v4 first take

@@ -117,3 +117,18 @@ def swap_pool(gender: str) -> list[str]:
     hatch = [r["voice_id"] for r in rows if r["gender"] == gender
              and r["status"] == "active_escape_hatch"]
     return active + hatch
+
+
+def risky_word_sids() -> set[str]:
+    """Senses whose WORD clip is risky: P0/P1 risk class, confirmed mispronunciations,
+    heterophones, and headwords whose IPA the LLM had to adjudicate. 19_4 gives them
+    an alternate variant and the extra-vote tie-break; judges scoped `risky_word` in
+    config/stage19_models.tsv (Gemini Pro) run only on these."""
+    out = {r["sense_id"] for r in read_tsv(DATA / "_audio_risk_classification.tsv")
+           if r["priority"] in ("P0", "P1")}
+    out |= {r["sense_id"] for r in read_tsv(DATA / "_audio_mispronunciation_confirmed.tsv")}
+    out |= {r["sense_id"] for r in read_tsv(DATA / "06-final.tsv")
+            if r["pt"].strip().lower() in B.HETEROPHONES}
+    out |= {r["sense_id"] for r in read_tsv(DATA / "_ipa_v2.tsv")
+            if r.get("ipa_word_status") in ("llm", "llm_context")}
+    return out

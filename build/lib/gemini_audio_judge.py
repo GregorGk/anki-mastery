@@ -32,7 +32,11 @@ We work around this by:
   2. Lenient parsing — extract the first `{...}` block via regex if the
      raw text isn't valid JSON.
 
-Retries: full-jitter exponential backoff, 6 attempts, 60 s cap.
+Retries: full-jitter exponential backoff, 6 attempts, 60 s cap. Every request
+has a JUDGE_TIMEOUT_MS deadline (google-genai's default is none: a stalled
+connection would hang the worker for good); a timeout is retried like a 5xx,
+then raised. 4xx errors other than 408/429 (402 = prepaid credits depleted,
+401/403 = key) are raised at once — retrying cannot fix them.
 """
 from __future__ import annotations
 
@@ -45,6 +49,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+import httpx
 from google import genai
 from google.genai import types
 
@@ -53,6 +58,10 @@ from build.lib import judge_prompts
 DEFAULT_GEMINI_AUDIO_JUDGE_MODEL = "gemini-3.1-pro-preview"
 # Cheap fast alternative for cost-sensitive runs.
 GEMINI_FLASH_AUDIO_JUDGE_MODEL = "gemini-3-flash-preview"
+
+# Per-request deadline (ms, as google-genai's HttpOptions wants it). The Stage 19
+# judges answered in ≤ 57 s over 8,230 calls (p99 11 s).
+JUDGE_TIMEOUT_MS = 120_000
 
 # Rough 2026-05 pricing for the Pro-tier preview (USD per 1M tokens).
 PRICE_PER_1M_INPUT_TEXT = 2.00
@@ -142,6 +151,14 @@ must be `{` and the very last character must be `}`."""
 
 
 def _retryable(exc: Exception) -> bool:
+    # httpx timeouts / dropped connections ("The read operation timed out")
+    # don't always say "timeout" in their text.
+    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError,
+                        httpx.RemoteProtocolError, TimeoutError, ConnectionError)):
+        return True
+    code = getattr(exc, "code", None)        # google.genai.errors.APIError
+    if isinstance(code, int):
+        return code in (408, 429) or code >= 500
     msg = str(exc).lower()
     # google-genai raises exceptions whose str includes status info.
     if "429" in msg or "rate limit" in msg or "quota" in msg:
@@ -199,7 +216,9 @@ class GeminiAudioJudgeClient:
         api_key = api_key or os.environ.get("GEMINI_API_KEY")
         if not api_key:
             raise RuntimeError("GEMINI_API_KEY not set in environment")
-        self.client = genai.Client(api_key=api_key)
+        # Keep this reference: google-genai closes an unreferenced Client mid-request.
+        self.client = genai.Client(api_key=api_key,
+                                   http_options=types.HttpOptions(timeout=JUDGE_TIMEOUT_MS))
         self.audit_path = Path(audit_path) if audit_path else None
         if self.audit_path:
             self.audit_path.parent.mkdir(parents=True, exist_ok=True)

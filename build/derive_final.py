@@ -22,6 +22,9 @@ Produces 37 columns per the schema in docs/plan.md §"Final TSV schema". History
   Stage 13: no schema change — fills the previously-empty `family_root` column
             from data/_family_roots.tsv, validated against pt set + cluster
             size ≥ 2 distinct pt lemmas.
+  Stage 19: no schema change — the EP→BP spelling map is applied to the
+            03/05 inputs before anything derives from them (see
+            _apply_spelling_to_inputs); card IPA precedence manual > v2 > 5.
 
 Export filter for Stage 12 columns:
   usage_hint        = essential always; useful only if rank<=1000 or row has
@@ -49,6 +52,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from build.lib.tsv import read_tsv, write_tsv  # noqa: E402
 from build.lib.final_postfix import (  # noqa: E402
+    SPELLING_FIELDS,
+    apply_spelling_map,
     apply_spelling_to_row,
     load_ipa_v2,
     load_manual_ipa,
@@ -115,6 +120,12 @@ FINAL_FIELDS = [
     "bp_validity", "register", "risk_flags",
 ]
 
+# Columns that must carry no EP spelling-map source form once derived: the
+# spelling-fixed fields plus everything computed from them. source_pt /
+# source_line keep the source's EP form as provenance, and risk_note may quote
+# the EP form it warns about ("cômodo, not cómodo").
+EP_FREE_FIELDS = SPELLING_FIELDS + ("pt_display_safe",)
+
 
 # Maps every non-noun POS to the short tag wrapped in parentheses in
 # `pt_display_safe`. Nouns are omitted intentionally — they keep the article-
@@ -152,6 +163,54 @@ def _pt_display_safe(pt_display: str, pos: str) -> str:
     bare = _LEADING_ARTICLE_RE.sub("", pt_display, count=1)
     tag = SHORT_POS_TAG.get(pos, pos)
     return f"({tag}) {bare}"
+
+
+def _apply_spelling_to_inputs(
+    enriched_idx: dict[str, dict],
+    ipa_idx: dict[str, dict],
+    mapping: dict[str, str],
+) -> dict[str, int]:
+    """Stage 19: EP→BP spelling fix on the 03 + 05 input rows, in place.
+
+    Must run before anything derives from pt / pt_display / example_pt
+    (all_pts, family_root validation, pt_display_safe — and, via 06-final,
+    the Stage-19 TTS text and expected-IPA article prefix), so every output
+    column sees the BP spelling. Only SPELLING_FIELDS change. Returns
+    {sense_id: tokens changed across both inputs} for the senses it touched.
+    """
+    fixed: dict[str, int] = {}
+    for idx in (enriched_idx, ipa_idx):
+        for sid, r in idx.items():
+            n = apply_spelling_to_row(r, mapping)
+            if n:
+                fixed[sid] = fixed.get(sid, 0) + n
+    return fixed
+
+
+def _bp_family_root_row(sidecar_row: dict | None,
+                        mapping: dict[str, str]) -> dict | None:
+    """Copy of a Stage-13 sidecar row with `family_root` in BP spelling, so it
+    validates against the (BP) pt set. The sidecar row itself is left as read:
+    the audit JSONL still records the raw sidecar value."""
+    if not sidecar_row or not sidecar_row.get("family_root"):
+        return sidecar_row
+    root, _ = apply_spelling_map(sidecar_row["family_root"], mapping)
+    return {**sidecar_row, "family_root": root}
+
+
+def _ep_spelling_residue(
+    rows: list[dict], mapping: dict[str, str],
+) -> list[tuple[str, str, str]]:
+    """(sense_id, column, value) for every EP_FREE_FIELDS cell that still holds
+    a spelling-map source form. Non-empty means a derived column bypassed the
+    input fix — a hard failure."""
+    out: list[tuple[str, str, str]] = []
+    for r in rows:
+        for col in EP_FREE_FIELDS:
+            val = r.get(col) or ""
+            if apply_spelling_map(val, mapping)[1]:
+                out.append((r["sense_id"], col, val))
+    return out
 
 
 def _voice_gender_map() -> dict[str, str]:
@@ -395,6 +454,11 @@ def main() -> int:
     sids = sorted(en_sids & ipa_sids)
     print(f"Joining {len(sids)} senses (intersection of 03 + 05)")
 
+    # Stage 19: EP→BP spelling fix on the inputs, BEFORE anything below
+    # derives from pt / pt_display (all_pts, family_root validation,
+    # pt_display_safe), so no derived column keeps the EP form.
+    spelling_fixed = _apply_spelling_to_inputs(enriched_idx, ipa_idx, spelling_map)
+
     # Build the universe of pt values once. Stage 13's _resolve_family_root
     # validates against this set so hallucinated / stale roots don't ship.
     all_pts: set[str] = set()
@@ -509,8 +573,9 @@ def main() -> int:
             sidecar_row=sidecar_row,
         )
 
-        # Stage 13: family_root from sidecar with export filter.
-        fr_sidecar = family_roots.get(sid)
+        # Stage 13: family_root from sidecar with export filter. The root is
+        # spelling-fixed first so it is compared against the BP pt set.
+        fr_sidecar = _bp_family_root_row(family_roots.get(sid), spelling_map)
         family_root = _resolve_family_root(
             pos=pos_val, sidecar_row=fr_sidecar, all_pts=all_pts,
         )
@@ -652,14 +717,13 @@ def main() -> int:
             "risk_flags": risk_flags,
         })
 
-    # Stage 19: EP→BP spelling post-fix on learner-facing text fields.
-    gap_stats["ep_spelling_rows_fixed"] = 0
-    gap_stats["ep_spelling_tokens_fixed"] = 0
-    for r in rows:
-        n = apply_spelling_to_row(r, spelling_map)
-        if n:
-            gap_stats["ep_spelling_rows_fixed"] += 1
-            gap_stats["ep_spelling_tokens_fixed"] += n
+    # Stage 19: the spelling fix ran on the inputs (tokens are counted across
+    # 03 + 05); check that no derived column bypassed it.
+    ep_fixed_sids = [sid for sid in sids if sid in spelling_fixed]
+    gap_stats["ep_spelling_rows_fixed"] = len(ep_fixed_sids)
+    gap_stats["ep_spelling_tokens_fixed"] = sum(spelling_fixed[s] for s in ep_fixed_sids)
+    ep_residue = _ep_spelling_residue(rows, spelling_map)
+    gap_stats["ep_spelling_residue"] = len(ep_residue)
 
     # Write log
     AUDIT_DIR.mkdir(parents=True, exist_ok=True)
@@ -674,9 +738,18 @@ def main() -> int:
     ]
     for k, v in gap_stats.items():
         log_lines.append(f"  {k}: {v}")
+    if ep_fixed_sids:
+        log_lines.append(f"  ep_spelling senses: {' '.join(ep_fixed_sids)}")
     log_text = "\n".join(log_lines)
     LOG_PATH.write_text(log_text + "\n", encoding="utf-8")
     print(log_text)
+
+    if ep_residue:
+        for sid, col, val in ep_residue[:20]:
+            print(f"ERROR: EP spelling survived in {sid} {col}={val!r}",
+                  file=sys.stderr)
+        print("ERROR: not writing 06-final.tsv", file=sys.stderr)
+        return 1
 
     if args.dry_run:
         print("\n--dry-run: not writing 06-final.tsv")
