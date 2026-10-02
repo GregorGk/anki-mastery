@@ -12,9 +12,16 @@ front shows + plays the ENGLISH sentence (`example_en` + `audio_en_example`)
 the Portuguese sentence, reveals pt/en + sentence IPA, then the target
 word + gloss.
 
-Word audio is CLICK-ONLY: rendered as a native HTML5 `<audio controls
-preload="none" src="{{audio_word_file}}">` (a bare basename), never a
-`[sound:…]` tag — so it never autoplays. `audio_example` /
+Word audio is CLICK-ONLY: a native HTML5 `<audio controls preload="none"
+src="X.mp3"></audio>` element, never a `[sound:…]` tag — so it never
+autoplays. The WHOLE tag lives in the `audio_word_file` field (built by
+`word_audio_field()`) and the template renders `{{audio_word_file}}` raw.
+It must not be `src="{{audio_word_file}}"` in the template: Anki's
+Tools > Check Media and the .apkg importer only see media referenced from
+FIELDS (`[sound:…]` or `<img|audio|video|source src=…>`); a filename that
+appears only in a template (and doesn't start with `_`) is "unused", so
+"Delete Unused" would remove every word clip. Empty field → nothing is
+rendered (`{{#audio_word_file}}` guard). `audio_example` /
 `audio_en_example` stay `[sound:…]` (autoplay where placed).
 
 Field names match `NOTE_FIELDS` in `anki_models.py`. `{{#field}}…{{/field}}`
@@ -24,6 +31,8 @@ footer. NO custom JS.
 Imported by `build/lib/anki_models.py` and `tests/test_stage_18_apkg.py`.
 """
 from __future__ import annotations
+
+import html
 
 FOOTER = (
     '<div class="footer">\n'
@@ -41,12 +50,29 @@ _OPTIONAL_BLOCKS = (
     '{{/risk_note}}'
 )
 
-# Click-only word audio: native HTML5 element, bare-basename src, no autoplay.
+# Click-only word audio: the field holds the full <audio> tag (see
+# word_audio_field); the template renders it raw. No [sound:], no autoplay.
+WORD_AUDIO_TAG = '<audio controls preload="none" src="{src}"></audio>'
+
+
+def word_audio_field(basename: str) -> str:
+    """`audio_word_file` field value: the full click-only `<audio>` tag.
+
+    '' when there is no word clip (the template then renders nothing).
+    The src is attribute-escaped; 18_1 additionally requires a safe basename.
+    """
+    if not basename:
+        return ""
+    return WORD_AUDIO_TAG.format(src=html.escape(basename, quote=True))
+
+
 _WORD_AUDIO = (
+    '{{#audio_word_file}}\n'
     '<div class="word-audio">\n'
     '  <div class="small">Word audio, click only</div>\n'
-    '  <audio controls preload="none" src="{{audio_word_file}}"></audio>\n'
-    '</div>'
+    '  {{audio_word_file}}\n'
+    '</div>\n'
+    '{{/audio_word_file}}'
 )
 
 # Identical answer side for both card types.

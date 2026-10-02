@@ -13,8 +13,8 @@ Gap stats:
   missing_md5_word: 0
   missing_md5_example: 0
   missing_md5_en_example: 0
-  voice_mismatch: 105
-  en_voice_pairing_mismatch: 574
+  voice_mismatch: 125
+  en_voice_pairing_mismatch: 585
   asr_override_applied: 71
   family_root_shipped: 1776
   family_root_dropped_low_conf: 0
@@ -43,5 +43,7 @@ Gap stats:
   risk_note_shipped_stage15: 64
   ipa_word_source_ipa_v2: 5725
   ipa_example_source_ipa_v2: 5725
-  ep_spelling_rows_fixed: 6
-  ep_spelling_tokens_fixed: 17
+  ep_spelling_rows_fixed: 5
+  ep_spelling_tokens_fixed: 26
+  ep_spelling_residue: 0
+  ep_spelling senses: 3359.00.01 3755.00.01 3887.00.01 4052.00.01 4052.00.02

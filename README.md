@@ -449,6 +449,19 @@ rows rewritten only on accept, unresolved clips keep v3 (`_v4_unresolved.tsv`).
 **`19_5_qa_report.py`** — coverage / failure-reason report + residue page.
 **LLM.** Claude Opus 5.5 + Fable 5.1 (IPA), Gemini 3.1 Pro + 3.8 Flash (judges),
 `gpt-4o-transcribe` (ASR).
+**Result (2026-10-02).**
+- **Clips:** 11,428/11,450 Portuguese clips are on `eleven_v4`. 22 had no v4 take pass and keep v3; they are mostly 1–3-letter words (`data/_v4_unresolved.tsv`, `reports/19_5_residue.html`). The 5,725 English `en_ex` clips are byte-identical to before.
+- **Spend:** 48,119 ElevenLabs credits for the whole stage, 40,387 of them in the full run (17,425 renders).
+- **Judge gate, for budget:** Gemini 3.8 Flash J2 on every clip, plus 3.1 Pro J2 on the word clips of the 547 risky senses. The `scope` column in `config/stage19_models.tsv` sets this.
+- **Pilot policy** (`config/stage19_policy.tsv`):
+  - go=yes. Controls: v4 96.3% vs v3 96.3%. Weak stratum: v4 94.1% vs v3 85.5%, and v4 fixes 40 of 42 v3 fails.
+  - gate_ok=yes: 7/83 human-Good clips rejected.
+  - plain text, stability 0.65, no dictionary.
+  - The policy records its judge hash, and 19_4 refuses a policy decided under another gate.
+- **Deck:** 11,450 notes, 17,175 media files.
+- **Word audio:** the field now holds the whole `<audio controls preload="none" src="…">` tag (`build/lib/anki_templates.py`). The old field held a bare filename that Anki didn't count as a media reference, so Anki skipped the word clips on import and Check Media listed them as unused.
+- **Verified with Anki 26.09.3:** importing the deck copies all media, and Check Media reports 0 unused and 0 missing.
+- **To import:** use "update existing notes" with "Update note types: if newer" (the default). Tools → Check Media → Delete Unused is then safe.
 
 ---
 

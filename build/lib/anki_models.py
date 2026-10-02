@@ -40,7 +40,7 @@ NOTE_FIELDS = [
     "example_en",
     "ipa_word",
     "ipa_example",
-    "audio_word_file",  # bare basename for click-only HTML5 <audio src>
+    "audio_word_file",  # full click-only HTML5 <audio src="X.mp3"></audio> tag
     "audio_example",
     "audio_en_example",
     "usage_hint",

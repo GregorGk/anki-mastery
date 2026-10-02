@@ -12,9 +12,12 @@ genanki model, each added to its own subdeck. Deterministic GUIDs
 Notes are added in ascending `anki_order` (insertion order; no `due` set).
 
 `audio_example` + `audio_en_example` are rendered as `[sound:…]` (autoplay
-where placed). Word audio is click-only: rendered as a native HTML5
-`<audio src="{{audio_word_file}}">` (bare basename), never `[sound:…]`.
-All three clip types (word + example + en_ex) are bundled.
+where placed). Word audio is click-only: the `audio_word_file` FIELD holds
+the full native HTML5 `<audio controls preload="none" src="X.mp3"></audio>`
+tag (rendered raw by the template), never `[sound:…]`. The reference must
+be in a field, not the template, or Anki's Check Media / apkg importer
+treat the word clips as unused. All three clip types (word + example +
+en_ex) are bundled.
 
 Run AFTER build/18_0_fetch_anki_media.py (it asserts media presence).
 
@@ -42,7 +45,9 @@ from build.lib.anki_models import (  # noqa: E402
     CARD_TYPES, ISSUE_HINT, NOTE_FIELDS, BPNote,
     build_decks, build_models, guid_seed, tags_for,
 )
-from build.lib.anki_templates import CARD_CSS, TEMPLATES  # noqa: E402
+from build.lib.anki_templates import (  # noqa: E402
+    CARD_CSS, TEMPLATES, WORD_AUDIO_TAG, word_audio_field,
+)
 from build.lib.anki_pilot import (  # noqa: E402
     read_anki_export, select_pilot_sense_ids,
 )
@@ -58,8 +63,13 @@ REPORT = REPO_ROOT / "reports" / "18_apkg_build.html"
 PILOT_APKG = DIST / "bp-listening-pilot.apkg"
 FULL_APKG = DIST / "bp-listening-general.apkg"
 
-# audio_word_file must be a safe bare basename for the <audio src> attribute.
-_WORD_FILE_RE = re.compile(r"^[A-Za-z0-9._-]+\.mp3$")
+# The word clip's basename must be safe for the <audio src="…"> attribute,
+# and audio_word_file must be exactly WORD_AUDIO_TAG around such a basename.
+_WORD_FILE_PAT = r"[A-Za-z0-9._-]+\.mp3"
+_WORD_FILE_RE = re.compile(rf"^{_WORD_FILE_PAT}$")
+_WORD_FIELD_RE = re.compile(
+    "^" + re.escape(WORD_AUDIO_TAG).replace(re.escape("{src}"), f"({_WORD_FILE_PAT})") + "$"
+)
 
 
 class ApkgError(SystemExit):
@@ -83,17 +93,19 @@ def prepare_field_map(row: dict) -> dict:
     """Map a Stage-17 export row → the 24 NOTE_FIELDS values.
 
     `audio_example` / `audio_en_example` keep their `[sound:…]` tags
-    (rendered, autoplay where placed). `audio_word_file` is the word clip's
-    bare basename (for the click-only `<audio src>`, NEVER `[sound:…]`).
-    `issue_hint` is the constant prompt.
+    (rendered, autoplay where placed). `audio_word_file` is the full
+    click-only `<audio controls preload="none" src="X.mp3"></audio>` tag
+    (NEVER `[sound:…]`), or '' when the row has no word clip. `issue_hint`
+    is the constant prompt.
     """
     fm: dict[str, str] = {}
     for f in NOTE_FIELDS:
         if f == "issue_hint":
             fm[f] = ISSUE_HINT
         elif f == "audio_word_file":
-            # bare basename for the click-only <audio src> (never [sound:])
-            fm[f] = _sound_basename(row.get("audio_word"))
+            # full click-only <audio> tag in the FIELD (never [sound:]), so
+            # Anki's Check Media / importer count the clip as used.
+            fm[f] = word_audio_field(_sound_basename(row.get("audio_word")))
         else:
             fm[f] = row.get(f, "") or ""
     return fm
@@ -103,8 +115,8 @@ def required_media(export_rows: list[dict]) -> set[str]:
     """Basenames of every bundled clip: word + example + en_ex.
 
     All three are stored as `[sound:…]` in the Stage-17 export; we extract
-    each basename. (Word is rendered via `<audio src>` not `[sound:]`, but
-    still bundled so the element resolves.)
+    each basename. (Word is rendered via an `<audio src>` tag in its field,
+    not `[sound:]`, but still bundled so the element resolves.)
     """
     needed: set[str] = set()
     for row in export_rows:
@@ -173,18 +185,25 @@ def _assert_templates() -> None:
             if need not in a:
                 raise ApkgError(f"{ct} afmt must contain {need}.")
 
-    # word audio: never [sound:]; audio_word_file only on the back, inside <audio>
+    # word audio: never [sound:], never autoplay; audio_word_file only on the
+    # back, rendered RAW (the field holds the whole <audio> tag). It must not
+    # sit inside a template <audio src="…">: Anki's Check Media / importer
+    # ignore template references, so the word clips would count as unused.
     for ct in CARD_TYPES:
         q, a = TEMPLATES[ct]["qfmt"], TEMPLATES[ct]["afmt"]
         if "{{audio_word}}" in q or "{{audio_word}}" in a:
             raise ApkgError(f"{ct}: audio_word must not appear; use audio_word_file.")
-        if "{{audio_word_file}}" in q:
+        if "audio_word_file" in q:
             raise ApkgError(f"{ct}: audio_word_file must not appear in qfmt.")
         if "{{audio_word_file}}" not in a:
-            raise ApkgError(f"{ct}: audio_word_file must appear in afmt.")
-        pre = a[:a.find("{{audio_word_file}}")]
-        if pre.rfind("<audio") <= pre.rfind("</audio>"):
-            raise ApkgError(f"{ct}: audio_word_file must be inside an <audio> element.")
+            raise ApkgError(f"{ct}: afmt must render {{{{audio_word_file}}}} raw.")
+        if re.search(r"\{\{[^}]*:\s*audio_word_file\s*\}\}", a):
+            raise ApkgError(f"{ct}: audio_word_file must not use a field filter.")
+        if re.search(r"<audio\b", a, re.I) or "src=\"{{" in a or "src='{{" in a:
+            raise ApkgError(f"{ct}: afmt must not build an <audio src> from a field; "
+                            f"the full tag belongs in audio_word_file.")
+        if "autoplay" in (q + a).lower():
+            raise ApkgError(f"{ct}: no autoplay allowed in templates.")
 
     # anti-corruption
     blobs = [CARD_CSS] + [t[k] for t in TEMPLATES.values() for k in ("qfmt", "afmt")]
@@ -213,12 +232,17 @@ def _assert_build(export_rows: list[dict], records: list[dict],
             raise ApkgError("a note has an empty sense_id.")
         fm = r["field_map"]
         awf = fm["audio_word_file"]
-        if not _WORD_FILE_RE.match(awf):
-            raise ApkgError(f"{r['sense_id']}: audio_word_file {awf!r} is not a safe "
-                            f"basename (must match ^[A-Za-z0-9._-]+\\.mp3$).")
-        if awf not in manifest_files:
-            raise ApkgError(f"{r['sense_id']}: audio_word_file {awf!r} is not a "
-                            f"manifest media_filename.")
+        if not awf:
+            raise ApkgError(f"{r['sense_id']}: no word clip (audio_word is empty or "
+                            f"not a [sound:…] tag); 17_1 guarantees one per sense.")
+        m = _WORD_FIELD_RE.match(awf)
+        if not m:
+            raise ApkgError(f"{r['sense_id']}: audio_word_file {awf!r} is not the "
+                            f"click-only tag {WORD_AUDIO_TAG!r} around a safe "
+                            f"basename (^[A-Za-z0-9._-]+\\.mp3$).")
+        if m.group(1) not in manifest_files:
+            raise ApkgError(f"{r['sense_id']}: audio_word_file src {m.group(1)!r} is "
+                            f"not a manifest media_filename.")
         for col in ("audio_example", "audio_en_example"):
             v = fm[col]
             if not (v.startswith("[sound:") and v.endswith(".mp3]")):
@@ -238,6 +262,27 @@ def _assert_build(export_rows: list[dict], records: list[dict],
     if bad_md5:
         raise ApkgError(f"{len(bad_md5)} bundled media files have md5 != manifest, "
                         f"e.g. {sorted(bad_md5)[:3]}")
+
+
+def write_apkg(records: list[dict], needed: set[str], out_path: Path,
+               timestamp: float | None = None) -> int:
+    """Package `records` + the `needed` media (from MEDIA_DIR) into `out_path`.
+
+    Returns the number of bundled media files. `timestamp` is passed to
+    genanki (note/notetype mtime; default now) — tests use it to model a
+    later rebuild being "newer" on import.
+    """
+    decks = build_decks()
+    for rec in records:
+        decks[rec["card_type"]].add_note(rec["note"])
+
+    media_files = [str(MEDIA_DIR / b) for b in sorted(needed)]
+    pkg = genanki.Package(list(decks.values()))
+    pkg.media_files = media_files
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    pkg.write_to_file(str(out_path), timestamp=timestamp)
+    return len(media_files)
 
 
 def _write_report(out_path: Path, scope: str, n_senses: int,
@@ -315,23 +360,14 @@ def main() -> int:
     needed = required_media(sel)
     _assert_build(sel, records, needed, man_md5)
 
-    decks = build_decks()
-    for rec in records:
-        decks[rec["card_type"]].add_note(rec["note"])
+    n_media = write_apkg(records, needed, out_path)
 
-    media_files = [str(MEDIA_DIR / b) for b in sorted(needed)]
-    pkg = genanki.Package(list(decks.values()))
-    pkg.media_files = media_files
-
-    DIST.mkdir(parents=True, exist_ok=True)
-    pkg.write_to_file(str(out_path))
-
-    _write_report(out_path, scope, len(sel), records, len(media_files))
+    _write_report(out_path, scope, len(sel), records, n_media)
 
     print(f"=== Stage 18.1 — build apkg ({scope}) ===")
     print(f"  senses:        {len(sel):,}")
     print(f"  notes:         {len(records):,}  ({len(CARD_TYPES)} × {len(sel):,})")
-    print(f"  media bundled: {len(media_files):,}")
+    print(f"  media bundled: {n_media:,}")
     print(f"  output:        {out_path.relative_to(REPO_ROOT)}  "
           f"({out_path.stat().st_size/1024:.0f} KB)")
     print(f"  report:        {REPORT.relative_to(REPO_ROOT)}")

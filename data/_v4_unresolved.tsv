@@ -1,0 +1,23 @@
+sense_id	clip_type	voice_id	attempts	reasons	v3_kept	logged_at
+0001.00.01	word	m151rjrbWXbBqyq56tly	6	{'judge': 6}	yes	2026-10-02T17:25:07.805138+00:00
+0467.00.01	word	ny3E2DZImeZm00WLGZi9	6	{'asr': 6}	yes	2026-10-02T17:25:31.073005+00:00
+1810.00.01	example	m151rjrbWXbBqyq56tly	4	{'judge': 4}	yes	2026-10-02T17:25:47.190023+00:00
+0001.00.02	word	m151rjrbWXbBqyq56tly	6	{'judge': 5}	yes	2026-10-02T17:26:05.043904+00:00
+1882.00.02	word	AaeZyyi87RCxtFnHPS3e	6	{'asr': 6}	yes	2026-10-02T17:26:15.869070+00:00
+1258.00.01	word	m151rjrbWXbBqyq56tly	6	{'asr': 6}	yes	2026-10-02T17:27:14.882984+00:00
+1882.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'asr': 6}	yes	2026-10-02T17:27:33.114340+00:00
+1591.00.01	word	ny3E2DZImeZm00WLGZi9	6	{'judge': 6}	yes	2026-10-02T17:30:14.725250+00:00
+1374.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'sanity': 6}	yes	2026-10-02T17:34:42.258924+00:00
+2968.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'sanity': 6}	yes	2026-10-02T17:39:09.440955+00:00
+1605.00.01	word	m151rjrbWXbBqyq56tly	6	{'asr': 6}	yes	2026-10-02T17:39:48.171171+00:00
+2214.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'asr': 6}	yes	2026-10-02T17:42:03.814668+00:00
+4895.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'judge': 3, 'asr': 3}	yes	2026-10-02T17:42:53.790260+00:00
+1520.00.01	example	m151rjrbWXbBqyq56tly	4	{'sanity': 4}	yes	2026-10-02T17:42:55.734165+00:00
+1605.00.02	word	m151rjrbWXbBqyq56tly	6	{'asr': 6}	yes	2026-10-02T17:43:04.401825+00:00
+2308.00.02	word	m151rjrbWXbBqyq56tly	6	{'sanity': 6}	yes	2026-10-02T17:44:35.150960+00:00
+3467.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'judge': 6}	yes	2026-10-02T17:46:16.729612+00:00
+0369.00.01	word	AaeZyyi87RCxtFnHPS3e	6	{'asr': 6}	yes	2026-10-02T17:47:29.364600+00:00
+4084.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'judge': 6}	yes	2026-10-02T17:49:04.987297+00:00
+0978.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'judge': 6}	yes	2026-10-02T17:52:08.178411+00:00
+1314.00.01	word	qPfM2laM0pRL4rrZtBGl	6	{'asr': 6}	yes	2026-10-02T17:52:13.630953+00:00
+3600.00.01	word	Rw38T6bn0lTNOb1aUevR	6	{'judge': 6}	yes	2026-10-02T17:54:30.115912+00:00

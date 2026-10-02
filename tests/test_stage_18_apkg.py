@@ -146,14 +146,16 @@ def test_recall_front_english_cue_only():
 
 
 def test_word_audio_is_click_only():
-    # audio_word never as [sound:]; audio_word_file only on the back, in <audio>
+    # audio_word never as [sound:]; audio_word_file only on the back, rendered
+    # RAW — the field holds the whole <audio> tag (Stage 19 Check-Media fix),
+    # so the template must not wrap it in its own <audio src="…">.
     for ct in M.CARD_TYPES:
         q, a = TEMPLATES[ct]["qfmt"], TEMPLATES[ct]["afmt"]
         assert "{{audio_word}}" not in q and "{{audio_word}}" not in a
-        assert "{{audio_word_file}}" not in q
+        assert "audio_word_file" not in q
         assert "{{audio_word_file}}" in a
-        pre = a[:a.find("{{audio_word_file}}")]
-        assert pre.rfind("<audio") > pre.rfind("</audio>"), f"{ct}: not inside <audio>"
+        assert "<audio" not in a and 'src="{{' not in a, f"{ct}: template-built <audio src>"
+        assert "autoplay" not in (q + a).lower()
 
 
 def test_no_stale_paste():
@@ -202,12 +204,15 @@ def test_audio_example_keeps_sound_tag(records):
         assert v.startswith("[sound:") and v.endswith(".mp3]"), f"{r['sense_id']}"
 
 
-def test_audio_word_file_is_safe_basename(records):
-    rx = re.compile(r"^[A-Za-z0-9._-]+\.mp3$")
+def test_audio_word_file_is_click_only_tag(records):
+    # full <audio controls preload="none" src="X.mp3"></audio>, safe basename
+    rx = re.compile(r'^<audio controls preload="none" src="([A-Za-z0-9._-]+\.mp3)"></audio>$')
     for r in records:
         awf = r["field_map"]["audio_word_file"]
-        assert "[sound:" not in awf
-        assert rx.match(awf), f"{r['sense_id']}: unsafe audio_word_file {awf!r}"
+        assert "[sound:" not in awf and "autoplay" not in awf
+        m = rx.match(awf)
+        assert m, f"{r['sense_id']}: bad audio_word_file {awf!r}"
+        assert "-word-" in m.group(1)
 
 
 def test_required_media_all_three_types(pilot_rows):
